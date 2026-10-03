@@ -3,7 +3,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebas
 import {
   getAuth,
   signInAnonymously,
-  onAuthStateChanged,
   signOut
 } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
@@ -24,253 +23,630 @@ import {
 
 import { firebaseConfig } from "./firebase-config.js";
 
+
+// ======================================================
+// FIREBASE
+// ======================================================
+
 const app = initializeApp(firebaseConfig);
+
 const auth = getAuth(app);
+
 const db = getFirestore(app);
+
+
+// ======================================================
+// HELPERS
+// ======================================================
 
 const $ = id => document.getElementById(id);
 
 let currentUser = null;
+
 let profile = null;
 
-function showError(error) {
-  console.error(error);
 
-  const code = error?.code || "unknown";
-  const message = error?.message || String(error);
+// ======================================================
+// ERROR DISPLAY
+// ======================================================
+
+function showError(error, location = "Firebase") {
+
+  console.error(location, error);
+
+  const code =
+    error?.code ||
+    "unknown";
+
+  const message =
+    error?.message ||
+    String(error);
 
   const box = $("authMsg");
 
   if (box) {
+
     box.style.whiteSpace = "pre-wrap";
+
     box.style.color = "red";
+
     box.textContent =
       "ERROR\n\n" +
-      "Code: " + code + "\n\n" +
+      "Location: " +
+      location +
+      "\n\n" +
+      "Code: " +
+      code +
+      "\n\n" +
       message;
+
   }
+
 }
 
+
+// ======================================================
+// ROOM ID
+// ======================================================
+
 function makeRoomId() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+  const chars =
+    "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
   let result = "";
 
   for (let i = 0; i < 8; i++) {
-    result += chars[Math.floor(Math.random() * chars.length)];
+
+    result +=
+      chars[
+        Math.floor(
+          Math.random() * chars.length
+        )
+      ];
+
   }
 
   return result;
+
 }
 
-async function login() {
-  const nameInput = $("nameInput");
 
-  const name = nameInput.value.trim();
+// ======================================================
+// CREATE UNIQUE ROOM ID
+// ======================================================
 
-  if (!name) {
-    $("authMsg").textContent = "Enter your name.";
-    return;
-  }
+async function createUniqueRoomId() {
 
-  $("authMsg").style.color = "";
-  $("authMsg").textContent = "Connecting...";
+  let roomId = makeRoomId();
 
-  try {
-    sessionStorage.setItem("pendingName", name);
+  let roomQuery =
+    await getDocs(
+      query(
+        collection(db, "users"),
+        where("roomId", "==", roomId)
+      )
+    );
 
-    await signInAnonymously(auth);
+  while (!roomQuery.empty) {
 
-  } catch (error) {
-    showError(error);
-  }
-}
+    roomId = makeRoomId();
 
-$("loginBtn").onclick = login;
-
-$("logoutBtn").onclick = async () => {
-  try {
-    await signOut(auth);
-    location.reload();
-  } catch (error) {
-    showError(error);
-  }
-};
-
-onAuthStateChanged(auth, async user => {
-
-  if (!user) {
-    return;
-  }
-
-  currentUser = user;
-
-  try {
-
-    $("authMsg").textContent = "Firebase connected.\nLoading profile...";
-
-    const userRef = doc(db, "users", user.uid);
-
-    const userSnap = await getDoc(userRef);
-
-    if (!userSnap.exists()) {
-
-      let roomId = makeRoomId();
-
-      let roomQuery = await getDocs(
+    roomQuery =
+      await getDocs(
         query(
           collection(db, "users"),
           where("roomId", "==", roomId)
         )
       );
 
-      while (!roomQuery.empty) {
+  }
 
-        roomId = makeRoomId();
+  return roomId;
 
-        roomQuery = await getDocs(
-          query(
-            collection(db, "users"),
-            where("roomId", "==", roomId)
-          )
-        );
-      }
+}
 
-      profile = {
-        name: sessionStorage.getItem("pendingName") || "User",
-        roomId: roomId,
-        createdAt: serverTimestamp()
-      };
 
-      await setDoc(userRef, profile);
+// ======================================================
+// LOGIN
+// ======================================================
+
+async function login() {
+
+  const nameInput =
+    $("nameInput");
+
+  const name =
+    nameInput.value.trim();
+
+
+  if (!name) {
+
+    $("authMsg").textContent =
+      "Enter your name.";
+
+    return;
+
+  }
+
+
+  $("authMsg").style.color = "";
+
+  $("authMsg").style.whiteSpace =
+    "pre-wrap";
+
+  $("authMsg").textContent =
+    "Connecting...";
+
+
+  try {
+
+    // Save name BEFORE Firebase login
+    sessionStorage.setItem(
+      "pendingName",
+      name
+    );
+
+
+    // DIRECT ANONYMOUS LOGIN
+    const credential =
+      await signInAnonymously(auth);
+
+
+    // Get Firebase user directly
+    currentUser =
+      credential.user;
+
+
+    if (!currentUser) {
+
+      throw new Error(
+        "Firebase login completed but user was not returned."
+      );
+
+    }
+
+
+    $("authMsg").textContent =
+      "Firebase connected.\nLoading profile...";
+
+
+    // ==================================================
+    // USER PROFILE
+    // ==================================================
+
+    const userRef =
+      doc(
+        db,
+        "users",
+        currentUser.uid
+      );
+
+
+    const userSnap =
+      await getDoc(userRef);
+
+
+    if (userSnap.exists()) {
+
+      profile =
+        userSnap.data();
 
     } else {
 
-      profile = userSnap.data();
+      const newRoomId =
+        await createUniqueRoomId();
+
+
+      profile = {
+
+        name: name,
+
+        roomId: newRoomId,
+
+        createdAt:
+          serverTimestamp()
+
+      };
+
+
+      await setDoc(
+        userRef,
+        profile
+      );
 
     }
 
-    $("authView").hidden = true;
-    $("appView").hidden = false;
 
-    $("welcome").textContent = "Hi, " + profile.name;
+    // ==================================================
+    // OPEN MAIN APP
+    // ==================================================
 
-    $("roomId").textContent = profile.roomId;
+    $("authView").hidden =
+      true;
 
+    $("appView").hidden =
+      false;
+
+
+    $("welcome").textContent =
+      "Hi, " +
+      profile.name;
+
+
+    $("roomId").textContent =
+      profile.roomId;
+
+
+    // Clear login message
+    $("authMsg").textContent =
+      "";
+
+
+    // Load app data
     await refreshAll();
 
-  } catch (error) {
-
-    showError(error);
-
-  }
-
-});
-
-
-$("copyRoomBtn").onclick = async () => {
-
-  try {
-
-    await navigator.clipboard.writeText(profile.roomId);
-
-    $("requestMsg").textContent = "Room ID copied.";
 
   } catch (error) {
 
-    showError(error);
-
-  }
-
-};
-
-
-$("sendRequestBtn").onclick = async () => {
-
-  try {
-
-    const room = $("friendRoomInput")
-      .value
-      .trim()
-      .toUpperCase();
-
-    if (!room) {
-      $("requestMsg").textContent = "Enter a Room ID.";
-      return;
-    }
-
-    if (room === profile.roomId) {
-      $("requestMsg").textContent = "You cannot add yourself.";
-      return;
-    }
-
-    const usersQuery = await getDocs(
-      query(
-        collection(db, "users"),
-        where("roomId", "==", room)
-      )
+    showError(
+      error,
+      "Login / Profile"
     );
 
-    if (usersQuery.empty) {
-      $("requestMsg").textContent = "User not found.";
-      return;
-    }
-
-    const target = usersQuery.docs[0];
-
-    const existing = await getDocs(
-      query(
-        collection(db, "requests"),
-        where("fromUid", "==", currentUser.uid),
-        where("toUid", "==", target.id),
-        where("status", "==", "pending")
-      )
-    );
-
-    if (!existing.empty) {
-      $("requestMsg").textContent = "Request already sent.";
-      return;
-    }
-
-    await addDoc(collection(db, "requests"), {
-
-      fromUid: currentUser.uid,
-      fromName: profile.name,
-      fromRoomId: profile.roomId,
-
-      toUid: target.id,
-
-      status: "pending",
-
-      createdAt: serverTimestamp()
-
-    });
-
-    $("requestMsg").textContent = "Request sent.";
-
-    $("friendRoomInput").value = "";
-
-  } catch (error) {
-
-    $("requestMsg").textContent =
-      "ERROR: " + (error.code || "") + " " + error.message;
-
   }
 
-};
+}
 
+
+// ======================================================
+// LOGIN BUTTON
+// ======================================================
+
+$("loginBtn").onclick =
+  login;
+
+
+// ======================================================
+// LOGOUT
+// ======================================================
+
+$("logoutBtn").onclick =
+  async () => {
+
+    try {
+
+      await signOut(auth);
+
+      sessionStorage.removeItem(
+        "pendingName"
+      );
+
+      location.reload();
+
+    } catch (error) {
+
+      showError(
+        error,
+        "Logout"
+      );
+
+    }
+
+  };
+
+
+// ======================================================
+// COPY ROOM ID
+// ======================================================
+
+$("copyRoomBtn").onclick =
+  async () => {
+
+    try {
+
+      if (!profile?.roomId) {
+
+        throw new Error(
+          "Room ID is not available yet."
+        );
+
+      }
+
+
+      await navigator.clipboard.writeText(
+        profile.roomId
+      );
+
+
+      $("requestMsg").textContent =
+        "Room ID copied.";
+
+    } catch (error) {
+
+      // Fallback for some mobile browsers
+      try {
+
+        const textArea =
+          document.createElement(
+            "textarea"
+          );
+
+        textArea.value =
+          profile.roomId;
+
+        document.body.appendChild(
+          textArea
+        );
+
+        textArea.select();
+
+        document.execCommand(
+          "copy"
+        );
+
+        textArea.remove();
+
+
+        $("requestMsg").textContent =
+          "Room ID copied.";
+
+      } catch (fallbackError) {
+
+        $("requestMsg").textContent =
+          "Could not copy Room ID.";
+
+      }
+
+    }
+
+  };
+
+
+// ======================================================
+// SEND FRIEND REQUEST
+// ======================================================
+
+$("sendRequestBtn").onclick =
+  async () => {
+
+    try {
+
+      if (!currentUser || !profile) {
+
+        throw new Error(
+          "Please login first."
+        );
+
+      }
+
+
+      const room =
+        $("friendRoomInput")
+          .value
+          .trim()
+          .toUpperCase();
+
+
+      if (!room) {
+
+        $("requestMsg").textContent =
+          "Enter a Room ID.";
+
+        return;
+
+      }
+
+
+      if (
+        room ===
+        profile.roomId
+      ) {
+
+        $("requestMsg").textContent =
+          "You cannot add yourself.";
+
+        return;
+
+      }
+
+
+      $("requestMsg").textContent =
+        "Searching user...";
+
+
+      const usersQuery =
+        await getDocs(
+          query(
+            collection(db, "users"),
+            where(
+              "roomId",
+              "==",
+              room
+            )
+          )
+        );
+
+
+      if (usersQuery.empty) {
+
+        $("requestMsg").textContent =
+          "User not found.";
+
+        return;
+
+      }
+
+
+      const target =
+        usersQuery.docs[0];
+
+
+      // Check existing pending request
+      const existing =
+        await getDocs(
+          query(
+            collection(db, "requests"),
+
+            where(
+              "fromUid",
+              "==",
+              currentUser.uid
+            ),
+
+            where(
+              "toUid",
+              "==",
+              target.id
+            ),
+
+            where(
+              "status",
+              "==",
+              "pending"
+            )
+          )
+        );
+
+
+      if (!existing.empty) {
+
+        $("requestMsg").textContent =
+          "Request already sent.";
+
+        return;
+
+      }
+
+
+      // Check reverse pending request
+      const reverse =
+        await getDocs(
+          query(
+            collection(db, "requests"),
+
+            where(
+              "fromUid",
+              "==",
+              target.id
+            ),
+
+            where(
+              "toUid",
+              "==",
+              currentUser.uid
+            ),
+
+            where(
+              "status",
+              "==",
+              "pending"
+            )
+          )
+        );
+
+
+      if (!reverse.empty) {
+
+        $("requestMsg").textContent =
+          "This user already sent you a request.";
+
+        return;
+
+      }
+
+
+      await addDoc(
+        collection(
+          db,
+          "requests"
+        ),
+        {
+
+          fromUid:
+            currentUser.uid,
+
+          fromName:
+            profile.name,
+
+          fromRoomId:
+            profile.roomId,
+
+          toUid:
+            target.id,
+
+          status:
+            "pending",
+
+          createdAt:
+            serverTimestamp()
+
+        }
+      );
+
+
+      $("requestMsg").textContent =
+        "Request sent.";
+
+
+      $("friendRoomInput").value =
+        "";
+
+
+      await renderRequests();
+
+
+    } catch (error) {
+
+      $("requestMsg").style.whiteSpace =
+        "pre-wrap";
+
+      $("requestMsg").textContent =
+        "ERROR\n" +
+        (error.code || "") +
+        "\n\n" +
+        error.message;
+
+    }
+
+  };
+
+
+// ======================================================
+// RENDER INCOMING REQUESTS
+// ======================================================
 
 async function renderRequests() {
 
-  const q = await getDocs(
-    query(
-      collection(db, "requests"),
-      where("toUid", "==", currentUser.uid),
-      where("status", "==", "pending")
-    )
-  );
+  if (!currentUser) return;
 
-  $("requests").innerHTML = "";
+
+  const q =
+    await getDocs(
+      query(
+        collection(
+          db,
+          "requests"
+        ),
+
+        where(
+          "toUid",
+          "==",
+          currentUser.uid
+        ),
+
+        where(
+          "status",
+          "==",
+          "pending"
+        )
+      )
+    );
+
+
+  $("requests").innerHTML =
+    "";
+
 
   if (q.empty) {
 
@@ -278,116 +654,217 @@ async function renderRequests() {
       '<div class="empty">No pending requests.</div>';
 
     return;
+
   }
 
-  q.forEach(d => {
 
-    const x = d.data();
+  q.forEach(
+    requestDoc => {
 
-    const el = document.createElement("div");
+      const data =
+        requestDoc.data();
 
-    el.className = "item";
 
-    el.innerHTML = `
-      <b>${escapeHtml(x.fromName)}</b>
-      <br>
-      <small>Room ID: ${escapeHtml(x.fromRoomId)}</small>
-
-      <div class="actions">
-
-        <button data-accept="${d.id}">
-          Accept
-        </button>
-
-        <button
-          class="secondary"
-          data-reject="${d.id}">
-          Reject
-        </button>
-
-      </div>
-    `;
-
-    $("requests").appendChild(el);
-
-  });
-
-  document
-    .querySelectorAll("[data-accept]")
-    .forEach(button => {
-
-      button.onclick = () =>
-        respond(
-          button.dataset.accept,
-          "accepted"
+      const element =
+        document.createElement(
+          "div"
         );
 
-    });
 
-  document
-    .querySelectorAll("[data-reject]")
-    .forEach(button => {
+      element.className =
+        "item";
 
-      button.onclick = () =>
-        respond(
-          button.dataset.reject,
-          "rejected"
+
+      element.innerHTML = `
+
+        <b>
+          ${escapeHtml(
+            data.fromName ||
+            "Unknown user"
+          )}
+        </b>
+
+        <br>
+
+        <small>
+          Room ID:
+          ${escapeHtml(
+            data.fromRoomId ||
+            ""
+          )}
+        </small>
+
+        <div class="actions">
+
+          <button
+            data-accept="${requestDoc.id}">
+            Accept
+          </button>
+
+          <button
+            class="secondary"
+            data-reject="${requestDoc.id}">
+            Reject
+          </button>
+
+        </div>
+
+      `;
+
+
+      $("requests")
+        .appendChild(
+          element
         );
 
-    });
+    }
+  );
+
+
+  document
+    .querySelectorAll(
+      "[data-accept]"
+    )
+    .forEach(
+      button => {
+
+        button.onclick =
+          () => {
+
+            respond(
+              button.dataset.accept,
+              "accepted"
+            );
+
+          };
+
+      }
+    );
+
+
+  document
+    .querySelectorAll(
+      "[data-reject]"
+    )
+    .forEach(
+      button => {
+
+        button.onclick =
+          () => {
+
+            respond(
+              button.dataset.reject,
+              "rejected"
+            );
+
+          };
+
+      }
+    );
 
 }
 
 
-async function respond(id, status) {
+// ======================================================
+// ACCEPT / REJECT REQUEST
+// ======================================================
+
+async function respond(
+  id,
+  status
+) {
 
   try {
 
     const requestRef =
-      doc(db, "requests", id);
+      doc(
+        db,
+        "requests",
+        id
+      );
+
 
     const snap =
-      await getDoc(requestRef);
+      await getDoc(
+        requestRef
+      );
+
 
     if (!snap.exists()) {
+
       return;
+
     }
 
-    const requestData = snap.data();
+
+    const requestData =
+      snap.data();
+
+
+    // Only receiver should respond
+    if (
+      requestData.toUid !==
+      currentUser.uid
+    ) {
+
+      throw new Error(
+        "You cannot respond to this request."
+      );
+
+    }
+
 
     await updateDoc(
       requestRef,
-      { status }
+      {
+        status:
+          status
+      }
     );
 
-    if (status === "accepted") {
+
+    if (
+      status ===
+      "accepted"
+    ) {
+
+      const users = [
+        requestData.fromUid,
+        currentUser.uid
+      ].sort();
+
+
+      const friendshipId =
+        users.join("_");
+
 
       await setDoc(
         doc(
           db,
           "friendships",
-          requestData.fromUid +
-          "_" +
-          currentUser.uid
+          friendshipId
         ),
         {
-          users: [
-            requestData.fromUid,
-            currentUser.uid
-          ],
 
-          createdAt: serverTimestamp()
+          users:
+            users,
+
+          createdAt:
+            serverTimestamp()
+
         }
       );
 
     }
 
+
     await refreshAll();
+
 
   } catch (error) {
 
     alert(
-      "ERROR: " +
+      "ERROR\n\n" +
       (error.code || "") +
       "\n\n" +
       error.message
@@ -398,20 +875,35 @@ async function respond(id, status) {
 }
 
 
+// ======================================================
+// RENDER FRIENDS
+// ======================================================
+
 async function renderFriends() {
 
-  const q = await getDocs(
-    query(
-      collection(db, "friendships"),
-      where(
-        "users",
-        "array-contains",
-        currentUser.uid
-      )
-    )
-  );
+  if (!currentUser) return;
 
-  $("friends").innerHTML = "";
+
+  const q =
+    await getDocs(
+      query(
+        collection(
+          db,
+          "friendships"
+        ),
+
+        where(
+          "users",
+          "array-contains",
+          currentUser.uid
+        )
+      )
+    );
+
+
+  $("friends").innerHTML =
+    "";
+
 
   if (q.empty) {
 
@@ -419,38 +911,86 @@ async function renderFriends() {
       '<div class="empty">No friends yet.</div>';
 
     return;
+
   }
 
-  for (const d of q.docs) {
 
-    const ids = d.data().users;
+  for (
+    const friendship
+    of q.docs
+  ) {
+
+    const data =
+      friendship.data();
+
+
+    const ids =
+      Array.isArray(
+        data.users
+      )
+        ? data.users
+        : [];
+
 
     const other =
       ids.find(
-        uid => uid !== currentUser.uid
+        uid =>
+          uid !==
+          currentUser.uid
       );
+
 
     if (!other) continue;
 
-    const snap =
+
+    const userSnap =
       await getDoc(
-        doc(db, "users", other)
+        doc(
+          db,
+          "users",
+          other
+        )
       );
 
-    if (!snap.exists()) continue;
 
-    const x = snap.data();
+    if (!userSnap.exists()) {
 
-    const el =
-      document.createElement("div");
+      continue;
 
-    el.className = "item";
+    }
 
-    el.innerHTML = `
-      <b>${escapeHtml(x.name)}</b>
+
+    const friend =
+      userSnap.data();
+
+
+    const element =
+      document.createElement(
+        "div"
+      );
+
+
+    element.className =
+      "item";
+
+
+    element.innerHTML = `
+
+      <b>
+        ${escapeHtml(
+          friend.name ||
+          "Friend"
+        )}
+      </b>
+
       <br>
+
       <small>
-        Room ID: ${escapeHtml(x.roomId)}
+        Room ID:
+        ${escapeHtml(
+          friend.roomId ||
+          ""
+        )}
       </small>
 
       <div class="actions">
@@ -466,140 +1006,317 @@ async function renderFriends() {
         </button>
 
       </div>
+
     `;
 
-    $("friends").appendChild(el);
+
+    $("friends")
+      .appendChild(
+        element
+      );
+
   }
 
 }
 
 
-$("postStoryBtn").onclick = async () => {
+// ======================================================
+// POST STORY
+// ======================================================
 
-  try {
+$("postStoryBtn").onclick =
+  async () => {
 
-    const text =
-      $("storyText").value.trim();
+    try {
 
-    if (!text) return;
+      if (!currentUser || !profile) {
 
-    await addDoc(
-      collection(db, "stories"),
-      {
-        uid: currentUser.uid,
-        name: profile.name,
-        text: text,
-        createdAt: serverTimestamp(),
-        expiresAt: Date.now() + 86400000
+        throw new Error(
+          "Please login first."
+        );
+
       }
-    );
 
-    $("storyText").value = "";
 
-    await renderStories();
+      const text =
+        $("storyText")
+          .value
+          .trim();
 
-  } catch (error) {
 
-    alert(
-      "ERROR: " +
-      (error.code || "") +
-      "\n\n" +
-      error.message
-    );
+      if (!text) {
 
-  }
+        return;
 
-};
+      }
 
+
+      await addDoc(
+        collection(
+          db,
+          "stories"
+        ),
+        {
+
+          uid:
+            currentUser.uid,
+
+          name:
+            profile.name,
+
+          text:
+            text,
+
+          createdAt:
+            serverTimestamp(),
+
+          expiresAt:
+            Date.now() +
+            86400000
+
+        }
+      );
+
+
+      $("storyText").value =
+        "";
+
+
+      await renderStories();
+
+
+    } catch (error) {
+
+      alert(
+        "ERROR\n\n" +
+        (error.code || "") +
+        "\n\n" +
+        error.message
+      );
+
+    }
+
+  };
+
+
+// ======================================================
+// RENDER MY STORIES
+// ======================================================
 
 async function renderStories() {
 
-  const now = Date.now();
+  if (!currentUser) return;
 
-  const q = await getDocs(
-    query(
-      collection(db, "stories"),
-      where(
-        "uid",
-        "==",
-        currentUser.uid
+
+  const now =
+    Date.now();
+
+
+  const q =
+    await getDocs(
+      query(
+        collection(
+          db,
+          "stories"
+        ),
+
+        where(
+          "uid",
+          "==",
+          currentUser.uid
+        )
       )
-    )
-  );
+    );
 
-  $("stories").innerHTML = "";
 
-  for (const d of q.docs) {
+  $("stories").innerHTML =
+    "";
 
-    const x = d.data();
 
-    if (x.expiresAt <= now) {
+  if (q.empty) {
 
-      await deleteDoc(d.ref);
+    $("stories").innerHTML =
+      '<div class="empty">No stories yet.</div>';
+
+    return;
+
+  }
+
+
+  for (
+    const storyDoc
+    of q.docs
+  ) {
+
+    const story =
+      storyDoc.data();
+
+
+    if (
+      story.expiresAt <=
+      now
+    ) {
+
+      await deleteDoc(
+        storyDoc.ref
+      );
 
       continue;
+
     }
 
-    const el =
-      document.createElement("div");
 
-    el.className = "item story";
+    const hours =
+      Math.ceil(
+        (
+          story.expiresAt -
+          now
+        ) /
+        3600000
+      );
 
-    el.innerHTML = `
-      <b>${escapeHtml(x.name)}</b>
+
+    const element =
+      document.createElement(
+        "div"
+      );
+
+
+    element.className =
+      "item story";
+
+
+    element.innerHTML = `
+
+      <b>
+        ${escapeHtml(
+          story.name ||
+          profile.name
+        )}
+      </b>
 
       <p>
-        ${escapeHtml(x.text)}
+        ${escapeHtml(
+          story.text
+        )}
       </p>
 
       <small>
         Expires in about
-        ${Math.ceil(
-          (x.expiresAt - now) / 3600000
-        )}h
+        ${hours}h
       </small>
+
     `;
 
-    $("stories").appendChild(el);
+
+    $("stories")
+      .appendChild(
+        element
+      );
+
   }
 
 }
 
+
+// ======================================================
+// REFRESH EVERYTHING
+// ======================================================
 
 async function refreshAll() {
 
+  // Requests
   try {
+
     await renderRequests();
+
   } catch (error) {
-    console.error("Requests error:", error);
+
+    console.error(
+      "Requests error:",
+      error
+    );
+
+    $("requests").innerHTML =
+      `<div class="empty">
+        Could not load requests.
+      </div>`;
+
   }
 
+
+  // Friends
   try {
+
     await renderFriends();
+
   } catch (error) {
-    console.error("Friends error:", error);
+
+    console.error(
+      "Friends error:",
+      error
+    );
+
+    $("friends").innerHTML =
+      `<div class="empty">
+        Could not load friends.
+      </div>`;
+
   }
 
+
+  // Stories
   try {
+
     await renderStories();
+
   } catch (error) {
-    console.error("Stories error:", error);
+
+    console.error(
+      "Stories error:",
+      error
+    );
+
+    $("stories").innerHTML =
+      `<div class="empty">
+        Could not load stories.
+      </div>`;
+
   }
 
 }
 
 
+// ======================================================
+// ESCAPE HTML
+// ======================================================
+
 function escapeHtml(value) {
 
-  return String(value).replace(
+  return String(
+    value ?? ""
+  ).replace(
     /[&<>"']/g,
+
     character => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
+
+      "&":
+        "&amp;",
+
+      "<":
+        "&lt;",
+
+      ">":
+        "&gt;",
+
+      '"':
+        "&quot;",
+
+      "'":
+        "&#039;"
+
     }[character])
+
   );
 
 }
