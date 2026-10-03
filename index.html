@@ -3,79 +3,270 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>ConnectSnap</title>
+  <meta
+    http-equiv="Permissions-Policy"
+    content="camera=(self), microphone=(self)"
+  >
+  <title>GARHWA-GANG</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+
   <div id="authView" class="center">
     <div class="card auth">
-      <h1>ConnectSnap</h1>
+      <h1>GARHWA-GANG</h1>
       <p class="muted">Stories • Friends • Calls • Chat</p>
-      <input id="nameInput" placeholder="Your name" maxlength="30">
+
+      <input
+        id="nameInput"
+        placeholder="Your name"
+        maxlength="30"
+      >
+
       <button id="loginBtn">Create / Login</button>
+
       <p id="authMsg" class="msg"></p>
     </div>
   </div>
 
+
   <div id="appView" hidden>
+
     <header>
       <div>
-        <h2>ConnectSnap</h2>
+        <h2>GARHWA-GANG</h2>
         <span id="welcome"></span>
       </div>
-      <button id="logoutBtn" class="secondary">Logout</button>
+
+      <button id="logoutBtn" class="secondary">
+        Logout
+      </button>
     </header>
 
+
     <main>
+
       <section class="card room">
         <div>
           <small>YOUR ROOM ID</small>
           <h2 id="roomId">—</h2>
         </div>
-        <button id="copyRoomBtn">Copy</button>
+
+        <button id="copyRoomBtn">
+          Copy
+        </button>
       </section>
 
+
       <section class="card">
+
         <h3>Add friend</h3>
+
         <div class="row">
-          <input id="friendRoomInput" placeholder="Enter friend's Room ID">
-          <button id="sendRequestBtn">Send request</button>
+
+          <input
+            id="friendRoomInput"
+            placeholder="Enter friend's Room ID"
+          >
+
+          <button id="sendRequestBtn">
+            Send request
+          </button>
+
         </div>
+
         <p id="requestMsg" class="msg"></p>
+
       </section>
 
+
       <section class="card">
+
         <h3>Incoming requests</h3>
+
         <div id="requests"></div>
+
       </section>
 
+
       <section class="card">
+
         <h3>Friends</h3>
+
         <div id="friends"></div>
+
       </section>
 
+
       <section class="card">
+
         <h3>My 24-hour story</h3>
-        <div class="row">
-          <textarea id="storyText" placeholder="Write a story..." maxlength="500"></textarea>
-          <button id="postStoryBtn">Post</button>
-        </div>
-        <p class="muted">Stories automatically disappear after 24 hours.</p>
+
+        <textarea
+          id="storyText"
+          placeholder="Write something..."
+          maxlength="500"
+        ></textarea>
+
+        <input
+          id="storyFile"
+          type="file"
+          accept="image/*,video/*"
+        >
+
+        <p class="muted">
+          You can post text, image or video.
+          Only 1 story is allowed every 24 hours.
+        </p>
+
+        <button id="postStoryBtn">
+          Post Story
+        </button>
+
+        <p id="storyMsg" class="msg"></p>
+
       </section>
 
+
       <section class="card">
+
         <h3>Friends' stories</h3>
+
         <div id="stories"></div>
+
       </section>
 
-      <section class="card">
-        <h3>Call & Chat</h3>
-        <p class="muted">Video/audio calling and realtime call-chat are connected in the next module.</p>
-        <button class="secondary" disabled>Start video call</button>
-      </section>
+
     </main>
+
   </div>
 
-  <script type="module" src="app.js?v=2"></script>
+
+  <!-- CALL WINDOW -->
+
+  <div id="callView" class="call-screen" hidden>
+
+    <div class="call-header">
+
+      <strong id="callTitle">
+        Video Call
+      </strong>
+
+      <button id="closeCallBtn" class="secondary">
+        Close
+      </button>
+
+    </div>
+
+
+    <div class="videos">
+
+      <video
+        id="remoteVideo"
+        autoplay
+        playsinline
+      ></video>
+
+      <video
+        id="localVideo"
+        autoplay
+        muted
+        playsinline
+      ></video>
+
+    </div>
+
+
+    <div id="callStatus" class="call-status">
+      Connecting...
+    </div>
+
+
+    <div class="call-controls">
+
+      <button id="muteBtn">
+        🎤 Mute
+      </button>
+
+      <button id="cameraBtn">
+        📷 Camera
+      </button>
+
+      <button id="switchCameraBtn">
+        🔄 Switch
+      </button>
+
+      <button id="chatBtn">
+        💬 Chat
+      </button>
+
+      <button id="hangupBtn" class="danger">
+        ☎ End
+      </button>
+
+    </div>
+
+
+    <div id="chatPanel" class="chat-panel" hidden>
+
+      <div id="callMessages" class="messages"></div>
+
+      <div class="chat-input">
+
+        <input
+          id="callMessageInput"
+          placeholder="Type message..."
+          maxlength="500"
+        >
+
+        <button id="sendCallMessageBtn">
+          Send
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- INCOMING CALL -->
+
+  <div id="incomingCall" class="modal" hidden>
+
+    <div class="card">
+
+      <h2>📞 Incoming Call</h2>
+
+      <p id="incomingCallText">
+        Someone is calling you.
+      </p>
+
+      <div class="actions">
+
+        <button id="acceptCallBtn">
+          Accept
+        </button>
+
+        <button
+          id="rejectCallBtn"
+          class="secondary"
+        >
+          Reject
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script
+    type="module"
+    src="app.js?v=10"
+  ></script>
+
 </body>
 </html>
