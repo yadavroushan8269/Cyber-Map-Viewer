@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+
   <meta charset="UTF-8">
 
   <meta
@@ -11,15 +12,23 @@
 
   <title>Colour Game</title>
 
-  <!-- IMPORTANT -->
-  <link rel="stylesheet" href="style.css">
+  <link
+    rel="stylesheet"
+    href="style.css"
+  >
+
 </head>
 
 <body>
 
-  <!-- ================= LOGIN / REGISTER ================= -->
+  <!-- =========================
+       LOGIN / REGISTER SCREEN
+  ========================== -->
 
-  <div id="authScreen" class="auth-screen">
+  <div
+    id="authScreen"
+    class="auth-screen"
+  >
 
     <div class="auth-card">
 
@@ -31,6 +40,7 @@
       <p class="auth-subtitle">
         Free Play Colour Game
       </p>
+
 
       <!-- LOGIN -->
 
@@ -56,26 +66,42 @@
             required
           >
 
-          <button type="submit" class="auth-btn">
+          <button
+            type="submit"
+            class="auth-btn"
+          >
             LOGIN
           </button>
 
         </form>
 
-        <p id="loginMessage" class="message"></p>
+        <p
+          id="loginMessage"
+          class="message"
+        ></p>
 
         <div class="switch-auth">
+
           Don't have an account?
-          <button id="showRegister" type="button">
+
+          <button
+            id="showRegister"
+            type="button"
+          >
             Register
           </button>
+
         </div>
 
       </div>
 
+
       <!-- REGISTER -->
 
-      <div id="registerBox" class="hidden">
+      <div
+        id="registerBox"
+        class="hidden"
+      >
 
         <h2>Create Account</h2>
 
@@ -105,25 +131,38 @@
             required
           >
 
-          <button type="submit" class="auth-btn">
+          <button
+            type="submit"
+            class="auth-btn"
+          >
             REGISTER
           </button>
 
         </form>
 
-        <p id="registerMessage" class="message"></p>
+        <p
+          id="registerMessage"
+          class="message"
+        ></p>
 
         <div class="switch-auth">
+
           Already have an account?
-          <button id="showLogin" type="button">
+
+          <button
+            id="showLogin"
+            type="button"
+          >
             Login
           </button>
+
         </div>
 
       </div>
 
+
       <div class="demo-note">
-        Free-play only • No real-money betting
+        Free-play only • Virtual points
       </div>
 
     </div>
@@ -131,9 +170,17 @@
   </div>
 
 
-  <!-- ================= MAIN APP ================= -->
+  <!-- =========================
+       MAIN APPLICATION
+  ========================== -->
 
-  <div id="app" class="app hidden">
+  <div
+    id="app"
+    class="app hidden"
+  >
+
+
+    <!-- TOP BAR -->
 
     <header class="topbar">
 
@@ -149,12 +196,15 @@
 
       </div>
 
+
       <div class="user-area">
 
         <div class="user-name">
+
           <span id="username">
             User
           </span>
+
         </div>
 
         <div class="balance">
@@ -174,7 +224,12 @@
     </header>
 
 
+    <!-- MAIN CONTENT -->
+
     <main>
+
+
+      <!-- HERO -->
 
       <section class="hero">
 
@@ -188,6 +243,8 @@
 
       </section>
 
+
+      <!-- CURRENT ROUND -->
 
       <section class="round-card">
 
@@ -204,6 +261,8 @@
         </div>
 
 
+        <!-- TIMER -->
+
         <div class="timer">
 
           <span id="timer">
@@ -217,34 +276,60 @@
         </div>
 
 
+        <!-- COLOUR BUTTONS -->
+
         <div class="colours">
+
 
           <button
             class="colour red"
             data-colour="Red"
+            type="button"
           >
-            <span>●</span>
+
+            <span>
+              ●
+            </span>
+
             RED
+
           </button>
+
 
           <button
             class="colour green"
             data-colour="Green"
+            type="button"
           >
-            <span>●</span>
+
+            <span>
+              ●
+            </span>
+
             GREEN
+
           </button>
+
 
           <button
             class="colour purple"
             data-colour="Purple"
+            type="button"
           >
-            <span>●</span>
+
+            <span>
+              ●
+            </span>
+
             PURPLE
+
           </button>
+
 
         </div>
 
+
+        <!-- SELECTED COLOUR -->
 
         <div
           id="selected"
@@ -254,15 +339,20 @@
         </div>
 
 
+        <!-- PLAY BUTTON -->
+
         <button
           id="playBtn"
           class="play-btn"
+          type="button"
         >
           PLAY ROUND
         </button>
 
       </section>
 
+
+      <!-- HISTORY -->
 
       <section class="history-card">
 
@@ -275,11 +365,13 @@
           <button
             id="logoutBtn"
             class="logout-btn"
+            type="button"
           >
             Logout
           </button>
 
         </div>
+
 
         <div
           id="history"
@@ -288,50 +380,81 @@
 
       </section>
 
+
     </main>
 
 
+    <!-- =========================
+         BOTTOM NAVIGATION
+    ========================== -->
+
     <nav class="bottom-nav">
+
 
       <a
         class="active"
         href="#"
         onclick="return false;"
       >
-        <span>⌂</span>
+
+        <span>
+          ⌂
+        </span>
+
         Home
+
       </a>
+
 
       <a
         href="#"
         onclick="return false;"
       >
-        <span>★</span>
+
+        <span>
+          ★
+        </span>
+
         Points
+
       </a>
+
 
       <a
         href="#"
         onclick="return false;"
       >
-        <span>☷</span>
+
+        <span>
+          ☷
+        </span>
+
         History
+
       </a>
+
 
       <a
         href="#"
         onclick="return false;"
       >
-        <span>●</span>
+
+        <span>
+          ●
+        </span>
+
         Profile
+
       </a>
+
 
     </nav>
+
 
   </div>
 
 
-  <!-- IMPORTANT -->
+  <!-- JAVASCRIPT -->
 
   <script src="game.js"></script>
 
