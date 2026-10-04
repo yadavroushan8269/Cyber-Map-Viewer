@@ -6,7 +6,6 @@
 
   <title>Nearby Public CCTV</title>
 
-  <!-- Leaflet CSS -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
@@ -22,122 +21,187 @@
     body {
       font-family: Arial, sans-serif;
       background: #f4f6f8;
-      color: #111;
+      color: #111827;
     }
 
     header {
       background: #111827;
       color: white;
-      padding: 18px;
       text-align: center;
+      padding: 20px 15px;
     }
 
     header h1 {
-      font-size: 22px;
-      margin-bottom: 6px;
+      font-size: 24px;
+      margin-bottom: 7px;
     }
 
     header p {
       font-size: 13px;
-      opacity: 0.8;
+      opacity: .8;
     }
 
     .controls {
-      padding: 12px;
       background: white;
+      padding: 12px;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
+      border-bottom: 1px solid #ddd;
     }
 
     button,
     select {
-      border: none;
-      border-radius: 8px;
+      border-radius: 9px;
       padding: 12px 14px;
-      font-size: 14px;
-      cursor: pointer;
+      font-size: 15px;
     }
 
     button {
+      border: none;
       background: #2563eb;
       color: white;
+      cursor: pointer;
+      font-weight: bold;
     }
 
-    button:hover {
-      opacity: 0.9;
+    button:active {
+      transform: scale(.98);
     }
 
     select {
       border: 1px solid #ddd;
       background: white;
       flex: 1;
-      min-width: 180px;
+      min-width: 200px;
     }
 
     #status {
-      padding: 10px 14px;
-      background: #fff;
+      background: white;
+      padding: 11px 14px;
       font-size: 13px;
       color: #555;
-      border-top: 1px solid #eee;
     }
 
     #map {
       width: 100%;
       height: 55vh;
-      min-height: 400px;
+      min-height: 380px;
     }
 
-    .camera-panel {
+    .main {
+      max-width: 900px;
+      margin: auto;
+    }
+
+    .camera-section {
       background: white;
-      padding: 18px;
       margin-top: 10px;
+      padding: 18px;
     }
 
-    .camera-panel h2 {
+    .camera-section h2 {
+      margin-bottom: 12px;
+      font-size: 20px;
+    }
+
+    #cameraList {
+      display: grid;
+      gap: 10px;
+    }
+
+    .camera-card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 14px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .camera-card:hover {
+      background: #f8fafc;
+    }
+
+    .camera-title {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 6px;
+    }
+
+    .camera-location {
+      color: #666;
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    .online {
+      color: #16a34a;
+      font-weight: bold;
+    }
+
+    .offline {
+      color: #dc2626;
+      font-weight: bold;
+    }
+
+    .selected-camera {
+      margin-top: 15px;
+    }
+
+    #selectedName {
       font-size: 18px;
+      font-weight: bold;
       margin-bottom: 8px;
     }
 
-    .camera-box {
-      margin-top: 12px;
-      background: #111827;
-      color: white;
-      border-radius: 10px;
-      min-height: 180px;
+    #videoContainer {
+      width: 100%;
+      background: #050505;
+      border-radius: 12px;
+      overflow: hidden;
+      min-height: 220px;
       display: flex;
       align-items: center;
       justify-content: center;
+    }
+
+    #videoPlayer {
+      width: 100%;
+      max-height: 500px;
+      display: none;
+      background: black;
+    }
+
+    #noFeed {
+      color: #aaa;
       text-align: center;
-      padding: 20px;
+      padding: 40px 20px;
+      line-height: 1.6;
     }
 
-    .camera-box span {
-      color: #bbb;
-      font-size: 14px;
-    }
-
-    .notice {
+    .info {
       margin-top: 12px;
-      font-size: 12px;
       color: #666;
+      font-size: 12px;
       line-height: 1.5;
     }
 
     @media (max-width: 600px) {
-      #map {
-        height: 52vh;
-        min-height: 350px;
+      header h1 {
+        font-size: 21px;
       }
 
       .controls {
         flex-direction: column;
       }
 
-      select,
-      button {
+      button,
+      select {
         width: 100%;
+      }
+
+      #map {
+        height: 52vh;
       }
     }
   </style>
@@ -145,10 +209,12 @@
 
 <body>
 
-  <header>
-    <h1>📹 Nearby Public CCTV</h1>
-    <p>Find publicly available and authorized cameras near you</p>
-  </header>
+<header>
+  <h1>📹 Nearby Public CCTV</h1>
+  <p>Public and authorized CCTV cameras</p>
+</header>
+
+<div class="main">
 
   <div class="controls">
 
@@ -156,8 +222,8 @@
       📍 My Location
     </button>
 
-    <select id="citySelect" onchange="goToCity()">
-      <option value="">Select Location</option>
+    <select id="citySelect" onchange="selectCity()">
+      <option value="">Select City / Area</option>
       <option value="garhwa">Garhwa, Jharkhand</option>
       <option value="hyderabad">Hyderabad, Telangana</option>
     </select>
@@ -165,188 +231,416 @@
   </div>
 
   <div id="status">
-    Location permission ka wait kar raha hai...
+    Location detect karne ke liye "My Location" dabayein.
   </div>
 
   <div id="map"></div>
 
-  <div class="camera-panel">
+  <section class="camera-section">
 
-    <h2>📹 Selected Camera</h2>
+    <h2>📹 Available Cameras</h2>
 
-    <div id="cameraName">
-      Map par kisi camera ko select karein.
+    <div id="cameraList">
+      <div class="camera-card">
+        Camera data load ho raha hai...
+      </div>
     </div>
 
-    <div class="camera-box">
-      <span>
-        🔒 Live video yahan dikhega<br><br>
-        Sirf publicly available / authorized CCTV feeds use ki jayengi.
-      </span>
+    <div class="selected-camera">
+
+      <div id="selectedName">
+        Camera select karein
+      </div>
+
+      <div id="videoContainer">
+
+        <video
+          id="videoPlayer"
+          controls
+          playsinline
+        ></video>
+
+        <div id="noFeed">
+          📹 Camera select karne ke baad video yahan dikhega.
+        </div>
+
+      </div>
+
+      <div class="info">
+        Live video sirf publicly available ya authorized camera
+        streams se connect kiya jayega.
+      </div>
+
     </div>
 
-    <p class="notice">
-      Note: Kisi private CCTV camera ko bina permission access nahi kiya jayega.
-      Jab official public camera feed available hogi, usko yahan connect kiya ja sakta hai.
-    </p>
+  </section>
 
-  </div>
+</div>
 
-  <!-- Leaflet JS -->
-  <script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
-  </script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <script>
+<script>
 
-    // ==============================
-    // MAP
-    // ==============================
+/* =====================================================
+   MAP
+===================================================== */
 
-    const map = L.map("map").setView([23.75, 85.0], 6);
+const map = L.map("map").setView(
+  [23.75, 85.0],
+  6
+);
 
-    L.tileLayer(
-      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-      {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors"
-      }
-    ).addTo(map);
+L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap contributors"
+  }
+).addTo(map);
 
 
-    // ==============================
-    // USER LOCATION
-    // ==============================
+/* =====================================================
+   CAMERA DATABASE
+=====================================================
 
-    let userMarker = null;
+   IMPORTANT:
+   liveUrl ko abhi empty rakha gaya hai.
 
-    function getMyLocation() {
+   Jab official/public stream milega:
 
-      const status = document.getElementById("status");
+   liveUrl: "https://example.com/stream.m3u8"
 
-      if (!navigator.geolocation) {
+   tab yahan add kar sakte hain.
+===================================================== */
 
-        status.innerText =
-          "Is browser mein location support nahi hai.";
+const cameras = [
 
-        return;
-      }
+  {
+    id: "garhwa-01",
+    name: "Garhwa Camera 01",
+    city: "garhwa",
+    location: "Garhwa, Jharkhand",
+    lat: 24.1625,
+    lon: 83.7998,
+    liveUrl: "",
+    status: "offline"
+  },
 
-      status.innerText =
-        "📍 Location detect ho rahi hai...";
+  {
+    id: "garhwa-02",
+    name: "Garhwa Camera 02",
+    city: "garhwa",
+    location: "Garhwa, Jharkhand",
+    lat: 24.1650,
+    lon: 83.8050,
+    liveUrl: "",
+    status: "offline"
+  },
 
-      navigator.geolocation.getCurrentPosition(
+  {
+    id: "hyderabad-01",
+    name: "Hyderabad Camera 01",
+    city: "hyderabad",
+    location: "Hyderabad, Telangana",
+    lat: 17.3850,
+    lon: 78.4867,
+    liveUrl: "",
+    status: "offline"
+  },
 
-        function(position) {
+  {
+    id: "hyderabad-02",
+    name: "Hyderabad Camera 02",
+    city: "hyderabad",
+    location: "Hyderabad, Telangana",
+    lat: 17.4000,
+    lon: 78.4800,
+    liveUrl: "",
+    status: "offline"
+  }
 
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-
-          if (userMarker) {
-            map.removeLayer(userMarker);
-          }
-
-          userMarker = L.marker([lat, lon])
-            .addTo(map)
-            .bindPopup("📍 Aapki current location")
-            .openPopup();
-
-          map.setView([lat, lon], 14);
-
-          status.innerText =
-            "✅ Current location mil gayi.";
-
-        },
-
-        function(error) {
-
-          if (error.code === 1) {
-
-            status.innerText =
-              "❌ Location permission denied.";
-
-          } else {
-
-            status.innerText =
-              "❌ Location detect nahi ho payi.";
-
-          }
-
-        },
-
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 0
-        }
-
-      );
-    }
+];
 
 
-    // ==============================
-    // CITY LOCATIONS
-    // ==============================
+/* =====================================================
+   MARKERS
+===================================================== */
 
-    const cities = {
+const cameraMarkers = {};
 
-      garhwa: {
-        name: "Garhwa, Jharkhand",
-        lat: 24.16,
-        lon: 83.80,
-        zoom: 13
-      },
+cameras.forEach(camera => {
 
-      hyderabad: {
-        name: "Hyderabad, Telangana",
-        lat: 17.3850,
-        lon: 78.4867,
-        zoom: 12
-      }
+  const marker = L.marker([
+    camera.lat,
+    camera.lon
+  ]).addTo(map);
 
+  marker.bindPopup(`
+    <b>📹 ${camera.name}</b><br>
+    ${camera.location}<br>
+    <br>
+    <button onclick="selectCamera('${camera.id}')">
+      View Camera
+    </button>
+  `);
+
+  cameraMarkers[camera.id] = marker;
+
+});
+
+
+/* =====================================================
+   CAMERA LIST
+===================================================== */
+
+function renderCameraList(list = cameras) {
+
+  const container =
+    document.getElementById("cameraList");
+
+  container.innerHTML = "";
+
+  if (list.length === 0) {
+
+    container.innerHTML = `
+      <div class="camera-card">
+        ❌ Is area mein camera data available nahi hai.
+      </div>
+    `;
+
+    return;
+  }
+
+  list.forEach(camera => {
+
+    const card =
+      document.createElement("div");
+
+    card.className = "camera-card";
+
+    const statusClass =
+      camera.status === "online"
+        ? "online"
+        : "offline";
+
+    const statusText =
+      camera.status === "online"
+        ? "🟢 LIVE"
+        : "🔴 LIVE FEED UNAVAILABLE";
+
+    card.innerHTML = `
+      <div class="camera-title">
+        📹 ${camera.name}
+      </div>
+
+      <div class="camera-location">
+        📍 ${camera.location}
+      </div>
+
+      <div class="${statusClass}">
+        ${statusText}
+      </div>
+    `;
+
+    card.onclick = () => {
+      selectCamera(camera.id);
     };
 
+    container.appendChild(card);
 
-    function goToCity() {
+  });
 
-      const selected =
-        document.getElementById("citySelect").value;
+}
 
-      if (!selected) return;
 
-      const city = cities[selected];
+/* =====================================================
+   SELECT CAMERA
+===================================================== */
+
+function selectCamera(id) {
+
+  const camera =
+    cameras.find(c => c.id === id);
+
+  if (!camera) return;
+
+  document.getElementById("selectedName").innerText =
+    `📹 ${camera.name} — ${camera.location}`;
+
+  const video =
+    document.getElementById("videoPlayer");
+
+  const noFeed =
+    document.getElementById("noFeed");
+
+  video.pause();
+  video.removeAttribute("src");
+  video.load();
+
+  video.style.display = "none";
+  noFeed.style.display = "block";
+
+  /*
+    Actual public stream available hone par
+    video automatically show hoga.
+  */
+
+  if (camera.liveUrl) {
+
+    video.src = camera.liveUrl;
+
+    video.style.display = "block";
+    noFeed.style.display = "none";
+
+    video.play().catch(() => {});
+
+  }
+
+  map.setView(
+    [camera.lat, camera.lon],
+    15
+  );
+
+  cameraMarkers[camera.id]
+    .openPopup();
+
+}
+
+
+/* =====================================================
+   CITY SELECTION
+===================================================== */
+
+const cities = {
+
+  garhwa: {
+    name: "Garhwa, Jharkhand",
+    lat: 24.1625,
+    lon: 83.7998,
+    zoom: 13
+  },
+
+  hyderabad: {
+    name: "Hyderabad, Telangana",
+    lat: 17.3850,
+    lon: 78.4867,
+    zoom: 12
+  }
+
+};
+
+
+function selectCity() {
+
+  const city =
+    document.getElementById("citySelect").value;
+
+  if (!city) return;
+
+  const data = cities[city];
+
+  map.setView(
+    [data.lat, data.lon],
+    data.zoom
+  );
+
+  document.getElementById("status").innerText =
+    `📍 ${data.name} selected.`;
+
+  const cityCameras =
+    cameras.filter(c => c.city === city);
+
+  renderCameraList(cityCameras);
+
+}
+
+
+/* =====================================================
+   CURRENT LOCATION
+===================================================== */
+
+let userMarker = null;
+
+function getMyLocation() {
+
+  const status =
+    document.getElementById("status");
+
+  if (!navigator.geolocation) {
+
+    status.innerText =
+      "❌ Browser location support nahi karta.";
+
+    return;
+  }
+
+  status.innerText =
+    "📍 Current location detect ho rahi hai...";
+
+  navigator.geolocation.getCurrentPosition(
+
+    position => {
+
+      const lat =
+        position.coords.latitude;
+
+      const lon =
+        position.coords.longitude;
+
+      if (userMarker) {
+        map.removeLayer(userMarker);
+      }
+
+      userMarker =
+        L.marker([lat, lon])
+          .addTo(map)
+          .bindPopup("📍 Aapki current location")
+          .openPopup();
 
       map.setView(
-        [city.lat, city.lon],
-        city.zoom
+        [lat, lon],
+        14
       );
 
-      L.marker([city.lat, city.lon])
-        .addTo(map)
-        .bindPopup(
-          "📍 " + city.name
-        )
-        .openPopup();
+      status.innerText =
+        `✅ Location detected: ${lat.toFixed(5)}, ${lon.toFixed(5)}`;
 
-      document.getElementById("status").innerText =
-        "📍 " + city.name + " selected.";
+    },
 
+    error => {
+
+      if (error.code === 1) {
+
+        status.innerText =
+          "❌ Location permission denied. Browser settings se Location Allow karein.";
+
+      } else {
+
+        status.innerText =
+          "❌ Current location detect nahi ho payi.";
+
+      }
+
+    },
+
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0
     }
 
+  );
 
-    // ==============================
-    // START LOCATION REQUEST
-    // ==============================
+}
 
-    window.addEventListener("load", function() {
 
-      setTimeout(() => {
-        getMyLocation();
-      }, 500);
+/* =====================================================
+   INITIAL LOAD
+===================================================== */
 
-    });
+renderCameraList();
 
-  </script>
+</script>
 
 </body>
 </html>
