@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Nearby Public CCTV</title>
+
+  <!-- Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #111;
+    }
+
+    header {
+      background: #111827;
+      color: white;
+      padding: 18px;
+      text-align: center;
+    }
+
+    header h1 {
+      font-size: 22px;
+      margin-bottom: 6px;
+    }
+
+    header p {
+      font-size: 13px;
+      opacity: 0.8;
+    }
+
+    .controls {
+      padding: 12px;
+      background: white;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    button,
+    select {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    select {
+      border: 1px solid #ddd;
+      background: white;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    #status {
+      padding: 10px 14px;
+      background: #fff;
+      font-size: 13px;
+      color: #555;
+      border-top: 1px solid #eee;
+    }
+
+    #map {
+      width: 100%;
+      height: 55vh;
+      min-height: 400px;
+    }
+
+    .camera-panel {
+      background: white;
+      padding: 18px;
+      margin-top: 10px;
+    }
+
+    .camera-panel h2 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+
+    .camera-box {
+      margin-top: 12px;
+      background: #111827;
+      color: white;
+      border-radius: 10px;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .camera-box span {
+      color: #bbb;
+      font-size: 14px;
+    }
+
+    .notice {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 600px) {
+      #map {
+        height: 52vh;
+        min-height: 350px;
+      }
+
+      .controls {
+        flex-direction: column;
+      }
+
+      select,
+      button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>📹 Nearby Public CCTV</h1>
+    <p>Find publicly available and authorized cameras near you</p>
+  </header>
+
+  <div class="controls">
+
+    <button onclick="getMyLocation()">
+      📍 My Location
+    </button>
+
+    <select id="citySelect" onchange="goToCity()">
+      <option value="">Select Location</option>
+      <option value="garhwa">Garhwa, Jharkhand</option>
+      <option value="hyderabad">Hyderabad, Telangana</option>
+    </select>
+
+  </div>
+
+  <div id="status">
+    Location permission ka wait kar raha hai...
+  </div>
+
+  <div id="map"></div>
+
+  <div class="camera-panel">
+
+    <h2>📹 Selected Camera</h2>
+
+    <div id="cameraName">
+      Map par kisi camera ko select karein.
+    </div>
+
+    <div class="camera-box">
+      <span>
+        🔒 Live video yahan dikhega<br><br>
+        Sirf publicly available / authorized CCTV feeds use ki jayengi.
+      </span>
+    </div>
+
+    <p class="notice">
+      Note: Kisi private CCTV camera ko bina permission access nahi kiya jayega.
+      Jab official public camera feed available hogi, usko yahan connect kiya ja sakta hai.
+    </p>
+
+  </div>
+
+  <!-- Leaflet JS -->
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+  </script>
+
+  <script>
+
+    // ==============================
+    // MAP
+    // ==============================
+
+    const map = L.map("map").setView([23.75, 85.0], 6);
+
+    L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        maxZoom: 19,
+        attribution: "&copy; OpenStreetMap contributors"
+      }
+    ).addTo(map);
+
+
+    // ==============================
+    // USER LOCATION
+    // ==============================
+
+    let userMarker = null;
+
+    function getMyLocation() {
+
+      const status = document.getElementById("status");
+
+      if (!navigator.geolocation) {
+
+        status.innerText =
+          "Is browser mein location support nahi hai.";
+
+        return;
+      }
+
+      status.innerText =
+        "📍 Location detect ho rahi hai...";
+
+      navigator.geolocation.getCurrentPosition(
+
+        function(position) {
+
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+
+          if (userMarker) {
+            map.removeLayer(userMarker);
+          }
+
+          userMarker = L.marker([lat, lon])
+            .addTo(map)
+            .bindPopup("📍 Aapki current location")
+            .openPopup();
+
+          map.setView([lat, lon], 14);
+
+          status.innerText =
+            "✅ Current location mil gayi.";
+
+        },
+
+        function(error) {
+
+          if (error.code === 1) {
+
+            status.innerText =
+              "❌ Location permission denied.";
+
+          } else {
+
+            status.innerText =
+              "❌ Location detect nahi ho payi.";
+
+          }
+
+        },
+
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+
+      );
+    }
+
+
+    // ==============================
+    // CITY LOCATIONS
+    // ==============================
+
+    const cities = {
+
+      garhwa: {
+        name: "Garhwa, Jharkhand",
+        lat: 24.16,
+        lon: 83.80,
+        zoom: 13
+      },
+
+      hyderabad: {
+        name: "Hyderabad, Telangana",
+        lat: 17.3850,
+        lon: 78.4867,
+        zoom: 12
+      }
+
+    };
+
+
+    function goToCity() {
+
+      const selected =
+        document.getElementById("citySelect").value;
+
+      if (!selected) return;
+
+      const city = cities[selected];
+
+      map.setView(
+        [city.lat, city.lon],
+        city.zoom
+      );
+
+      L.marker([city.lat, city.lon])
+        .addTo(map)
+        .bindPopup(
+          "📍 " + city.name
+        )
+        .openPopup();
+
+      document.getElementById("status").innerText =
+        "📍 " + city.name + " selected.";
+
+    }
+
+
+    // ==============================
+    // START LOCATION REQUEST
+    // ==============================
+
+    window.addEventListener("load", function() {
+
+      setTimeout(() => {
+        getMyLocation();
+      }, 500);
+
+    });
+
+  </script>
+
+</body>
+</html>
