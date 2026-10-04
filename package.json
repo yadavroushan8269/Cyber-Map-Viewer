@@ -1,0 +1,12 @@
+{
+  "name": "nearby-public-cctv",
+  "version": "1.0.0",
+  "description": "Public CCTV camera viewer",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
