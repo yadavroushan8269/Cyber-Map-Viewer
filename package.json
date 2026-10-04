@@ -1,7 +1,7 @@
 {
-  "name": "colour-game",
+  "name": "video-call-by-roushan",
   "version": "1.0.0",
-  "description": "Colour game web app",
+  "description": "Free-play colour game with registration and login",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
