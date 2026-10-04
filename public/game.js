@@ -1,137 +1,601 @@
-let balance = Number(localStorage.getItem("points")) || 10000;
-let round = Number(localStorage.getItem("round")) || 1001;
+// ============================================
+// GLOBAL
+// ============================================
+
+let token = localStorage.getItem("authToken");
 
 let selectedColour = null;
-let time = 30;
 let playing = false;
+let time = 30;
+let timerInterval = null;
 
-const colours = ["Red", "Green", "Purple"];
 
-function updateBalance() {
-  document.getElementById("balance").textContent =
-    balance.toLocaleString();
+// ============================================
+// ELEMENTS
+// ============================================
 
-  localStorage.setItem("points", balance);
+const authScreen =
+  document.getElementById("authScreen");
+
+const app =
+  document.getElementById("app");
+
+const loginBox =
+  document.getElementById("loginBox");
+
+const registerBox =
+  document.getElementById("registerBox");
+
+const loginForm =
+  document.getElementById("loginForm");
+
+const registerForm =
+  document.getElementById("registerForm");
+
+const showRegister =
+  document.getElementById("showRegister");
+
+const showLogin =
+  document.getElementById("showLogin");
+
+const loginMessage =
+  document.getElementById("loginMessage");
+
+const registerMessage =
+  document.getElementById("registerMessage");
+
+const balance =
+  document.getElementById("balance");
+
+const username =
+  document.getElementById("username");
+
+const round =
+  document.getElementById("round");
+
+const timer =
+  document.getElementById("timer");
+
+const selected =
+  document.getElementById("selected");
+
+const playBtn =
+  document.getElementById("playBtn");
+
+const historyBox =
+  document.getElementById("history");
+
+const logoutBtn =
+  document.getElementById("logoutBtn");
+
+const colourButtons =
+  document.querySelectorAll(".colour");
+
+
+// ============================================
+// AUTH SCREEN
+// ============================================
+
+showRegister.addEventListener("click", () => {
+
+  loginBox.classList.add("hidden");
+  registerBox.classList.remove("hidden");
+
+  loginMessage.textContent = "";
+  registerMessage.textContent = "";
+
+});
+
+
+showLogin.addEventListener("click", () => {
+
+  registerBox.classList.add("hidden");
+  loginBox.classList.remove("hidden");
+
+  loginMessage.textContent = "";
+  registerMessage.textContent = "";
+
+});
+
+
+// ============================================
+// REGISTER
+// ============================================
+
+registerForm.addEventListener("submit", async (event) => {
+
+  event.preventDefault();
+
+  const usernameValue =
+    document
+      .getElementById("registerUsername")
+      .value
+      .trim();
+
+  const password =
+    document
+      .getElementById("registerPassword")
+      .value;
+
+  const confirm =
+    document
+      .getElementById("registerConfirm")
+      .value;
+
+  registerMessage.textContent = "";
+
+  if (password !== confirm) {
+
+    registerMessage.textContent =
+      "Passwords do not match.";
+
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      "/api/register",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          username: usernameValue,
+          password
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.success) {
+
+      registerMessage.textContent =
+        data.message || "Registration failed.";
+
+      return;
+    }
+
+    token = data.token;
+
+    localStorage.setItem(
+      "authToken",
+      token
+    );
+
+    showApp(data.user);
+
+  } catch (error) {
+
+    registerMessage.textContent =
+      "Server error. Please try again.";
+
+    console.error(error);
+  }
+
+});
+
+
+// ============================================
+// LOGIN
+// ============================================
+
+loginForm.addEventListener("submit", async (event) => {
+
+  event.preventDefault();
+
+  const usernameValue =
+    document
+      .getElementById("loginUsername")
+      .value
+      .trim();
+
+  const password =
+    document
+      .getElementById("loginPassword")
+      .value;
+
+  loginMessage.textContent = "";
+
+  try {
+
+    const response = await fetch(
+      "/api/login",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          username: usernameValue,
+          password
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!data.success) {
+
+      loginMessage.textContent =
+        data.message || "Login failed.";
+
+      return;
+    }
+
+    token = data.token;
+
+    localStorage.setItem(
+      "authToken",
+      token
+    );
+
+    showApp(data.user);
+
+  } catch (error) {
+
+    loginMessage.textContent =
+      "Server error. Please try again.";
+
+    console.error(error);
+  }
+
+});
+
+
+// ============================================
+// SHOW APP
+// ============================================
+
+function showApp(user) {
+
+  authScreen.classList.add("hidden");
+
+  app.classList.remove("hidden");
+
+  username.textContent =
+    user.username;
+
+  updateUserData(user);
+
+  startTimer();
 }
 
-function updateRound() {
-  document.getElementById("round").textContent = round;
+
+// ============================================
+// USER DATA
+// ============================================
+
+function updateUserData(user) {
+
+  balance.textContent =
+    Number(user.points).toLocaleString();
+
+  round.textContent =
+    user.round;
+
+  renderHistory(
+    user.history || []
+  );
 }
 
-function selectColour(colour) {
 
-  if (playing) return;
+// ============================================
+// CHECK LOGIN
+// ============================================
 
-  selectedColour = colour;
+async function checkLogin() {
 
-  document.getElementById("selected").textContent =
-    "Selected: " + colour;
+  if (!token) {
+
+    showLoginScreen();
+
+    return;
+  }
+
+  try {
+
+    const response = await fetch(
+      "/api/me",
+      {
+        headers: {
+          Authorization:
+            "Bearer " + token
+        }
+      }
+    );
+
+    if (!response.ok) {
+
+      throw new Error("Session expired");
+    }
+
+    const data =
+      await response.json();
+
+    showApp(data.user);
+
+  } catch (error) {
+
+    localStorage.removeItem("authToken");
+
+    token = null;
+
+    showLoginScreen();
+  }
 }
 
-function playRound() {
+
+function showLoginScreen() {
+
+  authScreen.classList.remove("hidden");
+
+  app.classList.add("hidden");
+}
+
+
+// ============================================
+// COLOUR SELECTION
+// ============================================
+
+colourButtons.forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    if (playing) return;
+
+    colourButtons.forEach(item => {
+      item.classList.remove(
+        "selected-colour"
+      );
+    });
+
+    button.classList.add(
+      "selected-colour"
+    );
+
+    selectedColour =
+      button.dataset.colour;
+
+    selected.textContent =
+      "Selected: " + selectedColour;
+  });
+
+});
+
+
+// ============================================
+// PLAY
+// ============================================
+
+playBtn.addEventListener(
+  "click",
+  playRound
+);
+
+
+async function playRound() {
 
   if (playing) return;
 
   if (!selectedColour) {
-    alert("Please select a colour first.");
+
+    alert(
+      "Please select a colour first."
+    );
+
     return;
   }
 
   playing = true;
 
-  const result =
-    colours[Math.floor(Math.random() * colours.length)];
+  playBtn.disabled = true;
 
-  setTimeout(() => {
+  colourButtons.forEach(button => {
+    button.disabled = true;
+  });
 
-    addHistory(result);
+  try {
 
-    if (result === selectedColour) {
-      balance += 100;
-      alert("Correct colour! +100 points");
-    } else {
-      alert("Result: " + result);
+    const response = await fetch(
+      "/api/play",
+      {
+        method: "POST",
+
+        headers: {
+          "Content-Type": "application/json",
+          Authorization:
+            "Bearer " + token
+        },
+
+        body: JSON.stringify({
+          colour: selectedColour
+        })
+      }
+    );
+
+    const data =
+      await response.json();
+
+    if (!response.ok) {
+
+      alert(
+        data.message ||
+        "Something went wrong."
+      );
+
+      return;
     }
 
-    updateBalance();
+    if (data.correct) {
 
-    round++;
+      alert(
+        "Correct colour! +100 points"
+      );
 
-    updateRound();
+    } else {
+
+      alert(
+        "Result: " + data.result
+      );
+    }
+
+    updateUserData({
+      username,
+      points: data.points,
+      round: data.round,
+      history: data.history
+    });
 
     selectedColour = null;
 
-    document.getElementById("selected").textContent =
+    selected.textContent =
       "No colour selected";
+
+    colourButtons.forEach(button => {
+      button.classList.remove(
+        "selected-colour"
+      );
+    });
+
+    time = 30;
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert(
+      "Server error. Please try again."
+    );
+
+  } finally {
 
     playing = false;
 
-    time = 30;
+    playBtn.disabled = false;
+
+    colourButtons.forEach(button => {
+      button.disabled = false;
+    });
+  }
+}
+
+
+// ============================================
+// HISTORY
+// ============================================
+
+function renderHistory(history) {
+
+  historyBox.innerHTML = "";
+
+  if (!history.length) {
+
+    historyBox.innerHTML =
+      '<span style="color:#999;font-size:13px;">No results yet.</span>';
+
+    return;
+  }
+
+  history.forEach(item => {
+
+    const div =
+      document.createElement("div");
+
+    div.className =
+      "result " +
+      item.result +
+      (item.correct ? " win" : "");
+
+    div.textContent =
+      "#" +
+      item.round +
+      " " +
+      item.result;
+
+    historyBox.appendChild(div);
+
+  });
+}
+
+
+// ============================================
+// TIMER
+// ============================================
+
+function startTimer() {
+
+  if (timerInterval) {
+    clearInterval(timerInterval);
+  }
+
+  timerInterval = setInterval(() => {
+
+    if (time > 0) {
+
+      time--;
+
+    } else {
+
+      time = 30;
+    }
+
+    timer.textContent = time;
 
   }, 1000);
 }
 
-function addHistory(result) {
 
-  const history =
-    JSON.parse(localStorage.getItem("history") || "[]");
+// ============================================
+// LOGOUT
+// ============================================
 
-  history.unshift({
-    round,
-    result,
-    time: new Date().toLocaleTimeString()
-  });
+logoutBtn.addEventListener(
+  "click",
+  async () => {
 
-  history.splice(20);
+    try {
 
-  localStorage.setItem(
-    "history",
-    JSON.stringify(history)
-  );
+      await fetch(
+        "/api/logout",
+        {
+          method: "POST",
 
-  renderHistory();
-}
+          headers: {
+            Authorization:
+              "Bearer " + token
+          }
+        }
+      );
 
-function renderHistory() {
+    } catch (error) {
+      console.log(error);
+    }
 
-  const box = document.getElementById("history");
+    localStorage.removeItem(
+      "authToken"
+    );
 
-  if (!box) return;
+    token = null;
 
-  const history =
-    JSON.parse(localStorage.getItem("history") || "[]");
+    if (timerInterval) {
+      clearInterval(timerInterval);
+    }
 
-  box.innerHTML = "";
+    location.reload();
 
-  history.forEach(item => {
-
-    const div = document.createElement("div");
-
-    div.className =
-      "result " + item.result;
-
-    div.textContent =
-      "#" + item.round + " " + item.result;
-
-    box.appendChild(div);
-
-  });
-}
-
-function countdown() {
-
-  if (time > 0) {
-    time--;
-  } else {
-    time = 30;
   }
+);
 
-  document.getElementById("timer").textContent =
-    time;
-}
 
-updateBalance();
-updateRound();
-renderHistory();
+// ============================================
+// START
+// ============================================
 
-setInterval(countdown, 1000);
+checkLogin();
