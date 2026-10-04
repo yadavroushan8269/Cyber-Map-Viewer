@@ -4,12 +4,23 @@ const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.static(path.join(__dirname, "public")));
+// Public folder
+const publicFolder = path.join(__dirname, "public");
 
+// Static files
+app.use(express.static(publicFolder));
+
+// Main website
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(path.join(publicFolder, "index.html"));
 });
 
+// Fallback
+app.use((req, res) => {
+  res.sendFile(path.join(publicFolder, "index.html"));
+});
+
+// Start server
 app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`CCTV website running on port ${PORT}`);
 });
