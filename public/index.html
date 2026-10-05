@@ -185,19 +185,8 @@ body{
 
   display:block;
 
-  /*
-   * DEFAULT:
-   * Camera normal rahega.
-   * Koi mirror nahi.
-   */
   transform:none;
 }
-
-
-/*
- * Sirf Mirror button ON hone par
- * ye class lagegi.
- */
 
 #cameraVideo.mirror-preview{
   transform:scaleX(-1);
@@ -400,9 +389,93 @@ body{
   color:black;
 }
 
+#postBtn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
 #cancelPreviewBtn{
   background:#333;
   color:white;
+}
+
+
+/* =========================
+   UPLOAD PROGRESS
+========================= */
+
+#uploadOverlay{
+  position:fixed;
+  z-index:10000;
+
+  inset:0;
+
+  background:rgba(0,0,0,.82);
+
+  display:none;
+
+  align-items:center;
+  justify-content:center;
+
+  padding:25px;
+}
+
+#uploadBox{
+  width:100%;
+  max-width:360px;
+
+  background:white;
+
+  border-radius:20px;
+
+  padding:24px 20px;
+
+  text-align:center;
+
+  box-shadow:0 10px 40px rgba(0,0,0,.4);
+}
+
+#uploadTitle{
+  font-size:19px;
+  font-weight:bold;
+
+  margin-bottom:8px;
+}
+
+#uploadText{
+  font-size:14px;
+  color:#555;
+
+  margin-bottom:18px;
+}
+
+#uploadTrack{
+  width:100%;
+  height:12px;
+
+  background:#e5e5e5;
+
+  border-radius:20px;
+
+  overflow:hidden;
+}
+
+#uploadBar{
+  width:0%;
+  height:100%;
+
+  background:#111;
+
+  border-radius:20px;
+
+  transition:width .15s linear;
+}
+
+#uploadPercent{
+  margin-top:12px;
+
+  font-size:16px;
+  font-weight:bold;
 }
 
 
@@ -694,9 +767,7 @@ body{
 
   <div id="previewModal">
 
-    <img
-      id="previewImage"
-    >
+    <img id="previewImage">
 
     <div id="previewBottom">
 
@@ -707,6 +778,35 @@ body{
       <button id="postBtn">
         📍 Post Snap
       </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- UPLOAD PROGRESS -->
+
+  <div id="uploadOverlay">
+
+    <div id="uploadBox">
+
+      <div id="uploadTitle">
+        📤 Uploading Snap
+      </div>
+
+      <div id="uploadText">
+        Please wait...
+      </div>
+
+      <div id="uploadTrack">
+
+        <div id="uploadBar"></div>
+
+      </div>
+
+      <div id="uploadPercent">
+        0%
+      </div>
 
     </div>
 
@@ -799,17 +899,31 @@ let galleryIndex = 0;
 
 let searchMarker = null;
 
+let mirrorEnabled = false;
+
 
 /*
- * IMPORTANT
- *
- * Default = false
- *
- * Matlab camera kabhi mirror nahi hoga
- * jab tak user Mirror button nahi dabata.
+ * Prevent duplicate upload.
  */
+let isPostingSnap = false;
 
-let mirrorEnabled = false;
+
+/*
+ * Stores captured image.
+ */
+let capturedImageData = null;
+
+
+/*
+ * Back button state.
+ */
+let cameraHistoryActive = false;
+
+
+/*
+ * Current location marker.
+ */
+let userLocationMarker = null;
 
 
 /* =====================================================
@@ -865,9 +979,7 @@ function initSupabase(){
 function showStatus(message){
 
   const el =
-    document.getElementById(
-      "status"
-    );
+    document.getElementById("status");
 
   el.textContent = message;
 
@@ -1365,17 +1477,26 @@ function getUserLocation(){
       );
 
 
-      L.circleMarker(
-        [lat,lng],
-        {
-          radius:8
-        }
-      )
-      .addTo(map)
-      .bindPopup(
-        "📍 You are here"
-      )
-      .openPopup();
+      if(userLocationMarker){
+
+        map.removeLayer(
+          userLocationMarker
+        );
+
+      }
+
+
+      userLocationMarker =
+        L.circleMarker(
+          [lat,lng],
+          {
+            radius:8
+          }
+        )
+        .addTo(map)
+        .bindPopup(
+          "📍 You are here"
+        );
 
 
       showStatus(
@@ -1411,7 +1532,7 @@ function getUserLocation(){
 
 
 /* =====================================================
-   APPLY MIRROR PREVIEW
+   MIRROR PREVIEW
 ===================================================== */
 
 function updateMirrorPreview(){
@@ -1472,11 +1593,138 @@ document
       mirrorEnabled =
         !mirrorEnabled;
 
-
       updateMirrorPreview();
 
     }
   );
+
+
+/* =====================================================
+   CAMERA HISTORY
+===================================================== */
+
+function addCameraHistory(){
+
+  if(cameraHistoryActive){
+    return;
+  }
+
+  cameraHistoryActive = true;
+
+  history.pushState(
+    {
+      pastSnapCamera:true
+    },
+    "",
+    window.location.href
+  );
+
+}
+
+
+/* =====================================================
+   REMOVE CAMERA HISTORY
+===================================================== */
+
+function removeCameraHistory(){
+
+  if(!cameraHistoryActive){
+    return;
+  }
+
+  cameraHistoryActive = false;
+
+}
+
+
+/* =====================================================
+   CLOSE CAMERA
+===================================================== */
+
+function closeCamera(){
+
+  const modal =
+    document.getElementById(
+      "cameraModal"
+    );
+
+
+  if(
+    modal.style.display === "none" ||
+    modal.style.display === ""
+  ){
+
+    return;
+
+  }
+
+
+  modal.style.display =
+    "none";
+
+
+  stopCameraStream();
+
+
+  /*
+   * If close button was used,
+   * remove the extra history entry
+   * without leaving the website.
+   */
+  if(cameraHistoryActive){
+
+    cameraHistoryActive = false;
+
+    if(
+      history.state &&
+      history.state.pastSnapCamera
+    ){
+
+      history.back();
+
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   STOP CAMERA STREAM
+===================================================== */
+
+function stopCameraStream(){
+
+  if(cameraStream){
+
+    cameraStream
+      .getTracks()
+      .forEach(
+        function(track){
+
+          track.stop();
+
+        }
+      );
+
+    cameraStream = null;
+
+  }
+
+
+  const video =
+    document.getElementById(
+      "cameraVideo"
+    );
+
+
+  if(video){
+
+    video.srcObject = null;
+
+  }
+
+}
 
 
 /* =====================================================
@@ -1498,19 +1746,17 @@ async function openCamera(){
 
   try{
 
-    if(cameraStream){
+    stopCameraStream();
 
-      cameraStream
-        .getTracks()
-        .forEach(
-          function(track){
 
-            track.stop();
+    if(
+      !navigator.mediaDevices ||
+      !navigator.mediaDevices.getUserMedia
+    ){
 
-          }
-        );
-
-      cameraStream = null;
+      throw new Error(
+        "Camera API unavailable"
+      );
 
     }
 
@@ -1544,50 +1790,14 @@ async function openCamera(){
       cameraStream;
 
 
-    /*
-     * IMPORTANT:
-     *
-     * Camera open hote hi mirror
-     * sirf mirrorEnabled ke according.
-     *
-     * Default false hai.
-     */
+    modal.style.display =
+      "flex";
+
 
     updateMirrorPreview();
 
 
-    await new Promise(
-      function(resolve){
-
-        if(
-          video.readyState >= 2
-        ){
-
-          resolve();
-
-        }else{
-
-          video.onloadedmetadata =
-            function(){
-
-              resolve();
-
-            };
-
-        }
-
-      }
-    );
-
-
-    await video.play();
-
-
-    applyCameraFilter();
-
-
-    modal.style.display =
-      "flex";
+    addCameraHistory();
 
 
   }catch(error){
@@ -1597,94 +1807,43 @@ async function openCamera(){
       error
     );
 
-
     showStatus(
-      "Camera open nahi hua: " +
-      error.message
+      "Camera permission allow karo."
     );
 
   }
 
 }
-
-
-/* =====================================================
-   CLOSE CAMERA
-===================================================== */
-
-function closeCamera(){
-
-  if(cameraStream){
-
-    cameraStream
-      .getTracks()
-      .forEach(
-        function(track){
-
-          track.stop();
-
-        }
-      );
-
-    cameraStream = null;
-
-  }
-
-
-  const video =
-    document.getElementById(
-      "cameraVideo"
-    );
-
-
-  video.srcObject = null;
-
-  video.classList.remove(
-    "mirror-preview"
-  );
-
-
-  document
-    .getElementById(
-      "cameraModal"
-    )
-    .style.display = "none";
-
-}
-
-
-document
-  .getElementById(
-    "closeCameraBtn"
-  )
-  .addEventListener(
-    "click",
-    closeCamera
-  );
 
 
 /* =====================================================
    SWITCH CAMERA
 ===================================================== */
 
-document
-  .getElementById(
-    "switchCameraBtn"
-  )
-  .addEventListener(
-    "click",
-    async function(){
+async function switchCamera(){
 
-      currentFacingMode =
-        currentFacingMode === "user"
-          ? "environment"
-          : "user";
+  if(!cameraStream){
+    return;
+  }
 
 
-      await openCamera();
+  currentFacingMode =
+    currentFacingMode === "user"
+      ? "environment"
+      : "user";
 
-    }
-  );
+
+  try{
+
+    await openCamera();
+
+  }catch(error){
+
+    console.error(error);
+
+  }
+
+}
 
 
 /* =====================================================
@@ -1696,110 +1855,37 @@ function filterToCss(filter){
   switch(filter){
 
     case "vintage":
-
-      return (
-        "sepia(.7) " +
-        "contrast(1.1) " +
-        "saturate(.8)"
-      );
-
+      return "sepia(.7) contrast(1.1) saturate(.8)";
 
     case "bw":
-
       return "grayscale(1)";
 
-
     case "warm":
-
-      return (
-        "sepia(.25) " +
-        "saturate(1.35)"
-      );
-
+      return "sepia(.25) saturate(1.35)";
 
     case "cool":
-
-      return (
-        "saturate(.9) " +
-        "hue-rotate(15deg)"
-      );
-
+      return "saturate(.9) hue-rotate(15deg)";
 
     case "glow":
-
-      return (
-        "brightness(1.1) " +
-        "saturate(1.2)"
-      );
-
+      return "brightness(1.1) saturate(1.2)";
 
     case "night":
-
-      return (
-        "brightness(.65) " +
-        "contrast(1.25) " +
-        "saturate(1.2)"
-      );
-
+      return "brightness(.65) contrast(1.25) saturate(1.2)";
 
     case "pop":
-
-      return (
-        "saturate(1.8) " +
-        "contrast(1.15)"
-      );
-
+      return "saturate(1.8) contrast(1.15)";
 
     case "dream":
-
-      return (
-        "brightness(1.08) " +
-        "contrast(.9) " +
-        "saturate(1.2)"
-      );
-
+      return "brightness(1.08) contrast(.9) saturate(1.2)";
 
     case "sunset":
-
-      return (
-        "sepia(.25) " +
-        "saturate(1.5) " +
-        "hue-rotate(-10deg)"
-      );
-
+      return "sepia(.25) saturate(1.5) hue-rotate(-10deg)";
 
     case "none":
-
     default:
-
       return "none";
 
   }
-
-}
-
-
-/* =====================================================
-   APPLY CAMERA FILTER
-===================================================== */
-
-function applyCameraFilter(){
-
-  const video =
-    document.getElementById(
-      "cameraVideo"
-    );
-
-
-  if(!video){
-    return;
-  }
-
-
-  video.style.filter =
-    filterToCss(
-      currentFilter
-    );
 
 }
 
@@ -1809,9 +1895,7 @@ function applyCameraFilter(){
 ===================================================== */
 
 document
-  .querySelectorAll(
-    ".filterBtn"
-  )
+  .querySelectorAll(".filterBtn")
   .forEach(
     function(button){
 
@@ -1820,13 +1904,11 @@ document
         function(){
 
           document
-            .querySelectorAll(
-              ".filterBtn"
-            )
+            .querySelectorAll(".filterBtn")
             .forEach(
-              function(btn){
+              function(item){
 
-                btn.classList.remove(
+                item.classList.remove(
                   "active"
                 );
 
@@ -1843,18 +1925,16 @@ document
             button.dataset.filter;
 
 
-          applyCameraFilter();
+          const video =
+            document.getElementById(
+              "cameraVideo"
+            );
 
 
-          button.scrollIntoView({
-
-            behavior:"smooth",
-
-            block:"nearest",
-
-            inline:"center"
-
-          });
+          video.style.filter =
+            filterToCss(
+              currentFilter
+            );
 
         }
       );
@@ -1866,16 +1946,6 @@ document
 /* =====================================================
    CAPTURE PHOTO
 ===================================================== */
-
-document
-  .getElementById(
-    "captureBtn"
-  )
-  .addEventListener(
-    "click",
-    capturePhoto
-  );
-
 
 function capturePhoto(){
 
@@ -1923,25 +1993,11 @@ function capturePhoto(){
     canvas.getContext("2d");
 
 
-  /*
-   * Filter photo par apply hoga.
-   */
-
   ctx.filter =
     filterToCss(
       currentFilter
     );
 
-
-  /*
-   * IMPORTANT MIRROR LOGIC
-   *
-   * Mirror OFF:
-   * normal photo
-   *
-   * Mirror ON:
-   * photo horizontally flipped
-   */
 
   if(mirrorEnabled){
 
@@ -1957,7 +2013,6 @@ function capturePhoto(){
       1
     );
 
-
     ctx.drawImage(
       video,
       0,
@@ -1965,7 +2020,6 @@ function capturePhoto(){
       width,
       height
     );
-
 
     ctx.restore();
 
@@ -1980,7 +2034,6 @@ function capturePhoto(){
       0
     );
 
-
     ctx.drawImage(
       video,
       0,
@@ -1992,14 +2045,10 @@ function capturePhoto(){
   }
 
 
-  /*
-   * Final image.
-   */
-
-  const imageData =
+  capturedImageData =
     canvas.toDataURL(
       "image/jpeg",
-      0.88
+      .88
     );
 
 
@@ -2009,36 +2058,44 @@ function capturePhoto(){
     );
 
 
-  /*
-   * Preview par CSS mirror nahi lagana.
-   * Canvas ne already correct image bana di.
-   */
-
   previewImage.style.transform =
     "none";
-
 
   previewImage.style.filter =
     "none";
 
-
   previewImage.src =
-    imageData;
+    capturedImageData;
 
 
-  document
-    .getElementById(
-      "cameraModal"
-    )
-    .style.display =
+  document.getElementById(
+    "cameraModal"
+  ).style.display =
     "none";
 
 
-  document
-    .getElementById(
-      "previewModal"
-    )
-    .style.display =
+  stopCameraStream();
+
+
+  /*
+   * Camera history remains active.
+   * We replace the current history state
+   * so Android Back can close preview
+   * instead of leaving the website.
+   */
+
+  history.replaceState(
+    {
+      pastSnapPreview:true
+    },
+    "",
+    window.location.href
+  );
+
+
+  document.getElementById(
+    "previewModal"
+  ).style.display =
     "flex";
 
 }
@@ -2048,71 +2105,275 @@ function capturePhoto(){
    RETAKE
 ===================================================== */
 
-document
-  .getElementById(
-    "cancelPreviewBtn"
-  )
-  .addEventListener(
-    "click",
-    function(){
+async function retakePhoto(){
 
-      document
-        .getElementById(
-          "previewModal"
-        )
-        .style.display =
-        "none";
-
-
-      openCamera();
-
-    }
-  );
-
-
-/* =====================================================
-   DATA URL TO BLOB
-===================================================== */
-
-function dataURLtoBlob(dataURL){
-
-  const parts =
-    dataURL.split(",");
-
-
-  const mime =
-    parts[0]
-      .match(
-        /:(.*?);/
-      )[1];
-
-
-  const binary =
-    atob(parts[1]);
-
-
-  const array =
-    new Uint8Array(
-      binary.length
-    );
-
-
-  for(
-    let i=0;
-    i<binary.length;
-    i++
-  ){
-
-    array[i] =
-      binary.charCodeAt(i);
-
+  if(isPostingSnap){
+    return;
   }
 
 
-  return new Blob(
-    [array],
-    {
-      type:mime
+  document.getElementById(
+    "previewModal"
+  ).style.display =
+    "none";
+
+
+  /*
+   * Keep history entry alive.
+   */
+  cameraHistoryActive = true;
+
+
+  await openCamera();
+
+}
+
+
+/* =====================================================
+   UPLOAD UI
+===================================================== */
+
+function setUploadProgress(
+  percent,
+  textMessage
+){
+
+  const bar =
+    document.getElementById(
+      "uploadBar"
+    );
+
+  const percentText =
+    document.getElementById(
+      "uploadPercent"
+    );
+
+  const uploadText =
+    document.getElementById(
+      "uploadText"
+    );
+
+
+  const safePercent =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Math.round(percent)
+      )
+    );
+
+
+  bar.style.width =
+    safePercent + "%";
+
+
+  percentText.textContent =
+    safePercent + "%";
+
+
+  if(textMessage){
+
+    uploadText.textContent =
+      textMessage;
+
+  }
+
+}
+
+
+/* =====================================================
+   SHOW UPLOAD
+===================================================== */
+
+function showUploadOverlay(){
+
+  const overlay =
+    document.getElementById(
+      "uploadOverlay"
+    );
+
+
+  overlay.style.display =
+    "flex";
+
+
+  setUploadProgress(
+    0,
+    "Snap upload ho raha hai..."
+  );
+
+}
+
+
+/* =====================================================
+   HIDE UPLOAD
+===================================================== */
+
+function hideUploadOverlay(){
+
+  document.getElementById(
+    "uploadOverlay"
+  ).style.display =
+    "none";
+
+}
+
+
+/* =====================================================
+   XHR STORAGE UPLOAD
+===================================================== */
+
+function uploadImageWithProgress(
+  filePath,
+  blob
+){
+
+  return new Promise(
+    function(resolve,reject){
+
+      const xhr =
+        new XMLHttpRequest();
+
+
+      const uploadUrl =
+        SUPABASE_URL +
+        "/storage/v1/object/past-snaps/" +
+        encodeURIComponent(
+          filePath
+        );
+
+
+      xhr.open(
+        "POST",
+        uploadUrl,
+        true
+      );
+
+
+      xhr.setRequestHeader(
+        "apikey",
+        SUPABASE_KEY
+      );
+
+
+      xhr.setRequestHeader(
+        "Authorization",
+        "Bearer " +
+        SUPABASE_KEY
+      );
+
+
+      xhr.setRequestHeader(
+        "Content-Type",
+        "image/jpeg"
+      );
+
+
+      xhr.setRequestHeader(
+        "x-upsert",
+        "false"
+      );
+
+
+      xhr.upload.onprogress =
+        function(event){
+
+          if(event.lengthComputable){
+
+            const percent =
+              (event.loaded /
+               event.total) *
+              100;
+
+
+            setUploadProgress(
+              percent,
+              "📤 Photo upload ho rahi hai..."
+            );
+
+          }
+
+        };
+
+
+      xhr.onload =
+        function(){
+
+          if(
+            xhr.status >= 200 &&
+            xhr.status < 300
+          ){
+
+            setUploadProgress(
+              100,
+              "✅ Photo upload complete"
+            );
+
+            resolve(
+              xhr.responseText
+            );
+
+          }else{
+
+            let message =
+              "Storage upload failed";
+
+            try{
+
+              const data =
+                JSON.parse(
+                  xhr.responseText
+                );
+
+              if(data.message){
+                message =
+                  data.message;
+              }
+
+            }catch(e){}
+
+
+            reject(
+              new Error(
+                message +
+                " (" +
+                xhr.status +
+                ")"
+              )
+            );
+
+          }
+
+        };
+
+
+      xhr.onerror =
+        function(){
+
+          reject(
+            new Error(
+              "Network error during upload"
+            )
+          );
+
+        };
+
+
+      xhr.onabort =
+        function(){
+
+          reject(
+            new Error(
+              "Upload cancelled"
+            )
+          );
+
+        };
+
+
+      xhr.send(blob);
+
     }
   );
 
@@ -2123,22 +2384,22 @@ function dataURLtoBlob(dataURL){
    POST SNAP
 ===================================================== */
 
-document
-  .getElementById(
-    "postBtn"
-  )
-  .addEventListener(
-    "click",
-    postSnap
-  );
-
-
 async function postSnap(){
+
+  /*
+   * MAIN DUPLICATE PROTECTION
+   */
+  if(isPostingSnap){
+
+    return;
+
+  }
+
 
   if(!currentLocation){
 
     showStatus(
-      "Pehle location allow karo."
+      "Location available nahi hai."
     );
 
     return;
@@ -2146,19 +2407,10 @@ async function postSnap(){
   }
 
 
-  const image =
-    document.getElementById(
-      "previewImage"
-    );
-
-
-  if(
-    !image.src ||
-    image.src.length < 50
-  ){
+  if(!capturedImageData){
 
     showStatus(
-      "Photo nahi mili."
+      "Photo capture nahi hui."
     );
 
     return;
@@ -2171,122 +2423,216 @@ async function postSnap(){
 
 
   if(!client){
+
     return;
+
   }
 
 
-  showStatus(
-    "📤 Snap upload ho raha hai..."
-  );
+  const postButton =
+    document.getElementById(
+      "postBtn"
+    );
+
+
+  /*
+   * Lock immediately.
+   */
+  isPostingSnap = true;
+
+  postButton.disabled = true;
+
+  postButton.textContent =
+    "Uploading...";
+
+
+  showUploadOverlay();
 
 
   try{
 
-    const blob =
-      dataURLtoBlob(
-        image.src
+    setUploadProgress(
+      5,
+      "Photo prepare ho rahi hai..."
+    );
+
+
+    /*
+     * Convert data URL to Blob.
+     */
+    const response =
+      await fetch(
+        capturedImageData
       );
 
 
-    const fileName =
-      Date.now() +
-      "-" +
-      Math.random()
-        .toString(36)
-        .slice(2) +
-      ".jpg";
+    const blob =
+      await response.blob();
 
 
-    const upload =
-      await client
-        .storage
-        .from("past-snaps")
-        .upload(
-          fileName,
-          blob,
-          {
-            contentType:
-              "image/jpeg",
+    if(!blob || !blob.size){
 
-            upsert:false
-          }
-        );
-
-
-    if(upload.error){
-
-      throw upload.error;
+      throw new Error(
+        "Image blob empty hai."
+      );
 
     }
 
 
-    const publicData =
-      client
-        .storage
-        .from("past-snaps")
-        .getPublicUrl(
-          fileName
-        );
+    setUploadProgress(
+      10,
+      "📤 Upload start ho raha hai..."
+    );
 
 
-    const imageUrl =
-      publicData
-        .data
-        .publicUrl;
+    /*
+     * Unique file name.
+     *
+     * Random name ensures
+     * same photo path overwrite
+     * nahi karega.
+     */
+    const fileName =
+      "snap_" +
+      Date.now() +
+      "_" +
+      Math.random()
+        .toString(36)
+        .slice(2,10) +
+      ".jpg";
 
 
-    const insert =
+    /*
+     * Upload directly with XHR
+     * so real progress percentage
+     * mil sake.
+     */
+    await uploadImageWithProgress(
+      fileName,
+      blob
+    );
+
+
+    const publicUrl =
+      SUPABASE_URL +
+      "/storage/v1/object/public/past-snaps/" +
+      fileName;
+
+
+    setUploadProgress(
+      100,
+      "📍 Snap save ho raha hai..."
+    );
+
+
+    /*
+     * Insert database row
+     */
+    const insertResult =
       await client
         .from("snaps")
         .insert({
 
           latitude:
-            currentLocation.latitude,
+            Number(
+              currentLocation.latitude
+            ),
 
           longitude:
-            currentLocation.longitude,
+            Number(
+              currentLocation.longitude
+            ),
 
           image_url:
-            imageUrl
+            publicUrl
 
         });
 
 
-    if(insert.error){
+    if(insertResult.error){
 
-      throw insert.error;
+      /*
+       * Database insert failed after
+       * storage upload.
+       *
+       * We report the error instead
+       * of pretending it succeeded.
+       */
+      throw insertResult.error;
 
     }
 
 
-    document
-      .getElementById(
-        "previewModal"
-      )
-      .style.display =
-      "none";
-
-
-    showStatus(
-      "✅ Snap posted successfully!"
+    setUploadProgress(
+      100,
+      "🎉 Snap successfully posted!"
     );
 
 
+    await new Promise(
+      function(resolve){
+
+        setTimeout(
+          resolve,
+          600
+        );
+
+      }
+    );
+
+
+    hideUploadOverlay();
+
+
+    document.getElementById(
+      "previewModal"
+    ).style.display =
+      "none";
+
+
+    capturedImageData =
+      null;
+
+
+    /*
+     * Refresh nearby snaps.
+     */
     await loadSnapsForVisibleArea();
+
+
+    showStatus(
+      "📍 Snap successfully posted!"
+    );
 
 
   }catch(error){
 
     console.error(
-      "POST ERROR:",
+      "POST SNAP ERROR:",
       error
     );
 
 
+    hideUploadOverlay();
+
+
     showStatus(
-      "Upload failed: " +
-      error.message
+      "Snap upload nahi hua. Dobara try karo."
     );
+
+
+  }finally{
+
+    /*
+     * Unlock only AFTER complete
+     * success/failure.
+     */
+    isPostingSnap = false;
+
+    postButton.disabled = false;
+
+    postButton.textContent =
+      "📍 Post Snap";
 
   }
 
@@ -2294,24 +2640,25 @@ async function postSnap(){
 
 
 /* =====================================================
-   SEARCH
+   SEARCH LOCATION
 ===================================================== */
 
 async function searchLocation(){
 
+  const input =
+    document.getElementById(
+      "searchInput"
+    );
+
+
   const query =
-    document
-      .getElementById(
-        "searchInput"
-      )
-      .value
-      .trim();
+    input.value.trim();
 
 
   if(!query){
 
     showStatus(
-      "Location ka naam likho."
+      "Location search karo."
     );
 
     return;
@@ -2327,38 +2674,24 @@ async function searchLocation(){
   try{
 
     const url =
-      "https://nominatim.openstreetmap.org/search?" +
-
-      new URLSearchParams({
-
-        q:query,
-
-        format:"json",
-
-        limit:"5"
-
-      });
+      "https://nominatim.openstreetmap.org/search" +
+      "?format=json" +
+      "&limit=1" +
+      "&q=" +
+      encodeURIComponent(query);
 
 
     const response =
-      await fetch(
-        url,
-        {
-          headers:{
-            "Accept":
-              "application/json"
-          }
-        }
-      );
+      await fetch(url);
 
 
-    const results =
+    const data =
       await response.json();
 
 
     if(
-      !results ||
-      !results.length
+      !Array.isArray(data) ||
+      !data.length
     ){
 
       showStatus(
@@ -2370,15 +2703,15 @@ async function searchLocation(){
     }
 
 
-    const first =
-      results[0];
+    const result =
+      data[0];
 
 
     const lat =
-      Number(first.lat);
+      Number(result.lat);
 
     const lon =
-      Number(first.lon);
+      Number(result.lon);
 
 
     map.setView(
@@ -2402,28 +2735,25 @@ async function searchLocation(){
       )
       .addTo(map)
       .bindPopup(
-        first.display_name
+        result.display_name
       )
       .openPopup();
 
 
     showStatus(
-      "📍 Location found."
-    );
-
-
-    setTimeout(
-      loadSnapsForVisibleArea,
-      500
+      "📍 Location mil gayi."
     );
 
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      "SEARCH ERROR:",
+      error
+    );
 
     showStatus(
-      "Search failed."
+      "Search mein problem hui."
     );
 
   }
@@ -2431,10 +2761,294 @@ async function searchLocation(){
 }
 
 
+/* =====================================================
+   GALLERY
+===================================================== */
+
+function openGallery(snaps){
+
+  if(
+    !Array.isArray(snaps) ||
+    !snaps.length
+  ){
+
+    return;
+
+  }
+
+
+  gallerySnaps =
+    snaps;
+
+  galleryIndex =
+    0;
+
+
+  updateGallery();
+
+
+  document.getElementById(
+    "galleryModal"
+  ).style.display =
+    "flex";
+
+}
+
+
+/* =====================================================
+   UPDATE GALLERY
+===================================================== */
+
+function updateGallery(){
+
+  if(!gallerySnaps.length){
+    return;
+  }
+
+
+  const snap =
+    gallerySnaps[
+      galleryIndex
+    ];
+
+
+  document.getElementById(
+    "galleryImage"
+  ).src =
+    snap.image_url;
+
+
+  document.getElementById(
+    "galleryCounter"
+  ).textContent =
+    (
+      galleryIndex + 1
+    ) +
+    " / " +
+    gallerySnaps.length;
+
+}
+
+
+/* =====================================================
+   CLOSE GALLERY
+===================================================== */
+
+function closeGallery(){
+
+  document.getElementById(
+    "galleryModal"
+  ).style.display =
+    "none";
+
+}
+
+
+/* =====================================================
+   PREVIOUS IMAGE
+===================================================== */
+
+function previousGallery(){
+
+  if(!gallerySnaps.length){
+    return;
+  }
+
+
+  galleryIndex =
+    (
+      galleryIndex -
+      1 +
+      gallerySnaps.length
+    ) %
+    gallerySnaps.length;
+
+
+  updateGallery();
+
+}
+
+
+/* =====================================================
+   NEXT IMAGE
+===================================================== */
+
+function nextGallery(){
+
+  if(!gallerySnaps.length){
+    return;
+  }
+
+
+  galleryIndex =
+    (
+      galleryIndex +
+      1
+    ) %
+    gallerySnaps.length;
+
+
+  updateGallery();
+
+}
+
+
+/* =====================================================
+   BACK BUTTON HANDLER
+===================================================== */
+
+window.addEventListener(
+  "popstate",
+  function(){
+
+    const cameraModal =
+      document.getElementById(
+        "cameraModal"
+      );
+
+    const previewModal =
+      document.getElementById(
+        "previewModal"
+      );
+
+    const galleryModal =
+      document.getElementById(
+        "galleryModal"
+      );
+
+
+    /*
+     * Gallery
+     */
+    if(
+      galleryModal.style.display === "flex"
+    ){
+
+      galleryModal.style.display =
+        "none";
+
+      return;
+
+    }
+
+
+    /*
+     * Preview
+     */
+    if(
+      previewModal.style.display === "flex"
+    ){
+
+      if(isPostingSnap){
+        return;
+      }
+
+
+      previewModal.style.display =
+        "none";
+
+
+      capturedImageData =
+        null;
+
+
+      cameraHistoryActive =
+        false;
+
+
+      return;
+
+    }
+
+
+    /*
+     * Camera
+     */
+    if(
+      cameraModal.style.display === "flex"
+    ){
+
+      cameraModal.style.display =
+        "none";
+
+
+      stopCameraStream();
+
+
+      cameraHistoryActive =
+        false;
+
+
+      return;
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   BUTTON EVENTS
+===================================================== */
+
 document
-  .getElementById(
-    "searchBtn"
-  )
+  .getElementById("locationBtn")
+  .addEventListener(
+    "click",
+    getUserLocation
+  );
+
+
+document
+  .getElementById("closeCameraBtn")
+  .addEventListener(
+    "click",
+    function(){
+
+      closeCamera();
+
+    }
+  );
+
+
+document
+  .getElementById("switchCameraBtn")
+  .addEventListener(
+    "click",
+    switchCamera
+  );
+
+
+document
+  .getElementById("captureBtn")
+  .addEventListener(
+    "click",
+    capturePhoto
+  );
+
+
+document
+  .getElementById("cancelPreviewBtn")
+  .addEventListener(
+    "click",
+    retakePhoto
+  );
+
+
+/*
+ * IMPORTANT:
+ * Post button has ONE listener only.
+ */
+document
+  .getElementById("postBtn")
+  .addEventListener(
+    "click",
+    postSnap
+  );
+
+
+document
+  .getElementById("searchBtn")
   .addEventListener(
     "click",
     searchLocation
@@ -2442,9 +3056,7 @@ document
 
 
 document
-  .getElementById(
-    "searchInput"
-  )
+  .getElementById("searchInput")
   .addEventListener(
     "keydown",
     function(event){
@@ -2461,198 +3073,27 @@ document
   );
 
 
-/* =====================================================
-   LOCATION BUTTON
-===================================================== */
-
 document
-  .getElementById(
-    "locationBtn"
-  )
+  .getElementById("closeGalleryBtn")
   .addEventListener(
     "click",
-    getUserLocation
+    closeGallery
   );
 
 
-/* =====================================================
-   GALLERY
-===================================================== */
-
-function openGallery(snaps){
-
-  if(
-    !snaps ||
-    !snaps.length
-  ){
-
-    return;
-
-  }
-
-
-  gallerySnaps =
-    snaps;
-
-  galleryIndex =
-    0;
-
-
-  document
-    .getElementById(
-      "galleryModal"
-    )
-    .style.display =
-    "flex";
-
-
-  updateGallery();
-
-}
-
-
-/* =====================================================
-   UPDATE GALLERY
-===================================================== */
-
-function updateGallery(){
-
-  if(
-    !gallerySnaps.length
-  ){
-
-    return;
-
-  }
-
-
-  const snap =
-    gallerySnaps[
-      galleryIndex
-    ];
-
-
-  document
-    .getElementById(
-      "galleryImage"
-    )
-    .src =
-    snap.image_url;
-
-
-  document
-    .getElementById(
-      "galleryCounter"
-    )
-    .textContent =
-
-      (galleryIndex + 1) +
-      " / " +
-      gallerySnaps.length;
-
-}
-
-
-/* =====================================================
-   PREVIOUS
-===================================================== */
-
 document
-  .getElementById(
-    "prevBtn"
-  )
+  .getElementById("prevBtn")
   .addEventListener(
     "click",
-    function(){
-
-      if(
-        !gallerySnaps.length
-      ){
-
-        return;
-
-      }
-
-
-      galleryIndex--;
-
-
-      if(
-        galleryIndex < 0
-      ){
-
-        galleryIndex =
-          gallerySnaps.length - 1;
-
-      }
-
-
-      updateGallery();
-
-    }
+    previousGallery
   );
 
 
-/* =====================================================
-   NEXT
-===================================================== */
-
 document
-  .getElementById(
-    "nextBtn"
-  )
+  .getElementById("nextBtn")
   .addEventListener(
     "click",
-    function(){
-
-      if(
-        !gallerySnaps.length
-      ){
-
-        return;
-
-      }
-
-
-      galleryIndex++;
-
-
-      if(
-        galleryIndex >=
-        gallerySnaps.length
-      ){
-
-        galleryIndex = 0;
-
-      }
-
-
-      updateGallery();
-
-    }
-  );
-
-
-/* =====================================================
-   CLOSE GALLERY
-===================================================== */
-
-document
-  .getElementById(
-    "closeGalleryBtn"
-  )
-  .addEventListener(
-    "click",
-    function(){
-
-      document
-        .getElementById(
-          "galleryModal"
-        )
-        .style.display =
-        "none";
-
-    }
+    nextGallery
   );
 
 
@@ -2660,23 +3101,30 @@ document
    SWIPE GALLERY
 ===================================================== */
 
-let touchStartX = 0;
+let galleryTouchStartX = 0;
 
-let touchEndX = 0;
+let galleryTouchEndX = 0;
 
 
-const galleryBox =
+const galleryImageBox =
   document.getElementById(
     "galleryImageBox"
   );
 
 
-galleryBox.addEventListener(
+galleryImageBox.addEventListener(
   "touchstart",
   function(event){
 
-    touchStartX =
-      event.changedTouches[0].screenX;
+    if(
+      event.touches &&
+      event.touches.length
+    ){
+
+      galleryTouchStartX =
+        event.touches[0].clientX;
+
+    }
 
   },
   {
@@ -2685,21 +3133,28 @@ galleryBox.addEventListener(
 );
 
 
-galleryBox.addEventListener(
+galleryImageBox.addEventListener(
   "touchend",
   function(event){
 
-    touchEndX =
-      event.changedTouches[0].screenX;
+    if(
+      event.changedTouches &&
+      event.changedTouches.length
+    ){
+
+      galleryTouchEndX =
+        event.changedTouches[0].clientX;
+
+    }
 
 
-    const diff =
-      touchEndX -
-      touchStartX;
+    const difference =
+      galleryTouchEndX -
+      galleryTouchStartX;
 
 
     if(
-      Math.abs(diff) < 50
+      Math.abs(difference) < 50
     ){
 
       return;
@@ -2707,21 +3162,13 @@ galleryBox.addEventListener(
     }
 
 
-    if(diff > 0){
+    if(difference > 0){
 
-      document
-        .getElementById(
-          "prevBtn"
-        )
-        .click();
+      previousGallery();
 
     }else{
 
-      document
-        .getElementById(
-          "nextBtn"
-        )
-        .click();
+      nextGallery();
 
     }
 
@@ -2733,7 +3180,7 @@ galleryBox.addEventListener(
 
 
 /* =====================================================
-   ESCAPE
+   ESC KEY
 ===================================================== */
 
 document.addEventListener(
@@ -2741,23 +3188,62 @@ document.addEventListener(
   function(event){
 
     if(
-      event.key === "Escape"
+      event.key !== "Escape"
     ){
 
-      document
-        .getElementById(
-          "galleryModal"
-        )
-        .style.display =
-        "none";
+      return;
+
+    }
 
 
-      document
-        .getElementById(
-          "previewModal"
-        )
-        .style.display =
+    const gallery =
+      document.getElementById(
+        "galleryModal"
+      );
+
+    const preview =
+      document.getElementById(
+        "previewModal"
+      );
+
+    const camera =
+      document.getElementById(
+        "cameraModal"
+      );
+
+
+    if(
+      gallery.style.display === "flex"
+    ){
+
+      closeGallery();
+
+      return;
+
+    }
+
+
+    if(
+      preview.style.display === "flex" &&
+      !isPostingSnap
+    ){
+
+      preview.style.display =
         "none";
+
+      capturedImageData =
+        null;
+
+      return;
+
+    }
+
+
+    if(
+      camera.style.display === "flex"
+    ){
+
+      closeCamera();
 
     }
 
@@ -2775,15 +3261,9 @@ document.addEventListener(
 
     initMap();
 
+    initSupabase();
 
-    setTimeout(
-      function(){
-
-        loadSnapsForVisibleArea();
-
-      },
-      300
-    );
+    loadSnapsForVisibleArea();
 
   }
 );
