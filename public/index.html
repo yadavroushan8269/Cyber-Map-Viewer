@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+
   <meta
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
@@ -9,13 +10,16 @@
 
   <title>Past Snap</title>
 
-  <!-- Leaflet -->
+  <!-- =========================
+       LEAFLET CSS
+  ========================== -->
   <link
     rel="stylesheet"
     href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
   />
 
   <style>
+
     * {
       box-sizing: border-box;
       -webkit-tap-highlight-color: transparent;
@@ -31,6 +35,16 @@
       background: #111;
     }
 
+    button {
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+
+    /* =========================================
+       APP
+    ========================================== */
+
     #app {
       width: 100%;
       height: 100%;
@@ -38,20 +52,32 @@
       overflow: hidden;
     }
 
-    /* HEADER */
+
+    /* =========================================
+       HEADER
+    ========================================== */
+
     .topbar {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
+
       height: 68px;
+
       z-index: 1000;
+
       display: flex;
       align-items: center;
+
       padding: 10px 16px;
-      background: rgba(10, 10, 10, 0.92);
+
+      background: rgba(10, 10, 10, 0.94);
+
       color: white;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+
+      box-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.35);
     }
 
     .brand {
@@ -65,133 +91,272 @@
       margin-top: 3px;
     }
 
-    /* MAP */
+
+    /* =========================================
+       MAP
+    ========================================== */
+
     #map {
       position: absolute;
+
       top: 68px;
       left: 0;
       right: 0;
       bottom: 0;
-      background: #e8edf3;
+
       z-index: 1;
+
+      background: #e8edf3;
     }
 
-    /* MAP ERROR */
+
     #mapStatus {
       position: absolute;
-      z-index: 900;
+
+      z-index: 1200;
+
       top: 82px;
       left: 50%;
+
       transform: translateX(-50%);
-      background: rgba(0, 0, 0, 0.78);
-      color: white;
-      padding: 9px 14px;
-      border-radius: 20px;
-      font-size: 12px;
+
       display: none;
+
       max-width: 90%;
+
+      padding: 9px 14px;
+
+      border-radius: 20px;
+
+      background: rgba(0, 0, 0, 0.78);
+
+      color: white;
+
+      font-size: 12px;
+
       text-align: center;
     }
 
-    /* MY LOCATION */
+
+    /* =========================================
+       MY LOCATION BUTTON
+    ========================================== */
+
     #locationBtn {
       position: absolute;
-      z-index: 1000;
+
+      z-index: 1500;
+
       right: 15px;
       bottom: 20px;
+
       border: none;
+
       background: #111;
+
       color: white;
+
       padding: 14px 18px;
+
       border-radius: 30px;
+
       font-size: 15px;
+
       font-weight: 700;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35);
+
+      box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.35);
     }
 
     #locationBtn:active {
       transform: scale(0.96);
     }
 
-    /* INFO */
+
+    /* =========================================
+       INFO
+    ========================================== */
+
     .info {
       position: absolute;
-      z-index: 1000;
+
+      z-index: 1500;
+
       left: 15px;
       bottom: 20px;
-      max-width: 240px;
+
+      max-width: 245px;
+
       padding: 10px 13px;
+
       border-radius: 15px;
+
       background: rgba(255, 255, 255, 0.94);
+
       color: #111;
+
       font-size: 12px;
-      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+
+      line-height: 1.5;
+
+      box-shadow:
+        0 5px 20px rgba(0, 0, 0, 0.2);
     }
 
-    /* GHOST MARKER */
-    .ghost-marker {
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: white;
-      border: 3px solid #111;
+
+    /* =========================================
+       SNAP GROUP MARKER
+    ========================================== */
+
+    .snap-group-marker {
+      position: relative;
+
+      width: 58px;
+      height: 58px;
+
       display: flex;
+
       align-items: center;
       justify-content: center;
-      font-size: 23px;
-      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
     }
 
-    /* CAMERA MODAL */
+
+    .snap-group-ghost {
+      width: 48px;
+      height: 48px;
+
+      border-radius: 50%;
+
+      background: white;
+
+      border: 3px solid #111;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      font-size: 27px;
+
+      box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+
+
+    .snap-count {
+      position: absolute;
+
+      right: -2px;
+      top: -4px;
+
+      min-width: 25px;
+      height: 25px;
+
+      padding: 0 5px;
+
+      border-radius: 15px;
+
+      background: #111;
+
+      color: white;
+
+      border: 2px solid white;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      font-size: 11px;
+
+      font-weight: 900;
+    }
+
+
+    /* =========================================
+       CAMERA
+    ========================================== */
+
     #cameraModal {
       position: fixed;
+
       inset: 0;
+
       z-index: 5000;
+
       background: #000;
+
       display: none;
+
       flex-direction: column;
     }
+
 
     #cameraVideo {
       width: 100%;
       height: 100%;
+
       object-fit: cover;
+
       background: #000;
     }
 
+
     .cameraTop {
       position: absolute;
+
       top: 0;
       left: 0;
       right: 0;
+
       z-index: 10;
+
       padding: 18px;
+
       display: flex;
+
       justify-content: space-between;
-      align-items: center;
     }
+
 
     .cameraTop button {
       width: 44px;
       height: 44px;
+
       border: none;
+
       border-radius: 50%;
+
       background: rgba(0, 0, 0, 0.55);
+
       color: white;
+
       font-size: 20px;
     }
 
-    /* FILTERS */
+
+    /* =========================================
+       FILTERS
+    ========================================== */
+
     .filters {
       position: absolute;
+
       left: 0;
       right: 0;
+
       bottom: 115px;
+
       z-index: 20;
+
       display: flex;
+
       gap: 10px;
+
       padding: 8px 14px;
+
       overflow-x: auto;
+
       scrollbar-width: none;
     }
 
@@ -199,283 +364,692 @@
       display: none;
     }
 
+
     .filterBtn {
       min-width: 70px;
       height: 62px;
+
       border: 2px solid transparent;
+
       border-radius: 16px;
+
       background: rgba(0, 0, 0, 0.6);
+
       color: white;
+
       font-size: 11px;
+
       font-weight: 700;
+
       flex-shrink: 0;
     }
 
+
     .filterBtn.active {
       border-color: white;
-      background: rgba(255, 255, 255, 0.2);
+
+      background:
+        rgba(255, 255, 255, 0.2);
     }
 
-    /* CAMERA CONTROLS */
+
+    /* =========================================
+       CAMERA BOTTOM
+    ========================================== */
+
     .cameraBottom {
       position: absolute;
+
       left: 0;
       right: 0;
+
       bottom: 20px;
+
       z-index: 30;
+
       display: flex;
+
       align-items: center;
+
       justify-content: center;
+
       gap: 35px;
     }
+
 
     #captureBtn {
       width: 74px;
       height: 74px;
+
       border-radius: 50%;
+
       border: 7px solid white;
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
+
+      background: white;
+
+      box-shadow:
+        0 0 0 3px rgba(0, 0, 0, 0.3);
     }
+
 
     #switchCameraBtn {
       width: 48px;
       height: 48px;
+
       border: none;
+
       border-radius: 50%;
+
       background: rgba(0, 0, 0, 0.6);
+
       color: white;
+
       font-size: 21px;
     }
 
-    /* PREVIEW */
+
+    /* =========================================
+       PREVIEW
+    ========================================== */
+
     #previewModal {
       position: fixed;
+
       inset: 0;
+
       z-index: 6000;
+
       background: #000;
+
       display: none;
+
       flex-direction: column;
     }
+
 
     #previewImage {
       width: 100%;
       height: 100%;
+
       object-fit: contain;
+
       background: #000;
     }
 
+
     .previewTop {
       position: absolute;
+
       top: 0;
       left: 0;
       right: 0;
+
       padding: 18px;
+
       z-index: 10;
-      display: flex;
-      justify-content: flex-start;
     }
+
 
     .previewTop button {
       width: 44px;
       height: 44px;
+
       border: none;
+
       border-radius: 50%;
-      background: rgba(0, 0, 0, 0.65);
+
+      background:
+        rgba(0, 0, 0, 0.65);
+
       color: white;
+
       font-size: 20px;
     }
 
+
     .previewBottom {
       position: absolute;
+
       bottom: 25px;
+
       left: 15px;
       right: 15px;
+
       z-index: 20;
+
       display: flex;
+
       gap: 10px;
     }
 
+
     .previewBottom button {
       flex: 1;
+
       border: none;
+
       padding: 15px;
+
       border-radius: 30px;
+
       font-size: 15px;
+
       font-weight: 800;
     }
+
 
     #retakeBtn {
       background: white;
       color: #111;
     }
 
+
     #postBtn {
       background: #111;
       color: white;
-      border: 1px solid white;
+
+      border: 1px solid white !important;
     }
 
-    /* LOADING */
+
+    /* =========================================
+       GALLERY
+    ========================================== */
+
+    #snapGallery {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 9000;
+
+      background: rgba(0, 0, 0, 0.97);
+
+      display: none;
+
+      flex-direction: column;
+    }
+
+
+    .galleryTop {
+      height: 65px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      padding: 10px 15px;
+
+      color: white;
+    }
+
+
+    .galleryTitle {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+
+    .galleryClose {
+      width: 42px;
+      height: 42px;
+
+      border: none;
+
+      border-radius: 50%;
+
+      background: #222;
+
+      color: white;
+
+      font-size: 20px;
+    }
+
+
+    .galleryImageBox {
+      flex: 1;
+
+      position: relative;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      padding: 10px;
+    }
+
+
+    #galleryImage {
+      max-width: 100%;
+      max-height: 100%;
+
+      object-fit: contain;
+
+      border-radius: 12px;
+    }
+
+
+    .galleryNav {
+      position: absolute;
+
+      left: 10px;
+      right: 10px;
+
+      top: 50%;
+
+      transform: translateY(-50%);
+
+      display: flex;
+
+      justify-content: space-between;
+
+      pointer-events: none;
+    }
+
+
+    .galleryNav button {
+      pointer-events: auto;
+
+      width: 46px;
+      height: 46px;
+
+      border: none;
+
+      border-radius: 50%;
+
+      background:
+        rgba(255, 255, 255, 0.88);
+
+      font-size: 25px;
+
+      font-weight: bold;
+    }
+
+
+    .galleryBottom {
+      height: 70px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      color: white;
+
+      font-size: 13px;
+    }
+
+
+    /* =========================================
+       LOADING
+    ========================================== */
+
     #loading {
       position: fixed;
+
       inset: 0;
+
       z-index: 10000;
+
       display: none;
+
       align-items: center;
       justify-content: center;
-      background: rgba(0, 0, 0, 0.72);
+
+      background:
+        rgba(0, 0, 0, 0.72);
+
       color: white;
+
       font-size: 16px;
+
       font-weight: 700;
     }
 
-    /* POPUP IMAGE */
+
+    /* =========================================
+       POPUP
+    ========================================== */
+
     .popupImage {
       width: 210px;
+
       max-width: 70vw;
+
       border-radius: 12px;
+
       display: block;
     }
 
+
     .popupTime {
       margin-top: 6px;
+
       font-size: 11px;
+
       color: #777;
     }
 
-    /* HIDE LEAFLET attribution styling only, attribution itself remains */
+
     .leaflet-control-attribution {
       font-size: 9px;
     }
+
   </style>
 </head>
 
+
 <body>
+
   <div id="app">
 
+
+    <!-- ======================================
+         HEADER
+    ======================================= -->
+
     <div class="topbar">
+
       <div>
-        <div class="brand">📸 Past Snap</div>
-        <div class="subtitle">Share a snap from where you are</div>
+
+        <div class="brand">
+          📸 Past Snap
+        </div>
+
+        <div class="subtitle">
+          Share a snap from where you are
+        </div>
+
       </div>
+
     </div>
+
+
+    <!-- ======================================
+         MAP
+    ======================================= -->
 
     <div id="map"></div>
 
     <div id="mapStatus"></div>
 
+
+    <!-- ======================================
+         INFO
+    ======================================= -->
+
     <div class="info">
-      📍 Tap <b>My Location</b><br />
-      📸 Take a photo from your camera<br />
+
+      📍 Tap <b>My Location</b><br>
+
+      📸 Take a photo from your camera<br>
+
       🌍 Your snap appears on the map
+
     </div>
 
-    <button id="locationBtn">📍 My Location</button>
+
+    <!-- ======================================
+         LOCATION BUTTON
+    ======================================= -->
+
+    <button id="locationBtn">
+      📍 My Location
+    </button>
+
 
   </div>
 
-  <!-- CAMERA -->
+
+  <!-- ========================================
+       CAMERA MODAL
+  ========================================= -->
+
   <div id="cameraModal">
 
-    <video id="cameraVideo" autoplay playsinline></video>
+
+    <video
+      id="cameraVideo"
+      autoplay
+      playsinline>
+    </video>
+
 
     <div class="cameraTop">
-      <button id="closeCameraBtn">✕</button>
+
+      <button id="closeCameraBtn">
+        ✕
+      </button>
+
     </div>
+
+
+    <!-- FILTERS -->
 
     <div class="filters">
 
-      <button class="filterBtn active" data-filter="none">
+      <button
+        class="filterBtn active"
+        data-filter="none">
         Normal
       </button>
 
-      <button class="filterBtn" data-filter="vintage">
+      <button
+        class="filterBtn"
+        data-filter="vintage">
         Vintage
       </button>
 
-      <button class="filterBtn" data-filter="bw">
+      <button
+        class="filterBtn"
+        data-filter="bw">
         B&W
       </button>
 
-      <button class="filterBtn" data-filter="warm">
+      <button
+        class="filterBtn"
+        data-filter="warm">
         Warm
       </button>
 
-      <button class="filterBtn" data-filter="cool">
+      <button
+        class="filterBtn"
+        data-filter="cool">
         Cool
       </button>
 
-      <button class="filterBtn" data-filter="glow">
+      <button
+        class="filterBtn"
+        data-filter="glow">
         Glow
       </button>
 
-      <button class="filterBtn" data-filter="night">
+      <button
+        class="filterBtn"
+        data-filter="night">
         Night
       </button>
 
-      <button class="filterBtn" data-filter="pop">
+      <button
+        class="filterBtn"
+        data-filter="pop">
         Color Pop
       </button>
 
-      <button class="filterBtn" data-filter="dream">
+      <button
+        class="filterBtn"
+        data-filter="dream">
         Dream
       </button>
 
-      <button class="filterBtn" data-filter="sunset">
+      <button
+        class="filterBtn"
+        data-filter="sunset">
         Sunset
       </button>
 
     </div>
 
+
+    <!-- CAMERA BUTTONS -->
+
     <div class="cameraBottom">
-      <button id="switchCameraBtn">🔄</button>
+
+      <button id="switchCameraBtn">
+        🔄
+      </button>
+
 
       <button id="captureBtn"></button>
 
+
       <div style="width:48px;"></div>
+
     </div>
+
 
   </div>
 
-  <!-- PREVIEW -->
+
+  <!-- ========================================
+       PREVIEW
+  ========================================= -->
+
   <div id="previewModal">
 
+
     <div class="previewTop">
-      <button id="closePreviewBtn">✕</button>
+
+      <button id="closePreviewBtn">
+        ✕
+      </button>
+
     </div>
 
-    <img id="previewImage" />
+
+    <img
+      id="previewImage"
+      alt="Preview"
+    />
+
 
     <div class="previewBottom">
-      <button id="retakeBtn">Retake</button>
-      <button id="postBtn">📍 Post Snap</button>
+
+      <button id="retakeBtn">
+        Retake
+      </button>
+
+      <button id="postBtn">
+        📍 Post Snap
+      </button>
+
     </div>
 
+
   </div>
+
+
+  <!-- ========================================
+       SNAP GALLERY
+  ========================================= -->
+
+  <div id="snapGallery">
+
+
+    <div class="galleryTop">
+
+      <div class="galleryTitle">
+        📸 Location Snaps
+      </div>
+
+
+      <button
+        class="galleryClose"
+        id="galleryClose">
+        ✕
+      </button>
+
+    </div>
+
+
+    <div class="galleryImageBox">
+
+      <img
+        id="galleryImage"
+        src=""
+        alt="Snap"
+      />
+
+
+      <div class="galleryNav">
+
+        <button id="galleryPrev">
+          ‹
+        </button>
+
+
+        <button id="galleryNext">
+          ›
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <div class="galleryBottom">
+
+      <span id="galleryCounter">
+        1 / 1
+      </span>
+
+    </div>
+
+
+  </div>
+
+
+  <!-- ========================================
+       LOADING
+  ========================================= -->
 
   <div id="loading">
     Uploading Snap...
   </div>
 
-  <!-- LEAFLET -->
+
+  <!-- ========================================
+       LEAFLET JS
+  ========================================= -->
+
   <script
     src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
   </script>
 
-  <!-- SUPABASE -->
+
+  <!-- ========================================
+       SUPABASE JS
+  ========================================= -->
+
   <script
     src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
   </script>
 
+
   <script>
 
     // ============================================================
-    // CONFIG
+    // SUPABASE CONFIG
     // ============================================================
 
     const SUPABASE_URL =
       "https://zzxhymydsvwpjbyaslde.supabase.co";
+
 
     const SUPABASE_ANON_KEY =
       "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
@@ -486,20 +1060,36 @@
     // ============================================================
 
     let map = null;
+
     let userMarker = null;
+
     let snapMarkers = null;
 
     let currentLocation = null;
 
     let cameraStream = null;
+
     let facingMode = "environment";
 
     let currentFilter = "none";
 
     let capturedBlob = null;
+
     let capturedImageUrl = null;
 
     let supabaseClient = null;
+
+
+    // Gallery
+
+    let currentSnapGroup = [];
+
+    let currentSnapIndex = 0;
+
+
+    // Same/nearby location grouping distance
+
+    const SNAP_GROUP_DISTANCE = 30;
 
 
     // ============================================================
@@ -507,48 +1097,123 @@
     // ============================================================
 
     const mapStatus =
-      document.getElementById("mapStatus");
+      document.getElementById(
+        "mapStatus"
+      );
+
 
     const locationBtn =
-      document.getElementById("locationBtn");
+      document.getElementById(
+        "locationBtn"
+      );
+
 
     const cameraModal =
-      document.getElementById("cameraModal");
+      document.getElementById(
+        "cameraModal"
+      );
+
 
     const cameraVideo =
-      document.getElementById("cameraVideo");
+      document.getElementById(
+        "cameraVideo"
+      );
+
 
     const closeCameraBtn =
-      document.getElementById("closeCameraBtn");
+      document.getElementById(
+        "closeCameraBtn"
+      );
+
 
     const captureBtn =
-      document.getElementById("captureBtn");
+      document.getElementById(
+        "captureBtn"
+      );
+
 
     const switchCameraBtn =
-      document.getElementById("switchCameraBtn");
+      document.getElementById(
+        "switchCameraBtn"
+      );
+
 
     const previewModal =
-      document.getElementById("previewModal");
+      document.getElementById(
+        "previewModal"
+      );
+
 
     const previewImage =
-      document.getElementById("previewImage");
+      document.getElementById(
+        "previewImage"
+      );
+
 
     const closePreviewBtn =
-      document.getElementById("closePreviewBtn");
+      document.getElementById(
+        "closePreviewBtn"
+      );
+
 
     const retakeBtn =
-      document.getElementById("retakeBtn");
+      document.getElementById(
+        "retakeBtn"
+      );
+
 
     const postBtn =
-      document.getElementById("postBtn");
+      document.getElementById(
+        "postBtn"
+      );
+
 
     const loading =
-      document.getElementById("loading");
+      document.getElementById(
+        "loading"
+      );
+
+
+    // Gallery elements
+
+    const snapGallery =
+      document.getElementById(
+        "snapGallery"
+      );
+
+
+    const galleryImage =
+      document.getElementById(
+        "galleryImage"
+      );
+
+
+    const galleryCounter =
+      document.getElementById(
+        "galleryCounter"
+      );
+
+
+    const galleryClose =
+      document.getElementById(
+        "galleryClose"
+      );
+
+
+    const galleryPrev =
+      document.getElementById(
+        "galleryPrev"
+      );
+
+
+    const galleryNext =
+      document.getElementById(
+        "galleryNext"
+      );
 
 
     // ============================================================
     // MAP INITIALIZATION
-    // IMPORTANT: MAP LOADS BEFORE SUPABASE
     // ============================================================
 
     function initMap() {
@@ -556,56 +1221,93 @@
       try {
 
         if (!window.L) {
-          throw new Error("Leaflet load nahi hua.");
+
+          throw new Error(
+            "Leaflet load nahi hua."
+          );
+
         }
 
-        map = L.map("map", {
-          zoomControl: true,
-          attributionControl: true
-        }).setView([20.5937, 78.9629], 5);
+
+        map =
+          L.map(
+            "map",
+            {
+              zoomControl: true,
+              attributionControl: true
+            }
+          ).setView(
+            [
+              20.5937,
+              78.9629
+            ],
+            5
+          );
 
 
-        const tiles = L.tileLayer(
-          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          {
-            maxZoom: 19,
-            attribution:
-              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          }
-        );
+        const tiles =
+          L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {
+              maxZoom: 19,
+
+              attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+            }
+          );
 
 
         let tileErrors = 0;
 
-        tiles.on("tileerror", function () {
 
-          tileErrors++;
+        tiles.on(
+          "tileerror",
+          function () {
 
-          if (tileErrors >= 3) {
+            tileErrors++;
 
-            showMapStatus(
-              "Map tiles load nahi ho rahe. Internet connection check karo."
-            );
+
+            if (tileErrors >= 3) {
+
+              showMapStatus(
+                "Map tiles load nahi ho rahe. Internet check karo."
+              );
+
+            }
 
           }
-
-        });
+        );
 
 
         tiles.addTo(map);
 
 
-        snapMarkers = L.layerGroup().addTo(map);
+        snapMarkers =
+          L.layerGroup()
+            .addTo(map);
 
 
-        setTimeout(function () {
-          map.invalidateSize();
-        }, 300);
+        setTimeout(
+          function () {
+
+            if (map) {
+
+              map.invalidateSize();
+
+            }
+
+          },
+          500
+        );
 
 
       } catch (error) {
 
-        console.error("Map error:", error);
+        console.error(
+          "MAP ERROR:",
+          error
+        );
+
 
         showMapStatus(
           "Map start nahi ho paya. Page reload karke try karo."
@@ -620,36 +1322,44 @@
     // MAP STATUS
     // ============================================================
 
-    function showMapStatus(message) {
+    function showMapStatus(
+      message
+    ) {
 
-      mapStatus.textContent = message;
-      mapStatus.style.display = "block";
+      mapStatus.textContent =
+        message;
+
+      mapStatus.style.display =
+        "block";
 
     }
 
 
     function hideMapStatus() {
 
-      mapStatus.style.display = "none";
+      mapStatus.style.display =
+        "none";
 
     }
 
 
     // ============================================================
-    // SUPABASE LAZY INITIALIZATION
+    // SUPABASE
     // ============================================================
 
     function getSupabase() {
 
       if (supabaseClient) {
+
         return supabaseClient;
+
       }
 
 
       if (!window.supabase) {
 
         throw new Error(
-          "Supabase library load nahi hui. Internet check karo."
+          "Supabase library load nahi hui."
         );
 
       }
@@ -668,7 +1378,7 @@
 
 
     // ============================================================
-    // LOCATION
+    // MY LOCATION
     // ============================================================
 
     locationBtn.addEventListener(
@@ -690,8 +1400,12 @@
       }
 
 
-      locationBtn.disabled = true;
-      locationBtn.textContent = "📍 Getting location...";
+      locationBtn.disabled =
+        true;
+
+
+      locationBtn.textContent =
+        "📍 Getting location...";
 
 
       navigator.geolocation.getCurrentPosition(
@@ -700,6 +1414,7 @@
 
           const lat =
             position.coords.latitude;
+
 
           const lng =
             position.coords.longitude;
@@ -711,12 +1426,13 @@
           };
 
 
-          // MAP CENTER
-
           if (map) {
 
             map.setView(
-              [lat, lng],
+              [
+                lat,
+                lng
+              ],
               17,
               {
                 animate: true
@@ -726,26 +1442,36 @@
           }
 
 
-          // USER MARKER
-
           if (map) {
 
             if (userMarker) {
-              map.removeLayer(userMarker);
+
+              map.removeLayer(
+                userMarker
+              );
+
             }
 
 
             userMarker =
               L.circleMarker(
-                [lat, lng],
+                [
+                  lat,
+                  lng
+                ],
                 {
                   radius: 9,
+
                   color: "#111",
+
                   weight: 4,
+
                   fillColor: "#fff",
+
                   fillOpacity: 1
                 }
-              ).addTo(map);
+              )
+              .addTo(map);
 
 
             userMarker.bindPopup(
@@ -755,7 +1481,10 @@
           }
 
 
-          locationBtn.disabled = false;
+          locationBtn.disabled =
+            false;
+
+
           locationBtn.textContent =
             "📸 Take Snap";
 
@@ -763,21 +1492,23 @@
           hideMapStatus();
 
 
-          // Open camera automatically
-
           openCamera();
 
         },
 
+
         function (error) {
 
           console.error(
-            "Location error:",
+            "LOCATION ERROR:",
             error
           );
 
 
-          locationBtn.disabled = false;
+          locationBtn.disabled =
+            false;
+
+
           locationBtn.textContent =
             "📍 My Location";
 
@@ -798,9 +1529,12 @@
 
         },
 
+
         {
           enableHighAccuracy: true,
+
           timeout: 15000,
+
           maximumAge: 0
         }
 
@@ -815,8 +1549,10 @@
 
     async function openCamera() {
 
-      if (!navigator.mediaDevices ||
-          !navigator.mediaDevices.getUserMedia) {
+      if (
+        !navigator.mediaDevices ||
+        !navigator.mediaDevices.getUserMedia
+      ) {
 
         alert(
           "Camera is browser me available nahi hai."
@@ -836,15 +1572,19 @@
           await navigator.mediaDevices.getUserMedia({
 
             video: {
+
               facingMode: {
                 ideal: facingMode
               },
+
               width: {
                 ideal: 1920
               },
+
               height: {
                 ideal: 1080
               }
+
             },
 
             audio: false
@@ -866,7 +1606,7 @@
       } catch (error) {
 
         console.error(
-          "Camera error:",
+          "CAMERA ERROR:",
           error
         );
 
@@ -883,21 +1623,27 @@
     function stopCamera() {
 
       if (!cameraStream) {
+
         return;
+
       }
 
 
       cameraStream
         .getTracks()
-        .forEach(function (track) {
+        .forEach(
+          function (track) {
 
-          track.stop();
+            track.stop();
 
-        });
+          }
+        );
 
 
       cameraStream = null;
-      cameraVideo.srcObject = null;
+
+      cameraVideo.srcObject =
+        null;
 
     }
 
@@ -908,10 +1654,15 @@
 
         stopCamera();
 
+
         cameraModal.style.display =
           "none";
 
-        locationBtn.disabled = false;
+
+        locationBtn.disabled =
+          false;
+
+
         locationBtn.textContent =
           "📍 My Location";
 
@@ -920,7 +1671,7 @@
 
 
     // ============================================================
-    // CAMERA SWITCH
+    // SWITCH CAMERA
     // ============================================================
 
     switchCameraBtn.addEventListener(
@@ -928,7 +1679,8 @@
       async function () {
 
         facingMode =
-          facingMode === "environment"
+          facingMode ===
+          "environment"
             ? "user"
             : "environment";
 
@@ -944,73 +1696,102 @@
     // ============================================================
 
     document
-      .querySelectorAll(".filterBtn")
-      .forEach(function (button) {
+      .querySelectorAll(
+        ".filterBtn"
+      )
+      .forEach(
+        function (button) {
 
-        button.addEventListener(
-          "click",
-          function () {
+          button.addEventListener(
+            "click",
+            function () {
 
-            document
-              .querySelectorAll(".filterBtn")
-              .forEach(function (btn) {
+              document
+                .querySelectorAll(
+                  ".filterBtn"
+                )
+                .forEach(
+                  function (btn) {
 
-                btn.classList.remove(
-                  "active"
+                    btn.classList
+                      .remove(
+                        "active"
+                      );
+
+                  }
                 );
 
-              });
+
+              button.classList
+                .add("active");
 
 
-            button.classList.add(
-              "active"
-            );
+              currentFilter =
+                button.dataset.filter;
 
 
-            currentFilter =
-              button.dataset.filter;
+              applyVideoFilter();
+
+            }
+          );
+
+        }
+      );
 
 
-            applyVideoFilter();
-
-          }
-        );
-
-      });
-
-
-    function getFilterCSS(filter) {
+    function getFilterCSS(
+      filter
+    ) {
 
       switch (filter) {
 
         case "vintage":
-          return "sepia(0.55) contrast(1.1) saturate(0.8)";
+
+          return "sepia(.55) contrast(1.1) saturate(.8)";
+
 
         case "bw":
+
           return "grayscale(1) contrast(1.15)";
 
+
         case "warm":
-          return "sepia(0.25) saturate(1.3) contrast(1.05)";
+
+          return "sepia(.25) saturate(1.3) contrast(1.05)";
+
 
         case "cool":
-          return "saturate(0.9) hue-rotate(15deg) contrast(1.05)";
+
+          return "saturate(.9) hue-rotate(15deg) contrast(1.05)";
+
 
         case "glow":
+
           return "brightness(1.12) saturate(1.3) contrast(1.05)";
 
+
         case "night":
-          return "brightness(0.65) contrast(1.3) saturate(0.8)";
+
+          return "brightness(.65) contrast(1.3) saturate(.8)";
+
 
         case "pop":
+
           return "saturate(1.8) contrast(1.15)";
 
+
         case "dream":
-          return "brightness(1.08) saturate(1.15) blur(0.3px)";
+
+          return "brightness(1.08) saturate(1.15) blur(.3px)";
+
 
         case "sunset":
-          return "sepia(0.25) saturate(1.55) contrast(1.1)";
+
+          return "sepia(.25) saturate(1.55) contrast(1.1)";
+
 
         default:
+
           return "none";
 
       }
@@ -1021,13 +1802,15 @@
     function applyVideoFilter() {
 
       cameraVideo.style.filter =
-        getFilterCSS(currentFilter);
+        getFilterCSS(
+          currentFilter
+        );
 
     }
 
 
     // ============================================================
-    // CAPTURE PHOTO
+    // CAPTURE
     // ============================================================
 
     captureBtn.addEventListener(
@@ -1050,11 +1833,14 @@
 
 
       const canvas =
-        document.createElement("canvas");
+        document.createElement(
+          "canvas"
+        );
 
 
       canvas.width =
         cameraVideo.videoWidth;
+
 
       canvas.height =
         cameraVideo.videoHeight;
@@ -1064,22 +1850,29 @@
         canvas.getContext("2d");
 
 
-      // Mirror front camera
+      // Front camera mirror
 
-      if (facingMode === "user") {
+      if (
+        facingMode === "user"
+      ) {
 
         ctx.translate(
           canvas.width,
           0
         );
 
-        ctx.scale(-1, 1);
+        ctx.scale(
+          -1,
+          1
+        );
 
       }
 
 
       ctx.filter =
-        getFilterCSS(currentFilter);
+        getFilterCSS(
+          currentFilter
+        );
 
 
       ctx.drawImage(
@@ -1105,7 +1898,8 @@
           }
 
 
-          capturedBlob = blob;
+          capturedBlob =
+            blob;
 
 
           if (capturedImageUrl) {
@@ -1118,7 +1912,9 @@
 
 
           capturedImageUrl =
-            URL.createObjectURL(blob);
+            URL.createObjectURL(
+              blob
+            );
 
 
           previewImage.src =
@@ -1147,16 +1943,12 @@
 
 
     // ============================================================
-    // PREVIEW CLOSE
+    // CLOSE PREVIEW
     // ============================================================
 
     closePreviewBtn.addEventListener(
       "click",
-      function () {
-
-        closePreview();
-
-      }
+      closePreview
     );
 
 
@@ -1180,7 +1972,10 @@
       }
 
 
-      locationBtn.disabled = false;
+      locationBtn.disabled =
+        false;
+
+
       locationBtn.textContent =
         "📍 My Location";
 
@@ -1242,8 +2037,6 @@
       }
 
 
-      // Get fresh live location
-
       if (!navigator.geolocation) {
 
         alert(
@@ -1261,6 +2054,8 @@
 
       try {
 
+        // Get fresh location
+
         const position =
           await getFreshLocation();
 
@@ -1268,12 +2063,12 @@
         const lat =
           position.coords.latitude;
 
+
         const lng =
           position.coords.longitude;
 
 
-        // If previous location exists,
-        // check that user didn't move too far.
+        // Check movement
 
         if (currentLocation) {
 
@@ -1306,8 +2101,6 @@
         }
 
 
-        // Supabase
-
         const supabase =
           getSupabase();
 
@@ -1323,10 +2116,11 @@
 
 
         const filePath =
-          "public/" + fileName;
+          "public/" +
+          fileName;
 
 
-        // Upload
+        // Upload image
 
         const uploadResult =
           await supabase
@@ -1338,12 +2132,15 @@
               {
                 contentType:
                   "image/jpeg",
+
                 upsert: false
               }
             );
 
 
-        if (uploadResult.error) {
+        if (
+          uploadResult.error
+        ) {
 
           throw uploadResult.error;
 
@@ -1356,7 +2153,9 @@
           supabase
             .storage
             .from("past-snaps")
-            .getPublicUrl(filePath);
+            .getPublicUrl(
+              filePath
+            );
 
 
         const imageUrl =
@@ -1365,7 +2164,7 @@
             .publicUrl;
 
 
-        // Database
+        // Insert DB
 
         const insertResult =
           await supabase
@@ -1381,7 +2180,9 @@
             });
 
 
-        if (insertResult.error) {
+        if (
+          insertResult.error
+        ) {
 
           throw insertResult.error;
 
@@ -1409,7 +2210,10 @@
         if (map) {
 
           map.setView(
-            [lat, lng],
+            [
+              lat,
+              lng
+            ],
             17
           );
 
@@ -1433,8 +2237,10 @@
 
         alert(
           "Snap upload nahi hua:\n\n" +
-          (error.message ||
-            "Unknown error")
+          (
+            error.message ||
+            "Unknown error"
+          )
         );
 
       }
@@ -1449,17 +2255,26 @@
     function getFreshLocation() {
 
       return new Promise(
-        function (resolve, reject) {
+        function (
+          resolve,
+          reject
+        ) {
 
-          navigator.geolocation.getCurrentPosition(
-            resolve,
-            reject,
-            {
-              enableHighAccuracy: true,
-              timeout: 15000,
-              maximumAge: 0
-            }
-          );
+          navigator.geolocation
+            .getCurrentPosition(
+              resolve,
+              reject,
+              {
+                enableHighAccuracy:
+                  true,
+
+                timeout:
+                  15000,
+
+                maximumAge:
+                  0
+              }
+            );
 
         }
       );
@@ -1478,18 +2293,29 @@
       lon2
     ) {
 
-      const R = 6371000;
+      const R =
+        6371000;
+
 
       const dLat =
-        toRadians(lat2 - lat1);
+        toRadians(
+          lat2 - lat1
+        );
+
 
       const dLon =
-        toRadians(lon2 - lon1);
+        toRadians(
+          lon2 - lon1
+        );
 
 
       const a =
-        Math.sin(dLat / 2) *
-        Math.sin(dLat / 2) +
+        Math.sin(
+          dLat / 2
+        ) *
+        Math.sin(
+          dLat / 2
+        ) +
 
         Math.cos(
           toRadians(lat1)
@@ -1499,8 +2325,12 @@
           toRadians(lat2)
         ) *
 
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+        Math.sin(
+          dLon / 2
+        ) *
+        Math.sin(
+          dLon / 2
+        );
 
 
       const c =
@@ -1516,23 +2346,32 @@
     }
 
 
-    function toRadians(value) {
+    function toRadians(
+      value
+    ) {
 
-      return value *
+      return (
+        value *
         Math.PI /
-        180;
+        180
+      );
 
     }
 
 
     // ============================================================
-    // LOAD PUBLIC SNAPS
+    // LOAD SNAPS + GROUP SAME LOCATION
     // ============================================================
 
     async function loadSnaps() {
 
-      if (!map || !snapMarkers) {
+      if (
+        !map ||
+        !snapMarkers
+      ) {
+
         return;
+
       }
 
 
@@ -1554,30 +2393,219 @@
                 ascending: false
               }
             )
-            .limit(500);
+            .limit(1000);
 
 
-        if (result.error) {
+        if (
+          result.error
+        ) {
 
           throw result.error;
 
         }
 
 
+        const snaps =
+          result.data || [];
+
+
+        // Remove old markers
+
         snapMarkers.clearLayers();
 
 
-        result.data.forEach(
+        // =========================================
+        // CREATE LOCATION GROUPS
+        // =========================================
+
+        const groups = [];
+
+
+        snaps.forEach(
           function (snap) {
 
-            if (
-              typeof snap.latitude !==
-                "number" ||
-              typeof snap.longitude !==
-                "number"
+            const snapLat =
+              Number(
+                snap.latitude
+              );
+
+
+            const snapLng =
+              Number(
+                snap.longitude
+              );
+
+
+            let foundGroup =
+              null;
+
+
+            // Search nearby group
+
+            for (
+              const group of groups
             ) {
 
-              return;
+              const distance =
+                getDistanceMeters(
+                  group.latitude,
+                  group.longitude,
+                  snapLat,
+                  snapLng
+                );
+
+
+              if (
+                distance <=
+                SNAP_GROUP_DISTANCE
+              ) {
+
+                foundGroup =
+                  group;
+
+                break;
+
+              }
+
+            }
+
+
+            // Existing group
+
+            if (foundGroup) {
+
+              foundGroup.snaps
+                .push(snap);
+
+
+              // Average location
+
+              foundGroup.latitude =
+                foundGroup.snaps
+                  .reduce(
+                    function (
+                      sum,
+                      item
+                    ) {
+
+                      return (
+                        sum +
+                        Number(
+                          item.latitude
+                        )
+                      );
+
+                    },
+                    0
+                  ) /
+                  foundGroup.snaps.length;
+
+
+              foundGroup.longitude =
+                foundGroup.snaps
+                  .reduce(
+                    function (
+                      sum,
+                      item
+                    ) {
+
+                      return (
+                        sum +
+                        Number(
+                          item.longitude
+                        )
+                      );
+
+                    },
+                    0
+                  ) /
+                  foundGroup.snaps.length;
+
+
+            }
+
+            // New group
+
+            else {
+
+              groups.push({
+
+                latitude:
+                  snapLat,
+
+                longitude:
+                  snapLng,
+
+                snaps:
+                  [snap]
+
+              });
+
+            }
+
+          }
+        );
+
+
+        // =========================================
+        // CREATE ONE MARKER FOR EACH GROUP
+        // =========================================
+
+        groups.forEach(
+          function (group) {
+
+            const count =
+              group.snaps.length;
+
+
+            let markerHTML;
+
+
+            // One snap
+
+            if (
+              count === 1
+            ) {
+
+              markerHTML = `
+
+                <div
+                  class="snap-group-marker">
+
+                  <div
+                    class="snap-group-ghost">
+                    👻
+                  </div>
+
+                </div>
+
+              `;
+
+            }
+
+
+            // Multiple snaps
+
+            else {
+
+              markerHTML = `
+
+                <div
+                  class="snap-group-marker">
+
+                  <div
+                    class="snap-group-ghost">
+                    👻
+                  </div>
+
+                  <div
+                    class="snap-count">
+                    ${count}
+                  </div>
+
+                </div>
+
+              `;
 
             }
 
@@ -1588,22 +2616,25 @@
                 className: "",
 
                 html:
-                  '<div class="ghost-marker">👻</div>',
+                  markerHTML,
 
-                iconSize: [
-                  42,
-                  42
-                ],
+                iconSize:
+                  [
+                    58,
+                    58
+                  ],
 
-                iconAnchor: [
-                  21,
-                  21
-                ],
+                iconAnchor:
+                  [
+                    29,
+                    29
+                  ],
 
-                popupAnchor: [
-                  0,
-                  -21
-                ]
+                popupAnchor:
+                  [
+                    0,
+                    -29
+                  ]
 
               });
 
@@ -1611,39 +2642,27 @@
             const marker =
               L.marker(
                 [
-                  snap.latitude,
-                  snap.longitude
+                  group.latitude,
+                  group.longitude
                 ],
                 {
-                  icon: icon
+                  icon:
+                    icon
                 }
               );
 
 
-            const date =
-              snap.created_at
-                ? new Date(
-                    snap.created_at
-                  ).toLocaleString()
-                : "";
+            // Click group
 
+            marker.on(
+              "click",
+              function () {
 
-            marker.bindPopup(
-              `
-                <div style="text-align:center">
-                  <img
-                    class="popupImage"
-                    src="${escapeHtml(
-                      snap.image_url
-                    )}"
-                    alt="Past Snap"
-                  />
+                openSnapGallery(
+                  group.snaps
+                );
 
-                  <div class="popupTime">
-                    ${escapeHtml(date)}
-                  </div>
-                </div>
-              `
+              }
             );
 
 
@@ -1662,7 +2681,105 @@
           error
         );
 
-        // Do NOT break map if Supabase fails.
+      }
+
+    }
+
+
+    // ============================================================
+    // GALLERY
+    // ============================================================
+
+    function openSnapGallery(
+      snaps
+    ) {
+
+      if (
+        !snaps ||
+        snaps.length === 0
+      ) {
+
+        return;
+
+      }
+
+
+      currentSnapGroup =
+        snaps;
+
+
+      currentSnapIndex =
+        0;
+
+
+      showGallerySnap();
+
+
+      snapGallery.style.display =
+        "flex";
+
+    }
+
+
+    // ============================================================
+    // SHOW GALLERY SNAP
+    // ============================================================
+
+    function showGallerySnap() {
+
+      if (
+        !currentSnapGroup ||
+        currentSnapGroup.length === 0
+      ) {
+
+        return;
+
+      }
+
+
+      const snap =
+        currentSnapGroup[
+          currentSnapIndex
+        ];
+
+
+      galleryImage.src =
+        snap.image_url;
+
+
+      galleryCounter.textContent =
+        (
+          currentSnapIndex + 1
+        ) +
+        " / " +
+        currentSnapGroup.length;
+
+
+      // One image
+
+      if (
+        currentSnapGroup.length <= 1
+      ) {
+
+        galleryPrev.style.display =
+          "none";
+
+
+        galleryNext.style.display =
+          "none";
+
+      }
+
+      // Multiple images
+
+      else {
+
+        galleryPrev.style.display =
+          "block";
+
+
+        galleryNext.style.display =
+          "block";
 
       }
 
@@ -1670,28 +2787,190 @@
 
 
     // ============================================================
+    // NEXT IMAGE
+    // ============================================================
+
+    galleryNext.addEventListener(
+      "click",
+      function () {
+
+        if (
+          currentSnapGroup.length === 0
+        ) {
+
+          return;
+
+        }
+
+
+        currentSnapIndex++;
+
+
+        if (
+          currentSnapIndex >=
+          currentSnapGroup.length
+        ) {
+
+          currentSnapIndex =
+            0;
+
+        }
+
+
+        showGallerySnap();
+
+      }
+    );
+
+
+    // ============================================================
+    // PREVIOUS IMAGE
+    // ============================================================
+
+    galleryPrev.addEventListener(
+      "click",
+      function () {
+
+        if (
+          currentSnapGroup.length === 0
+        ) {
+
+          return;
+
+        }
+
+
+        currentSnapIndex--;
+
+
+        if (
+          currentSnapIndex < 0
+        ) {
+
+          currentSnapIndex =
+            currentSnapGroup.length - 1;
+
+        }
+
+
+        showGallerySnap();
+
+      }
+    );
+
+
+    // ============================================================
+    // CLOSE GALLERY
+    // ============================================================
+
+    galleryClose.addEventListener(
+      "click",
+      function () {
+
+        closeGallery();
+
+      }
+    );
+
+
+    function closeGallery() {
+
+      snapGallery.style.display =
+        "none";
+
+
+      galleryImage.src =
+        "";
+
+
+      currentSnapGroup =
+        [];
+
+
+      currentSnapIndex =
+        0;
+
+    }
+
+
+    // ============================================================
+    // ESC KEY
+    // ============================================================
+
+    document.addEventListener(
+      "keydown",
+      function (event) {
+
+        if (
+          snapGallery.style.display ===
+          "flex"
+        ) {
+
+          if (
+            event.key ===
+            "ArrowRight"
+          ) {
+
+            galleryNext.click();
+
+          }
+
+
+          if (
+            event.key ===
+            "ArrowLeft"
+          ) {
+
+            galleryPrev.click();
+
+          }
+
+
+          if (
+            event.key ===
+            "Escape"
+          ) {
+
+            closeGallery();
+
+          }
+
+        }
+
+      }
+    );
+
+
+    // ============================================================
     // BASIC HTML ESCAPE
     // ============================================================
 
-    function escapeHtml(value) {
+    function escapeHtml(
+      value
+    ) {
 
       return String(value)
+
         .replace(
           /&/g,
           "&amp;"
         )
+
         .replace(
           /</g,
           "&lt;"
         )
+
         .replace(
           />/g,
           "&gt;"
         )
+
         .replace(
           /"/g,
           "&quot;"
         )
+
         .replace(
           /'/g,
           "&#039;"
@@ -1708,19 +2987,20 @@
       "load",
       async function () {
 
-        // IMPORTANT:
-        // Map starts FIRST.
+        // Map FIRST
 
         initMap();
 
 
-        // Give Leaflet time to render.
+        // Give map time to render
 
         setTimeout(
           function () {
 
             if (map) {
+
               map.invalidateSize();
+
             }
 
           },
@@ -1728,8 +3008,7 @@
         );
 
 
-        // Supabase is loaded separately.
-        // If it fails, map still works.
+        // Load snaps
 
         try {
 
@@ -1738,7 +3017,7 @@
         } catch (error) {
 
           console.error(
-            "Initial snap loading failed:",
+            "INITIAL LOAD ERROR:",
             error
           );
 
