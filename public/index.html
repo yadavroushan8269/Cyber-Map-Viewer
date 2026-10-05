@@ -5,7 +5,7 @@
 
 <meta
   name="viewport"
-  content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"
 >
 
 <title>Past Snap</title>
@@ -16,6 +16,7 @@
 />
 
 <style>
+
 *{
   box-sizing:border-box;
 }
@@ -25,10 +26,20 @@ body{
   margin:0;
   width:100%;
   height:100%;
-  overflow:hidden;
   font-family:Arial,sans-serif;
   background:#111;
   color:#fff;
+  overflow:hidden;
+}
+
+button,
+input,
+textarea{
+  font-family:inherit;
+}
+
+button{
+  cursor:pointer;
 }
 
 #app{
@@ -43,24 +54,26 @@ body{
   z-index:1;
 }
 
-/* SEARCH */
+/* =========================
+   TOP
+========================= */
 
 #topBar{
   position:absolute;
   z-index:1000;
-  top:12px;
+  top:10px;
   left:10px;
   right:10px;
   display:flex;
-  gap:7px;
-  background:rgba(0,0,0,.72);
-  padding:8px;
+  gap:6px;
+  background:rgba(0,0,0,.78);
+  padding:7px;
   border-radius:15px;
 }
 
 #searchInput{
-  min-width:0;
   flex:1;
+  min-width:0;
   border:0;
   outline:0;
   border-radius:10px;
@@ -80,42 +93,133 @@ body{
 
 #locBtn{
   position:absolute;
-  z-index:1000;
-  bottom:20px;
+  z-index:2000;
+  bottom:18px;
   left:50%;
   transform:translateX(-50%);
   white-space:nowrap;
+  box-shadow:0 4px 20px #000;
 }
 
-/* STATUS */
+/* =========================
+   STATUS
+========================= */
 
 #status{
   position:absolute;
-  z-index:2000;
-  top:75px;
+  z-index:6000;
+  top:70px;
   left:50%;
   transform:translateX(-50%);
-  background:rgba(0,0,0,.8);
-  padding:8px 13px;
+  background:rgba(0,0,0,.86);
+  padding:8px 14px;
   border-radius:20px;
   font-size:13px;
   display:none;
-  max-width:90%;
+  max-width:92%;
   text-align:center;
 }
 
-/* MODALS */
+/* =========================
+   AUTH
+========================= */
+
+#authModal{
+  position:absolute;
+  inset:0;
+  z-index:7000;
+  background:#111;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.authBox{
+  width:min(100%,380px);
+  background:#1b1b1b;
+  border-radius:20px;
+  padding:22px;
+  box-shadow:0 15px 60px #000;
+}
+
+.authBox h2{
+  margin:0 0 5px;
+  text-align:center;
+}
+
+.authSub{
+  text-align:center;
+  color:#aaa;
+  font-size:13px;
+  margin-bottom:18px;
+}
+
+.authInput{
+  width:100%;
+  padding:13px;
+  border:0;
+  outline:0;
+  border-radius:10px;
+  margin-bottom:10px;
+  font-size:15px;
+}
+
+.authBtn{
+  width:100%;
+  border:0;
+  padding:13px;
+  border-radius:11px;
+  font-weight:700;
+  font-size:15px;
+  background:#fff;
+  color:#111;
+  margin-top:5px;
+}
+
+.authSwitch{
+  text-align:center;
+  margin-top:14px;
+  color:#aaa;
+  font-size:13px;
+}
+
+.authSwitch button{
+  background:none;
+  border:0;
+  color:#fff;
+  text-decoration:underline;
+}
+
+#logoutBtn{
+  position:absolute;
+  z-index:2000;
+  top:65px;
+  right:10px;
+  border:0;
+  background:rgba(0,0,0,.7);
+  color:#fff;
+  padding:8px 11px;
+  border-radius:10px;
+  display:none;
+}
+
+/* =========================
+   MODAL
+========================= */
 
 .modal{
   display:none;
   position:absolute;
   inset:0;
-  z-index:3000;
+  z-index:5000;
   background:#000;
   flex-direction:column;
 }
 
-/* CAMERA */
+/* =========================
+   CAMERA
+========================= */
 
 #cameraVideo{
   width:100%;
@@ -123,43 +227,76 @@ body{
   object-fit:cover;
   background:#000;
   display:block;
-  transform:none;
 }
 
 #cameraVideo.mirror-preview{
   transform:scaleX(-1);
 }
 
+#cameraTop{
+  position:absolute;
+  top:10px;
+  left:0;
+  right:0;
+  z-index:10;
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+}
+
+#cameraTop button,
+.roundBtn{
+  width:46px;
+  height:46px;
+  border:0;
+  border-radius:50%;
+  background:rgba(0,0,0,.65);
+  color:#fff;
+  font-size:20px;
+}
+
 #cameraCanvas{
   display:none;
 }
 
-#cameraTop{
+/* =========================
+   ZOOM
+========================= */
+
+#zoomBox{
   position:absolute;
-  top:12px;
-  left:0;
-  right:0;
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
   z-index:10;
+  background:rgba(0,0,0,.65);
+  border-radius:18px;
+  padding:8px 5px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
 }
 
-#cameraTop button{
-  border:0;
-  background:rgba(0,0,0,.6);
-  color:#fff;
-  border-radius:50%;
-  width:46px;
-  height:46px;
-  font-size:21px;
+#zoomRange{
+  writing-mode:vertical-lr;
+  direction:rtl;
+  width:30px;
+  height:170px;
 }
 
-/* MODE */
+#zoomValue{
+  font-size:12px;
+  font-weight:700;
+}
+
+/* =========================
+   MODES
+========================= */
 
 #modeBar{
   position:absolute;
-  bottom:152px;
+  bottom:154px;
   left:50%;
   transform:translateX(-50%);
   z-index:10;
@@ -183,40 +320,13 @@ body{
   color:#111;
 }
 
-/* ZOOM */
-
-#zoomBox{
-  position:absolute;
-  right:10px;
-  top:50%;
-  transform:translateY(-50%);
-  z-index:10;
-  background:rgba(0,0,0,.6);
-  border-radius:18px;
-  padding:8px 5px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-}
-
-#zoomRange{
-  writing-mode:vertical-lr;
-  direction:rtl;
-  width:30px;
-  height:170px;
-}
-
-#zoomValue{
-  font-size:12px;
-  font-weight:700;
-}
-
-/* FILTERS */
+/* =========================
+   FILTERS
+========================= */
 
 #filterBar{
   position:absolute;
-  bottom:91px;
+  bottom:92px;
   left:0;
   right:0;
   z-index:10;
@@ -234,7 +344,7 @@ body{
 .filterBtn{
   flex:0 0 auto;
   border:0;
-  background:rgba(0,0,0,.62);
+  background:rgba(0,0,0,.65);
   color:#fff;
   padding:8px 12px;
   border-radius:17px;
@@ -246,11 +356,13 @@ body{
   color:#111;
 }
 
-/* CAMERA BOTTOM */
+/* =========================
+   CAMERA BOTTOM
+========================= */
 
 #cameraBottom{
   position:absolute;
-  bottom:15px;
+  bottom:14px;
   left:0;
   right:0;
   z-index:10;
@@ -288,18 +400,95 @@ body{
 
 #recordTimer{
   position:absolute;
-  bottom:83px;
+  bottom:82px;
   left:50%;
   transform:translateX(-50%);
   z-index:11;
-  background:rgba(0,0,0,.7);
+  background:rgba(0,0,0,.75);
   padding:6px 12px;
   border-radius:16px;
   display:none;
   font-weight:700;
 }
 
-/* PREVIEW */
+/* =========================
+   POST DETAILS
+========================= */
+
+#detailsModal{
+  background:#111;
+  padding:15px;
+  overflow:auto;
+}
+
+.detailsBox{
+  width:min(100%,500px);
+  margin:auto;
+  padding-top:20px;
+}
+
+.detailsTitle{
+  font-size:21px;
+  font-weight:700;
+  margin-bottom:15px;
+}
+
+.detailsInput,
+.detailsTextarea{
+  width:100%;
+  border:0;
+  outline:0;
+  border-radius:12px;
+  padding:13px;
+  margin-bottom:10px;
+  font-size:15px;
+}
+
+.detailsTextarea{
+  height:110px;
+  resize:none;
+}
+
+.locationCard{
+  background:#1c1c1c;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:12px;
+  color:#ddd;
+  font-size:13px;
+}
+
+.locationCard b{
+  color:#fff;
+}
+
+.detailsButtons{
+  display:flex;
+  gap:10px;
+}
+
+.detailsButtons button{
+  flex:1;
+  border:0;
+  border-radius:12px;
+  padding:13px;
+  font-size:15px;
+  font-weight:700;
+}
+
+#detailsBackBtn{
+  background:#333;
+  color:#fff;
+}
+
+#detailsNextBtn{
+  background:#fff;
+  color:#111;
+}
+
+/* =========================
+   PREVIEW
+========================= */
 
 #previewModal{
   background:#111;
@@ -327,6 +516,27 @@ body{
   background:#181818;
 }
 
+#qualityBox{
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  padding:8px;
+  background:#181818;
+}
+
+.qualityBtn{
+  border:0;
+  background:#333;
+  color:#fff;
+  border-radius:9px;
+  padding:7px 12px;
+}
+
+.qualityBtn.active{
+  background:#fff;
+  color:#111;
+}
+
 #previewBottom{
   display:flex;
   gap:10px;
@@ -352,39 +562,14 @@ body{
   color:#111;
 }
 
-#postBtn:disabled{
-  opacity:.45;
-}
-
-/* QUALITY */
-
-#qualityBox{
-  display:flex;
-  gap:6px;
-  justify-content:center;
-  padding:8px;
-  background:#181818;
-}
-
-.qualityBtn{
-  border:0;
-  background:#333;
-  color:#fff;
-  border-radius:9px;
-  padding:7px 12px;
-}
-
-.qualityBtn.active{
-  background:#fff;
-  color:#111;
-}
-
-/* UPLOAD */
+/* =========================
+   UPLOAD
+========================= */
 
 #uploadBox{
   display:none;
   position:absolute;
-  z-index:5000;
+  z-index:8000;
   left:50%;
   top:50%;
   transform:translate(-50%,-50%);
@@ -426,7 +611,13 @@ body{
   font-weight:700;
 }
 
-/* GALLERY */
+/* =========================
+   GALLERY
+========================= */
+
+#galleryModal{
+  background:#111;
+}
 
 #galleryTop{
   display:flex;
@@ -482,7 +673,37 @@ body{
   font-size:20px;
 }
 
-/* MARKER */
+#galleryDetails{
+  background:#181818;
+  padding:14px;
+  font-size:13px;
+  max-height:170px;
+  overflow:auto;
+}
+
+.galleryName{
+  font-size:17px;
+  font-weight:700;
+}
+
+.galleryDescription{
+  margin-top:7px;
+  color:#ddd;
+}
+
+.gallerySong{
+  margin-top:7px;
+  color:#bbb;
+}
+
+.galleryLocation{
+  margin-top:7px;
+  color:#aaa;
+}
+
+/* =========================
+   MARKER
+========================= */
 
 .markerGhost{
   width:40px;
@@ -510,6 +731,11 @@ body{
   font-size:10px;
   padding:2px;
 }
+
+.leaflet-control-attribution{
+  font-size:9px;
+}
+
 </style>
 </head>
 
@@ -519,23 +745,16 @@ body{
 
   <div id="map"></div>
 
-  <!-- SEARCH -->
-
   <div id="topBar">
-
     <input
       id="searchInput"
       type="text"
       placeholder="🔍 Search any location..."
     >
-
-    <button id="searchBtn">
-      Search
-    </button>
-
+    <button id="searchBtn">Search</button>
   </div>
 
-  <!-- LOCATION -->
+  <button id="logoutBtn">Logout</button>
 
   <button id="locBtn">
     📍 My Location
@@ -544,7 +763,70 @@ body{
   <div id="status"></div>
 
 
-  <!-- CAMERA -->
+  <!-- =========================
+       AUTH
+  ========================== -->
+
+  <div id="authModal">
+
+    <div class="authBox">
+
+      <h2 id="authTitle">
+        Past Snap
+      </h2>
+
+      <div class="authSub" id="authSub">
+        Login to post your snaps
+      </div>
+
+      <input
+        id="displayNameInput"
+        class="authInput"
+        placeholder="Display Name"
+        style="display:none"
+      >
+
+      <input
+        id="emailInput"
+        class="authInput"
+        type="email"
+        placeholder="Email"
+      >
+
+      <input
+        id="passwordInput"
+        class="authInput"
+        type="password"
+        placeholder="Password"
+      >
+
+      <button
+        id="authBtn"
+        class="authBtn"
+      >
+        Login
+      </button>
+
+      <div class="authSwitch">
+
+        <span id="authSwitchText">
+          Don't have an account?
+        </span>
+
+        <button id="authSwitchBtn">
+          Register
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       CAMERA
+  ========================== -->
 
   <div id="cameraModal" class="modal">
 
@@ -556,7 +838,6 @@ body{
     ></video>
 
     <canvas id="cameraCanvas"></canvas>
-
 
     <div id="cameraTop">
 
@@ -570,8 +851,6 @@ body{
 
     </div>
 
-
-    <!-- ZOOM -->
 
     <div id="zoomBox">
 
@@ -591,8 +870,6 @@ body{
     </div>
 
 
-    <!-- PHOTO / VIDEO -->
-
     <div id="modeBar">
 
       <button
@@ -602,86 +879,52 @@ body{
         📷 Photo
       </button>
 
-      <button
-        id="videoModeBtn"
-      >
+      <button id="videoModeBtn">
         🎥 Video
       </button>
 
     </div>
 
 
-    <!-- EXISTING 10 FILTERS -->
-
     <div id="filterBar">
 
-      <button
-        class="filterBtn active"
-        data-filter="none"
-      >
+      <button class="filterBtn active" data-filter="none">
         Normal
       </button>
 
-      <button
-        class="filterBtn"
-        data-filter="vintage"
-      >
+      <button class="filterBtn" data-filter="vintage">
         Vintage
       </button>
 
-      <button
-        class="filterBtn"
-        data-filter="bw"
-      >
+      <button class="filterBtn" data-filter="bw">
         B&W
       </button>
 
-      <button
-        class="filterBtn"
-        data-filter="warm"
-      >
+      <button class="filterBtn" data-filter="warm">
         Warm
       </button>
 
-      <button
-        class="filterBtn"
-        data-filter="cool"
-      >
+      <button class="filterBtn" data-filter="cool">
         Cool
       </button>
 
-      <button
-        class="filterBtn"
-        data-filter="glow"
-      >
+      <button class="filterBtn" data-filter="glow">
         Glow
       </button>
 
-      <button
-        class="filterBtn"
-        data-filter="night"
-      >
+      <button class="filterBtn" data-filter="night">
         Night
       </button>
 
-      <button
-        class="filterBtn"
-        data-filter="pop"
-      >
+      <button class="filterBtn" data-filter="pop">
         Color Pop
       </button>
 
-      <button
-        class="filterBtn"
-        data-filter="dream"
-      >
+      <button class="filterBtn" data-filter="dream">
         Dream
       </button>
 
-      <button
-        class="filterBtn"
-        data-filter="sunset"
-      >
+      <button class="filterBtn" data-filter="sunset">
         Sunset
       </button>
 
@@ -692,8 +935,6 @@ body{
       00:00
     </div>
 
-
-    <!-- CAMERA BOTTOM -->
 
     <div id="cameraBottom">
 
@@ -708,7 +949,9 @@ body{
   </div>
 
 
-  <!-- PREVIEW -->
+  <!-- =========================
+       PREVIEW
+  ========================== -->
 
   <div id="previewModal" class="modal">
 
@@ -728,8 +971,6 @@ body{
 
     </div>
 
-
-    <!-- VIDEO QUALITY -->
 
     <div id="qualityBox">
 
@@ -769,7 +1010,7 @@ body{
       </button>
 
       <button id="postBtn">
-        📍 Post Snap
+        Next
       </button>
 
     </div>
@@ -777,7 +1018,74 @@ body{
   </div>
 
 
-  <!-- UPLOAD -->
+  <!-- =========================
+       DETAILS
+  ========================== -->
+
+  <div id="detailsModal" class="modal">
+
+    <div class="detailsBox">
+
+      <div class="detailsTitle">
+        Post Details
+      </div>
+
+      <div class="locationCard">
+
+        <div>
+          <b>Posted by:</b>
+          <span id="detailsUserName"></span>
+        </div>
+
+        <br>
+
+        <div>
+          <b>Location:</b>
+        </div>
+
+        <div id="detailsLocation">
+          Getting location...
+        </div>
+
+      </div>
+
+
+      <textarea
+        id="descriptionInput"
+        class="detailsTextarea"
+        placeholder="Write something about this snap..."
+        maxlength="500"
+      ></textarea>
+
+
+      <input
+        id="songInput"
+        class="detailsInput"
+        placeholder="🎵 Song name (optional)"
+        maxlength="150"
+      >
+
+
+      <div class="detailsButtons">
+
+        <button id="detailsBackBtn">
+          Back
+        </button>
+
+        <button id="detailsNextBtn">
+          📍 Post Snap
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =========================
+       UPLOAD
+  ========================== -->
 
   <div id="uploadBox">
 
@@ -790,9 +1098,7 @@ body{
     </div>
 
     <div id="uploadTrack">
-
       <div id="uploadBar"></div>
-
     </div>
 
     <div id="uploadPercent">
@@ -802,7 +1108,9 @@ body{
   </div>
 
 
-  <!-- GALLERY -->
+  <!-- =========================
+       GALLERY
+  ========================== -->
 
   <div id="galleryModal" class="modal">
 
@@ -850,6 +1158,31 @@ body{
 
     </div>
 
+
+    <div id="galleryDetails">
+
+      <div
+        class="galleryName"
+        id="galleryName"
+      ></div>
+
+      <div
+        class="galleryDescription"
+        id="galleryDescription"
+      ></div>
+
+      <div
+        class="gallerySong"
+        id="gallerySong"
+      ></div>
+
+      <div
+        class="galleryLocation"
+        id="galleryLocation"
+      ></div>
+
+    </div>
+
   </div>
 
 </div>
@@ -862,9 +1195,9 @@ body{
 
 <script>
 
-/* =========================================
+/* =========================================================
    SUPABASE
-========================================= */
+========================================================= */
 
 const SUPABASE_URL =
 "https://zzxhymydsvwpjbyaslde.supabase.co";
@@ -879,11 +1212,11 @@ window.supabase.createClient(
 );
 
 
-/* =========================================
-   GLOBAL VARIABLES
-========================================= */
+/* =========================================================
+   GLOBALS
+========================================================= */
 
-let map = null;
+let map;
 
 let cameraStream = null;
 
@@ -915,20 +1248,26 @@ let capturedType = null;
 
 let selectedQuality = 480;
 
-let isPostingSnap = false;
-
 let currentPosition = null;
 
-let userLocationMarker = null;
+let isPostingSnap = false;
+
+let currentUser = null;
+
+let currentProfile = null;
 
 let galleryItems = [];
 
 let galleryIndex = 0;
 
+let markerGroups = {};
 
-/* =========================================
+let modalHistory = false;
+
+
+/* =========================================================
    ELEMENTS
-========================================= */
+========================================================= */
 
 const cameraModal =
 document.getElementById("cameraModal");
@@ -936,8 +1275,14 @@ document.getElementById("cameraModal");
 const previewModal =
 document.getElementById("previewModal");
 
+const detailsModal =
+document.getElementById("detailsModal");
+
 const galleryModal =
 document.getElementById("galleryModal");
+
+const authModal =
+document.getElementById("authModal");
 
 const cameraVideo =
 document.getElementById("cameraVideo");
@@ -946,43 +1291,387 @@ const cameraCanvas =
 document.getElementById("cameraCanvas");
 
 
-/* =========================================
+/* =========================================================
    STATUS
-========================================= */
+========================================================= */
 
-function showStatus(message, time = 2200){
+function showStatus(msg,ms=2500){
 
-  const status =
+  const el =
   document.getElementById("status");
 
-  status.textContent = message;
+  el.textContent=msg;
 
-  status.style.display = "block";
+  el.style.display="block";
 
   clearTimeout(showStatus.timer);
 
   showStatus.timer =
-  setTimeout(() => {
+  setTimeout(()=>{
+    el.style.display="none";
+  },ms);
+}
 
-    status.style.display = "none";
 
-  }, time);
+/* =========================================================
+   AUTH UI
+========================================================= */
+
+let authMode="login";
+
+function showAuth(){
+
+  authModal.style.display="flex";
+
+}
+
+function hideAuth(){
+
+  authModal.style.display="none";
+
+}
+
+function updateAuthUI(){
+
+  const title =
+  document.getElementById("authTitle");
+
+  const sub =
+  document.getElementById("authSub");
+
+  const name =
+  document.getElementById("displayNameInput");
+
+  const btn =
+  document.getElementById("authBtn");
+
+  const switchText =
+  document.getElementById("authSwitchText");
+
+  const switchBtn =
+  document.getElementById("authSwitchBtn");
+
+
+  if(authMode==="login"){
+
+    title.textContent="Past Snap";
+
+    sub.textContent="Login to post your snaps";
+
+    name.style.display="none";
+
+    btn.textContent="Login";
+
+    switchText.textContent=
+    "Don't have an account?";
+
+    switchBtn.textContent="Register";
+
+  }else{
+
+    title.textContent="Create Account";
+
+    sub.textContent=
+    "Create your Past Snap account";
+
+    name.style.display="block";
+
+    btn.textContent="Register";
+
+    switchText.textContent=
+    "Already have an account?";
+
+    switchBtn.textContent="Login";
+
+  }
+
+}
+
+document
+.getElementById("authSwitchBtn")
+.onclick=()=>{
+
+  authMode =
+  authMode==="login"
+  ? "register"
+  : "login";
+
+  updateAuthUI();
+
+};
+
+
+/* =========================================================
+   REGISTER / LOGIN
+========================================================= */
+
+async function authSubmit(){
+
+  const email =
+  document.getElementById("emailInput")
+  .value.trim();
+
+  const password =
+  document.getElementById("passwordInput")
+  .value;
+
+  const displayName =
+  document.getElementById("displayNameInput")
+  .value.trim();
+
+
+  if(!email || !password){
+
+    showStatus("Email aur password required hai.");
+
+    return;
+
+  }
+
+
+  if(authMode==="register"){
+
+    if(!displayName){
+
+      showStatus("Display Name enter karo.");
+
+      return;
+
+    }
+
+
+    if(displayName.length<2){
+
+      showStatus("Display Name bahut chhota hai.");
+
+      return;
+
+    }
+
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient.auth.signUp({
+
+      email,
+      password
+
+    });
+
+
+    if(error){
+
+      console.error(error);
+
+      showStatus(error.message,4000);
+
+      return;
+
+    }
+
+
+    if(data.user){
+
+      const {error:profileError} =
+      await supabaseClient
+      .from("profiles")
+      .insert({
+
+        id:data.user.id,
+
+        display_name:displayName
+
+      });
+
+
+      if(profileError){
+
+        console.error(profileError);
+
+        showStatus(
+          "Account bana, profile save nahi hui.",
+          4000
+        );
+
+        return;
+
+      }
+
+    }
+
+
+    showStatus(
+      "Registration successful.",
+      3000
+    );
+
+
+    if(data.session){
+
+      currentUser=data.user;
+
+      await loadProfile();
+
+      hideAuth();
+
+    }else{
+
+      showStatus(
+        "Email confirmation required hai.",
+        4000
+      );
+
+    }
+
+  }else{
+
+    const {
+      data,
+      error
+    } =
+    await supabaseClient.auth.signInWithPassword({
+
+      email,
+      password
+
+    });
+
+
+    if(error){
+
+      console.error(error);
+
+      showStatus(error.message,4000);
+
+      return;
+
+    }
+
+
+    currentUser=data.user;
+
+    await loadProfile();
+
+    hideAuth();
+
+    showStatus("Login successful.");
+
+  }
+
+}
+
+document
+.getElementById("authBtn")
+.onclick=authSubmit;
+
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
+async function loadProfile(){
+
+  if(!currentUser){
+
+    currentProfile=null;
+
+    return;
+
+  }
+
+
+  const {
+    data,
+    error
+  } =
+  await supabaseClient
+  .from("profiles")
+  .select("id,display_name")
+  .eq("id",currentUser.id)
+  .maybeSingle();
+
+
+  if(error){
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  currentProfile=data;
+
+
+  if(currentProfile){
+
+    document
+    .getElementById("logoutBtn")
+    .style.display="block";
+
+  }
 
 }
 
 
-/* =========================================
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+async function logout(){
+
+  await supabaseClient.auth.signOut();
+
+  currentUser=null;
+
+  currentProfile=null;
+
+  document
+  .getElementById("logoutBtn")
+  .style.display="none";
+
+  showStatus("Logged out.");
+
+}
+
+document
+.getElementById("logoutBtn")
+.onclick=logout;
+
+
+/* =========================================================
+   AUTH STATE
+========================================================= */
+
+supabaseClient
+.auth
+.onAuthStateChange(
+async(event,session)=>{
+
+  currentUser =
+  session?.user || null;
+
+  if(currentUser){
+
+    await loadProfile();
+
+  }
+
+});
+
+
+/* =========================================================
    MAP
-========================================= */
+========================================================= */
 
 map =
-L.map("map", {
-
+L.map("map",{
   zoomControl:true,
-
   attributionControl:true
-
-}).setView(
+})
+.setView(
   [20.5937,78.9629],
   5
 );
@@ -998,44 +1687,49 @@ L.tileLayer(
 ).addTo(map);
 
 
-/* =========================================
+/* IMPORTANT:
+   NO map click -> camera.
+*/
+
+
+/* =========================================================
    DISTANCE
-========================================= */
+========================================================= */
 
 function distanceMeters(a,b){
 
-  const R = 6371000;
+  const R=6371000;
 
-  const p1 =
-  a.lat * Math.PI / 180;
+  const p1=
+  a.lat*Math.PI/180;
 
-  const p2 =
-  b.lat * Math.PI / 180;
+  const p2=
+  b.lat*Math.PI/180;
 
-  const dp =
-  (b.lat-a.lat) * Math.PI / 180;
+  const dp=
+  (b.lat-a.lat)*Math.PI/180;
 
-  const dl =
-  (b.lng-a.lng) * Math.PI / 180;
+  const dl=
+  (b.lng-a.lng)*Math.PI/180;
 
-  const x =
-  Math.sin(dp/2)**2 +
-  Math.cos(p1) *
-  Math.cos(p2) *
+  const x=
+  Math.sin(dp/2)**2+
+  Math.cos(p1)*
+  Math.cos(p2)*
   Math.sin(dl/2)**2;
 
-  return 2 *
-  R *
+  return 2*R*
   Math.atan2(
     Math.sqrt(x),
     Math.sqrt(1-x)
   );
+
 }
 
 
-/* =========================================
+/* =========================================================
    MARKER
-========================================= */
+========================================================= */
 
 function makeGhostIcon(count){
 
@@ -1044,12 +1738,10 @@ function makeGhostIcon(count){
     className:"",
 
     html:
-    '<div class="markerGhost">' +
-    '👻' +
-    '<span>' +
-    count +
-    '</span>' +
-    '</div>',
+    '<div class="markerGhost">'+
+    '👻<span>'+
+    count+
+    '</span></div>',
 
     iconSize:[40,40],
 
@@ -1060,101 +1752,156 @@ function makeGhostIcon(count){
 }
 
 
-/* =========================================
-   RENDER SNAPS
-========================================= */
+/* =========================================================
+   GALLERY
+========================================================= */
 
-function renderSnaps(rows){
+function openGallery(items){
 
-  map.eachLayer(layer => {
+  galleryItems=items || [];
 
-    if(
-      layer instanceof L.Marker &&
-      layer !== userLocationMarker
-    ){
+  galleryIndex=0;
 
-      map.removeLayer(layer);
+  if(!galleryItems.length)
+    return;
 
-    }
+  galleryModal.style.display="flex";
 
-  });
-
-
-  const groups = [];
-
-
-  rows.forEach(row => {
-
-    let group =
-    groups.find(g =>
-
-      distanceMeters(
-        {
-          lat:g.latitude,
-          lng:g.longitude
-        },
-        {
-          lat:row.latitude,
-          lng:row.longitude
-        }
-      ) < 70
-
-    );
-
-
-    if(!group){
-
-      group = {
-
-        latitude:row.latitude,
-
-        longitude:row.longitude,
-
-        items:[]
-
-      };
-
-      groups.push(group);
-
-    }
-
-
-    group.items.push(row);
-
-  });
-
-
-  groups.forEach(group => {
-
-    const marker =
-    L.marker(
-      [
-        group.latitude,
-        group.longitude
-      ],
-      {
-        icon:
-        makeGhostIcon(
-          group.items.length
-        )
-      }
-    ).addTo(map);
-
-
-    marker.on(
-      "click",
-      () =>
-      openGallery(group.items)
-    );
-
-  });
+  renderGalleryItem();
 
 }
 
 
-/* =========================================
+function renderGalleryItem(){
+
+  const item=
+  galleryItems[galleryIndex];
+
+  document
+  .getElementById("galleryCounter")
+  .textContent=
+  (galleryIndex+1)+
+  " / "+
+  galleryItems.length;
+
+
+  const img=
+  document.getElementById("galleryImage");
+
+  const vid=
+  document.getElementById("galleryVideo");
+
+
+  img.style.display="none";
+
+  vid.style.display="none";
+
+  vid.pause();
+
+  img.src="";
+
+  if(
+    item.media_type==="video" ||
+    /\.(webm|mp4|mov)$/i
+    .test(item.image_url)
+  ){
+
+    vid.src=item.image_url;
+
+    vid.style.display="block";
+
+  }else{
+
+    img.src=item.image_url;
+
+    img.style.display="block";
+
+  }
+
+
+  document
+  .getElementById("galleryName")
+  .textContent=
+  item.display_name
+  ? "👤 "+item.display_name
+  : "👤 Past Snap User";
+
+
+  document
+  .getElementById("galleryDescription")
+  .textContent=
+  item.description
+  ? "📝 "+item.description
+  : "";
+
+
+  document
+  .getElementById("gallerySong")
+  .textContent=
+  item.song_name
+  ? "🎵 "+item.song_name
+  : "";
+
+
+  document
+  .getElementById("galleryLocation")
+  .textContent=
+  item.location_name
+  ? "📍 "+item.location_name
+  : "";
+
+}
+
+
+document
+.getElementById("prevBtn")
+.onclick=()=>{
+
+  if(!galleryItems.length)return;
+
+  galleryIndex=
+  (galleryIndex-1+
+  galleryItems.length)
+  %
+  galleryItems.length;
+
+  renderGalleryItem();
+
+};
+
+
+document
+.getElementById("nextBtn")
+.onclick=()=>{
+
+  if(!galleryItems.length)return;
+
+  galleryIndex=
+  (galleryIndex+1)
+  %
+  galleryItems.length;
+
+  renderGalleryItem();
+
+};
+
+
+document
+.getElementById("closeGalleryBtn")
+.onclick=()=>{
+
+  document
+  .getElementById("galleryVideo")
+  .pause();
+
+  galleryModal.style.display="none";
+
+};
+
+
+/* =========================================================
    LOAD SNAPS
-========================================= */
+========================================================= */
 
 async function loadSnaps(){
 
@@ -1164,12 +1911,15 @@ async function loadSnaps(){
   } =
   await supabaseClient
   .from("snaps")
-  .select("*")
+  .select(`
+    *,
+    profiles (
+      display_name
+    )
+  `)
   .order(
     "created_at",
-    {
-      ascending:false
-    }
+    {ascending:false}
   );
 
 
@@ -1186,35 +1936,117 @@ async function loadSnaps(){
   }
 
 
-  renderSnaps(data || []);
+  const rows=
+  (data || []).map(row=>({
+
+    ...row,
+
+    display_name:
+    row.profiles?.display_name ||
+    "Past Snap User"
+
+  }));
+
+
+  renderSnaps(rows);
 
 }
 
 
-/* =========================================
+/* =========================================================
+   RENDER SNAP MARKERS
+========================================================= */
+
+function renderSnaps(rows){
+
+  Object
+  .values(markerGroups)
+  .forEach(marker=>{
+    map.removeLayer(marker);
+  });
+
+  markerGroups={};
+
+
+  const groups=[];
+
+
+  rows.forEach(row=>{
+
+    let group=
+    groups.find(g=>
+      distanceMeters(
+        {
+          lat:g.latitude,
+          lng:g.longitude
+        },
+        {
+          lat:row.latitude,
+          lng:row.longitude
+        }
+      )<70
+    );
+
+
+    if(!group){
+
+      group={
+        latitude:row.latitude,
+        longitude:row.longitude,
+        items:[]
+      };
+
+      groups.push(group);
+
+    }
+
+
+    group.items.push(row);
+
+  });
+
+
+  groups.forEach((g,i)=>{
+
+    const marker=
+    L.marker(
+      [g.latitude,g.longitude],
+      {
+        icon:
+        makeGhostIcon(
+          g.items.length
+        )
+      }
+    ).addTo(map);
+
+
+    marker.on(
+      "click",
+      ()=>openGallery(g.items)
+    );
+
+
+    markerGroups[i]=marker;
+
+  });
+
+}
+
+
+/* =========================================================
    SEARCH
-========================================= */
+========================================================= */
 
 async function searchPlace(){
 
-  const input =
-  document.getElementById(
-    "searchInput"
-  );
-
-  const q =
-  input.value.trim();
+  const q=
+  document
+  .getElementById("searchInput")
+  .value
+  .trim();
 
 
-  if(!q){
-
-    showStatus(
-      "Location ka naam likho."
-    );
-
-    return;
-
-  }
+  if(!q)return;
 
 
   showStatus(
@@ -1224,19 +2056,19 @@ async function searchPlace(){
 
   try{
 
-    const url =
-    "https://nominatim.openstreetmap.org/search" +
-    "?format=jsonv2" +
-    "&addressdetails=1" +
-    "&limit=8" +
-    "&accept-language=en" +
-    "&q=" +
+    const url=
+    "https://nominatim.openstreetmap.org/search"+
+    "?format=jsonv2"+
+    "&addressdetails=1"+
+    "&limit=8"+
+    "&accept-language=en"+
+    "&q="+
     encodeURIComponent(
-      q + ", India"
+      q+", India"
     );
 
 
-    const response =
+    const res=
     await fetch(
       url,
       {
@@ -1248,11 +2080,11 @@ async function searchPlace(){
     );
 
 
-    const results =
-    await response.json();
+    const data=
+    await res.json();
 
 
-    if(!results.length){
+    if(!data.length){
 
       showStatus(
         "Location nahi mili."
@@ -1263,15 +2095,11 @@ async function searchPlace(){
     }
 
 
-    const place =
-    results[0];
+    const p=data[0];
 
+    const lat=Number(p.lat);
 
-    const lat =
-    Number(place.lat);
-
-    const lon =
-    Number(place.lon);
+    const lon=Number(p.lon);
 
 
     map.setView(
@@ -1281,14 +2109,15 @@ async function searchPlace(){
 
 
     showStatus(
-      place.display_name ||
-      "Location found"
+      buildEnglishAddress(
+        p.address || {}
+      )
     );
 
 
-  }catch(error){
+  }catch(e){
 
-    console.error(error);
+    console.error(e);
 
     showStatus(
       "Search failed."
@@ -1301,36 +2130,212 @@ async function searchPlace(){
 
 document
 .getElementById("searchBtn")
-.onclick =
-searchPlace;
+.onclick=searchPlace;
 
 
 document
 .getElementById("searchInput")
 .addEventListener(
   "keydown",
-  function(event){
-
-    if(event.key === "Enter"){
-
+  e=>{
+    if(e.key==="Enter")
       searchPlace();
-
-    }
-
   }
 );
 
 
-/* =========================================
-   MY LOCATION
-========================================= */
+/* =========================================================
+   ENGLISH ADDRESS
+========================================================= */
+
+function buildEnglishAddress(address){
+
+  const village=
+    address.village ||
+    address.hamlet ||
+    address.town ||
+    address.city ||
+    address.municipality ||
+    "";
+
+  const district=
+    address.county ||
+    address.district ||
+    "";
+
+  const state=
+    address.state ||
+    "";
+
+  const country=
+    address.country ||
+    "India";
+
+
+  const parts=[];
+
+
+  if(village)
+    parts.push(
+      "Village: "+village
+    );
+
+
+  if(district)
+    parts.push(
+      "District: "+district
+    );
+
+
+  if(state)
+    parts.push(
+      "State: "+state
+    );
+
+
+  if(country)
+    parts.push(
+      "Country: "+country
+    );
+
+
+  return parts.join(" • ");
+
+}
+
+
+/* =========================================================
+   GET LOCATION
+========================================================= */
 
 function getMyLocation(){
 
-  if(!navigator.geolocation){
+  return new Promise(
+    (resolve,reject)=>{
+
+      if(!navigator.geolocation){
+
+        showStatus(
+          "Browser location support nahi karta."
+        );
+
+        reject();
+
+        return;
+
+      }
+
+
+      showStatus(
+        "📍 Live location mil rahi hai..."
+      );
+
+
+      navigator
+      .geolocation
+      .getCurrentPosition(
+
+        pos=>{
+
+          currentPosition={
+
+            latitude:
+            pos.coords.latitude,
+
+            longitude:
+            pos.coords.longitude,
+
+            accuracy:
+            pos.coords.accuracy
+
+          };
+
+
+          map.setView(
+            [
+              currentPosition.latitude,
+              currentPosition.longitude
+            ],
+            17
+          );
+
+
+          if(
+            window.userLocationMarker
+          ){
+
+            map.removeLayer(
+              window.userLocationMarker
+            );
+
+          }
+
+
+          window.userLocationMarker=
+          L.circleMarker(
+            [
+              currentPosition.latitude,
+              currentPosition.longitude
+            ],
+            {
+              radius:8
+            }
+          ).addTo(map);
+
+
+          showStatus(
+            "📍 Current location set."
+          );
+
+
+          resolve(currentPosition);
+
+        },
+
+
+        err=>{
+
+          console.error(err);
+
+          showStatus(
+            "Location permission allow karo."
+          );
+
+          reject(err);
+
+        },
+
+
+        {
+          enableHighAccuracy:true,
+          timeout:15000,
+          maximumAge:0
+
+        }
+
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   MY LOCATION BUTTON
+   ONLY THIS OPENS CAMERA
+========================================================= */
+
+document
+.getElementById("locBtn")
+.onclick=async()=>{
+
+  if(!currentUser){
+
+    showAuth();
 
     showStatus(
-      "Browser location support nahi karta."
+      "Post karne ke liye login karo."
     );
 
     return;
@@ -1338,100 +2343,20 @@ function getMyLocation(){
   }
 
 
-  showStatus(
-    "Location mil rahi hai..."
-  );
+  try{
+
+    await getMyLocation();
+
+    openCameraWithHistory();
+
+  }catch(e){}
+
+};
 
 
-  navigator.geolocation.getCurrentPosition(
-
-    function(position){
-
-      currentPosition = {
-
-        latitude:
-        position.coords.latitude,
-
-        longitude:
-        position.coords.longitude
-
-      };
-
-
-      map.setView(
-        [
-          currentPosition.latitude,
-          currentPosition.longitude
-        ],
-        17
-      );
-
-
-      if(userLocationMarker){
-
-        map.removeLayer(
-          userLocationMarker
-        );
-
-      }
-
-
-      userLocationMarker =
-      L.circleMarker(
-
-        [
-          currentPosition.latitude,
-          currentPosition.longitude
-        ],
-
-        {
-          radius:8
-        }
-
-      ).addTo(map);
-
-
-      showStatus(
-        "📍 Current location set."
-      );
-
-    },
-
-
-    function(error){
-
-      console.error(error);
-
-      showStatus(
-        "Location permission allow karo."
-      );
-
-    },
-
-
-    {
-      enableHighAccuracy:true,
-
-      timeout:15000,
-
-      maximumAge:5000
-
-    }
-
-  );
-
-}
-
-
-document
-.getElementById("locBtn")
-.onclick =
-getMyLocation;
-
-
-/* =========================================
-   FILTERS
-========================================= */
+/* =========================================================
+   CAMERA FILTERS
+========================================================= */
 
 function filterToCss(filter){
 
@@ -1472,55 +2397,13 @@ function filterToCss(filter){
 }
 
 
-function updateLiveFilter(){
-
-  cameraVideo.style.filter =
-  filterToCss(
-    currentFilter
-  );
-
-}
-
-
-document
-.querySelectorAll(".filterBtn")
-.forEach(button => {
-
-  button.onclick = function(){
-
-    document
-    .querySelectorAll(".filterBtn")
-    .forEach(
-      b =>
-      b.classList.remove(
-        "active"
-      )
-    );
-
-
-    button.classList.add(
-      "active"
-    );
-
-
-    currentFilter =
-    button.dataset.filter;
-
-
-    updateLiveFilter();
-
-  };
-
-});
-
-
-/* =========================================
+/* =========================================================
    MIRROR
-========================================= */
+========================================================= */
 
 function updateMirrorPreview(){
 
-  const button =
+  const btn=
   document.getElementById(
     "mirrorBtn"
   );
@@ -1528,28 +2411,24 @@ function updateMirrorPreview(){
 
   if(mirrorEnabled){
 
-    cameraVideo.classList.add(
-      "mirror-preview"
-    );
+    cameraVideo
+    .classList
+    .add("mirror-preview");
 
-    button.classList.add(
-      "active"
-    );
+    btn.classList.add("active");
 
-    button.textContent =
+    btn.textContent=
     "🪞 Mirror ON";
 
   }else{
 
-    cameraVideo.classList.remove(
-      "mirror-preview"
-    );
+    cameraVideo
+    .classList
+    .remove("mirror-preview");
 
-    button.classList.remove(
-      "active"
-    );
+    btn.classList.remove("active");
 
-    button.textContent =
+    btn.textContent=
     "🪞 Mirror";
 
   }
@@ -1557,24 +2436,23 @@ function updateMirrorPreview(){
 }
 
 
-document
-.getElementById("mirrorBtn")
-.onclick =
-function(){
+/* =========================================================
+   LIVE FILTER
+========================================================= */
 
-  mirrorEnabled =
-  !mirrorEnabled;
+function updateLiveFilter(){
 
-  updateMirrorPreview();
+  cameraVideo.style.filter=
+  filterToCss(
+    currentFilter
+  );
 
-  applyHardwareZoom();
-
-};
+}
 
 
-/* =========================================
+/* =========================================================
    CAMERA
-========================================= */
+========================================================= */
 
 async function openCamera(){
 
@@ -1583,15 +2461,15 @@ async function openCamera(){
 
   try{
 
-    cameraStream =
-    await navigator.mediaDevices
+    cameraStream=
+    await navigator
+    .mediaDevices
     .getUserMedia({
 
       video:{
 
         facingMode:{
-          ideal:
-          currentFacing
+          ideal:currentFacing
         },
 
         width:{
@@ -1609,11 +2487,11 @@ async function openCamera(){
     });
 
 
-    cameraVideo.srcObject =
+    cameraVideo.srcObject=
     cameraStream;
 
 
-    cameraModal.style.display =
+    cameraModal.style.display=
     "flex";
 
 
@@ -1621,15 +2499,15 @@ async function openCamera(){
 
     updateLiveFilter();
 
-    applyHardwareZoom();
+    await applyHardwareZoom();
 
 
-  }catch(error){
+  }catch(e){
 
-    console.error(error);
+    console.error(e);
 
     showStatus(
-      "Camera permission nahi mili ya camera unavailable hai."
+      "Camera permission nahi mili."
     );
 
   }
@@ -1643,19 +2521,15 @@ function stopCameraStream(){
 
     cameraStream
     .getTracks()
-    .forEach(
-      track =>
-      track.stop()
-    );
+    .forEach(track=>{
+      track.stop();
+    });
 
-    cameraStream =
-    null;
+    cameraStream=null;
 
   }
 
-
-  cameraVideo.srcObject =
-  null;
+  cameraVideo.srcObject=null;
 
 }
 
@@ -1664,7 +2538,7 @@ function closeCamera(){
 
   if(
     recorder &&
-    recorder.state === "recording"
+    recorder.state==="recording"
   ){
 
     stopRecording();
@@ -1674,7 +2548,7 @@ function closeCamera(){
 
   stopCameraStream();
 
-  cameraModal.style.display =
+  cameraModal.style.display=
   "none";
 
 }
@@ -1682,58 +2556,50 @@ function closeCamera(){
 
 document
 .getElementById("closeCameraBtn")
-.onclick =
-closeCamera;
+.onclick=closeCamera;
 
 
 document
 .getElementById("switchCameraBtn")
-.onclick =
-async function(){
+.onclick=async()=>{
 
-  currentFacing =
-  currentFacing === "environment"
+  currentFacing=
+  currentFacing==="environment"
   ? "user"
   : "environment";
-
 
   await openCamera();
 
 };
 
 
-/* =========================================
+/* =========================================================
    ZOOM
-========================================= */
+========================================================= */
 
 async function applyHardwareZoom(){
 
-  if(!cameraStream)
-    return;
-
-
-  const track =
+  const track=
   cameraStream
-  .getVideoTracks()[0];
+  ?.getVideoTracks?.()[0];
 
 
-  if(!track)
-    return;
+  if(!track)return;
 
 
-  const capabilities =
+  const caps=
   track.getCapabilities
   ? track.getCapabilities()
   : {};
 
 
-  if(capabilities.zoom){
+  if(caps.zoom){
 
-    const zoom =
+    const z=
     Math.max(
-      capabilities.zoom.min,
+      caps.zoom.min,
       Math.min(
-        capabilities.zoom.max,
+        caps.zoom.max,
         currentZoom
       )
     );
@@ -1745,7 +2611,7 @@ async function applyHardwareZoom(){
 
         advanced:[
           {
-            zoom:zoom
+            zoom:z
           }
         ]
 
@@ -1754,20 +2620,12 @@ async function applyHardwareZoom(){
 
       return;
 
-    }catch(error){
-
-      console.log(
-        "Hardware zoom unavailable"
-      );
-
-    }
+    }catch(e){}
 
   }
 
 
-  /* Browser fallback */
-
-  const scale =
+  const scale=
   Math.max(
     .5,
     Math.min(
@@ -1777,11 +2635,9 @@ async function applyHardwareZoom(){
   );
 
 
-  cameraVideo.style.transform =
+  cameraVideo.style.transform=
   mirrorEnabled
-
   ? "scaleX(-1) scale("+scale+")"
-
   : "scale("+scale+")";
 
 }
@@ -1789,22 +2645,19 @@ async function applyHardwareZoom(){
 
 document
 .getElementById("zoomRange")
-.oninput =
-async function(){
+.oninput=async function(){
 
-  currentZoom =
+  currentZoom=
   Number(this.value);
 
 
   document
-  .getElementById(
-    "zoomValue"
-  )
-  .textContent =
+  .getElementById("zoomValue")
+  .textContent=
   currentZoom
   .toFixed(1)
-  .replace(".0","")
-  + "×";
+  .replace(".0","")+
+  "×";
 
 
   await applyHardwareZoom();
@@ -1812,91 +2665,110 @@ async function(){
 };
 
 
-/* =========================================
-   DRAW CAMERA
-========================================= */
+/* =========================================================
+   FILTER BUTTONS
+========================================================= */
+
+document
+.querySelectorAll(".filterBtn")
+.forEach(btn=>{
+
+  btn.onclick=()=>{
+
+    document
+    .querySelectorAll(".filterBtn")
+    .forEach(b=>
+      b.classList.remove("active")
+    );
+
+
+    btn.classList.add("active");
+
+
+    currentFilter=
+    btn.dataset.filter;
+
+
+    updateLiveFilter();
+
+  };
+
+});
+
+
+/* =========================================================
+   MIRROR BUTTON
+========================================================= */
+
+document
+.getElementById("mirrorBtn")
+.onclick=async()=>{
+
+  mirrorEnabled=
+  !mirrorEnabled;
+
+  updateMirrorPreview();
+
+  await applyHardwareZoom();
+
+};
+
+
+/* =========================================================
+   DRAW PHOTO
+========================================================= */
 
 function drawVideoToCanvas(
   targetWidth,
   targetHeight
 ){
 
-  cameraCanvas.width =
+  cameraCanvas.width=
   targetWidth;
 
-  cameraCanvas.height =
+  cameraCanvas.height=
   targetHeight;
 
 
-  const ctx =
-  cameraCanvas.getContext(
-    "2d"
-  );
+  const ctx=
+  cameraCanvas.getContext("2d");
 
 
   ctx.save();
 
 
-  ctx.filter =
+  ctx.filter=
   filterToCss(
     currentFilter
   );
 
 
-  const vw =
+  const vw=
   cameraVideo.videoWidth;
 
-  const vh =
+  const vh=
   cameraVideo.videoHeight;
 
 
-  const targetRatio =
-  targetWidth /
-  targetHeight;
+  const cropW=
+  vw/currentZoom;
+
+  const cropH=
+  vh/currentZoom;
 
 
-  const sourceRatio =
-  vw / vh;
+  const cw=
+  Math.min(vw,cropW);
+
+  const ch=
+  Math.min(vh,cropH);
 
 
-  let sw = vw;
+  const sx=
+  (vw-cw)/2;
 
-  let sh = vh;
-
-
-  if(sourceRatio > targetRatio){
-
-    sw =
-    vh * targetRatio;
-
-  }else{
-
-    sh =
-    vw / targetRatio;
-
-  }
-
-
-  const cropW =
-  Math.min(
-    vw,
-    sw / currentZoom
-  );
-
-
-  const cropH =
-  Math.min(
-    vh,
-    sh / currentZoom
-  );
-
-
-  const sx =
-  (vw-cropW)/2;
-
-
-  const sy =
-  (vh-cropH)/2;
+  const sy=
+  (vh-ch)/2;
 
 
   if(mirrorEnabled){
@@ -1906,28 +2778,21 @@ function drawVideoToCanvas(
       0
     );
 
-    ctx.scale(
-      -1,
-      1
-    );
+    ctx.scale(-1,1);
 
   }
 
 
   ctx.drawImage(
-
     cameraVideo,
-
     sx,
     sy,
-    cropW,
-    cropH,
-
+    cw,
+    ch,
     0,
     0,
     targetWidth,
     targetHeight
-
   );
 
 
@@ -1936,9 +2801,9 @@ function drawVideoToCanvas(
 }
 
 
-/* =========================================
-   PHOTO CAPTURE
-========================================= */
+/* =========================================================
+   PHOTO
+========================================================= */
 
 function capturePhoto(){
 
@@ -1956,82 +2821,68 @@ function capturePhoto(){
   }
 
 
-  const width =
+  const w=
   cameraVideo.videoWidth;
 
-  const height =
+  const h=
   cameraVideo.videoHeight;
 
 
   drawVideoToCanvas(
-    width,
-    height
+    w,
+    h
   );
 
 
-  capturedImageData =
-  cameraCanvas.toDataURL(
+  capturedImageData=
+  cameraCanvas
+  .toDataURL(
     "image/jpeg",
     .88
   );
 
 
-  capturedBlob =
+  capturedBlob=
   dataURLToBlob(
     capturedImageData
   );
 
 
-  capturedType =
-  "image";
+  capturedType="image";
 
-
-  capturedVideoUrl =
-  null;
+  capturedVideoUrl=null;
 
 
   document
-  .getElementById(
-    "previewImage"
-  )
-  .src =
+  .getElementById("previewImage")
+  .src=
   capturedImageData;
 
 
   document
-  .getElementById(
-    "previewImage"
-  )
-  .style.display =
+  .getElementById("previewImage")
+  .style.display=
   "block";
 
 
   document
-  .getElementById(
-    "previewVideo"
-  )
-  .style.display =
+  .getElementById("previewVideo")
+  .style.display=
   "none";
 
 
   document
-  .getElementById(
-    "qualityBox"
-  )
-  .style.display =
+  .getElementById("qualityBox")
+  .style.display=
   "none";
 
 
   document
-  .getElementById(
-    "previewInfo"
-  )
-  .textContent =
-  "Photo • " +
-  width +
-  "×" +
-  height +
-  " • " +
+  .getElementById("previewInfo")
+  .textContent=
+  "Photo • "+
+  w+"×"+h+
+  " • "+
   formatMB(
     capturedBlob.size
   );
@@ -2039,24 +2890,22 @@ function capturePhoto(){
 
   stopCameraStream();
 
-
-  cameraModal.style.display =
+  cameraModal.style.display=
   "none";
 
-
-  previewModal.style.display =
+  previewModal.style.display=
   "flex";
 
 }
 
 
-/* =========================================
+/* =========================================================
    VIDEO
-========================================= */
+========================================================= */
 
 function chooseMime(){
 
-  const types = [
+  const types=[
 
     "video/webm;codecs=vp9",
 
@@ -2068,7 +2917,7 @@ function chooseMime(){
 
 
   return types.find(
-    type =>
+    type=>
     MediaRecorder
     .isTypeSupported(type)
   ) || "";
@@ -2082,14 +2931,14 @@ function startRecording(){
     return;
 
 
-  const mime =
+  const mime=
   chooseMime();
 
 
   if(!mime){
 
     showStatus(
-      "Is browser me video recording supported nahi hai."
+      "Video recording supported nahi hai."
     );
 
     return;
@@ -2097,46 +2946,41 @@ function startRecording(){
   }
 
 
-  recordedChunks = [];
+  recordedChunks=[];
 
 
-  recorder =
+  recorder=
   new MediaRecorder(
-
     cameraStream,
-
     {
       mimeType:mime
     }
-
   );
 
 
-  recordingStartedAt =
+  recordingStartedAt=
   Date.now();
 
 
-  recorder.ondataavailable =
-  function(event){
+  recorder.ondataavailable=
+  e=>{
 
     if(
-      event.data &&
-      event.data.size
+      e.data &&
+      e.data.size
     ){
 
-      recordedChunks.push(
-        event.data
-      );
+      recordedChunks
+      .push(e.data);
 
     }
 
   };
 
 
-  recorder.onstop =
-  function(){
+  recorder.onstop=()=>{
 
-    const blob =
+    const blob=
     new Blob(
       recordedChunks,
       {
@@ -2145,97 +2989,69 @@ function startRecording(){
     );
 
 
-    capturedBlob =
-    blob;
+    capturedBlob=blob;
+
+    capturedType="video";
+
+    capturedImageData=null;
 
 
-    capturedType =
-    "video";
-
-
-    capturedImageData =
-    null;
-
-
-    capturedVideoUrl =
-    URL.createObjectURL(
-      blob
-    );
-
-
-    const previewVideo =
-    document.getElementById(
-      "previewVideo"
-    );
-
-
-    previewVideo.src =
-    capturedVideoUrl;
-
-
-    previewVideo.style.display =
-    "block";
+    capturedVideoUrl=
+    URL.createObjectURL(blob);
 
 
     document
-    .getElementById(
-      "previewImage"
-    )
-    .style.display =
+    .getElementById("previewImage")
+    .style.display=
     "none";
 
 
-    previewVideo.load();
+    const pv=
+    document
+    .getElementById("previewVideo");
 
 
-    const duration =
-    (Date.now() -
-    recordingStartedAt)
-    / 1000;
+    pv.style.display=
+    "block";
+
+
+    pv.src=
+    capturedVideoUrl;
+
+
+    pv.load();
+
+
+    const duration=
+    (Date.now()-
+    recordingStartedAt)/1000;
 
 
     document
-    .getElementById(
-      "previewInfo"
-    )
-    .textContent =
-
-    "Duration: " +
-    formatDuration(
-      duration
-    ) +
-
-    " • Size: " +
-    formatMB(
-      blob.size
-    ) +
-
-    " • Resolution: " +
-    cameraVideo.videoWidth +
-    "×" +
-    cameraVideo.videoHeight +
-
-    " • Quality: " +
-    selectedQuality +
-    "p";
+    .getElementById("previewInfo")
+    .textContent=
+    "Duration: "+
+    formatDuration(duration)+
+    " • "+
+    formatMB(blob.size)+
+    " • Resolution: "+
+    cameraVideo.videoWidth+
+    "×"+
+    cameraVideo.videoHeight;
 
 
     document
-    .getElementById(
-      "qualityBox"
-    )
-    .style.display =
+    .getElementById("qualityBox")
+    .style.display=
     "flex";
 
 
     stopCameraStream();
 
-
-    cameraModal.style.display =
+    cameraModal.style.display=
     "none";
 
-
-    previewModal.style.display =
+    previewModal.style.display=
     "flex";
 
 
@@ -2246,11 +3062,9 @@ function startRecording(){
 
   recorder.start(250);
 
-
   updateRecordUI(true);
 
-
-  recordingTimer =
+  recordingTimer=
   setInterval(
     updateRecordTimer,
     250
@@ -2263,7 +3077,7 @@ function stopRecording(){
 
   if(
     recorder &&
-    recorder.state === "recording"
+    recorder.state==="recording"
   ){
 
     recorder.stop();
@@ -2275,45 +3089,40 @@ function stopRecording(){
     recordingTimer
   );
 
-
-  recordingTimer =
-  null;
+  recordingTimer=null;
 
 }
 
 
-function updateRecordUI(
-  recording
-){
+function updateRecordUI(on){
 
-  const button =
+  const btn=
   document.getElementById(
     "captureBtn"
   );
 
-
-  const timer =
+  const timer=
   document.getElementById(
     "recordTimer"
   );
 
 
-  if(recording){
+  if(on){
 
-    button.classList.add(
+    btn.classList.add(
       "recording"
     );
 
-    timer.style.display =
+    timer.style.display=
     "block";
 
   }else{
 
-    button.classList.remove(
+    btn.classList.remove(
       "recording"
     );
 
-    timer.style.display =
+    timer.style.display=
     "none";
 
   }
@@ -2323,39 +3132,30 @@ function updateRecordUI(
 
 function updateRecordTimer(){
 
-  const seconds =
+  const seconds=
   Math.floor(
-    (
-      Date.now() -
-      recordingStartedAt
-    ) / 1000
+    (Date.now()-
+    recordingStartedAt)/1000
   );
 
 
   document
-  .getElementById(
-    "recordTimer"
-  )
-  .textContent =
-  formatDuration(
-    seconds
-  );
+  .getElementById("recordTimer")
+  .textContent=
+  formatDuration(seconds);
 
 }
 
 
-/* =========================================
+/* =========================================================
    CAPTURE BUTTON
-========================================= */
+========================================================= */
 
 document
-.getElementById(
-  "captureBtn"
-)
-.onclick =
-function(){
+.getElementById("captureBtn")
+.onclick=()=>{
 
-  if(currentMode === "photo"){
+  if(currentMode==="photo"){
 
     capturePhoto();
 
@@ -2363,7 +3163,7 @@ function(){
 
     if(
       recorder &&
-      recorder.state === "recording"
+      recorder.state==="recording"
     ){
 
       stopRecording();
@@ -2379,194 +3179,113 @@ function(){
 };
 
 
-/* =========================================
-   PHOTO / VIDEO MODE
-========================================= */
+/* =========================================================
+   MODE
+========================================================= */
 
 function setMode(mode){
 
-  currentMode =
-  mode;
+  currentMode=mode;
 
 
   document
-  .getElementById(
-    "photoModeBtn"
-  )
-  .classList.toggle(
+  .getElementById("photoModeBtn")
+  .classList
+  .toggle(
     "active",
-    mode === "photo"
+    mode==="photo"
   );
 
 
   document
-  .getElementById(
-    "videoModeBtn"
-  )
-  .classList.toggle(
+  .getElementById("videoModeBtn")
+  .classList
+  .toggle(
     "active",
-    mode === "video"
+    mode==="video"
   );
+
+
+  document
+  .getElementById("captureBtn")
+  .classList
+  .remove("recording");
 
 }
 
 
 document
-.getElementById(
-  "photoModeBtn"
-)
-.onclick =
-function(){
-
-  setMode("photo");
-
-};
+.getElementById("photoModeBtn")
+.onclick=
+()=>setMode("photo");
 
 
 document
-.getElementById(
-  "videoModeBtn"
-)
-.onclick =
-function(){
-
-  setMode("video");
-
-};
+.getElementById("videoModeBtn")
+.onclick=
+()=>setMode("video");
 
 
-/* =========================================
-   QUALITY
-========================================= */
-
-document
-.querySelectorAll(
-  ".qualityBtn"
-)
-.forEach(button => {
-
-  button.onclick =
-  function(){
-
-    document
-    .querySelectorAll(
-      ".qualityBtn"
-    )
-    .forEach(
-      b =>
-      b.classList.remove(
-        "active"
-      )
-    );
-
-
-    button.classList.add(
-      "active"
-    );
-
-
-    selectedQuality =
-    Number(
-      button.dataset.quality
-    );
-
-
-    if(capturedBlob){
-
-      document
-      .getElementById(
-        "previewInfo"
-      )
-      .textContent +=
-      " • Selected: " +
-      selectedQuality +
-      "p";
-
-    }
-
-  };
-
-});
-
-
-/* =========================================
+/* =========================================================
    HELPERS
-========================================= */
+========================================================= */
 
 function formatMB(bytes){
 
   return (
-    bytes /
-    1024 /
+    bytes/
+    1024/
     1024
-  ).toFixed(2)
-  + " MB";
+  ).toFixed(2)+
+  " MB";
 
 }
 
 
-function formatDuration(
-  seconds
-){
+function formatDuration(sec){
 
-  seconds =
+  sec=
   Math.max(
     0,
-    Math.floor(seconds)
+    Math.floor(sec)
   );
 
 
-  const minutes =
+  const m=
   String(
-    Math.floor(
-      seconds / 60
-    )
-  ).padStart(
-    2,
-    "0"
-  );
+    Math.floor(sec/60)
+  ).padStart(2,"0");
 
 
-  const secs =
+  const s=
   String(
-    seconds % 60
-  ).padStart(
-    2,
-    "0"
-  );
+    sec%60
+  ).padStart(2,"0");
 
 
-  return (
-    minutes +
-    ":" +
-    secs
-  );
+  return m+":"+s;
 
 }
 
 
-function dataURLToBlob(
-  dataURL
-){
+function dataURLToBlob(dataURL){
 
-  const parts =
+  const parts=
   dataURL.split(",");
 
 
-  const mime =
+  const mime=
   parts[0]
   .match(
     /:(.*?);/
   )[1];
 
 
-  const binary =
-  atob(
-    parts[1]
-  );
+  const binary=
+  atob(parts[1]);
 
 
-  const array =
+  const arr=
   new Uint8Array(
     binary.length
   );
@@ -2578,14 +3297,14 @@ function dataURLToBlob(
     i++
   ){
 
-    array[i] =
+    arr[i]=
     binary.charCodeAt(i);
 
   }
 
 
   return new Blob(
-    [array],
+    [arr],
     {
       type:mime
     }
@@ -2594,16 +3313,13 @@ function dataURLToBlob(
 }
 
 
-/* =========================================
+/* =========================================================
    RETAKE
-========================================= */
+========================================================= */
 
 document
-.getElementById(
-  "cancelPreviewBtn"
-)
-.onclick =
-function(){
+.getElementById("cancelPreviewBtn")
+.onclick=()=>{
 
   if(capturedVideoUrl){
 
@@ -2614,17 +3330,14 @@ function(){
   }
 
 
-  capturedVideoUrl =
-  null;
+  capturedVideoUrl=null;
 
-  capturedBlob =
-  null;
+  capturedBlob=null;
 
-  capturedImageData =
-  null;
+  capturedImageData=null;
 
 
-  previewModal.style.display =
+  previewModal.style.display=
   "none";
 
 
@@ -2633,16 +3346,267 @@ function(){
 };
 
 
-/* =========================================
+/* =========================================================
+   QUALITY
+========================================================= */
+
+document
+.querySelectorAll(".qualityBtn")
+.forEach(btn=>{
+
+  btn.onclick=()=>{
+
+    document
+    .querySelectorAll(".qualityBtn")
+    .forEach(b=>
+      b.classList.remove("active")
+    );
+
+
+    btn.classList.add("active");
+
+
+    selectedQuality=
+    Number(
+      btn.dataset.quality
+    );
+
+  };
+
+});
+
+
+/* =========================================================
+   DETAILS
+========================================================= */
+
+async function openDetails(){
+
+  if(!capturedBlob){
+
+    showStatus(
+      "Photo/video capture karo."
+    );
+
+    return;
+
+  }
+
+
+  detailsModal.style.display=
+  "flex";
+
+
+  document
+  .getElementById("detailsUserName")
+  .textContent=
+  currentProfile?.display_name ||
+  "Past Snap User";
+
+
+  document
+  .getElementById("detailsLocation")
+  .textContent=
+  "Getting live location...";
+
+
+  try{
+
+    const pos=
+    await getFreshPosition();
+
+
+    const address=
+    await reverseGeocode(
+      pos.latitude,
+      pos.longitude
+    );
+
+
+    currentPosition={
+      latitude:pos.latitude,
+      longitude:pos.longitude,
+      accuracy:pos.accuracy
+    };
+
+
+    document
+    .getElementById("detailsLocation")
+    .textContent=
+    address;
+
+
+  }catch(e){
+
+    detailsModal.style.display=
+    "none";
+
+    showStatus(
+      "Live location verify nahi hui."
+    );
+
+  }
+
+}
+
+
+document
+.getElementById("postBtn")
+.onclick=async()=>{
+
+  if(!currentUser){
+
+    showAuth();
+
+    return;
+
+  }
+
+
+  await openDetails();
+
+};
+
+
+/* =========================================================
+   DETAILS BACK
+========================================================= */
+
+document
+.getElementById("detailsBackBtn")
+.onclick=()=>{
+
+  detailsModal.style.display=
+  "none";
+
+  previewModal.style.display=
+  "flex";
+
+};
+
+
+/* =========================================================
+   FRESH GPS
+========================================================= */
+
+function getFreshPosition(){
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      if(!navigator.geolocation){
+
+        reject(
+          new Error(
+            "No geolocation"
+          )
+        );
+
+        return;
+
+      }
+
+
+      navigator
+      .geolocation
+      .getCurrentPosition(
+
+        pos=>{
+
+          resolve({
+
+            latitude:
+            pos.coords.latitude,
+
+            longitude:
+            pos.coords.longitude,
+
+            accuracy:
+            pos.coords.accuracy
+
+          });
+
+        },
+
+        err=>reject(err),
+
+        {
+          enableHighAccuracy:true,
+          timeout:20000,
+          maximumAge:0
+        }
+
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   REVERSE GEOCODING ENGLISH
+========================================================= */
+
+async function reverseGeocode(
+  lat,
+  lon
+){
+
+  try{
+
+    const url=
+    "https://nominatim.openstreetmap.org/reverse"+
+    "?format=jsonv2"+
+    "&lat="+encodeURIComponent(lat)+
+    "&lon="+encodeURIComponent(lon)+
+    "&zoom=18"+
+    "&addressdetails=1"+
+    "&accept-language=en";
+
+
+    const res=
+    await fetch(
+      url,
+      {
+        headers:{
+          "Accept":
+          "application/json"
+        }
+      }
+    );
+
+
+    const data=
+    await res.json();
+
+
+    return buildEnglishAddress(
+      data.address || {}
+    );
+
+
+  }catch(e){
+
+    console.error(e);
+
+    return "Location available";
+
+  }
+
+}
+
+
+/* =========================================================
    UPLOAD PROGRESS
-========================================= */
+========================================================= */
 
 function setUploadProgress(
   percent,
   text
 ){
 
-  const p =
+  const p=
   Math.max(
     0,
     Math.min(
@@ -2653,30 +3617,28 @@ function setUploadProgress(
 
 
   document
-  .getElementById(
-    "uploadBar"
-  )
-  .style.width =
-  p + "%";
+  .getElementById("uploadBar")
+  .style.width=
+  p+"%";
 
 
   document
-  .getElementById(
-    "uploadPercent"
-  )
-  .textContent =
-  Math.round(p) + "%";
+  .getElementById("uploadPercent")
+  .textContent=
+  Math.round(p)+"%";
 
 
   document
-  .getElementById(
-    "uploadText"
-  )
-  .textContent =
+  .getElementById("uploadText")
+  .textContent=
   text;
 
 }
 
+
+/* =========================================================
+   XHR UPLOAD
+========================================================= */
 
 function xhrUpload(
   filePath,
@@ -2684,20 +3646,17 @@ function xhrUpload(
 ){
 
   return new Promise(
-    function(
-      resolve,
-      reject
-    ){
+    (resolve,reject)=>{
 
-      const url =
-      SUPABASE_URL +
-      "/storage/v1/object/past-snaps/" +
+      const url=
+      SUPABASE_URL+
+      "/storage/v1/object/past-snaps/"+
       encodeURIComponent(
         filePath
       );
 
 
-      const xhr =
+      const xhr=
       new XMLHttpRequest();
 
 
@@ -2716,7 +3675,7 @@ function xhrUpload(
 
       xhr.setRequestHeader(
         "Authorization",
-        "Bearer " +
+        "Bearer "+
         SUPABASE_KEY
       );
 
@@ -2734,28 +3693,26 @@ function xhrUpload(
       );
 
 
-      xhr.upload.onprogress =
-      function(event){
+      xhr.upload.onprogress=
+      e=>{
 
-        if(event.lengthComputable){
+        if(
+          e.lengthComputable
+        ){
 
-          const percent =
+          const pct=
           (
-            event.loaded /
-            event.total
-          ) * 100;
+            e.loaded/
+            e.total
+          )*100;
 
 
           setUploadProgress(
-            percent,
-            "Uploading " +
-            formatMB(
-              event.loaded
-            ) +
-            " / " +
-            formatMB(
-              event.total
-            )
+            pct,
+            "Uploading "+
+            formatMB(e.loaded)+
+            " / "+
+            formatMB(e.total)
           );
 
         }
@@ -2763,12 +3720,11 @@ function xhrUpload(
       };
 
 
-      xhr.onload =
-      function(){
+      xhr.onload=()=>{
 
         if(
-          xhr.status >= 200 &&
-          xhr.status < 300
+          xhr.status>=200 &&
+          xhr.status<300
         ){
 
           resolve();
@@ -2777,8 +3733,8 @@ function xhrUpload(
 
           reject(
             new Error(
-              "Storage upload failed: " +
-              xhr.status
+              xhr.responseText ||
+              "Upload failed"
             )
           );
 
@@ -2787,16 +3743,12 @@ function xhrUpload(
       };
 
 
-      xhr.onerror =
-      function(){
-
-        reject(
-          new Error(
-            "Network error"
-          )
-        );
-
-      };
+      xhr.onerror=()=>
+      reject(
+        new Error(
+          "Network error"
+        )
+      );
 
 
       xhr.send(blob);
@@ -2807,9 +3759,9 @@ function xhrUpload(
 }
 
 
-/* =========================================
-   POST SNAP
-========================================= */
+/* =========================================================
+   FINAL POST
+========================================================= */
 
 async function postSnap(){
 
@@ -2820,7 +3772,7 @@ async function postSnap(){
   if(!capturedBlob){
 
     showStatus(
-      "Pehle photo ya video capture karo."
+      "Photo/video missing."
     );
 
     return;
@@ -2828,70 +3780,191 @@ async function postSnap(){
   }
 
 
-  if(!currentPosition){
+  if(!currentUser){
 
     showStatus(
-      "Pehle My Location dabao."
+      "Login required."
     );
-
-    getMyLocation();
 
     return;
 
   }
 
 
-  isPostingSnap =
-  true;
+  isPostingSnap=true;
 
 
-  const postButton =
-  document.getElementById(
-    "postBtn"
+  const btn=
+  document
+  .getElementById(
+    "detailsNextBtn"
   );
 
 
-  postButton.disabled =
-  true;
+  btn.disabled=true;
 
-
-  postButton.textContent =
-  "Uploading...";
-
-
-  const uploadBox =
-  document.getElementById(
-    "uploadBox"
-  );
-
-
-  uploadBox.style.display =
-  "block";
-
-
-  setUploadProgress(
-    0,
-    "Preparing upload..."
-  );
+  btn.textContent=
+  "Checking location...";
 
 
   try{
 
-    const extension =
-    capturedType === "video"
+    /* ---------------------------------
+       FRESH GPS
+    --------------------------------- */
+
+    const fresh=
+    await getFreshPosition();
+
+
+    /* ---------------------------------
+       50 METRE CHECK
+    --------------------------------- */
+
+    if(
+      fresh.accuracy &&
+      fresh.accuracy>100
+    ){
+
+      throw new Error(
+        "GPS accuracy is too low. Move outside or wait for a better GPS fix."
+      );
+
+    }
+
+
+    if(
+      currentPosition
+    ){
+
+      const d=
+      distanceMeters(
+
+        {
+          lat:
+          currentPosition.latitude,
+
+          lng:
+          currentPosition.longitude
+        },
+
+        {
+          lat:
+          fresh.latitude,
+
+          lng:
+          fresh.longitude
+        }
+
+      );
+
+
+      /*
+        The final post position is ALWAYS
+        the fresh live GPS position.
+        It is NOT selected from the map.
+      */
+
+      if(d>50){
+
+        throw new Error(
+          "Location changed. Please stay within 50 metres and try again."
+        );
+
+      }
+
+    }
+
+
+    currentPosition={
+      latitude:
+      fresh.latitude,
+
+      longitude:
+      fresh.longitude,
+
+      accuracy:
+      fresh.accuracy
+    };
+
+
+    /* ---------------------------------
+       ADDRESS
+    --------------------------------- */
+
+    btn.textContent=
+    "Getting address...";
+
+
+    const locationName=
+    await reverseGeocode(
+      fresh.latitude,
+      fresh.longitude
+    );
+
+
+    /* ---------------------------------
+       USER DETAILS
+    --------------------------------- */
+
+    const description=
+    document
+    .getElementById(
+      "descriptionInput"
+    )
+    .value
+    .trim();
+
+
+    const songName=
+    document
+    .getElementById(
+      "songInput"
+    )
+    .value
+    .trim();
+
+
+    /* ---------------------------------
+       UPLOAD
+    --------------------------------- */
+
+    btn.textContent=
+    "Uploading...";
+
+
+    const uploadBox=
+    document
+    .getElementById(
+      "uploadBox"
+    );
+
+
+    uploadBox.style.display=
+    "block";
+
+
+    setUploadProgress(
+      0,
+      "Preparing upload..."
+    );
+
+
+    const ext=
+    capturedType==="video"
     ? "webm"
     : "jpg";
 
 
-    const filePath =
-    "snap_" +
-    Date.now() +
-    "_" +
+    const filePath=
+    "snap_"+
+    Date.now()+
+    "_"+
     Math.random()
     .toString(36)
-    .slice(2,10) +
-    "." +
-    extension;
+    .slice(2,10)+
+    "."+
+    ext;
 
 
     await xhrUpload(
@@ -2900,9 +3973,13 @@ async function postSnap(){
     );
 
 
-    const publicUrl =
-    SUPABASE_URL +
-    "/storage/v1/object/public/past-snaps/" +
+    /* ---------------------------------
+       PUBLIC URL
+    --------------------------------- */
+
+    const publicUrl=
+    SUPABASE_URL+
+    "/storage/v1/object/public/past-snaps/"+
     encodeURIComponent(
       filePath
     );
@@ -2914,29 +3991,38 @@ async function postSnap(){
     );
 
 
-    const video =
-    document.getElementById(
+    /* ---------------------------------
+       VIDEO INFO
+    --------------------------------- */
+
+    const videoEl=
+    document
+    .getElementById(
       "previewVideo"
     );
 
 
-    const duration =
-    capturedType === "video" &&
-    video.duration &&
+    const duration=
+    capturedType==="video" &&
+    videoEl.duration &&
     Number.isFinite(
-      video.duration
+      videoEl.duration
     )
-    ? video.duration
+    ? videoEl.duration
     : null;
 
 
-    const row = {
+    /* ---------------------------------
+       DATABASE
+    --------------------------------- */
+
+    const row={
 
       latitude:
-      currentPosition.latitude,
+      fresh.latitude,
 
       longitude:
-      currentPosition.longitude,
+      fresh.longitude,
 
       image_url:
       publicUrl,
@@ -2945,19 +4031,35 @@ async function postSnap(){
       capturedType,
 
       duration_seconds:
-      capturedType === "video"
+      capturedType==="video"
       ? duration
       : null,
 
       width:
-      capturedType === "video"
-      ? video.videoWidth
+      capturedType==="video"
+      ? videoEl.videoWidth
+      : capturedType==="image"
+      ? cameraCanvas.width
       : null,
 
       height:
-      capturedType === "video"
-      ? video.videoHeight
-      : null
+      capturedType==="video"
+      ? videoEl.videoHeight
+      : capturedType==="image"
+      ? cameraCanvas.height
+      : null,
+
+      user_id:
+      currentUser.id,
+
+      description:
+      description || null,
+
+      song_name:
+      songName || null,
+
+      location_name:
+      locationName || null
 
     };
 
@@ -2974,17 +4076,25 @@ async function postSnap(){
       throw error;
 
 
-    uploadBox.style.display =
+    /* ---------------------------------
+       SUCCESS
+    --------------------------------- */
+
+    uploadBox.style.display=
     "none";
 
 
-    previewModal.style.display =
+    detailsModal.style.display=
+    "none";
+
+
+    previewModal.style.display=
     "none";
 
 
     showStatus(
       "✅ Snap posted successfully!",
-      2500
+      3000
     );
 
 
@@ -2997,55 +4107,59 @@ async function postSnap(){
     }
 
 
-    capturedVideoUrl =
-    null;
+    capturedVideoUrl=null;
 
-    capturedBlob =
-    null;
+    capturedBlob=null;
 
-    capturedImageData =
-    null;
+    capturedImageData=null;
+
+    capturedType=null;
+
+
+    document
+    .getElementById(
+      "descriptionInput"
+    )
+    .value="";
+
+
+    document
+    .getElementById(
+      "songInput"
+    )
+    .value="";
 
 
     await loadSnaps();
 
 
-  }catch(error){
+  }catch(e){
 
-    console.error(error);
-
-
-    setUploadProgress(
-      0,
-      "Upload failed."
-    );
+    console.error(e);
 
 
-    setTimeout(
-      () =>
-      uploadBox.style.display =
-      "none",
-      1200
-    );
+    document
+    .getElementById(
+      "uploadBox"
+    )
+    .style.display=
+    "none";
 
 
     showStatus(
-      "Upload failed. Dobara try karo.",
-      3000
+      e.message ||
+      "Post failed.",
+      4000
     );
 
 
   }finally{
 
-    isPostingSnap =
-    false;
+    isPostingSnap=false;
 
+    btn.disabled=false;
 
-    postButton.disabled =
-    false;
-
-
-    postButton.textContent =
+    btn.textContent=
     "📍 Post Snap";
 
   }
@@ -3054,216 +4168,123 @@ async function postSnap(){
 
 
 document
-.getElementById(
-  "postBtn"
-)
-.onclick =
-postSnap;
+.getElementById("detailsNextBtn")
+.onclick=postSnap;
 
 
-/* =========================================
-   GALLERY
-========================================= */
+/* =========================================================
+   ANDROID BACK
+========================================================= */
 
-function openGallery(
-  items
-){
+function openCameraWithHistory(){
 
-  galleryItems =
-  items || [];
+  if(!currentUser){
 
+    showAuth();
 
-  galleryIndex =
-  0;
-
-
-  if(!galleryItems.length)
     return;
-
-
-  galleryModal.style.display =
-  "flex";
-
-
-  renderGalleryItem();
-
-}
-
-
-function renderGalleryItem(){
-
-  const item =
-  galleryItems[
-    galleryIndex
-  ];
-
-
-  document
-  .getElementById(
-    "galleryCounter"
-  )
-  .textContent =
-  (galleryIndex + 1) +
-  " / " +
-  galleryItems.length;
-
-
-  const image =
-  document.getElementById(
-    "galleryImage"
-  );
-
-
-  const video =
-  document.getElementById(
-    "galleryVideo"
-  );
-
-
-  image.style.display =
-  "none";
-
-
-  video.style.display =
-  "none";
-
-
-  video.pause();
-
-
-  image.src =
-  "";
-
-
-  if(
-
-    item.media_type === "video"
-
-    ||
-
-    /\.(webm|mp4|mov)$/i
-    .test(
-      item.image_url
-    )
-
-  ){
-
-    video.src =
-    item.image_url;
-
-    video.style.display =
-    "block";
-
-  }else{
-
-    image.src =
-    item.image_url;
-
-    image.style.display =
-    "block";
 
   }
 
+
+  if(!modalHistory){
+
+    history.pushState(
+      {
+        pastSnapModal:
+        "camera"
+      },
+      "",
+      "#camera"
+    );
+
+    modalHistory=true;
+
+  }
+
+
+  openCamera();
+
 }
 
 
-document
-.getElementById(
-  "prevBtn"
-)
-.onclick =
-function(){
-
-  if(!galleryItems.length)
-    return;
-
-
-  galleryIndex =
-  (
-    galleryIndex -
-    1 +
-    galleryItems.length
-  ) %
-  galleryItems.length;
-
-
-  renderGalleryItem();
-
-};
-
-
-document
-.getElementById(
-  "nextBtn"
-)
-.onclick =
-function(){
-
-  if(!galleryItems.length)
-    return;
-
-
-  galleryIndex =
-  (
-    galleryIndex +
-    1
-  ) %
-  galleryItems.length;
-
-
-  renderGalleryItem();
-
-};
-
-
-document
-.getElementById(
-  "closeGalleryBtn"
-)
-.onclick =
-function(){
-
-  document
-  .getElementById(
-    "galleryVideo"
-  )
-  .pause();
-
-
-  galleryModal.style.display =
-  "none";
-
-};
-
-
-/* =========================================
-   OPEN CAMERA
-========================================= */
-
-map.on(
-  "click",
-  function(){
+window
+.addEventListener(
+  "popstate",
+  ()=>{
 
     if(
-      cameraModal.style.display !== "flex" &&
-      previewModal.style.display !== "flex"
+      cameraModal.style.display==="flex"
     ){
 
-      openCamera();
+      closeCamera();
 
     }
+
+
+    if(
+      previewModal.style.display==="flex"
+    ){
+
+      previewModal.style.display=
+      "none";
+
+    }
+
+
+    if(
+      detailsModal.style.display==="flex"
+    ){
+
+      detailsModal.style.display=
+      "none";
+
+    }
+
+
+    modalHistory=false;
 
   }
 );
 
 
-/* =========================================
+/* =========================================================
+   INITIAL START
+========================================================= */
+
+async function startApp(){
+
+  const {
+    data
+  } =
+  await supabaseClient
+  .auth.getSession();
+
+
+  currentUser=
+  data.session?.user ||
+  null;
+
+
+  if(currentUser){
+
+    await loadProfile();
+
+  }
+
+
+  await loadSnaps();
+
+}
+
+
+/* =========================================================
    START
-========================================= */
+========================================================= */
 
-loadSnaps();
+updateAuthUI();
 
-getMyLocation();
+startApp();
 
 </script>
 
