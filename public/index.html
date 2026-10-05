@@ -80,7 +80,7 @@ top:70px;
 left:50%;
 transform:translateX(-50%);
 display:none;
-background:rgba(0,0,0,.9);
+background:rgba(0,0,0,.92);
 padding:8px 14px;
 border-radius:20px;
 font-size:13px;
@@ -156,7 +156,8 @@ color:#fff;
 text-decoration:underline;
 }
 
-#logoutBtn,#notificationBtn{
+#logoutBtn,
+#notificationBtn{
 position:absolute;
 z-index:2000;
 top:65px;
@@ -545,7 +546,8 @@ justify-content:center;
 background:#000;
 }
 
-#previewImage,#previewVideo{
+#previewImage,
+#previewVideo{
 max-width:100%;
 max-height:100%;
 object-fit:contain;
@@ -678,7 +680,8 @@ justify-content:center;
 background:#000;
 }
 
-#detailImage,#detailVideo{
+#detailImage,
+#detailVideo{
 max-width:100%;
 max-height:58vh;
 object-fit:contain;
@@ -693,7 +696,8 @@ font-size:18px;
 font-weight:700;
 }
 
-.postLocation,.postDate{
+.postLocation,
+.postDate{
 margin-top:5px;
 font-size:13px;
 color:#aaa;
@@ -871,7 +875,8 @@ align-items:center;
 justify-content:center;
 }
 
-#galleryImage,#galleryVideo{
+#galleryImage,
+#galleryVideo{
 max-width:100%;
 max-height:100%;
 object-fit:contain;
@@ -931,7 +936,6 @@ color:#fff;
 font-size:10px;
 text-align:center;
 }
-
 </style>
 </head>
 
@@ -1194,7 +1198,9 @@ playsinline
 
 </div>
 
-<div id="previewInfo">Ready</div>
+<div id="previewInfo">
+Ready
+</div>
 
 <div id="previewBottom">
 
@@ -1455,7 +1461,6 @@ playsinline
 
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
@@ -1478,10 +1483,30 @@ SUPABASE_KEY
 
 
 /* =========================================================
+DOM
+========================================================= */
+
+const $ = id => document.getElementById(id);
+
+const mapEl=$("map");
+const authModal=$("authModal");
+const cameraModal=$("cameraModal");
+const previewModal=$("previewModal");
+const detailsModal=$("detailsModal");
+const songModal=$("songModal");
+const postDetailModal=$("postDetailModal");
+const notificationModal=$("notificationModal");
+const galleryModal=$("galleryModal");
+
+const cameraVideo=$("cameraVideo");
+const cameraCanvas=$("cameraCanvas");
+
+
+/* =========================================================
 GLOBALS
 ========================================================= */
 
-let map;
+let map=null;
 
 let currentUser=null;
 let currentProfile=null;
@@ -1498,6 +1523,7 @@ let recorder=null;
 let recordedChunks=[];
 let recordingTimer=null;
 let recordingStartedAt=0;
+let lastRecordingDuration=0;
 
 let capturedBlob=null;
 let capturedType=null;
@@ -1515,6 +1541,8 @@ let currentDetailSnap=null;
 
 let galleryItems=[];
 let galleryIndex=0;
+
+let markerLayer=[];
 
 let isPostingSnap=false;
 
@@ -1550,6 +1578,8 @@ return `${m}:${String(s).padStart(2,"0")}`;
 
 function formatDate(date){
 
+try{
+
 return new Intl.DateTimeFormat(
 "en-IN",
 {
@@ -1557,6 +1587,12 @@ dateStyle:"medium",
 timeStyle:"short"
 }
 ).format(new Date(date));
+
+}catch(e){
+
+return new Date(date).toLocaleString();
+
+}
 
 }
 
@@ -1572,7 +1608,7 @@ return clean.split(/\s+/).length;
 
 function showStatus(message,ms=3000){
 
-const el=document.getElementById("status");
+const el=$("status");
 
 el.textContent=message;
 el.style.display="block";
@@ -1580,7 +1616,9 @@ el.style.display="block";
 clearTimeout(showStatus.timer);
 
 showStatus.timer=setTimeout(()=>{
+
 el.style.display="none";
+
 },ms);
 
 }
@@ -1594,30 +1632,23 @@ let authMode="login";
 
 function updateAuthUI(){
 
-const title=document.getElementById("authTitle");
-const sub=document.getElementById("authSub");
-const name=document.getElementById("displayNameInput");
-const btn=document.getElementById("authBtn");
-const text=document.getElementById("authSwitchText");
-const switchBtn=document.getElementById("authSwitchBtn");
-
 if(authMode==="login"){
 
-title.textContent="Past Snap";
-sub.textContent="Login to post your snaps";
-name.style.display="none";
-btn.textContent="Login";
-text.textContent="Don't have an account?";
-switchBtn.textContent="Register";
+$("authTitle").textContent="Past Snap";
+$("authSub").textContent="Login to post your snaps";
+$("displayNameInput").style.display="none";
+$("authBtn").textContent="Login";
+$("authSwitchText").textContent="Don't have an account?";
+$("authSwitchBtn").textContent="Register";
 
 }else{
 
-title.textContent="Create Account";
-sub.textContent="Register to post and interact";
-name.style.display="block";
-btn.textContent="Register";
-text.textContent="Already have an account?";
-switchBtn.textContent="Login";
+$("authTitle").textContent="Create Account";
+$("authSub").textContent="Register to post and interact";
+$("displayNameInput").style.display="block";
+$("authBtn").textContent="Register";
+$("authSwitchText").textContent="Already have an account?";
+$("authSwitchBtn").textContent="Login";
 
 }
 
@@ -1627,17 +1658,17 @@ function showAuth(){
 
 updateAuthUI();
 
-document.getElementById("authModal").style.display="flex";
+authModal.style.display="flex";
 
 }
 
 function hideAuth(){
 
-document.getElementById("authModal").style.display="none";
+authModal.style.display="none";
 
 }
 
-document.getElementById("authSwitchBtn").onclick=()=>{
+$("authSwitchBtn").onclick=()=>{
 
 authMode=
 authMode==="login"
@@ -1649,16 +1680,16 @@ updateAuthUI();
 };
 
 
-document.getElementById("authBtn").onclick=async()=>{
+$("authBtn").onclick=async()=>{
 
 const email=
-document.getElementById("emailInput").value.trim();
+$("emailInput").value.trim();
 
 const password=
-document.getElementById("passwordInput").value;
+$("passwordInput").value;
 
 const name=
-document.getElementById("displayNameInput").value.trim();
+$("displayNameInput").value.trim();
 
 if(!email || !password){
 
@@ -1682,8 +1713,10 @@ return;
 
 const {data,error}=
 await supabaseClient.auth.signUp({
+
 email,
 password
+
 });
 
 if(error) throw error;
@@ -1694,8 +1727,10 @@ const {error:profileError}=
 await supabaseClient
 .from("profiles")
 .upsert({
+
 id:data.user.id,
 display_name:name
+
 });
 
 if(profileError) throw profileError;
@@ -1705,15 +1740,16 @@ if(profileError) throw profileError;
 showStatus("Registration successful");
 
 authMode="login";
-
 updateAuthUI();
 
 }else{
 
 const {error}=
 await supabaseClient.auth.signInWithPassword({
+
 email,
 password
+
 });
 
 if(error) throw error;
@@ -1726,14 +1762,17 @@ showStatus("Login successful");
 
 console.error(error);
 
-showStatus(error.message || "Authentication failed");
+showStatus(
+error.message ||
+"Authentication failed"
+);
 
 }
 
 };
 
 
-document.getElementById("logoutBtn").onclick=async()=>{
+$("logoutBtn").onclick=async()=>{
 
 await supabaseClient.auth.signOut();
 
@@ -1748,16 +1787,22 @@ USER
 
 async function loadUser(){
 
-const {data}=
+const {data,error}=
 await supabaseClient.auth.getSession();
+
+if(error){
+
+console.error(error);
+
+}
 
 currentUser=
 data.session?.user || null;
 
 if(!currentUser){
 
-document.getElementById("logoutBtn").style.display="none";
-document.getElementById("notificationBtn").style.display="none";
+$("logoutBtn").style.display="none";
+$("notificationBtn").style.display="none";
 
 return;
 
@@ -1765,8 +1810,8 @@ return;
 
 hideAuth();
 
-document.getElementById("logoutBtn").style.display="block";
-document.getElementById("notificationBtn").style.display="block";
+$("logoutBtn").style.display="block";
+$("notificationBtn").style.display="block";
 
 const {data:profile}=
 await supabaseClient
@@ -1828,6 +1873,12 @@ const url=
 const response=
 await fetch(url);
 
+if(!response.ok){
+
+throw new Error("Geocoding failed");
+
+}
+
 const data=
 await response.json();
 
@@ -1863,6 +1914,8 @@ country
 
 }catch(error){
 
+console.error(error);
+
 return "Location unavailable";
 
 }
@@ -1877,8 +1930,7 @@ SEARCH
 async function searchPlace(){
 
 const q=
-document.getElementById("searchInput")
-.value.trim();
+$("searchInput").value.trim();
 
 if(!q) return;
 
@@ -1894,6 +1946,13 @@ const url=
 "&accept-language=en";
 
 const response=await fetch(url);
+
+if(!response.ok){
+
+throw new Error();
+
+}
+
 const data=await response.json();
 
 if(!data.length){
@@ -1916,30 +1975,35 @@ showStatus(data[0].display_name);
 
 }catch(error){
 
+console.error(error);
+
 showStatus("Search failed");
 
 }
 
 }
 
-document.getElementById("searchBtn")
-.onclick=searchPlace;
+$("searchBtn").onclick=searchPlace;
 
-document.getElementById("searchInput")
-.addEventListener("keydown",e=>{
+$("searchInput").addEventListener(
+"keydown",
+e=>{
 
 if(e.key==="Enter"){
+
 searchPlace();
+
 }
 
-});
+}
+);
 
 
 /* =========================================================
 GPS
 ========================================================= */
 
-document.getElementById("locBtn").onclick=()=>{
+$("locBtn").onclick=()=>{
 
 if(!navigator.geolocation){
 
@@ -1954,9 +2018,11 @@ navigator.geolocation.getCurrentPosition(
 async position=>{
 
 currentPosition={
+
 lat:position.coords.latitude,
 lon:position.coords.longitude,
 accuracy:position.coords.accuracy
+
 };
 
 map.setView(
@@ -1981,6 +2047,8 @@ await openCamera();
 
 error=>{
 
+console.error(error);
+
 showStatus(
 "GPS permission allow karo"
 );
@@ -1988,9 +2056,11 @@ showStatus(
 },
 
 {
+
 enableHighAccuracy:true,
 timeout:15000,
 maximumAge:0
+
 }
 
 );
@@ -2012,6 +2082,16 @@ return;
 
 }
 
+if(!navigator.mediaDevices?.getUserMedia){
+
+showStatus(
+"Is browser me camera supported nahi hai"
+);
+
+return;
+
+}
+
 try{
 
 stopCamera();
@@ -2020,15 +2100,19 @@ cameraStream=
 await navigator.mediaDevices.getUserMedia({
 
 video:{
+
 facingMode:{
 ideal:currentFacing
 },
+
 width:{
 ideal:1920
 },
+
 height:{
 ideal:1080
 }
+
 },
 
 audio:true
@@ -2042,13 +2126,19 @@ cameraModal.style.display="flex";
 
 applyCameraFilter();
 
+if(currentZoom!==1){
+
+$("zoomRange").value=currentZoom;
+
+}
+
 }catch(error){
+
+console.error(error);
 
 showStatus(
 "Camera permission required"
 );
-
-console.error(error);
 
 }
 
@@ -2060,7 +2150,13 @@ if(cameraStream){
 
 cameraStream
 .getTracks()
-.forEach(track=>track.stop());
+.forEach(track=>{
+
+try{
+track.stop();
+}catch(e){}
+
+});
 
 cameraStream=null;
 
@@ -2070,13 +2166,13 @@ cameraVideo.srcObject=null;
 
 }
 
-document.getElementById("closeCameraBtn")
-.onclick=()=>{
+
+$("closeCameraBtn").onclick=()=>{
 
 if(recorder &&
 recorder.state==="recording"){
 
-recorder.stop();
+stopRecording();
 
 }
 
@@ -2091,8 +2187,7 @@ cameraModal.style.display="none";
 CAMERA SWITCH
 ========================================================= */
 
-document.getElementById("switchCameraBtn")
-.onclick=async()=>{
+$("switchCameraBtn").onclick=async()=>{
 
 currentFacing=
 currentFacing==="environment"
@@ -2108,12 +2203,11 @@ await openCamera();
 MIRROR
 ========================================================= */
 
-document.getElementById("mirrorBtn")
-.onclick=()=>{
+$("mirrorBtn").onclick=()=>{
 
 mirrorEnabled=!mirrorEnabled;
 
-document.getElementById("mirrorBtn")
+$("mirrorBtn")
 .classList.toggle(
 "active",
 mirrorEnabled
@@ -2128,7 +2222,7 @@ mirrorEnabled
 
 
 /* =========================================================
-FILTER
+FILTERS
 ========================================================= */
 
 const filters={
@@ -2169,11 +2263,14 @@ btn.onclick=()=>{
 
 document
 .querySelectorAll(".filterBtn")
-.forEach(x=>x.classList.remove("active"));
+.forEach(x=>
+x.classList.remove("active")
+);
 
 btn.classList.add("active");
 
-currentFilter=btn.dataset.filter;
+currentFilter=
+btn.dataset.filter;
 
 applyCameraFilter();
 
@@ -2186,33 +2283,21 @@ applyCameraFilter();
 MODE
 ========================================================= */
 
-document.getElementById("photoModeBtn")
-.onclick=()=>{
+$("photoModeBtn").onclick=()=>{
 
 currentMode="photo";
 
-document
-.getElementById("photoModeBtn")
-.classList.add("active");
-
-document
-.getElementById("videoModeBtn")
-.classList.remove("active");
+$("photoModeBtn").classList.add("active");
+$("videoModeBtn").classList.remove("active");
 
 };
 
-document.getElementById("videoModeBtn")
-.onclick=()=>{
+$("videoModeBtn").onclick=()=>{
 
 currentMode="video";
 
-document
-.getElementById("videoModeBtn")
-.classList.add("active");
-
-document
-.getElementById("photoModeBtn")
-.classList.remove("active");
+$("videoModeBtn").classList.add("active");
+$("photoModeBtn").classList.remove("active");
 
 };
 
@@ -2221,14 +2306,12 @@ document
 ZOOM
 ========================================================= */
 
-document.getElementById("zoomRange")
-.oninput=async e=>{
+$("zoomRange").oninput=async e=>{
 
 currentZoom=
 parseFloat(e.target.value);
 
-document.getElementById("zoomValue")
-.textContent=
+$("zoomValue").textContent=
 currentZoom.toFixed(1)+"×";
 
 if(!cameraStream) return;
@@ -2242,22 +2325,31 @@ track.getCapabilities?.();
 if(capabilities?.zoom){
 
 const zoom=Math.max(
+
 capabilities.zoom.min,
+
 Math.min(
 currentZoom,
 capabilities.zoom.max
 )
+
 );
 
 try{
 
 await track.applyConstraints({
+
 advanced:[
 {zoom}
 ]
+
 });
 
-}catch(error){}
+}catch(error){
+
+console.log("Hardware zoom unavailable");
+
+}
 
 }
 
@@ -2272,14 +2364,27 @@ function capturePhoto(){
 
 if(!cameraStream) return;
 
-const width=cameraVideo.videoWidth;
-const height=cameraVideo.videoHeight;
+const width=
+cameraVideo.videoWidth;
+
+const height=
+cameraVideo.videoHeight;
+
+if(!width || !height){
+
+showStatus("Camera ready hone do");
+
+return;
+
+}
 
 cameraCanvas.width=width;
 cameraCanvas.height=height;
 
 const ctx=
 cameraCanvas.getContext("2d");
+
+ctx.save();
 
 if(mirrorEnabled){
 
@@ -2299,8 +2404,19 @@ width,
 height
 );
 
+ctx.restore();
+
 cameraCanvas.toBlob(
+
 blob=>{
+
+if(!blob){
+
+showStatus("Photo capture failed");
+
+return;
+
+}
 
 capturedBlob=blob;
 capturedType="image";
@@ -2308,8 +2424,10 @@ capturedType="image";
 openPreview();
 
 },
+
 "image/jpeg",
 .92
+
 );
 
 }
@@ -2324,6 +2442,7 @@ function startRecording(){
 if(!cameraStream) return;
 
 recordedChunks=[];
+lastRecordingDuration=0;
 
 let mime="video/webm";
 
@@ -2343,6 +2462,14 @@ MediaRecorder.isTypeSupported(
 
 mime="video/webm;codecs=vp8,opus";
 
+}else if(
+MediaRecorder.isTypeSupported(
+"video/webm"
+)
+){
+
+mime="video/webm";
+
 }
 
 try{
@@ -2351,19 +2478,26 @@ recorder=
 new MediaRecorder(
 cameraStream,
 {
+
 mimeType:mime,
+
 videoBitsPerSecond:
 selectedQuality===480
 ?2500000
 :selectedQuality===720
 ?5000000
 :8000000
+
 }
 );
 
 }catch(error){
 
-showStatus("Video recording supported nahi hai");
+console.error(error);
+
+showStatus(
+"Video recording supported nahi hai"
+);
 
 return;
 
@@ -2371,7 +2505,7 @@ return;
 
 recorder.ondataavailable=e=>{
 
-if(e.data.size){
+if(e.data && e.data.size){
 
 recordedChunks.push(e.data);
 
@@ -2383,14 +2517,24 @@ recorder.onstop=()=>{
 
 clearInterval(recordingTimer);
 
-document.getElementById("recordTimer")
-.style.display="none";
+recordingTimer=null;
+
+$("recordTimer").style.display="none";
+
+lastRecordingDuration=
+Math.max(
+1,
+Math.floor(
+(Date.now()-recordingStartedAt)/1000
+)
+);
 
 const blob=
 new Blob(
 recordedChunks,
 {
-type:recorder.mimeType
+type:recorder.mimeType ||
+"video/webm"
 }
 );
 
@@ -2404,15 +2548,16 @@ openPreview();
 
 };
 
-recorder.start(250);
-
 recordingStartedAt=Date.now();
 
-document.getElementById("captureBtn")
+recorder.start(250);
+
+$("captureBtn")
 .classList.add("recording");
 
-document.getElementById("recordTimer")
-.style.display="block";
+$("recordTimer").style.display="block";
+
+$("recordTimer").textContent="00:00";
 
 recordingTimer=
 setInterval(()=>{
@@ -2422,13 +2567,13 @@ Math.floor(
 (Date.now()-recordingStartedAt)/1000
 );
 
-document.getElementById("recordTimer")
-.textContent=
+$("recordTimer").textContent=
 formatTime(seconds);
 
 },500);
 
 }
+
 
 function stopRecording(){
 
@@ -2439,7 +2584,7 @@ recorder.state==="recording"
 
 recorder.stop();
 
-document.getElementById("captureBtn")
+$("captureBtn")
 .classList.remove("recording");
 
 }
@@ -2451,8 +2596,7 @@ document.getElementById("captureBtn")
 CAPTURE
 ========================================================= */
 
-document.getElementById("captureBtn")
-.onclick=()=>{
+$("captureBtn").onclick=()=>{
 
 if(currentMode==="photo"){
 
@@ -2484,11 +2628,8 @@ PREVIEW
 
 function openPreview(){
 
-const img=
-document.getElementById("previewImage");
-
-const video=
-document.getElementById("previewVideo");
+const img=$("previewImage");
+const video=$("previewVideo");
 
 img.style.display="none";
 video.style.display="none";
@@ -2500,25 +2641,25 @@ URL.createObjectURL(capturedBlob);
 
 img.style.display="block";
 
+$("previewInfo").textContent=
+"Photo ready";
+
 }else{
 
 video.src=capturedVideoUrl;
+
 video.style.display="block";
 
-}
+$("previewInfo").textContent=
+"Video ready";
 
-document.getElementById("previewInfo")
-.textContent=
-capturedType==="image"
-?"Photo ready"
-:"Video ready";
+}
 
 previewModal.style.display="flex";
 
 }
 
-document.getElementById("cancelPreviewBtn")
-.onclick=()=>{
+$("cancelPreviewBtn").onclick=()=>{
 
 previewModal.style.display="none";
 
@@ -2532,8 +2673,14 @@ capturedVideoUrl
 
 capturedVideoUrl=null;
 capturedBlob=null;
+capturedType=null;
 
 };
+
+
+/* =========================================================
+QUALITY
+========================================================= */
 
 document.querySelectorAll(".qualityBtn")
 .forEach(btn=>{
@@ -2592,10 +2739,10 @@ src:""
 
 ];
 
+
 function renderSongs(){
 
-const list=
-document.getElementById("songList");
+const list=$("songList");
 
 list.innerHTML="";
 
@@ -2612,7 +2759,9 @@ item.className="songItem";
 
 item.innerHTML=`
 
-<button class="songPlay">▶</button>
+<button class="songPlay">
+▶
+</button>
 
 <div class="songInfo">
 
@@ -2629,6 +2778,7 @@ ${escapeHTML(song.artist)}
 <button class="songUse">
 Use
 </button>
+
 `;
 
 item.querySelector(".songPlay")
@@ -2637,7 +2787,7 @@ item.querySelector(".songPlay")
 if(!song.src){
 
 showStatus(
-"Is song ka audio URL add nahi hua."
+"Is song ka licensed audio URL add nahi hua."
 );
 
 return;
@@ -2645,44 +2795,50 @@ return;
 }
 
 if(selectedSongAudio){
+
 selectedSongAudio.pause();
+
 }
 
 selectedSongAudio=
 new Audio(song.src);
 
-selectedSongAudio.currentTime=0;
 selectedSongAudio.play();
 
 setTimeout(()=>{
 
 if(selectedSongAudio){
+
 selectedSongAudio.pause();
+
 }
 
 },30000);
 
 };
 
+
 item.querySelector(".songUse")
 .onclick=()=>{
 
 selectedSong=song;
+
 selectedSongStart=0;
 
-document.getElementById(
-"selectedSongTitle"
-).textContent=
+$("selectedSongTitle").textContent=
 song.title+" — "+song.artist;
 
-document.getElementById(
-"songEditor"
-).style.display="block";
+$("songEditor").style.display="block";
+
+$("songRange").value=0;
+$("songRange").max=0;
 
 if(song.src){
 
 if(selectedSongAudio){
+
 selectedSongAudio.pause();
+
 }
 
 selectedSongAudio=
@@ -2690,17 +2846,22 @@ new Audio(song.src);
 
 selectedSongAudio.onloadedmetadata=()=>{
 
-document.getElementById(
-"songRange"
-).max=
+const duration=
+Number(selectedSongAudio.duration)||30;
+
+$("songRange").max=
 Math.max(
 0,
-Math.floor(
-selectedSongAudio.duration-30
-)
+Math.floor(duration-30)
 );
 
 };
+
+}else{
+
+showStatus(
+"Audio URL available nahi hai."
+);
 
 }
 
@@ -2711,6 +2872,7 @@ list.appendChild(item);
 });
 
 }
+
 
 document.querySelectorAll(".songCategory")
 .forEach(btn=>{
@@ -2734,21 +2896,19 @@ renderSongs();
 
 });
 
-document.getElementById("songRange")
-.oninput=e=>{
+
+$("songRange").oninput=e=>{
 
 selectedSongStart=
-parseInt(e.target.value);
+parseInt(e.target.value)||0;
 
-document.getElementById(
-"songStartLabel"
-).textContent=
+$("songStartLabel").textContent=
 formatTime(selectedSongStart);
 
 };
 
-document.getElementById("useSongBtn")
-.onclick=()=>{
+
+$("useSongBtn").onclick=()=>{
 
 if(!selectedSong){
 
@@ -2758,9 +2918,7 @@ return;
 
 }
 
-document.getElementById(
-"selectedSongDetails"
-).textContent=
+$("selectedSongDetails").textContent=
 "🎵 "+
 selectedSong.title+
 " — "+
@@ -2772,8 +2930,8 @@ songModal.style.display="none";
 
 };
 
-document.getElementById("songCameraBtn")
-.onclick=()=>{
+
+$("songCameraBtn").onclick=()=>{
 
 renderSongs();
 
@@ -2781,13 +2939,15 @@ songModal.style.display="flex";
 
 };
 
-document.getElementById("closeSongBtn")
-.onclick=()=>{
+
+$("closeSongBtn").onclick=()=>{
 
 songModal.style.display="none";
 
 if(selectedSongAudio){
+
 selectedSongAudio.pause();
+
 }
 
 };
@@ -2797,12 +2957,13 @@ selectedSongAudio.pause();
 NEXT → DETAILS
 ========================================================= */
 
-document.getElementById("postBtn")
-.onclick=async()=>{
+$("postBtn").onclick=async()=>{
 
 if(!capturedBlob){
 
-showStatus("Pehle photo/video capture karo");
+showStatus(
+"Pehle photo/video capture karo"
+);
 
 return;
 
@@ -2812,7 +2973,9 @@ previewModal.style.display="none";
 
 if(!currentPosition){
 
-showStatus("Fresh GPS location le raha hoon...");
+showStatus(
+"Fresh GPS location le raha hoon..."
+);
 
 await getFreshLocation();
 
@@ -2820,22 +2983,22 @@ await getFreshLocation();
 
 if(!currentPosition){
 
-showStatus("GPS location nahi mili");
+showStatus(
+"GPS location nahi mili"
+);
+
+previewModal.style.display="flex";
 
 return;
 
 }
 
-document.getElementById(
-"detailsUserName"
-).textContent=
+$("detailsUserName").textContent=
 currentProfile?.display_name ||
-currentUser.email ||
+currentUser?.email ||
 "User";
 
-document.getElementById(
-"detailsLocation"
-).textContent=
+$("detailsLocation").textContent=
 "Loading location...";
 
 detailsModal.style.display="flex";
@@ -2846,10 +3009,9 @@ currentPosition.lat,
 currentPosition.lon
 );
 
-document.getElementById(
-"detailsLocation"
-).textContent=
-location || "Location unavailable";
+$("detailsLocation").textContent=
+location ||
+"Location unavailable";
 
 };
 
@@ -2862,14 +3024,24 @@ function getFreshLocation(){
 
 return new Promise(resolve=>{
 
+if(!navigator.geolocation){
+
+resolve(null);
+
+return;
+
+}
+
 navigator.geolocation.getCurrentPosition(
 
 position=>{
 
 currentPosition={
+
 lat:position.coords.latitude,
 lon:position.coords.longitude,
 accuracy:position.coords.accuracy
+
 };
 
 resolve(currentPosition);
@@ -2878,6 +3050,8 @@ resolve(currentPosition);
 
 error=>{
 
+console.error(error);
+
 currentPosition=null;
 
 resolve(null);
@@ -2885,9 +3059,11 @@ resolve(null);
 },
 
 {
+
 enableHighAccuracy:true,
 timeout:15000,
 maximumAge:0
+
 }
 
 );
@@ -2901,8 +3077,7 @@ maximumAge:0
 DETAIL BACK
 ========================================================= */
 
-document.getElementById("detailsBackBtn")
-.onclick=()=>{
+$("detailsBackBtn").onclick=()=>{
 
 detailsModal.style.display="none";
 
@@ -2933,7 +3108,8 @@ throw new Error(
 return new Promise(
 (resolve,reject)=>{
 
-const xhr=new XMLHttpRequest();
+const xhr=
+new XMLHttpRequest();
 
 const uploadURL=
 SUPABASE_URL+
@@ -2971,14 +3147,10 @@ Math.round(
 (e.loaded/e.total)*100
 );
 
-document.getElementById(
-"uploadBar"
-).style.width=
+$("uploadBar").style.width=
 percent+"%";
 
-document.getElementById(
-"uploadPercent"
-).textContent=
+$("uploadPercent").textContent=
 percent+"%";
 
 }
@@ -2987,11 +3159,19 @@ percent+"%";
 
 xhr.onload=()=>{
 
-if(xhr.status>=200 && xhr.status<300){
+if(
+xhr.status>=200 &&
+xhr.status<300
+){
 
 resolve();
 
 }else{
+
+console.error(
+"Storage error:",
+xhr.responseText
+);
 
 reject(
 new Error(
@@ -3007,7 +3187,9 @@ xhr.responseText ||
 xhr.onerror=()=>{
 
 reject(
-new Error("Network upload error")
+new Error(
+"Network upload error"
+)
 );
 
 };
@@ -3023,8 +3205,7 @@ xhr.send(blob);
 POST SNAP
 ========================================================= */
 
-document.getElementById("detailsNextBtn")
-.onclick=async()=>{
+$("detailsNextBtn").onclick=async()=>{
 
 if(isPostingSnap) return;
 
@@ -3041,27 +3222,7 @@ isPostingSnap=true;
 try{
 
 const fresh=
-await new Promise(resolve=>{
-
-navigator.geolocation.getCurrentPosition(
-
-p=>resolve({
-lat:p.coords.latitude,
-lon:p.coords.longitude,
-accuracy:p.coords.accuracy
-}),
-
-()=>resolve(null),
-
-{
-enableHighAccuracy:true,
-timeout:15000,
-maximumAge:0
-}
-
-);
-
-});
+await getFreshLocation();
 
 if(!fresh){
 
@@ -3074,14 +3235,12 @@ throw new Error(
 currentPosition=fresh;
 
 const description=
-document.getElementById(
-"descriptionInput"
-).value.trim();
+$("descriptionInput")
+.value.trim();
 
 const locationName=
-document.getElementById(
-"detailsLocation"
-).textContent.trim();
+$("detailsLocation")
+.textContent.trim();
 
 const timestamp=Date.now();
 
@@ -3096,13 +3255,12 @@ currentUser.id+
 timestamp+
 "."+extension;
 
-document.getElementById(
-"uploadBox"
-).style.display="block";
+$("uploadBox").style.display="block";
 
-document.getElementById(
-"uploadText"
-).textContent=
+$("uploadBar").style.width="0%";
+$("uploadPercent").textContent="0%";
+
+$("uploadText").textContent=
 "Uploading your snap...";
 
 await uploadFile(
@@ -3119,6 +3277,7 @@ supabaseClient.storage
 const row={
 
 latitude:fresh.lat,
+
 longitude:fresh.lon,
 
 image_url:publicURL,
@@ -3127,13 +3286,18 @@ media_type:capturedType,
 
 duration_seconds:
 capturedType==="video"
-?Math.floor(
-(Date.now()-recordingStartedAt)/1000
-)
+?lastRecordingDuration
 :null,
 
-width:null,
-height:null,
+width:
+capturedType==="image"
+?cameraVideo.videoWidth || null
+:null,
+
+height:
+capturedType==="image"
+?cameraVideo.videoHeight || null
+:null,
 
 user_id:currentUser.id,
 
@@ -3172,24 +3336,22 @@ throw error;
 
 }
 
-document.getElementById(
-"uploadText"
-).textContent=
+$("uploadText").textContent=
 "Posted successfully!";
 
-document.getElementById(
-"uploadPercent"
-).textContent="100%";
+$("uploadPercent").textContent="100%";
+
+$("uploadBar").style.width="100%";
 
 setTimeout(()=>{
 
-document.getElementById(
-"uploadBox"
-).style.display="none";
+$("uploadBox").style.display="none";
 
-},700);
+},800);
 
-showStatus("👻 Snap posted successfully");
+showStatus(
+"👻 Snap posted successfully"
+);
 
 detailsModal.style.display="none";
 
@@ -3201,15 +3363,15 @@ capturedBlob=null;
 
 capturedVideoUrl=null;
 
+capturedType=null;
+
 selectedSong=null;
 
-document.getElementById(
-"descriptionInput"
-).value="";
+selectedSongStart=0;
 
-document.getElementById(
-"selectedSongDetails"
-).textContent=
+$("descriptionInput").value="";
+
+$("selectedSongDetails").textContent=
 "No song selected";
 
 await loadGhostMarkers();
@@ -3218,9 +3380,7 @@ await loadGhostMarkers();
 
 console.error(error);
 
-document.getElementById(
-"uploadBox"
-).style.display="none";
+$("uploadBox").style.display="none";
 
 showStatus(
 error.message ||
@@ -3246,11 +3406,19 @@ const {data,error}=
 await supabaseClient
 .from("snaps")
 .select("*")
-.order("created_at",{ascending:false});
+.order(
+"created_at",
+{
+ascending:false
+}
+);
 
 if(error){
 
-console.error(error);
+console.error(
+"Load snaps error:",
+error
+);
 
 return [];
 
@@ -3268,9 +3436,12 @@ PROFILES
 async function getProfiles(userIds){
 
 const ids=
-[...new Set(
-(userIds||[]).filter(Boolean)
-)];
+[
+...new Set(
+(userIds||[])
+.filter(Boolean)
+)
+];
 
 if(!ids.length) return {};
 
@@ -3288,16 +3459,16 @@ return {};
 
 }
 
-const map={};
+const profileMap={};
 
 (data||[]).forEach(profile=>{
 
-map[profile.id]=
+profileMap[profile.id]=
 profile.display_name;
 
 });
 
-return map;
+return profileMap;
 
 }
 
@@ -3306,19 +3477,24 @@ return map;
 GHOST MARKERS
 ========================================================= */
 
-let markerLayer=[];
-
 async function loadGhostMarkers(){
 
 if(!map) return;
 
 markerLayer.forEach(marker=>{
+
+try{
+
 map.removeLayer(marker);
+
+}catch(e){}
+
 });
 
 markerLayer=[];
 
-const snaps=await loadSnaps();
+const snaps=
+await loadSnaps();
 
 const groups={};
 
@@ -3330,12 +3506,15 @@ Number(snap.latitude).toFixed(5)+
 Number(snap.longitude).toFixed(5);
 
 if(!groups[key]){
+
 groups[key]=[];
+
 }
 
 groups[key].push(snap);
 
 });
+
 
 Object.values(groups).forEach(group=>{
 
@@ -3347,13 +3526,21 @@ L.divIcon({
 className:"",
 
 html:`
+
 <div class="markerGhost">
+
 👻
-<span>${group.length}</span>
+
+<span>
+${group.length}
+</span>
+
 </div>
+
 `,
 
 iconSize:[40,40],
+
 iconAnchor:[20,20]
 
 });
@@ -3364,14 +3551,19 @@ L.marker(
 latest.latitude,
 latest.longitude
 ],
-{icon}
+{
+icon
+}
 ).addTo(map);
 
-marker.on("click",()=>{
+marker.on(
+"click",
+()=>{
 
 openPostDetail(latest);
 
-});
+}
+);
 
 markerLayer.push(marker);
 
@@ -3381,30 +3573,23 @@ markerLayer.push(marker);
 
 
 /* =========================================================
-OPEN POST
+OPEN POST DETAIL
 ========================================================= */
 
 async function openPostDetail(snap){
 
+if(!snap) return;
+
 currentDetailSnap=snap;
 
-const modal=
-document.getElementById(
-"postDetailModal"
-);
-
-const image=
-document.getElementById(
-"detailImage"
-);
-
-const video=
-document.getElementById(
-"detailVideo"
-);
+const image=$("detailImage");
+const video=$("detailVideo");
 
 image.style.display="none";
 video.style.display="none";
+
+image.removeAttribute("src");
+video.removeAttribute("src");
 
 if(snap.media_type==="video"){
 
@@ -3418,53 +3603,53 @@ image.style.display="block";
 
 }
 
+
 const profiles=
 await getProfiles(
 [snap.user_id]
 );
 
-document.getElementById(
-"detailAuthor"
-).textContent=
+$("detailAuthor").textContent=
 "👤 "+
 (
 profiles[snap.user_id] ||
 "Past Snap User"
 );
 
-document.getElementById(
-"detailLocation"
-).textContent=
+$("detailLocation").textContent=
 "📍 "+
 (
 snap.location_name ||
 `${snap.latitude}, ${snap.longitude}`
 );
 
-document.getElementById(
-"detailDate"
-).textContent=
+$("detailDate").textContent=
 "🕐 "+
 formatDate(snap.created_at);
 
-document.getElementById(
-"detailDescription"
-).textContent=
+$("detailDescription").textContent=
 snap.description ||
 "No description added.";
 
+
+/* SONG */
+
 const songAudio=
-document.getElementById(
-"detailSongAudio"
-);
+$("detailSongAudio");
 
 const songName=
-document.getElementById(
-"detailSongName"
-);
+$("detailSongName");
 
 songAudio.pause();
+
 songAudio.removeAttribute("src");
+
+songAudio.style.display="none";
+
+songAudio.onload=null;
+songAudio.onloadedmetadata=null;
+songAudio.ontimeupdate=null;
+
 songAudio.load();
 
 if(snap.song_name){
@@ -3507,7 +3692,7 @@ snap.song_duration_seconds || 30
 );
 
 if(
-songAudio.currentTime>=
+songAudio.currentTime >=
 start+duration
 ){
 
@@ -3520,7 +3705,8 @@ songAudio.pause();
 }else{
 
 songName.textContent=
-"🎵 "+snap.song_name+
+"🎵 "+
+snap.song_name+
 " — audio not attached";
 
 }
@@ -3532,9 +3718,12 @@ songName.textContent=
 
 }
 
-await refreshPostStats();
 
-modal.style.display="flex";
+/* MODAL */
+
+postDetailModal.style.display="flex";
+
+await refreshPostStats();
 
 await registerView(snap);
 
@@ -3549,20 +3738,35 @@ async function registerView(snap){
 
 if(!currentUser) return;
 
+if(!snap?.id) return;
+
 try{
 
+const {error}=
 await supabaseClient
 .from("snap_views")
 .upsert(
+
 {
 snap_id:snap.id,
 user_id:currentUser.id
 },
+
 {
 onConflict:"snap_id,user_id",
 ignoreDuplicates:true
 }
+
 );
+
+if(error){
+
+console.error(
+"View error:",
+error
+);
+
+}
 
 }catch(error){
 
@@ -3581,9 +3785,16 @@ async function refreshPostStats(){
 
 if(!currentDetailSnap) return;
 
-const id=currentDetailSnap.id;
+const id=
+currentDetailSnap.id;
 
-const {count:likeCount}=
+
+/* LIKES */
+
+const {
+count:likeCount,
+error:likeError
+}=
 await supabaseClient
 .from("snap_likes")
 .select("*",{
@@ -3592,7 +3803,19 @@ head:true
 })
 .eq("snap_id",id);
 
-const {count:viewCount}=
+if(likeError){
+
+console.error(likeError);
+
+}
+
+
+/* VIEWS */
+
+const {
+count:viewCount,
+error:viewError
+}=
 await supabaseClient
 .from("snap_views")
 .select("*",{
@@ -3601,7 +3824,19 @@ head:true
 })
 .eq("snap_id",id);
 
-const {count:commentCount}=
+if(viewError){
+
+console.error(viewError);
+
+}
+
+
+/* COMMENTS */
+
+const {
+count:commentCount,
+error:commentError
+}=
 await supabaseClient
 .from("snap_comments")
 .select("*",{
@@ -3610,26 +3845,30 @@ head:true
 })
 .eq("snap_id",id);
 
-document.getElementById(
-"detailLikeCount"
-).textContent=
+if(commentError){
+
+console.error(commentError);
+
+}
+
+
+$("detailLikeCount").textContent=
 likeCount || 0;
 
-document.getElementById(
-"detailViews"
-).textContent=
+$("detailViews").textContent=
 viewCount || 0;
 
-document.getElementById(
-"detailComments"
-).textContent=
+$("detailComments").textContent=
 commentCount || 0;
+
+
+/* USER LIKE */
 
 let liked=false;
 
 if(currentUser){
 
-const {data}=
+const {data,error}=
 await supabaseClient
 .from("snap_likes")
 .select("id")
@@ -3637,13 +3876,19 @@ await supabaseClient
 .eq("user_id",currentUser.id)
 .maybeSingle();
 
+if(error &&
+error.code!=="PGRST116"){
+
+console.error(error);
+
+}
+
 liked=!!data;
 
 }
 
-document.getElementById(
-"detailLikeBtn"
-).classList.toggle(
+$("detailLikeBtn")
+.classList.toggle(
 "liked",
 liked
 );
@@ -3657,9 +3902,7 @@ await loadComments();
 LIKE
 ========================================================= */
 
-document.getElementById(
-"detailLikeBtn"
-).onclick=async()=>{
+$("detailLikeBtn").onclick=async()=>{
 
 if(!currentUser){
 
@@ -3671,9 +3914,12 @@ return;
 
 if(!currentDetailSnap) return;
 
-const id=currentDetailSnap.id;
+const id=
+currentDetailSnap.id;
 
-const {data}=
+try{
+
+const {data,error:findError}=
 await supabaseClient
 .from("snap_likes")
 .select("id")
@@ -3681,23 +3927,38 @@ await supabaseClient
 .eq("user_id",currentUser.id)
 .maybeSingle();
 
-try{
+if(
+findError &&
+findError.code!=="PGRST116"
+){
+
+throw findError;
+
+}
 
 if(data){
 
+const {error}=
 await supabaseClient
 .from("snap_likes")
 .delete()
 .eq("id",data.id);
 
+if(error) throw error;
+
 }else{
 
+const {error}=
 await supabaseClient
 .from("snap_likes")
 .insert({
+
 snap_id:id,
 user_id:currentUser.id
+
 });
+
+if(error) throw error;
 
 }
 
@@ -3706,6 +3967,8 @@ await refreshPostStats();
 await updateNotificationCount();
 
 }catch(error){
+
+console.error(error);
 
 showStatus(
 error.message ||
@@ -3729,14 +3992,25 @@ const {data,error}=
 await supabaseClient
 .from("snap_comments")
 .select("*")
-.eq("snap_id",currentDetailSnap.id)
-.order("created_at",{
+.eq(
+"snap_id",
+currentDetailSnap.id
+)
+.order(
+"created_at",
+{
 ascending:true
-});
+}
+);
 
 if(error){
 
 console.error(error);
+
+$("commentsList").innerHTML=
+`<div style="color:#f77;margin-top:10px">
+Comments load nahi hue.
+</div>`;
 
 return;
 
@@ -3744,13 +4018,13 @@ return;
 
 const profiles=
 await getProfiles(
-(data||[]).map(x=>x.user_id)
+(data||[]).map(
+x=>x.user_id
+)
 );
 
 const list=
-document.getElementById(
-"commentsList"
-);
+$("commentsList");
 
 list.innerHTML="";
 
@@ -3775,19 +4049,30 @@ div.className="commentItem";
 div.innerHTML=`
 
 <div class="commentAuthor">
+
 ${escapeHTML(
 profiles[comment.user_id] ||
 "User"
 )}
+
 </div>
 
 <div class="commentText">
-${escapeHTML(comment.comment_text)}
+
+${escapeHTML(
+comment.comment_text
+)}
+
 </div>
 
 <div class="commentTime">
-${formatDate(comment.created_at)}
+
+${formatDate(
+comment.created_at
+)}
+
 </div>
+
 `;
 
 list.appendChild(div);
@@ -3796,18 +4081,19 @@ list.appendChild(div);
 
 }
 
-document.getElementById(
-"commentInput"
-).addEventListener(
+
+/* WORD COUNT */
+
+$("commentInput")
+.addEventListener(
 "input",
 e=>{
 
 const words=
 wordCount(e.target.value);
 
-document.getElementById(
-"commentWordCount"
-).textContent=
+$("commentWordCount")
+.textContent=
 words+" / 250 words";
 
 if(words>250){
@@ -3824,9 +4110,9 @@ e.target.style.borderColor="#444";
 );
 
 
-document.getElementById(
-"commentSendBtn"
-).onclick=async()=>{
+/* SEND COMMENT */
+
+$("commentSendBtn").onclick=async()=>{
 
 if(!currentUser){
 
@@ -3839,21 +4125,23 @@ return;
 if(!currentDetailSnap) return;
 
 const input=
-document.getElementById(
-"commentInput"
-);
+$("commentInput");
 
-const text=input.value.trim();
+const text=
+input.value.trim();
 
 if(!text){
 
-showStatus("Comment empty hai");
+showStatus(
+"Comment empty hai"
+);
 
 return;
 
 }
 
-const words=wordCount(text);
+const words=
+wordCount(text);
 
 if(words>250){
 
@@ -3872,11 +4160,14 @@ await supabaseClient
 .from("snap_comments")
 .insert({
 
-snap_id:currentDetailSnap.id,
+snap_id:
+currentDetailSnap.id,
 
-user_id:currentUser.id,
+user_id:
+currentUser.id,
 
-comment_text:text
+comment_text:
+text
 
 });
 
@@ -3884,16 +4175,17 @@ if(error) throw error;
 
 input.value="";
 
-document.getElementById(
-"commentWordCount"
-).textContent=
+$("commentWordCount")
+.textContent=
 "0 / 250 words";
 
 await loadComments();
 
 await refreshPostStats();
 
-showStatus("Comment posted");
+showStatus(
+"Comment posted"
+);
 
 }catch(error){
 
@@ -3921,10 +4213,16 @@ const {data,error}=
 await supabaseClient
 .from("notifications")
 .select("*")
-.eq("recipient_id",currentUser.id)
-.order("created_at",{
+.eq(
+"recipient_id",
+currentUser.id
+)
+.order(
+"created_at",
+{
 ascending:false
-})
+}
+)
 .limit(50);
 
 if(error){
@@ -3939,6 +4237,7 @@ return data || [];
 
 }
 
+
 async function updateNotificationCount(){
 
 if(!currentUser) return;
@@ -3950,8 +4249,14 @@ await supabaseClient
 count:"exact",
 head:true
 })
-.eq("recipient_id",currentUser.id)
-.eq("is_read",false);
+.eq(
+"recipient_id",
+currentUser.id
+)
+.eq(
+"is_read",
+false
+);
 
 if(error){
 
@@ -3961,19 +4266,17 @@ return;
 
 }
 
-document.getElementById(
-"notificationCount"
-).textContent=
+$("notificationCount")
+.textContent=
 count || 0;
 
 }
 
+
 async function loadNotifications(){
 
 const list=
-document.getElementById(
-"notificationList"
-);
+$("notificationList");
 
 const notifications=
 await getNotifications();
@@ -4007,34 +4310,51 @@ notification.is_read
 div.innerHTML=`
 
 <div>
-${escapeHTML(notification.message)}
+${escapeHTML(
+notification.message
+)}
 </div>
 
 <div class="notificationDate">
-${formatDate(notification.created_at)}
+${formatDate(
+notification.created_at
+)}
 </div>
+
 `;
 
-div.onclick=()=>{
+div.onclick=async()=>{
 
 if(notification.snap_id){
 
-supabaseClient
+const {
+data,
+error
+}=
+await supabaseClient
 .from("snaps")
 .select("*")
-.eq("id",notification.snap_id)
-.maybeSingle()
-.then(({data})=>{
+.eq(
+"id",
+notification.snap_id
+)
+.maybeSingle();
+
+if(error){
+
+console.error(error);
+
+return;
+
+}
 
 if(data){
 
 notificationModal.style.display="none";
 
-openPostDetail(data);
+await openPostDetail(data);
 
 }
-
-});
 
 }
 
@@ -4046,9 +4366,8 @@ list.appendChild(div);
 
 }
 
-document.getElementById(
-"notificationBtn"
-).onclick=async()=>{
+
+$("notificationBtn").onclick=async()=>{
 
 notificationModal.style.display="flex";
 
@@ -4056,13 +4375,26 @@ await loadNotifications();
 
 if(currentUser){
 
+const {error}=
 await supabaseClient
 .from("notifications")
 .update({
 is_read:true
 })
-.eq("recipient_id",currentUser.id)
-.eq("is_read",false);
+.eq(
+"recipient_id",
+currentUser.id
+)
+.eq(
+"is_read",
+false
+);
+
+if(error){
+
+console.error(error);
+
+}
 
 }
 
@@ -4070,9 +4402,8 @@ await updateNotificationCount();
 
 };
 
-document.getElementById(
-"closeNotificationBtn"
-).onclick=()=>{
+
+$("closeNotificationBtn").onclick=()=>{
 
 notificationModal.style.display="none";
 
@@ -4083,17 +4414,10 @@ notificationModal.style.display="none";
 POST DETAIL CLOSE
 ========================================================= */
 
-document.getElementById(
-"closePostDetail"
-).onclick=()=>{
+$("closePostDetail").onclick=()=>{
 
-document.getElementById(
-"detailSongAudio"
-).pause();
-
-document.getElementById(
-"detailVideo"
-).pause();
+$("detailSongAudio").pause();
+$("detailVideo").pause();
 
 postDetailModal.style.display="none";
 
@@ -4106,11 +4430,14 @@ GALLERY
 
 async function openGallery(){
 
-galleryItems=await loadSnaps();
+galleryItems=
+await loadSnaps();
 
 if(!galleryItems.length){
 
-showStatus("Abhi koi snap nahi hai");
+showStatus(
+"Abhi koi snap nahi hai"
+);
 
 return;
 
@@ -4120,11 +4447,10 @@ galleryIndex=0;
 
 renderGallery();
 
-document.getElementById(
-"galleryModal"
-).style.display="flex";
+galleryModal.style.display="flex";
 
 }
+
 
 function renderGallery(){
 
@@ -4133,47 +4459,45 @@ galleryItems[galleryIndex];
 
 if(!snap) return;
 
-document.getElementById(
-"galleryCounter"
-).textContent=
+$("galleryCounter").textContent=
 `${galleryIndex+1} / ${galleryItems.length}`;
 
 const image=
-document.getElementById(
-"galleryImage"
-);
+$("galleryImage");
 
 const video=
-document.getElementById(
-"galleryVideo"
-);
+$("galleryVideo");
 
 image.style.display="none";
 video.style.display="none";
 
+video.pause();
+
 if(snap.media_type==="video"){
 
 video.src=snap.image_url;
+
 video.style.display="block";
 
 }else{
 
 image.src=snap.image_url;
+
 image.style.display="block";
 
 }
 
 }
 
-document.getElementById(
-"prevBtn"
-).onclick=()=>{
+
+$("prevBtn").onclick=()=>{
 
 if(!galleryItems.length) return;
 
 galleryIndex=
 (
-galleryIndex-1+
+galleryIndex-
+1+
 galleryItems.length
 )%
 galleryItems.length;
@@ -4182,15 +4506,15 @@ renderGallery();
 
 };
 
-document.getElementById(
-"nextBtn"
-).onclick=()=>{
+
+$("nextBtn").onclick=()=>{
 
 if(!galleryItems.length) return;
 
 galleryIndex=
 (
-galleryIndex+1
+galleryIndex+
+1
 )%
 galleryItems.length;
 
@@ -4198,13 +4522,12 @@ renderGallery();
 
 };
 
-document.getElementById(
-"closeGalleryBtn"
-).onclick=()=>{
 
-document.getElementById(
-"galleryModal"
-).style.display="none";
+$("closeGalleryBtn").onclick=()=>{
+
+$("galleryVideo").pause();
+
+galleryModal.style.display="none";
 
 };
 
@@ -4227,10 +4550,14 @@ const modals=[
 
 ];
 
-for(let i=0;i<modals.length;i++){
+for(
+let i=0;
+i<modals.length;
+i++
+){
 
 const el=
-document.getElementById(modals[i]);
+$(modals[i]);
 
 if(
 el &&
@@ -4239,11 +4566,12 @@ getComputedStyle(el).display!=="none"
 
 el.style.display="none";
 
-if(modals[i]==="cameraModal"){
-stopCamera();
-}
+if(
+modals[i]==="cameraModal"
+){
 
-if(modals[i]==="detailSongAudio"){
+stopCamera();
+
 }
 
 return true;
@@ -4255,6 +4583,7 @@ return true;
 return false;
 
 }
+
 
 document.addEventListener(
 "keydown",
@@ -4288,13 +4617,8 @@ await loadUser();
 
 }else{
 
-document.getElementById(
-"logoutBtn"
-).style.display="none";
-
-document.getElementById(
-"notificationBtn"
-).style.display="none";
+$("logoutBtn").style.display="none";
+$("notificationBtn").style.display="none";
 
 }
 
