@@ -1,12 +1,10 @@
 const express = require("express");
-const path = require("path");
 const http = require("http");
+const path = require("path");
 const { Server } = require("socket.io");
 
 const app = express();
 const server = http.createServer(app);
-
-const PORT = process.env.PORT || 3000;
 
 const io = new Server(server, {
   cors: {
@@ -15,6 +13,9 @@ const io = new Server(server, {
   }
 });
 
+const PORT = process.env.PORT || 3000;
+
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
@@ -25,183 +26,160 @@ app.use((req, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-// ======================================================
+// ============================================
 // SOCKET.IO
-// ======================================================
+// ============================================
 
 const users = new Map();
 
-/*
-users:
-socket.id -> {
-  userId,
-  displayName
-}
-*/
-
 io.on("connection", (socket) => {
-  console.log("Connected:", socket.id);
+  console.log("User connected:", socket.id);
 
-  // ----------------------------------------------------
-  // USER ONLINE
-  // ----------------------------------------------------
+  // ------------------------------------------
+  // JOIN ROOM
+  // ------------------------------------------
 
-  socket.on("register-user", (data = {}) => {
-    const userId = String(data.userId || "").trim();
-    const displayName = String(data.displayName || "User").trim();
+  socket.on("join-room", (roomId) => {
+    if (!roomId) return;
 
-    if (!userId) return;
+    roomId = String(roomId).trim().toUpperCase();
+
+    // Leave old rooms
+    for (const room of socket.rooms) {
+      if (room !== socket.id) {
+        socket.leave(room);
+      }
+    }
+
+    const existingUsers = io.sockets.adapter.rooms.get(roomId);
+
+    if (existingUsers && existingUsers.size >= 2) {
+      socket.emit("room-full");
+      return;
+    }
+
+    socket.join(roomId);
 
     users.set(socket.id, {
-      userId,
-      displayName
+      roomId
     });
 
-    socket.join(`user:${userId}`);
-
-    console.log(
-      `User registered: ${displayName} (${userId})`
-    );
-
-    socket.emit("user-registered", {
-      success: true
+    socket.emit("room-joined", {
+      roomId,
+      socketId: socket.id
     });
+
+    console.log(`${socket.id} joined room ${roomId}`);
   });
 
-  // ----------------------------------------------------
-  // AUDIO / VIDEO CALL
-  // ----------------------------------------------------
+  // ------------------------------------------
+  // CALL USER
+  // ------------------------------------------
 
-  socket.on("call-user", (data = {}) => {
-    const caller = users.get(socket.id);
+  socket.on("call-user", ({ targetRoom, callerRoom }) => {
+    if (!targetRoom) return;
 
-    if (!caller) {
-      socket.emit("call-error", {
-        message: "User session not registered."
+    targetRoom = String(targetRoom).trim().toUpperCase();
+
+    const targetUsers = io.sockets.adapter.rooms.get(targetRoom);
+
+    if (!targetUsers || targetUsers.size === 0) {
+      socket.emit("call-unavailable", {
+        roomId: targetRoom
       });
       return;
     }
 
-    const targetUserId = String(data.targetUserId || "").trim();
-    const callType =
-      data.callType === "audio" ? "audio" : "video";
+    let targetSocketId = null;
 
-    if (!targetUserId) {
-      socket.emit("call-error", {
-        message: "Target user not found."
+    for (const id of targetUsers) {
+      if (id !== socket.id) {
+        targetSocketId = id;
+        break;
+      }
+    }
+
+    if (!targetSocketId) {
+      socket.emit("call-unavailable", {
+        roomId: targetRoom
       });
       return;
     }
 
-    if (targetUserId === caller.userId) {
-      socket.emit("call-error", {
-        message: "You cannot call yourself."
-      });
-      return;
-    }
-
-    io.to(`user:${targetUserId}`).emit("incoming-call", {
-      callId: socket.id,
-      callerId: caller.userId,
-      callerName: caller.displayName,
-      callType
+    io.to(targetSocketId).emit("incoming-call", {
+      callerId: socket.id,
+      callerRoom: callerRoom || "",
+      targetRoom
     });
 
     socket.emit("call-ringing", {
-      targetUserId,
-      callType
+      roomId: targetRoom
     });
+
+    console.log(
+      `Call: ${callerRoom || socket.id} -> ${targetRoom}`
+    );
   });
 
-  // ----------------------------------------------------
+  // ------------------------------------------
   // ACCEPT CALL
-  // ----------------------------------------------------
+  // ------------------------------------------
 
-  socket.on("accept-call", (data = {}) => {
-    const receiver = users.get(socket.id);
+  socket.on("accept-call", ({ callerId }) => {
+    if (!callerId) return;
 
-    if (!receiver) return;
-
-    const callerSocketId = String(
-      data.callerSocketId || ""
-    ).trim();
-
-    if (!callerSocketId) return;
-
-    io.to(callerSocketId).emit("call-accepted", {
-      receiverId: receiver.userId,
-      receiverName: receiver.displayName
+    io.to(callerId).emit("call-accepted", {
+      accepterId: socket.id
     });
   });
 
-  // ----------------------------------------------------
+  // ------------------------------------------
   // REJECT CALL
-  // ----------------------------------------------------
+  // ------------------------------------------
 
-  socket.on("reject-call", (data = {}) => {
-    const receiver = users.get(socket.id);
+  socket.on("reject-call", ({ callerId }) => {
+    if (!callerId) return;
 
-    if (!receiver) return;
+    io.to(callerId).emit("call-rejected");
+  });
 
-    const callerSocketId = String(
-      data.callerSocketId || ""
-    ).trim();
+  // ------------------------------------------
+  // WEBRTC SIGNAL
+  // ------------------------------------------
 
-    if (!callerSocketId) return;
+  socket.on("webrtc-signal", ({ targetId, signal }) => {
+    if (!targetId || !signal) return;
 
-    io.to(callerSocketId).emit("call-rejected", {
-      receiverId: receiver.userId,
-      receiverName: receiver.displayName
+    io.to(targetId).emit("webrtc-signal", {
+      senderId: socket.id,
+      signal
     });
   });
 
-  // ----------------------------------------------------
+  // ------------------------------------------
   // END CALL
-  // ----------------------------------------------------
+  // ------------------------------------------
 
-  socket.on("end-call", (data = {}) => {
-    const otherSocketId = String(
-      data.otherSocketId || ""
-    ).trim();
+  socket.on("end-call", ({ targetId }) => {
+    if (!targetId) return;
 
-    if (!otherSocketId) return;
-
-    io.to(otherSocketId).emit("call-ended");
+    io.to(targetId).emit("call-ended");
   });
 
-  // ----------------------------------------------------
-  // WEBRTC SIGNALING
-  // ----------------------------------------------------
-
-  socket.on("webrtc-signal", (data = {}) => {
-    const targetSocketId = String(
-      data.targetSocketId || ""
-    ).trim();
-
-    if (!targetSocketId) return;
-
-    io.to(targetSocketId).emit("webrtc-signal", {
-      senderSocketId: socket.id,
-      signal: data.signal
-    });
-  });
-
-  // ----------------------------------------------------
+  // ------------------------------------------
   // DISCONNECT
-  // ----------------------------------------------------
+  // ------------------------------------------
 
   socket.on("disconnect", () => {
-    const user = users.get(socket.id);
-
-    if (user) {
-      console.log(
-        `Disconnected: ${user.displayName} (${user.userId})`
-      );
-    }
+    console.log("User disconnected:", socket.id);
 
     users.delete(socket.id);
   });
 });
+
+// ============================================
+// START SERVER
+// ============================================
 
 server.listen(PORT, "0.0.0.0", () => {
   console.log(`Past Snap running on port ${PORT}`);
