@@ -1,4184 +1,4748 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<title>Past Snap</title>
-
-<link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<style>
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
-
-html,body{
-  margin:0;
-  padding:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#111;
-  color:#fff;
-}
-
-button,input,textarea,select{
-  font:inherit;
-}
-
-button{
-  border:0;
-  cursor:pointer;
-}
-
-#app{
-  width:100%;
-  height:100%;
-  position:relative;
-}
-
-#map{
-  position:absolute;
-  inset:0;
-  z-index:1;
-}
-
-.topbar{
-  position:absolute;
-  top:12px;
-  left:12px;
-  right:12px;
-  z-index:1000;
-  display:flex;
-  gap:8px;
-  align-items:center;
-}
-
-.searchBox{
-  flex:1;
-  display:flex;
-  background:rgba(20,20,20,.92);
-  border-radius:14px;
-  padding:4px;
-  box-shadow:0 5px 20px rgba(0,0,0,.25);
-}
-
-#searchInput{
-  flex:1;
-  min-width:0;
-  border:0;
-  outline:0;
-  background:transparent;
-  color:white;
-  padding:11px;
-}
-
-#searchInput::placeholder{
-  color:#aaa;
-}
-
-.iconBtn{
-  width:42px;
-  height:42px;
-  border-radius:12px;
-  background:#252525;
-  color:#fff;
-  font-size:19px;
-}
-
-.iconBtn:active{
-  transform:scale(.95);
-}
-
-.userBtn{
-  width:44px;
-  height:44px;
-  border-radius:50%;
-  background:#111;
-  border:2px solid white;
-  color:#fff;
-  font-size:18px;
-}
-
-.bottomBar{
-  position:absolute;
-  left:10px;
-  right:10px;
-  bottom:12px;
-  z-index:1000;
-  display:flex;
-  gap:8px;
-}
-
-.bottomBtn{
-  flex:1;
-  min-height:52px;
-  border-radius:16px;
-  background:rgba(15,15,15,.94);
-  color:#fff;
-  font-weight:bold;
-  box-shadow:0 5px 18px rgba(0,0,0,.3);
-}
-
-.bottomBtn.primary{
-  background:#fff;
-  color:#111;
-}
-
-.bottomBtn:active{
-  transform:scale(.97);
-}
-
-.leaflet-control-attribution{
-  font-size:9px;
-}
-
-.clusterGhost{
-  width:auto;
-  min-width:62px;
-  height:42px;
-  padding:0 9px;
-  border-radius:22px;
-  background:rgba(20,20,20,.94);
-  border:2px solid #fff;
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:3px;
-  font-weight:bold;
-  font-size:15px;
-  box-shadow:0 4px 15px rgba(0,0,0,.35);
-}
-
-.singleGhost{
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  background:#111;
-  border:2px solid white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:22px;
-  box-shadow:0 4px 15px rgba(0,0,0,.35);
-}
-
-.modal{
-  position:fixed;
-  inset:0;
-  z-index:5000;
-  background:rgba(0,0,0,.72);
-  display:none;
-  align-items:flex-end;
-  justify-content:center;
-}
-
-.modal.show{
-  display:flex;
-}
-
-.sheet{
-  width:100%;
-  max-width:700px;
-  max-height:94vh;
-  overflow:auto;
-  background:#151515;
-  border-radius:24px 24px 0 0;
-  padding:18px;
-  animation:slideUp .2s ease;
-}
-
-@keyframes slideUp{
-  from{
-    transform:translateY(100%);
-  }
-  to{
-    transform:translateY(0);
-  }
-}
-
-.modalTitle{
-  font-size:20px;
-  font-weight:bold;
-  margin-bottom:14px;
-}
-
-.closeRow{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:10px;
-}
-
-.closeBtn{
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  background:#292929;
-  color:white;
-  font-size:20px;
-}
-
-.field{
-  margin-bottom:12px;
-}
-
-.field label{
-  display:block;
-  font-size:13px;
-  color:#aaa;
-  margin-bottom:5px;
-}
-
-.field input,
-.field textarea{
-  width:100%;
-  border:1px solid #333;
-  outline:0;
-  background:#202020;
-  color:white;
-  border-radius:12px;
-  padding:12px;
-}
-
-.field textarea{
-  min-height:90px;
-  resize:none;
-}
-
-.action{
-  width:100%;
-  min-height:48px;
-  border-radius:13px;
-  background:#fff;
-  color:#111;
-  font-weight:bold;
-  margin-top:7px;
-}
-
-.action.dark{
-  background:#292929;
-  color:white;
-}
-
-.action.danger{
-  background:#b92d2d;
-  color:#fff;
-}
-
-.authTabs{
-  display:flex;
-  gap:8px;
-  margin-bottom:15px;
-}
-
-.authTabs button{
-  flex:1;
-  padding:12px;
-  border-radius:12px;
-  background:#282828;
-  color:#aaa;
-}
-
-.authTabs button.active{
-  background:white;
-  color:#111;
-}
-
-.cameraModal{
-  align-items:center;
-}
-
-.cameraSheet{
-  max-height:100vh;
-  height:100%;
-  border-radius:0;
-  padding:10px;
-  background:#000;
-  display:flex;
-  flex-direction:column;
-}
-
-.cameraPreviewWrap{
-  flex:1;
-  min-height:0;
-  position:relative;
-  background:#050505;
-  border-radius:18px;
-  overflow:hidden;
-}
-
-#cameraVideo{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  transform-origin:center;
-}
-
-.cameraControls{
-  padding:10px 0 4px;
-}
-
-.controlRow{
-  display:flex;
-  gap:7px;
-  overflow-x:auto;
-  padding:5px 0;
-}
-
-.smallControl{
-  flex:0 0 auto;
-  padding:9px 12px;
-  border-radius:11px;
-  background:#222;
-  color:#fff;
-  font-size:13px;
-}
-
-.smallControl.active{
-  background:#fff;
-  color:#111;
-}
-
-.captureRow{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:22px;
-  padding:8px 0;
-}
-
-.captureBtn{
-  width:72px;
-  height:72px;
-  border-radius:50%;
-  background:white;
-  border:6px solid #555;
-}
-
-.captureBtn.recording{
-  background:#e33;
-}
-
-.cameraClose{
-  position:absolute;
-  top:12px;
-  left:12px;
-  z-index:5;
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  background:rgba(0,0,0,.65);
-  color:white;
-}
-
-.cameraMode{
-  position:absolute;
-  top:14px;
-  right:14px;
-  z-index:5;
-  padding:8px 12px;
-  background:rgba(0,0,0,.6);
-  border-radius:12px;
-  font-size:12px;
-}
-
-.previewMedia{
-  width:100%;
-  max-height:55vh;
-  object-fit:contain;
-  background:#000;
-  border-radius:16px;
-}
-
-.filterNormal{
-  filter:none;
-}
-
-.filterVintage{
-  filter:sepia(.45) saturate(.85) contrast(.95);
-}
-
-.filterBW{
-  filter:grayscale(1) contrast(1.08);
-}
-
-.filterWarm{
-  filter:sepia(.25) saturate(1.25) hue-rotate(-8deg);
-}
-
-.filterCool{
-  filter:saturate(.95) hue-rotate(18deg);
-}
-
-.filterGlow{
-  filter:brightness(1.1) saturate(1.3) contrast(.95);
-}
-
-.filterNight{
-  filter:brightness(.68) contrast(1.2) saturate(.8);
-}
-
-.filterColorPop{
-  filter:saturate(1.75) contrast(1.08);
-}
-
-.filterDream{
-  filter:brightness(1.08) saturate(.85) contrast(.9);
-}
-
-.filterSunset{
-  filter:sepia(.22) saturate(1.35) hue-rotate(-12deg) brightness(1.03);
-}
-
-.detailCard{
-  background:#202020;
-  border-radius:16px;
-  padding:13px;
-  margin-top:12px;
-}
-
-.detailTop{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.avatar{
-  width:40px;
-  height:40px;
-  border-radius:50%;
-  background:#333;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:bold;
-}
-
-.detailName{
-  font-weight:bold;
-}
-
-.detailTime{
-  color:#999;
-  font-size:12px;
-  margin-top:3px;
-}
-
-.detailLocation{
-  margin-top:9px;
-  color:#bbb;
-  font-size:13px;
-}
-
-.detailDescription{
-  margin-top:9px;
-  line-height:1.45;
-  white-space:pre-wrap;
-}
-
-.socialRow{
-  display:flex;
-  gap:8px;
-  margin-top:12px;
-}
-
-.socialBtn{
-  flex:1;
-  padding:10px;
-  border-radius:12px;
-  background:#2c2c2c;
-  color:white;
-}
-
-.socialBtn.liked{
-  background:#fff;
-  color:#111;
-}
-
-.comments{
-  margin-top:12px;
-}
-
-.comment{
-  background:#292929;
-  border-radius:12px;
-  padding:9px;
-  margin-top:7px;
-}
-
-.commentName{
-  font-weight:bold;
-  font-size:13px;
-}
-
-.commentText{
-  margin-top:3px;
-  font-size:13px;
-  color:#ddd;
-}
-
-.clusterHeader{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:10px;
-}
-
-.clusterCount{
-  color:#aaa;
-  font-size:13px;
-}
-
-.snapList{
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-}
-
-.snapItem{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  padding:9px;
-  border-radius:14px;
-  background:#222;
-  cursor:pointer;
-}
-
-.snapThumb{
-  width:72px;
-  height:72px;
-  border-radius:10px;
-  object-fit:cover;
-  background:#111;
-}
-
-.snapItemInfo{
-  min-width:0;
-  flex:1;
-}
-
-.snapItemName{
-  font-weight:bold;
-}
-
-.snapItemMeta{
-  color:#999;
-  font-size:11px;
-  margin-top:4px;
-}
-
-.snapItemDesc{
-  color:#ccc;
-  font-size:12px;
-  margin-top:5px;
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
-}
-
-#toast{
-  position:fixed;
-  left:50%;
-  bottom:86px;
-  transform:translateX(-50%);
-  z-index:9000;
-  background:#111;
-  color:white;
-  border:1px solid #444;
-  padding:11px 15px;
-  border-radius:13px;
-  display:none;
-  max-width:90%;
-  text-align:center;
-}
-
-#loading{
-  position:fixed;
-  inset:0;
-  z-index:10000;
-  background:rgba(0,0,0,.65);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-
-.loadingBox{
-  background:#181818;
-  padding:20px;
-  border-radius:16px;
-  text-align:center;
-  min-width:190px;
-}
-
-.spinner{
-  width:35px;
-  height:35px;
-  border:4px solid #444;
-  border-top-color:white;
-  border-radius:50%;
-  animation:spin .7s linear infinite;
-  margin:0 auto 12px;
-}
-
-@keyframes spin{
-  to{transform:rotate(360deg)}
-}
-
-.progress{
-  width:100%;
-  height:8px;
-  background:#333;
-  border-radius:10px;
-  overflow:hidden;
-  margin-top:10px;
-}
-
-.progressBar{
-  height:100%;
-  width:0%;
-  background:white;
-}
-
-.hidden{
-  display:none !important;
-}
-
-.exitOverlay{
-  position:fixed;
-  inset:0;
-  z-index:12000;
-  background:rgba(0,0,0,.78);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-
-.exitBox{
-  width:100%;
-  max-width:360px;
-  background:#1a1a1a;
-  border-radius:20px;
-  padding:20px;
-}
-
-.exitBox h3{
-  margin:0 0 8px;
-}
-
-.exitBox p{
-  color:#aaa;
-  font-size:14px;
-}
-
-.exitActions{
-  display:flex;
-  gap:8px;
-  margin-top:15px;
-}
-
-.exitActions button{
-  flex:1;
-  padding:12px;
-  border-radius:12px;
-}
-
-.editBtn{
-  background:white;
-  color:#111;
-}
-
-.cancelBtn{
-  background:#333;
-  color:white;
-}
-
-.exitBtn{
-  background:#b52c2c;
-  color:white;
-}
-
-#notificationDot{
-  position:absolute;
-  right:0;
-  top:0;
-  width:10px;
-  height:10px;
-  background:red;
-  border-radius:50%;
-  display:none;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+  <title>Past Snap</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    button,
+    input,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    #map {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    /* =========================
+       TOP BAR
+    ========================= */
+
+    .topbar {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      z-index: 1000;
+
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand {
+      background: rgba(0, 0, 0, 0.82);
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 800;
+      white-space: nowrap;
+      backdrop-filter: blur(12px);
+    }
+
+    .searchBox {
+      flex: 1;
+      display: flex;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .searchBox input {
+      width: 100%;
+      min-width: 0;
+      border: 0;
+      outline: none;
+      background: rgba(255, 255, 255, 0.95);
+      color: #111;
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .smallBtn {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #111;
+      color: #fff;
+      font-weight: 700;
+    }
+
+    /* =========================
+       MAP BUTTONS
+    ========================= */
+
+    .mapControls {
+      position: fixed;
+      right: 12px;
+      bottom: 18px;
+      z-index: 1000;
+
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .mapBtn {
+      width: 48px;
+      height: 48px;
+      border: 0;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.85);
+      color: #fff;
+      font-size: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    /* =========================
+       USER MENU
+    ========================= */
+
+    .userPanel {
+      position: fixed;
+      top: 66px;
+      right: 12px;
+      z-index: 1100;
+
+      width: 250px;
+      max-width: calc(100vw - 24px);
+
+      background: rgba(0, 0, 0, 0.93);
+      border-radius: 18px;
+      padding: 16px;
+
+      display: none;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .userPanel.show {
+      display: block;
+    }
+
+    .userPanel h3 {
+      margin: 0 0 6px;
+    }
+
+    .userPanel p {
+      color: #aaa;
+      font-size: 13px;
+      margin: 0 0 14px;
+      word-break: break-all;
+    }
+
+    .panelBtn {
+      width: 100%;
+      border: 0;
+      border-radius: 12px;
+      padding: 11px;
+      margin-top: 7px;
+      background: #fff;
+      color: #111;
+      font-weight: 700;
+    }
+
+    .panelBtn.danger {
+      background: #e53935;
+      color: white;
+    }
+
+    /* =========================
+       AUTH MODAL
+    ========================= */
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+
+      background: rgba(0, 0, 0, 0.72);
+
+      display: none;
+      align-items: center;
+      justify-content: center;
+
+      padding: 18px;
+      backdrop-filter: blur(8px);
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .authCard {
+      width: 100%;
+      max-width: 420px;
+      background: #111;
+      border-radius: 22px;
+      padding: 22px;
+    }
+
+    .authCard h2 {
+      margin-top: 0;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      color: #bbb;
+      font-size: 13px;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid #333;
+      outline: none;
+      background: #1c1c1c;
+      color: #fff;
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .field textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .primaryBtn {
+      width: 100%;
+      border: 0;
+      border-radius: 13px;
+      padding: 13px;
+      background: #fff;
+      color: #000;
+      font-weight: 800;
+      margin-top: 5px;
+    }
+
+    .secondaryBtn {
+      width: 100%;
+      border: 1px solid #444;
+      border-radius: 13px;
+      padding: 12px;
+      background: transparent;
+      color: #fff;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .closeBtn {
+      float: right;
+      border: 0;
+      background: transparent;
+      color: #fff;
+      font-size: 25px;
+    }
+
+    .authSwitch {
+      margin-top: 14px;
+      text-align: center;
+      color: #aaa;
+      font-size: 14px;
+    }
+
+    .authSwitch button {
+      border: 0;
+      background: transparent;
+      color: #fff;
+      text-decoration: underline;
+    }
+
+    /* =========================
+       CAMERA MODAL
+    ========================= */
+
+    .cameraOverlay {
+      position: fixed;
+      inset: 0;
+      z-index: 4000;
+
+      display: none;
+      background: #000;
+    }
+
+    .cameraOverlay.show {
+      display: block;
+    }
+
+    .cameraVideo {
+      position: absolute;
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+
+      background: #000;
+    }
+
+    .cameraVideo.mirror {
+      transform: scaleX(-1);
+    }
+
+    .cameraTop {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      z-index: 5;
+    }
+
+    .cameraTop button,
+    .cameraAction {
+      border: 0;
+      background: rgba(0, 0, 0, 0.55);
+      color: white;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+    }
+
+    .cameraTools {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 24px;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 13px;
+
+      z-index: 5;
+    }
+
+    .cameraAction {
+      font-size: 18px;
+    }
+
+    .captureBtn {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      border: 5px solid white;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .captureBtn.recording {
+      background: #e53935;
+    }
+
+    .cameraBottomInfo {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      bottom: 100px;
+      z-index: 5;
+
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      overflow-x: auto;
+    }
+
+    .filterBtn {
+      flex: 0 0 auto;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      border-radius: 20px;
+      padding: 7px 11px;
+      font-size: 12px;
+    }
+
+    .filterBtn.active {
+      background: white;
+      color: black;
+    }
+
+    .zoomInfo {
+      position: absolute;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+
+      padding: 7px 12px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 20px;
+      font-size: 13px;
+    }
+
+    /* =========================
+       PREVIEW MODAL
+    ========================= */
+
+    .previewCard {
+      width: 100%;
+      max-width: 520px;
+      max-height: 94vh;
+      overflow-y: auto;
+
+      background: #111;
+      border-radius: 22px;
+      padding: 16px;
+    }
+
+    .previewMedia {
+      width: 100%;
+      max-height: 52vh;
+      object-fit: contain;
+      background: #000;
+      border-radius: 15px;
+    }
+
+    .previewInfo {
+      margin-top: 14px;
+    }
+
+    .qualityRow {
+      display: flex;
+      gap: 7px;
+      margin: 10px 0;
+    }
+
+    .qualityBtn {
+      flex: 1;
+      padding: 9px;
+      border: 1px solid #444;
+      background: #181818;
+      color: #fff;
+      border-radius: 10px;
+    }
+
+    .qualityBtn.active {
+      background: #fff;
+      color: #000;
+    }
+
+    /* =========================
+       CLUSTER POST VIEWER
+    ========================= */
+
+    .viewer {
+      position: fixed;
+      inset: 0;
+      z-index: 6000;
+
+      background: #000;
+
+      display: none;
+      flex-direction: column;
+
+      touch-action: pan-y;
+    }
+
+    .viewer.show {
+      display: flex;
+    }
+
+    .viewerTop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+
+      padding: 12px 14px;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,.75),
+        transparent
+      );
+    }
+
+    .viewerClose {
+      width: 44px;
+      height: 44px;
+
+      border: 0;
+      border-radius: 50%;
+
+      background: rgba(0,0,0,.55);
+      color: white;
+
+      font-size: 27px;
+    }
+
+    .viewerCounter {
+      background: rgba(0,0,0,.55);
+      padding: 8px 12px;
+      border-radius: 18px;
+      font-size: 13px;
+    }
+
+    .viewerTrack {
+      width: 100%;
+      height: 100%;
+
+      display: flex;
+
+      overflow-x: auto;
+      overflow-y: hidden;
+
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+
+      overscroll-behavior-x: contain;
+    }
+
+    .viewerTrack::-webkit-scrollbar {
+      display: none;
+    }
+
+    .viewerSlide {
+      position: relative;
+
+      min-width: 100%;
+      width: 100%;
+      height: 100%;
+
+      scroll-snap-align: start;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      overflow: hidden;
+    }
+
+    .viewerMedia {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      background: #000;
+    }
+
+    .viewerInfo {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+
+      z-index: 10;
+
+      padding: 55px 18px 20px;
+
+      background: linear-gradient(
+        transparent,
+        rgba(0,0,0,.88)
+      );
+    }
+
+    .viewerName {
+      font-size: 16px;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .viewerLocation {
+      color: #ddd;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .viewerDate {
+      color: #aaa;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .viewerDescription {
+      font-size: 14px;
+      line-height: 1.45;
+      color: #eee;
+      margin-bottom: 10px;
+    }
+
+    .viewerActions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .viewerActionBtn {
+      border: 0;
+      background: rgba(255,255,255,.12);
+      color: white;
+      border-radius: 20px;
+      padding: 8px 12px;
+    }
+
+    /* =========================
+       COMMENTS
+    ========================= */
+
+    .commentsPanel {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 50;
+
+      max-height: 75vh;
+      background: #111;
+
+      border-radius: 22px 22px 0 0;
+
+      transform: translateY(100%);
+      transition: transform .25s ease;
+
+      display: flex;
+      flex-direction: column;
+    }
+
+    .commentsPanel.show {
+      transform: translateY(0);
+    }
+
+    .commentsHeader {
+      padding: 14px;
+      border-bottom: 1px solid #292929;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .commentsList {
+      overflow-y: auto;
+      padding: 12px;
+      flex: 1;
+    }
+
+    .comment {
+      padding: 10px 0;
+      border-bottom: 1px solid #222;
+    }
+
+    .commentName {
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .commentText {
+      margin-top: 4px;
+      color: #ddd;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .commentForm {
+      display: flex;
+      gap: 7px;
+      padding: 10px;
+      border-top: 1px solid #292929;
+    }
+
+    .commentForm input {
+      flex: 1;
+      min-width: 0;
+
+      border: 1px solid #333;
+      border-radius: 12px;
+      background: #1b1b1b;
+      color: white;
+      padding: 11px;
+    }
+
+    .commentForm button {
+      border: 0;
+      border-radius: 12px;
+      padding: 0 14px;
+      background: #fff;
+      color: #000;
+      font-weight: 700;
+    }
+
+    /* =========================
+       EXIT CONFIRM
+    ========================= */
+
+    .exitCard {
+      width: 100%;
+      max-width: 370px;
+
+      background: #111;
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .exitCard h3 {
+      margin-top: 0;
+    }
+
+    .exitBtns {
+      display: flex;
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .exitBtns button {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
+      border: 0;
+      font-weight: 800;
+    }
+
+    .editExit {
+      background: #fff;
+      color: #000;
+    }
+
+    .cancelExit {
+      background: #292929;
+      color: #fff;
+    }
+
+    /* =========================
+       TOAST
+    ========================= */
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      z-index: 10000;
+
+      transform: translateX(-50%) translateY(20px);
+
+      background: rgba(0,0,0,.9);
+      color: white;
+
+      padding: 11px 15px;
+      border-radius: 12px;
+
+      font-size: 13px;
+
+      opacity: 0;
+      pointer-events: none;
+
+      transition: .25s;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* =========================
+       LOADING
+    ========================= */
+
+    .loading {
+      position: fixed;
+      inset: 0;
+      z-index: 12000;
+
+      background: rgba(0,0,0,.7);
+
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loading.show {
+      display: flex;
+    }
+
+    .loaderBox {
+      background: #111;
+      border-radius: 18px;
+      padding: 20px 25px;
+      text-align: center;
+    }
+
+    .spinner {
+      width: 35px;
+      height: 35px;
+      border: 4px solid #333;
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* =========================
+       MOBILE
+    ========================= */
+
+    @media (max-width: 600px) {
+      .brand {
+        display: none;
+      }
+
+      .topbar {
+        left: 8px;
+        right: 8px;
+      }
+
+      .searchBox {
+        width: 100%;
+      }
+
+      .viewerInfo {
+        padding-bottom: 18px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="app">
-
+  <!-- MAP -->
   <div id="map"></div>
 
+  <!-- TOP BAR -->
   <div class="topbar">
+
+    <div class="brand">
+      👻 Past Snap
+    </div>
 
     <div class="searchBox">
       <input
         id="searchInput"
-        placeholder="Search place..."
-        autocomplete="off">
-      <button class="iconBtn" id="searchBtn">⌕</button>
+        type="text"
+        placeholder="Search location..."
+      />
+
+      <button
+        class="smallBtn"
+        id="searchBtn"
+      >
+        🔍
+      </button>
     </div>
 
-    <button class="userBtn" id="accountBtn">
+    <button
+      class="smallBtn"
+      id="userBtn"
+    >
       👤
-      <span id="notificationDot"></span>
     </button>
 
   </div>
 
-  <div class="bottomBar">
+  <!-- MAP CONTROLS -->
+  <div class="mapControls">
 
-    <button class="bottomBtn" id="locationBtn">
-      📍 My Location
+    <button
+      class="mapBtn"
+      id="locationBtn"
+      title="My location"
+    >
+      📍
     </button>
 
-    <button class="bottomBtn primary" id="cameraBtn">
-      📸 Post Snap
-    </button>
-
-    <button class="bottomBtn" id="galleryBtn">
-      👻 Gallery
+    <button
+      class="mapBtn"
+      id="cameraOpenBtn"
+      title="Create snap"
+    >
+      📷
     </button>
 
   </div>
 
-</div>
+  <!-- USER PANEL -->
+  <div
+    class="userPanel"
+    id="userPanel"
+  >
 
+    <div id="loggedOutPanel">
 
-<!-- AUTH MODAL -->
+      <h3>Past Snap</h3>
 
-<div class="modal" id="authModal">
-  <div class="sheet">
+      <p>
+        Login karke snap post karo.
+      </p>
 
-    <div class="closeRow">
-      <div class="modalTitle">Account</div>
-      <button class="closeBtn" onclick="closeModal('authModal')">×</button>
-    </div>
-
-    <div id="loggedOutBox">
-
-      <div class="authTabs">
-        <button id="loginTab" class="active">Login</button>
-        <button id="registerTab">Register</button>
-      </div>
-
-      <div class="field">
-        <label>Email</label>
-        <input id="authEmail" type="email" placeholder="Email">
-      </div>
-
-      <div class="field">
-        <label>Password</label>
-        <input id="authPassword" type="password" placeholder="Password">
-      </div>
-
-      <div class="field hidden" id="displayNameField">
-        <label>Display Name</label>
-        <input id="displayNameInput" placeholder="Your name">
-      </div>
-
-      <button class="action" id="authSubmitBtn">
+      <button
+        class="panelBtn"
+        id="loginOpenBtn"
+      >
         Login
       </button>
 
-      <div id="authMessage"
-           style="margin-top:10px;color:#aaa;font-size:13px">
-      </div>
+      <button
+        class="panelBtn"
+        id="registerOpenBtn"
+      >
+        Register
+      </button>
 
     </div>
 
-    <div id="loggedInBox" class="hidden">
+    <div
+      id="loggedInPanel"
+      style="display:none;"
+    >
 
-      <div class="detailCard">
+      <h3 id="profileName">
+        User
+      </h3>
 
-        <div class="detailTop">
-          <div class="avatar" id="accountAvatar">U</div>
+      <p id="profileEmail"></p>
 
-          <div>
-            <div class="detailName" id="accountName">User</div>
-            <div class="detailTime" id="accountEmail"></div>
-          </div>
-        </div>
-
-      </div>
-
-      <button class="action" id="notificationBtn">
-        🔔 Notifications
-      </button>
-
-      <button class="action dark" id="logoutBtn">
+      <button
+        class="panelBtn danger"
+        id="logoutBtn"
+      >
         Logout
       </button>
 
     </div>
 
   </div>
-</div>
 
 
-<!-- CAMERA MODAL -->
+  <!-- AUTH MODAL -->
 
-<div class="modal cameraModal" id="cameraModal">
+  <div
+    class="overlay"
+    id="authOverlay"
+  >
 
-  <div class="cameraSheet">
+    <div class="authCard">
 
-    <div class="cameraPreviewWrap">
-
-      <button class="cameraClose" id="cameraCloseBtn">×</button>
-
-      <div class="cameraMode" id="cameraModeText">
-        PHOTO
-      </div>
-
-      <video id="cameraVideo"
-             autoplay
-             playsinline
-             muted></video>
-
-    </div>
-
-    <div class="cameraControls">
-
-      <div class="controlRow">
-
-        <button class="smallControl active"
-                data-filter="Normal">
-          Normal
-        </button>
-
-        <button class="smallControl"
-                data-filter="Vintage">
-          Vintage
-        </button>
-
-        <button class="smallControl"
-                data-filter="B&W">
-          B&W
-        </button>
-
-        <button class="smallControl"
-                data-filter="Warm">
-          Warm
-        </button>
-
-        <button class="smallControl"
-                data-filter="Cool">
-          Cool
-        </button>
-
-        <button class="smallControl"
-                data-filter="Glow">
-          Glow
-        </button>
-
-        <button class="smallControl"
-                data-filter="Night">
-          Night
-        </button>
-
-        <button class="smallControl"
-                data-filter="Color Pop">
-          Color Pop
-        </button>
-
-        <button class="smallControl"
-                data-filter="Dream">
-          Dream
-        </button>
-
-        <button class="smallControl"
-                data-filter="Sunset">
-          Sunset
-        </button>
-
-      </div>
-
-      <div class="controlRow">
-
-        <button class="smallControl" id="cameraFlipBtn">
-          🔄 Camera
-        </button>
-
-        <button class="smallControl" id="mirrorBtn">
-          🪞 Mirror
-        </button>
-
-        <button class="smallControl" id="zoomOutBtn">
-          −
-        </button>
-
-        <button class="smallControl" id="zoomLabel">
-          1×
-        </button>
-
-        <button class="smallControl" id="zoomInBtn">
-          +
-        </button>
-
-        <button class="smallControl" id="videoModeBtn">
-          🎥 Video
-        </button>
-
-      </div>
-
-      <div class="controlRow">
-
-        <button class="smallControl active"
-                data-quality="480">
-          480p
-        </button>
-
-        <button class="smallControl"
-                data-quality="720">
-          720p
-        </button>
-
-        <button class="smallControl"
-                data-quality="1080">
-          1080p
-        </button>
-
-      </div>
-
-      <div class="captureRow">
-
-        <button class="captureBtn"
-                id="captureBtn">
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-</div>
-
-
-<!-- PREVIEW / POST MODAL -->
-
-<div class="modal" id="postModal">
-
-  <div class="sheet">
-
-    <div class="closeRow">
-
-      <div class="modalTitle">
-        Post Snap
-      </div>
-
-      <button class="closeBtn"
-              id="postCloseBtn">
+      <button
+        class="closeBtn"
+        id="authCloseBtn"
+      >
         ×
       </button>
 
-    </div>
+      <!-- LOGIN -->
 
-    <div id="previewContainer"></div>
+      <div id="loginForm">
 
-    <div class="field">
-      <label>Description</label>
-      <textarea
-        id="postDescription"
-        maxlength="2000"
-        placeholder="Write something..."></textarea>
-    </div>
+        <h2>Login</h2>
 
-    <div class="field">
-      <label>Location</label>
-      <input id="postLocation"
-             placeholder="Detecting location..."
-             readonly>
-    </div>
-
-    <button class="action"
-            id="publishBtn">
-      📤 Post Snap
-    </button>
-
-    <button class="action dark"
-            id="retakeBtn">
-      🔄 Retake
-    </button>
-
-  </div>
-</div>
-
-
-<!-- CLUSTER MODAL -->
-
-<div class="modal" id="clusterModal">
-
-  <div class="sheet">
-
-    <div class="closeRow">
-
-      <div>
-        <div class="modalTitle">
-          👻 Nearby Snaps
+        <div class="field">
+          <label>Email</label>
+          <input
+            id="loginEmail"
+            type="email"
+            autocomplete="email"
+          />
         </div>
 
-        <div class="clusterCount"
-             id="clusterCount">
+        <div class="field">
+          <label>Password</label>
+          <input
+            id="loginPassword"
+            type="password"
+            autocomplete="current-password"
+          />
         </div>
+
+        <button
+          class="primaryBtn"
+          id="loginBtn"
+        >
+          Login
+        </button>
+
+        <div class="authSwitch">
+          Account nahi hai?
+          <button id="showRegisterBtn">
+            Register
+          </button>
+        </div>
+
       </div>
 
-      <button class="closeBtn"
-              onclick="closeModal('clusterModal')">
+
+      <!-- REGISTER -->
+
+      <div
+        id="registerForm"
+        style="display:none;"
+      >
+
+        <h2>Register</h2>
+
+        <div class="field">
+          <label>Display Name</label>
+
+          <input
+            id="registerName"
+            type="text"
+            maxlength="40"
+          />
+        </div>
+
+        <div class="field">
+          <label>Email</label>
+
+          <input
+            id="registerEmail"
+            type="email"
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="field">
+          <label>Password</label>
+
+          <input
+            id="registerPassword"
+            type="password"
+            autocomplete="new-password"
+          />
+        </div>
+
+        <button
+          class="primaryBtn"
+          id="registerBtn"
+        >
+          Create Account
+        </button>
+
+        <div class="authSwitch">
+          Already account hai?
+          <button id="showLoginBtn">
+            Login
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- CAMERA -->
+
+  <div
+    class="cameraOverlay"
+    id="cameraOverlay"
+  >
+
+    <video
+      id="cameraVideo"
+      class="cameraVideo mirror"
+      autoplay
+      playsinline
+      muted
+    ></video>
+
+    <div class="cameraTop">
+
+      <button id="cameraCloseBtn">
         ×
       </button>
 
+      <div class="zoomInfo">
+        <span id="zoomText">1.0x</span>
+      </div>
+
+      <button id="cameraSwitchBtn">
+        🔄
+      </button>
+
     </div>
 
-    <div class="snapList"
-         id="clusterList">
+
+    <div class="cameraBottomInfo">
+
+      <button
+        class="filterBtn active"
+        data-filter="normal"
+      >
+        Normal
+      </button>
+
+      <button
+        class="filterBtn"
+        data-filter="vintage"
+      >
+        Vintage
+      </button>
+
+      <button
+        class="filterBtn"
+        data-filter="bw"
+      >
+        B&W
+      </button>
+
+      <button
+        class="filterBtn"
+        data-filter="warm"
+      >
+        Warm
+      </button>
+
+      <button
+        class="filterBtn"
+        data-filter="cool"
+      >
+        Cool
+      </button>
+
+      <button
+        class="filterBtn"
+        data-filter="glow"
+      >
+        Glow
+      </button>
+
+      <button
+        class="filterBtn"
+        data-filter="night"
+      >
+        Night
+      </button>
+
+      <button
+        class="filterBtn"
+        data-filter="colorpop"
+      >
+        Color Pop
+      </button>
+
+      <button
+        class="filterBtn"
+        data-filter="dream"
+      >
+        Dream
+      </button>
+
+      <button
+        class="filterBtn"
+        data-filter="sunset"
+      >
+        Sunset
+      </button>
+
+    </div>
+
+
+    <div class="cameraTools">
+
+      <button
+        class="cameraAction"
+        id="cameraMirrorBtn"
+      >
+        ↔
+      </button>
+
+      <button
+        class="cameraAction"
+        id="cameraModeBtn"
+      >
+        🎥
+      </button>
+
+      <button
+        class="captureBtn"
+        id="captureBtn"
+      ></button>
+
+      <button
+        class="cameraAction"
+        id="zoomOutBtn"
+      >
+        −
+      </button>
+
+      <button
+        class="cameraAction"
+        id="zoomInBtn"
+      >
+        +
+      </button>
+
     </div>
 
   </div>
-</div>
 
 
-<!-- POST DETAIL MODAL -->
+  <!-- PREVIEW -->
 
-<div class="modal" id="detailModal">
+  <div
+    class="overlay"
+    id="previewOverlay"
+  >
 
-  <div class="sheet">
+    <div class="previewCard">
 
-    <div class="closeRow">
-
-      <div class="modalTitle">
-        Snap
-      </div>
-
-      <button class="closeBtn"
-              id="detailCloseBtn">
+      <button
+        class="closeBtn"
+        id="previewCloseBtn"
+      >
         ×
       </button>
 
-    </div>
+      <h2 id="previewTitle">
+        New Snap
+      </h2>
 
-    <div id="detailContent"></div>
+      <div id="previewMediaContainer"></div>
 
-  </div>
-</div>
+      <div class="previewInfo">
+
+        <div class="field">
+
+          <label>Description</label>
+
+          <textarea
+            id="descriptionInput"
+            maxlength="2000"
+            placeholder="Write something about this snap..."
+          ></textarea>
+
+        </div>
 
 
-<!-- NOTIFICATIONS -->
+        <div class="field">
 
-<div class="modal" id="notificationsModal">
+          <label>Location</label>
 
-  <div class="sheet">
+          <input
+            id="locationNameInput"
+            type="text"
+            maxlength="200"
+            placeholder="Location name"
+          />
 
-    <div class="closeRow">
+        </div>
 
-      <div class="modalTitle">
-        🔔 Notifications
+
+        <div id="videoQualityArea">
+
+          <label style="color:#bbb;font-size:13px;">
+            Video quality
+          </label>
+
+          <div class="qualityRow">
+
+            <button
+              class="qualityBtn"
+              data-quality="480"
+            >
+              480p
+            </button>
+
+            <button
+              class="qualityBtn active"
+              data-quality="720"
+            >
+              720p
+            </button>
+
+            <button
+              class="qualityBtn"
+              data-quality="1080"
+            >
+              1080p
+            </button>
+
+          </div>
+
+        </div>
+
+
+        <button
+          class="primaryBtn"
+          id="postSnapBtn"
+        >
+          👻 Post Snap
+        </button>
+
       </div>
 
-      <button class="closeBtn"
-              onclick="closeModal('notificationsModal')">
+    </div>
+
+  </div>
+
+
+  <!-- FULL SCREEN CLUSTER VIEWER -->
+
+  <div
+    class="viewer"
+    id="viewer"
+  >
+
+    <div class="viewerTop">
+
+      <button
+        class="viewerClose"
+        id="viewerCloseBtn"
+      >
         ×
       </button>
 
+      <div
+        class="viewerCounter"
+        id="viewerCounter"
+      >
+        1 / 1
+      </div>
+
+      <div style="width:44px;"></div>
+
     </div>
 
-    <div id="notificationsList">
+
+    <div
+      class="viewerTrack"
+      id="viewerTrack"
+    ></div>
+
+
+    <!-- COMMENTS PANEL -->
+
+    <div
+      class="commentsPanel"
+      id="commentsPanel"
+    >
+
+      <div class="commentsHeader">
+
+        <strong>
+          Comments
+        </strong>
+
+        <button
+          class="closeBtn"
+          id="commentsCloseBtn"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <div
+        class="commentsList"
+        id="commentsList"
+      ></div>
+
+      <div class="commentForm">
+
+        <input
+          id="commentInput"
+          type="text"
+          maxlength="2000"
+          placeholder="Write a comment..."
+        />
+
+        <button id="commentSendBtn">
+          Send
+        </button>
+
+      </div>
+
     </div>
 
   </div>
-</div>
 
 
-<!-- EXIT CONFIRM -->
+  <!-- EXIT CONFIRM -->
 
-<div class="exitOverlay" id="exitOverlay">
+  <div
+    class="overlay"
+    id="exitOverlay"
+  >
 
-  <div class="exitBox">
+    <div class="exitCard">
 
-    <h3>Website close kare?</h3>
+      <h3>
+        Exit Past Snap?
+      </h3>
 
-    <p>
-      Agar abhi bahar jaoge to Past Snap close ho jayega.
-    </p>
+      <p style="color:#aaa;">
+        Agar edit karna hai to Edit choose karo.
+      </p>
 
-    <div class="exitActions">
+      <div class="exitBtns">
 
-      <button class="editBtn"
-              id="exitEditBtn">
-        Edit
-      </button>
+        <button
+          class="editExit"
+          id="editExitBtn"
+        >
+          Edit
+        </button>
 
-      <button class="cancelBtn"
-              id="exitCancelBtn">
-        Cancel
-      </button>
+        <button
+          class="cancelExit"
+          id="cancelExitBtn"
+        >
+          Cancel
+        </button>
 
-      <button class="exitBtn"
-              id="exitConfirmBtn">
-        Exit
-      </button>
+      </div>
 
     </div>
 
   </div>
-</div>
 
 
-<div id="toast"></div>
+  <!-- TOAST -->
 
-<div id="loading">
+  <div
+    class="toast"
+    id="toast"
+  ></div>
 
-  <div class="loadingBox">
 
-    <div class="spinner"></div>
+  <!-- LOADING -->
 
-    <div id="loadingText">
-      Please wait...
-    </div>
+  <div
+    class="loading"
+    id="loading"
+  >
 
-    <div class="progress">
-      <div class="progressBar"
-           id="progressBar"></div>
+    <div class="loaderBox">
+
+      <div class="spinner"></div>
+
+      <div id="loadingText">
+        Please wait...
+      </div>
+
     </div>
 
   </div>
 
-</div>
+
+  <!-- SCRIPTS -->
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 
-<script>
+  <script>
 
-/* =========================================================
-   SUPABASE
-========================================================= */
+    /* ============================================================
+       SUPABASE
+    ============================================================ */
 
-const SUPABASE_URL =
-  "https://zzxhymydsvwpjbyaslde.supabase.co";
+    const SUPABASE_URL =
+      "https://zzxhymydsvwpjbyaslde.supabase.co";
 
-const SUPABASE_KEY =
-  "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
+    const SUPABASE_KEY =
+      "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
 
-const supabaseClient =
-  supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
-
-
-/* =========================================================
-   GLOBALS
-========================================================= */
-
-let currentUser = null;
-let currentProfile = null;
-
-let map = null;
-let userMarker = null;
-
-let allSnaps = [];
-let markerLayers = [];
-
-let currentStream = null;
-let currentFacingMode = "user";
-
-let currentFilter = "Normal";
-let currentMirror = true;
-
-let currentZoom = 1;
-
-let cameraMode = "photo";
-let selectedQuality = 480;
-
-let mediaRecorder = null;
-let recordedChunks = [];
-let recordingStartedAt = 0;
-let lastRecordingDuration = 0;
-
-let capturedBlob = null;
-let capturedMediaType = null;
-
-let capturedWidth = null;
-let capturedHeight = null;
-
-let selectedPost = null;
-let selectedCluster = [];
-
-let isPosting = false;
-
-let backHistoryActive = false;
-
-const CLUSTER_RADIUS_METERS = 50;
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+      );
 
 
-/* =========================================================
-   HELPERS
-========================================================= */
+    /* ============================================================
+       GLOBALS
+    ============================================================ */
 
-function $(id){
-  return document.getElementById(id);
-}
+    let map = null;
 
-function showToast(message){
+    let allSnaps = [];
 
-  const el = $("toast");
+    let markerLayer = null;
 
-  el.textContent = message;
-  el.style.display = "block";
+    let currentUser = null;
 
-  clearTimeout(window.__toastTimer);
+    let currentProfile = null;
 
-  window.__toastTimer =
-    setTimeout(()=>{
-      el.style.display = "none";
-    },3000);
-}
+    let cameraStream = null;
 
+    let cameraFacing = "user";
 
-function showLoading(text="Please wait..."){
+    let cameraMode = "photo";
 
-  $("loadingText").textContent = text;
-  $("progressBar").style.width = "0%";
-  $("loading").style.display = "flex";
-}
+    let mediaRecorder = null;
 
+    let recordedChunks = [];
 
-function hideLoading(){
-  $("loading").style.display = "none";
-}
+    let recordedStartTime = 0;
 
+    let recordedDuration = 0;
 
-function setProgress(percent){
-  $("progressBar").style.width =
-    Math.max(0,Math.min(100,percent)) + "%";
-}
+    let selectedFilter = "normal";
 
+    let mirrorEnabled = true;
 
-function openModal(id){
+    let zoomLevel = 1;
 
-  $(id).classList.add("show");
+    let currentPreviewBlob = null;
 
-  if(
-    id !== "cameraModal" &&
-    id !== "authModal"
-  ){
-    pushBackState();
-  }
-}
+    let currentPreviewType = null;
+
+    let currentPreviewWidth = null;
+
+    let currentPreviewHeight = null;
+
+    let selectedQuality = 720;
+
+    let currentViewerSnaps = [];
+
+    let currentViewerIndex = 0;
+
+    let currentCommentSnapId = null;
+
+    let ignoreNextPopState = false;
 
 
-function closeModal(id){
+    /* ============================================================
+       ELEMENTS
+    ============================================================ */
 
-  $(id).classList.remove("show");
-
-  if(id === "cameraModal"){
-    stopCamera();
-  }
-
-  if(id === "detailModal"){
-    selectedPost = null;
-  }
-}
+    const $ = id => document.getElementById(id);
 
 
-function pushBackState(){
+    /* ============================================================
+       TOAST
+    ============================================================ */
 
-  if(backHistoryActive) return;
+    let toastTimer = null;
 
-  history.pushState(
-    {pastSnapModal:true},
-    "",
-    location.href
-  );
+    function toast(message) {
 
-  backHistoryActive = true;
-}
+      const el = $("toast");
 
+      el.textContent = message;
 
-/* =========================================================
-   MAP
-========================================================= */
+      el.classList.add("show");
 
-function initMap(){
+      clearTimeout(toastTimer);
 
-  map = L.map("map",{
-    zoomControl:false
-  }).setView(
-    [17.3850,78.4867],
-    14
-  );
+      toastTimer = setTimeout(() => {
 
-  L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      maxZoom:20,
-      attribution:"© OpenStreetMap"
+        el.classList.remove("show");
+
+      }, 2500);
+
     }
-  ).addTo(map);
-
-  loadSnaps();
-}
 
 
-/* =========================================================
-   DISTANCE
-========================================================= */
+    /* ============================================================
+       LOADING
+    ============================================================ */
 
-function distanceMeters(
-  lat1,
-  lon1,
-  lat2,
-  lon2
-){
+    function showLoading(message = "Please wait...") {
 
-  const R = 6371000;
+      $("loadingText").textContent = message;
 
-  const p1 =
-    lat1 * Math.PI / 180;
+      $("loading").classList.add("show");
 
-  const p2 =
-    lat2 * Math.PI / 180;
+    }
 
-  const dp =
-    (lat2-lat1) * Math.PI / 180;
+    function hideLoading() {
 
-  const dl =
-    (lon2-lon1) * Math.PI / 180;
+      $("loading").classList.remove("show");
 
-  const a =
-    Math.sin(dp/2) *
-    Math.sin(dp/2) +
-
-    Math.cos(p1) *
-    Math.cos(p2) *
-    Math.sin(dl/2) *
-    Math.sin(dl/2);
-
-  const c =
-    2 *
-    Math.atan2(
-      Math.sqrt(a),
-      Math.sqrt(1-a)
-    );
-
-  return R*c;
-}
+    }
 
 
-/* =========================================================
-   50M CLUSTERING
-========================================================= */
+    /* ============================================================
+       MAP INIT
+    ============================================================ */
 
-function build50mClusters(snaps){
+    function initMap() {
 
-  const clusters = [];
-  const used = new Set();
+      map = L.map("map", {
+        zoomControl: false
+      }).setView(
+        [17.3850, 78.4867],
+        13
+      );
 
-  for(let i=0;i<snaps.length;i++){
+      L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 20,
+          attribution: "&copy; OpenStreetMap contributors"
+        }
+      ).addTo(map);
 
-    if(used.has(i)) continue;
+      markerLayer = L.layerGroup().addTo(map);
 
-    const base = snaps[i];
+    }
 
-    const cluster = [base];
 
-    used.add(i);
+    /* ============================================================
+       GEOLOCATION
+    ============================================================ */
 
-    let changed = true;
+    $("locationBtn").addEventListener(
+      "click",
+      () => {
 
-    /*
-      Important:
-      We keep adding posts that are within
-      50m of the cluster center.
-    */
+        if (!navigator.geolocation) {
 
-    while(changed){
+          toast("Location supported nahi hai.");
 
-      changed = false;
+          return;
+        }
 
-      const center =
-        cluster.reduce(
-          (acc,s)=>{
-            acc.lat += Number(s.latitude);
-            acc.lng += Number(s.longitude);
-            return acc;
+        navigator.geolocation.getCurrentPosition(
+          position => {
+
+            const lat =
+              position.coords.latitude;
+
+            const lng =
+              position.coords.longitude;
+
+            map.setView(
+              [lat, lng],
+              17
+            );
+
+            L.circleMarker(
+              [lat, lng],
+              {
+                radius: 8,
+                color: "#fff",
+                fillColor: "#2196f3",
+                fillOpacity: 1,
+                weight: 3
+              }
+            )
+            .addTo(map)
+            .bindPopup("You are here");
+
           },
-          {lat:0,lng:0}
+          () => {
+
+            toast(
+              "Location permission allow karo."
+            );
+
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000
+          }
         );
 
-      center.lat /= cluster.length;
-      center.lng /= cluster.length;
-
-      for(let j=0;j<snaps.length;j++){
-
-        if(used.has(j)) continue;
-
-        const candidate = snaps[j];
-
-        const d =
-          distanceMeters(
-            center.lat,
-            center.lng,
-            Number(candidate.latitude),
-            Number(candidate.longitude)
-          );
-
-        if(d <= CLUSTER_RADIUS_METERS){
-
-          cluster.push(candidate);
-          used.add(j);
-          changed = true;
-        }
       }
-    }
-
-    const center =
-      cluster.reduce(
-        (acc,s)=>{
-          acc.lat += Number(s.latitude);
-          acc.lng += Number(s.longitude);
-          return acc;
-        },
-        {lat:0,lng:0}
-      );
-
-    center.lat /= cluster.length;
-    center.lng /= cluster.length;
-
-    clusters.push({
-      lat:center.lat,
-      lng:center.lng,
-      snaps:cluster
-    });
-  }
-
-  return clusters;
-}
+    );
 
 
-/* =========================================================
-   MARKERS
-========================================================= */
+    /* ============================================================
+       SEARCH
+    ============================================================ */
 
-function clearMarkers(){
-
-  markerLayers.forEach(
-    layer => map.removeLayer(layer)
-  );
-
-  markerLayers = [];
-}
-
-
-function createGhostIcon(count){
-
-  if(count <= 1){
-
-    return L.divIcon({
-      className:"",
-      html:`<div class="singleGhost">👻</div>`,
-      iconSize:[42,42],
-      iconAnchor:[21,21]
-    });
-
-  }
-
-  return L.divIcon({
-
-    className:"",
-
-    html:`
-      <div class="clusterGhost">
-        ${count} 👻
-      </div>
-    `,
-
-    iconSize:[80,42],
-    iconAnchor:[40,21]
-  });
-}
-
-
-function renderClusters(){
-
-  if(!map) return;
-
-  clearMarkers();
-
-  const clusters =
-    build50mClusters(allSnaps);
-
-  clusters.forEach(cluster=>{
-
-    const marker =
-      L.marker(
-        [cluster.lat,cluster.lng],
-        {
-          icon:createGhostIcon(
-            cluster.snaps.length
-          )
-        }
-      );
-
-    marker.on(
+    $("searchBtn").addEventListener(
       "click",
-      ()=>{
-        openCluster(cluster.snaps);
-      }
+      searchLocation
     );
 
-    marker.addTo(map);
+    $("searchInput").addEventListener(
+      "keydown",
+      e => {
 
-    markerLayers.push(marker);
-  });
-}
+        if (e.key === "Enter") {
 
+          searchLocation();
 
-/* =========================================================
-   LOAD SNAPS
-========================================================= */
-
-async function loadSnaps(){
-
-  try{
-
-    const {data,error} =
-      await supabaseClient
-      .from("snaps")
-      .select("*")
-      .order("created_at",{
-        ascending:false
-      });
-
-    if(error){
-      console.error(error);
-      showToast("Snaps load nahi ho paaye.");
-      return;
-    }
-
-    allSnaps = data || [];
-
-    await attachProfiles(allSnaps);
-
-    renderClusters();
-
-  }catch(err){
-
-    console.error(err);
-
-    showToast(
-      "Snaps load karte waqt error."
-    );
-  }
-}
-
-
-/* =========================================================
-   PROFILES
-========================================================= */
-
-async function attachProfiles(snaps){
-
-  const ids =
-    [...new Set(
-      snaps
-      .map(s=>s.user_id)
-      .filter(Boolean)
-    )];
-
-  if(!ids.length) return;
-
-  const {data,error} =
-    await supabaseClient
-    .from("profiles")
-    .select("id,display_name")
-    .in("id",ids);
-
-  if(error){
-    console.warn(error);
-    return;
-  }
-
-  const mapProfiles = {};
-
-  (data || []).forEach(profile=>{
-    mapProfiles[profile.id] =
-      profile.display_name;
-  });
-
-  snaps.forEach(snap=>{
-    snap.display_name =
-      mapProfiles[snap.user_id] ||
-      "Past Snap User";
-  });
-}
-
-
-/* =========================================================
-   SEARCH
-========================================================= */
-
-$("searchBtn").addEventListener(
-  "click",
-  searchPlace
-);
-
-$("searchInput").addEventListener(
-  "keydown",
-  e=>{
-    if(e.key === "Enter"){
-      searchPlace();
-    }
-  }
-);
-
-
-async function searchPlace(){
-
-  const q =
-    $("searchInput").value.trim();
-
-  if(!q) return;
-
-  try{
-
-    showLoading("Searching...");
-
-    const url =
-      "https://nominatim.openstreetmap.org/search?" +
-      new URLSearchParams({
-        q,
-        format:"json",
-        limit:"1",
-        addressdetails:"1"
-      });
-
-    const response =
-      await fetch(url,{
-        headers:{
-          "Accept-Language":"en"
         }
-      });
 
-    const data =
-      await response.json();
-
-    if(!data.length){
-
-      showToast("Place nahi mila.");
-      return;
-    }
-
-    const lat =
-      Number(data[0].lat);
-
-    const lon =
-      Number(data[0].lon);
-
-    map.setView(
-      [lat,lon],
-      17
+      }
     );
 
-  }catch(err){
 
-    console.error(err);
-    showToast("Search failed.");
+    async function searchLocation() {
 
-  }finally{
+      const query =
+        $("searchInput").value.trim();
 
-    hideLoading();
-  }
-}
+      if (!query) return;
 
+      try {
 
-/* =========================================================
-   CURRENT LOCATION
-========================================================= */
+        const url =
+          "https://nominatim.openstreetmap.org/search?" +
+          new URLSearchParams({
+            q: query,
+            format: "json",
+            limit: "1"
+          });
 
-$("locationBtn").addEventListener(
-  "click",
-  getCurrentLocation
-);
+        const response =
+          await fetch(url, {
+            headers: {
+              "Accept":
+                "application/json"
+            }
+          });
 
+        const data =
+          await response.json();
 
-function getCurrentLocation(){
+        if (!data.length) {
 
-  if(!navigator.geolocation){
+          toast("Location nahi mili.");
 
-    showToast(
-      "Location supported nahi hai."
-    );
+          return;
+        }
 
-    return;
-  }
+        const lat =
+          parseFloat(data[0].lat);
 
-  navigator.geolocation.getCurrentPosition(
+        const lon =
+          parseFloat(data[0].lon);
 
-    position=>{
+        map.setView(
+          [lat, lon],
+          16
+        );
 
-      const lat =
-        position.coords.latitude;
+      } catch (error) {
 
-      const lon =
-        position.coords.longitude;
+        console.error(error);
 
-      map.setView(
-        [lat,lon],
-        18
-      );
+        toast("Search failed.");
 
-      if(userMarker){
-        map.removeLayer(userMarker);
       }
 
-      userMarker =
-        L.marker([lat,lon])
-        .addTo(map)
-        .bindPopup("📍 You are here");
-
-    },
-
-    error=>{
-
-      console.error(error);
-
-      showToast(
-        "Location permission allow karo."
-      );
-
-    },
-
-    {
-      enableHighAccuracy:true,
-      timeout:10000
     }
-  );
-}
 
 
-/* =========================================================
-   AUTH
-========================================================= */
+    /* ============================================================
+       AUTH UI
+    ============================================================ */
 
-let authMode = "login";
+    $("userBtn").addEventListener(
+      "click",
+      () => {
 
+        $("userPanel")
+          .classList.toggle("show");
 
-$("accountBtn").addEventListener(
-  "click",
-  async ()=>{
-    await loadUser();
-    openModal("authModal");
-  }
-);
-
-
-$("loginTab").addEventListener(
-  "click",
-  ()=>{
-    authMode = "login";
-
-    $("loginTab").classList.add("active");
-    $("registerTab").classList.remove("active");
-
-    $("displayNameField")
-      .classList.add("hidden");
-
-    $("authSubmitBtn").textContent =
-      "Login";
-  }
-);
+      }
+    );
 
 
-$("registerTab").addEventListener(
-  "click",
-  ()=>{
-    authMode = "register";
+    $("loginOpenBtn").addEventListener(
+      "click",
+      () => {
 
-    $("registerTab").classList.add("active");
-    $("loginTab").classList.remove("active");
+        openAuth("login");
 
-    $("displayNameField")
-      .classList.remove("hidden");
-
-    $("authSubmitBtn").textContent =
-      "Register";
-  }
-);
+      }
+    );
 
 
-$("authSubmitBtn").addEventListener(
-  "click",
-  handleAuth
-);
+    $("registerOpenBtn").addEventListener(
+      "click",
+      () => {
+
+        openAuth("register");
+
+      }
+    );
 
 
-async function handleAuth(){
+    $("authCloseBtn").addEventListener(
+      "click",
+      closeAuth
+    );
 
-  const email =
-    $("authEmail").value.trim();
 
-  const password =
-    $("authPassword").value;
+    $("showRegisterBtn").addEventListener(
+      "click",
+      () => {
 
-  const displayName =
-    $("displayNameInput")
-    .value.trim();
+        openAuth("register");
 
-  $("authMessage").textContent =
-    "";
+      }
+    );
 
-  if(!email || !password){
 
-    $("authMessage").textContent =
-      "Email aur password required hai.";
+    $("showLoginBtn").addEventListener(
+      "click",
+      () => {
 
-    return;
-  }
+        openAuth("login");
 
-  try{
+      }
+    );
 
-    if(authMode === "register"){
 
-      if(!displayName){
+    function openAuth(type) {
 
-        $("authMessage").textContent =
-          "Display Name required hai.";
+      $("authOverlay")
+        .classList.add("show");
+
+      if (type === "register") {
+
+        $("loginForm").style.display =
+          "none";
+
+        $("registerForm").style.display =
+          "block";
+
+      } else {
+
+        $("loginForm").style.display =
+          "block";
+
+        $("registerForm").style.display =
+          "none";
+
+      }
+
+    }
+
+
+    function closeAuth() {
+
+      $("authOverlay")
+        .classList.remove("show");
+
+    }
+
+
+    /* ============================================================
+       REGISTER
+    ============================================================ */
+
+    $("registerBtn").addEventListener(
+      "click",
+      registerUser
+    );
+
+
+    async function registerUser() {
+
+      const name =
+        $("registerName")
+          .value
+          .trim();
+
+      const email =
+        $("registerEmail")
+          .value
+          .trim();
+
+      const password =
+        $("registerPassword")
+          .value;
+
+      if (!name || !email || !password) {
+
+        toast("Sabhi fields fill karo.");
 
         return;
       }
 
-      const {data,error} =
-        await supabaseClient.auth.signUp({
-          email,
-          password
-        });
+      if (password.length < 6) {
 
-      if(error) throw error;
+        toast(
+          "Password kam se kam 6 characters ka ho."
+        );
 
-      if(data.user){
+        return;
+      }
 
-        const {error:profileError} =
-          await supabaseClient
-          .from("profiles")
-          .upsert({
-            id:data.user.id,
-            display_name:displayName
+      showLoading("Account create ho raha hai...");
+
+      try {
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient.auth.signUp({
+            email,
+            password
           });
 
-        if(profileError){
-          console.warn(profileError);
-        }
-      }
+        if (error) throw error;
 
-      $("authMessage").textContent =
-        "Registration successful.";
+        if (!data.user) {
 
-      await loadUser();
-
-      showToast("Account ready.");
-
-    }else{
-
-      const {error} =
-        await supabaseClient.auth.signInWithPassword({
-          email,
-          password
-        });
-
-      if(error) throw error;
-
-      await loadUser();
-
-      showToast("Login successful.");
-    }
-
-  }catch(err){
-
-    console.error(err);
-
-    $("authMessage").textContent =
-      err.message ||
-      "Authentication failed.";
-  }
-}
-
-
-/* =========================================================
-   LOAD USER
-========================================================= */
-
-async function loadUser(){
-
-  const {data} =
-    await supabaseClient.auth.getSession();
-
-  currentUser =
-    data.session?.user || null;
-
-  if(!currentUser){
-
-    $("loggedOutBox")
-      .classList.remove("hidden");
-
-    $("loggedInBox")
-      .classList.add("hidden");
-
-    return;
-  }
-
-  const {data:profile} =
-    await supabaseClient
-    .from("profiles")
-    .select("*")
-    .eq("id",currentUser.id)
-    .maybeSingle();
-
-  currentProfile = profile;
-
-  $("loggedOutBox")
-    .classList.add("hidden");
-
-  $("loggedInBox")
-    .classList.remove("hidden");
-
-  const name =
-    profile?.display_name ||
-    currentUser.email?.split("@")[0] ||
-    "User";
-
-  $("accountName").textContent =
-    name;
-
-  $("accountEmail").textContent =
-    currentUser.email || "";
-
-  $("accountAvatar").textContent =
-    name.charAt(0).toUpperCase();
-}
-
-
-/* =========================================================
-   AUTH STATE
-========================================================= */
-
-supabaseClient.auth.onAuthStateChange(
-  async ()=>{
-    await loadUser();
-    await updateNotificationDot();
-  }
-);
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-$("logoutBtn").addEventListener(
-  "click",
-  async ()=>{
-
-    await supabaseClient.auth.signOut();
-
-    currentUser = null;
-    currentProfile = null;
-
-    closeModal("authModal");
-
-    showToast("Logged out.");
-  }
-);
-
-
-/* =========================================================
-   CAMERA
-========================================================= */
-
-$("cameraBtn").addEventListener(
-  "click",
-  openCamera
-);
-
-
-async function openCamera(){
-
-  if(!currentUser){
-
-    showToast(
-      "Snap post karne ke liye login karo."
-    );
-
-    openModal("authModal");
-
-    return;
-  }
-
-  try{
-
-    cameraMode = "photo";
-
-    $("cameraModeText").textContent =
-      "PHOTO";
-
-    openModal("cameraModal");
-
-    await startCamera();
-
-  }catch(err){
-
-    console.error(err);
-
-    closeModal("cameraModal");
-
-    showToast(
-      "Camera permission allow karo."
-    );
-  }
-}
-
-
-async function startCamera(){
-
-  stopCamera();
-
-  const constraints = {
-
-    video:{
-      facingMode:currentFacingMode,
-
-      width:{
-        ideal:
-          selectedQuality === 1080
-          ? 1920
-          : selectedQuality === 720
-          ? 1280
-          : 854
-      },
-
-      height:{
-        ideal:
-          selectedQuality === 1080
-          ? 1080
-          : selectedQuality === 720
-          ? 720
-          : 480
-      }
-    },
-
-    audio:true
-  };
-
-  currentStream =
-    await navigator.mediaDevices
-    .getUserMedia(constraints);
-
-  $("cameraVideo").srcObject =
-    currentStream;
-
-  applyCameraPreview();
-}
-
-
-function stopCamera(){
-
-  if(currentStream){
-
-    currentStream
-      .getTracks()
-      .forEach(
-        track=>track.stop()
-      );
-
-    currentStream = null;
-  }
-
-  if(mediaRecorder &&
-     mediaRecorder.state !== "inactive"){
-
-    mediaRecorder.stop();
-  }
-
-  mediaRecorder = null;
-}
-
-
-$("cameraCloseBtn").addEventListener(
-  "click",
-  ()=>{
-    closeModal("cameraModal");
-  }
-);
-
-
-/* =========================================================
-   CAMERA FLIP
-========================================================= */
-
-$("cameraFlipBtn").addEventListener(
-  "click",
-  async ()=>{
-
-    currentFacingMode =
-      currentFacingMode === "user"
-      ? "environment"
-      : "user";
-
-    try{
-      await startCamera();
-    }catch(err){
-      console.error(err);
-      showToast("Camera switch failed.");
-    }
-  }
-);
-
-
-/* =========================================================
-   MIRROR
-========================================================= */
-
-$("mirrorBtn").addEventListener(
-  "click",
-  ()=>{
-
-    currentMirror =
-      !currentMirror;
-
-    $("mirrorBtn").classList.toggle(
-      "active",
-      currentMirror
-    );
-
-    applyCameraPreview();
-  }
-);
-
-
-function applyCameraPreview(){
-
-  let transform =
-    `scale(${currentMirror ? -1 : 1},1)`;
-
-  transform +=
-    ` scale(${currentZoom})`;
-
-  $("cameraVideo").style.transform =
-    transform;
-}
-
-
-/* =========================================================
-   ZOOM
-========================================================= */
-
-function updateZoom(){
-
-  $("zoomLabel").textContent =
-    currentZoom.toFixed(
-      currentZoom < 1 ? 1 : 0
-    ) + "×";
-
-  applyCameraPreview();
-}
-
-
-$("zoomInBtn").addEventListener(
-  "click",
-  ()=>{
-    currentZoom =
-      Math.min(
-        20,
-        Number(
-          (currentZoom + 0.5)
-          .toFixed(1)
-        )
-      );
-
-    updateZoom();
-  }
-);
-
-
-$("zoomOutBtn").addEventListener(
-  "click",
-  ()=>{
-    currentZoom =
-      Math.max(
-        .5,
-        Number(
-          (currentZoom - 0.5)
-          .toFixed(1)
-        )
-      );
-
-    updateZoom();
-  }
-);
-
-
-/* =========================================================
-   FILTERS
-========================================================= */
-
-const filterMap = {
-
-  "Normal":"filterNormal",
-
-  "Vintage":"filterVintage",
-
-  "B&W":"filterBW",
-
-  "Warm":"filterWarm",
-
-  "Cool":"filterCool",
-
-  "Glow":"filterGlow",
-
-  "Night":"filterNight",
-
-  "Color Pop":"filterColorPop",
-
-  "Dream":"filterDream",
-
-  "Sunset":"filterSunset"
-};
-
-
-document
-.querySelectorAll(
-  "[data-filter]"
-)
-.forEach(btn=>{
-
-  btn.addEventListener(
-    "click",
-    ()=>{
-
-      currentFilter =
-        btn.dataset.filter;
-
-      document
-      .querySelectorAll(
-        "[data-filter]"
-      )
-      .forEach(
-        b=>b.classList.remove("active")
-      );
-
-      btn.classList.add("active");
-
-      $("cameraVideo").className =
-        filterMap[currentFilter] || "";
-    }
-  );
-
-});
-
-
-/* =========================================================
-   QUALITY
-========================================================= */
-
-document
-.querySelectorAll(
-  "[data-quality]"
-)
-.forEach(btn=>{
-
-  btn.addEventListener(
-    "click",
-    ()=>{
-
-      selectedQuality =
-        Number(btn.dataset.quality);
-
-      document
-      .querySelectorAll(
-        "[data-quality]"
-      )
-      .forEach(
-        b=>b.classList.remove("active")
-      );
-
-      btn.classList.add("active");
-    }
-  );
-});
-
-
-/* =========================================================
-   PHOTO / VIDEO MODE
-========================================================= */
-
-$("videoModeBtn").addEventListener(
-  "click",
-  ()=>{
-
-    cameraMode =
-      cameraMode === "photo"
-      ? "video"
-      : "photo";
-
-    $("cameraModeText").textContent =
-      cameraMode.toUpperCase();
-
-    $("videoModeBtn").textContent =
-      cameraMode === "video"
-      ? "📷 Photo"
-      : "🎥 Video";
-
-  }
-);
-
-
-/* =========================================================
-   CAPTURE
-========================================================= */
-
-$("captureBtn").addEventListener(
-  "click",
-  async ()=>{
-
-    if(cameraMode === "photo"){
-
-      await capturePhoto();
-
-    }else{
-
-      if(
-        mediaRecorder &&
-        mediaRecorder.state === "recording"
-      ){
-
-        stopRecording();
-
-      }else{
-
-        startRecording();
-      }
-    }
-  }
-);
-
-
-/* =========================================================
-   CAPTURE PHOTO
-========================================================= */
-
-async function capturePhoto(){
-
-  if(!currentStream){
-
-    showToast("Camera ready nahi hai.");
-    return;
-  }
-
-  const video =
-    $("cameraVideo");
-
-  const canvas =
-    document.createElement("canvas");
-
-  const vw =
-    video.videoWidth || 1280;
-
-  const vh =
-    video.videoHeight || 720;
-
-  canvas.width = vw;
-  canvas.height = vh;
-
-  const ctx =
-    canvas.getContext("2d");
-
-  ctx.save();
-
-  if(currentMirror){
-
-    ctx.translate(vw,0);
-    ctx.scale(-1,1);
-  }
-
-  ctx.filter =
-    getCanvasFilter(currentFilter);
-
-  ctx.drawImage(
-    video,
-    0,
-    0,
-    vw,
-    vh
-  );
-
-  ctx.restore();
-
-  canvas.toBlob(
-    async blob=>{
-
-      capturedBlob = blob;
-
-      capturedMediaType =
-        "image";
-
-      capturedWidth =
-        canvas.width;
-
-      capturedHeight =
-        canvas.height;
-
-      await openPostPreview();
-
-    },
-    "image/jpeg",
-    .90
-  );
-}
-
-
-/* =========================================================
-   FILTER FOR CANVAS
-========================================================= */
-
-function getCanvasFilter(filter){
-
-  const filters = {
-
-    "Normal":"none",
-
-    "Vintage":
-      "sepia(.45) saturate(.85) contrast(.95)",
-
-    "B&W":
-      "grayscale(1) contrast(1.08)",
-
-    "Warm":
-      "sepia(.25) saturate(1.25)",
-
-    "Cool":
-      "saturate(.95) hue-rotate(18deg)",
-
-    "Glow":
-      "brightness(1.1) saturate(1.3)",
-
-    "Night":
-      "brightness(.68) contrast(1.2)",
-
-    "Color Pop":
-      "saturate(1.75) contrast(1.08)",
-
-    "Dream":
-      "brightness(1.08) saturate(.85)",
-
-    "Sunset":
-      "sepia(.22) saturate(1.35)"
-  };
-
-  return filters[filter] || "none";
-}
-
-
-/* =========================================================
-   VIDEO RECORD
-========================================================= */
-
-function startRecording(){
-
-  if(!currentStream){
-
-    showToast("Camera ready nahi hai.");
-    return;
-  }
-
-  recordedChunks = [];
-
-  const mimeTypes = [
-
-    "video/webm;codecs=vp9,opus",
-    "video/webm;codecs=vp8,opus",
-    "video/webm"
-  ];
-
-  let mimeType = "";
-
-  for(const type of mimeTypes){
-
-    if(
-      MediaRecorder.isTypeSupported(type)
-    ){
-      mimeType = type;
-      break;
-    }
-  }
-
-  try{
-
-    mediaRecorder =
-      new MediaRecorder(
-        currentStream,
-        mimeType
-        ? {mimeType}
-        : undefined
-      );
-
-  }catch(err){
-
-    console.error(err);
-
-    showToast(
-      "Video recording supported nahi hai."
-    );
-
-    return;
-  }
-
-  recordingStartedAt =
-    Date.now();
-
-  mediaRecorder.ondataavailable =
-    event=>{
-
-      if(event.data &&
-         event.data.size > 0){
-
-        recordedChunks.push(
-          event.data
-        );
-      }
-    };
-
-
-  mediaRecorder.onstop =
-    async ()=>{
-
-      lastRecordingDuration =
-        Math.round(
-          (Date.now() -
-            recordingStartedAt) / 1000
-        );
-
-      const blob =
-        new Blob(
-          recordedChunks,
-          {
-            type:
-              mimeType ||
-              "video/webm"
-          }
-        );
-
-      capturedBlob = blob;
-
-      capturedMediaType =
-        "video";
-
-      capturedWidth =
-        $("cameraVideo").videoWidth;
-
-      capturedHeight =
-        $("cameraVideo").videoHeight;
-
-      $("captureBtn")
-        .classList.remove(
-          "recording"
-        );
-
-      await openPostPreview();
-    };
-
-
-  mediaRecorder.start();
-
-  $("captureBtn")
-    .classList.add("recording");
-
-  showToast(
-    "Recording started. Dubara press karke stop karo."
-  );
-}
-
-
-function stopRecording(){
-
-  if(
-    mediaRecorder &&
-    mediaRecorder.state === "recording"
-  ){
-
-    mediaRecorder.stop();
-  }
-}
-
-
-/* =========================================================
-   POST PREVIEW
-========================================================= */
-
-async function openPostPreview(){
-
-  closeModal("cameraModal");
-
-  const container =
-    $("previewContainer");
-
-  container.innerHTML = "";
-
-  if(capturedMediaType === "image"){
-
-    const img =
-      document.createElement("img");
-
-    img.className =
-      "previewMedia";
-
-    img.src =
-      URL.createObjectURL(
-        capturedBlob
-      );
-
-    container.appendChild(img);
-
-  }else{
-
-    const video =
-      document.createElement("video");
-
-    video.className =
-      "previewMedia";
-
-    video.controls = true;
-    video.playsInline = true;
-
-    video.src =
-      URL.createObjectURL(
-        capturedBlob
-      );
-
-    container.appendChild(video);
-  }
-
-  $("postDescription").value =
-    "";
-
-  $("postLocation").value =
-    "Detecting location...";
-
-  openModal("postModal");
-
-  await detectPostLocation();
-}
-
-
-/* =========================================================
-   POST LOCATION
-========================================================= */
-
-async function detectPostLocation(){
-
-  if(!navigator.geolocation){
-
-    $("postLocation").value =
-      "Location unavailable";
-
-    return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-
-    async position=>{
-
-      const lat =
-        position.coords.latitude;
-
-      const lon =
-        position.coords.longitude;
-
-      const name =
-        await reverseGeocode(
-          lat,
-          lon
-        );
-
-      $("postLocation").value =
-        name ||
-        `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
-
-      $("postLocation").dataset.lat =
-        lat;
-
-      $("postLocation").dataset.lon =
-        lon;
-    },
-
-    ()=>{
-      $("postLocation").value =
-        "Location unavailable";
-    },
-
-    {
-      enableHighAccuracy:true,
-      timeout:12000
-    }
-  );
-}
-
-
-/* =========================================================
-   REVERSE GEOCODE
-========================================================= */
-
-async function reverseGeocode(
-  lat,
-  lon
-){
-
-  try{
-
-    const url =
-      "https://nominatim.openstreetmap.org/reverse?" +
-      new URLSearchParams({
-        lat,
-        lon,
-        format:"json",
-        zoom:"18"
-      });
-
-    const response =
-      await fetch(url,{
-        headers:{
-          "Accept-Language":"en"
-        }
-      });
-
-    const data =
-      await response.json();
-
-    return data.display_name || "";
-
-  }catch(err){
-
-    console.warn(err);
-
-    return "";
-  }
-}
-
-
-/* =========================================================
-   RETAKE
-========================================================= */
-
-$("retakeBtn").addEventListener(
-  "click",
-  async ()=>{
-
-    closeModal("postModal");
-
-    await openCamera();
-  }
-);
-
-
-/* =========================================================
-   CLOSE POST
-========================================================= */
-
-$("postCloseBtn").addEventListener(
-  "click",
-  ()=>{
-    closeModal("postModal");
-  }
-);
-
-
-/* =========================================================
-   PUBLISH SNAP
-========================================================= */
-
-$("publishBtn").addEventListener(
-  "click",
-  publishSnap
-);
-
-
-async function publishSnap(){
-
-  if(isPosting) return;
-
-  if(!currentUser){
-
-    showToast("Please login first.");
-    return;
-  }
-
-  if(!capturedBlob){
-
-    showToast("No media selected.");
-    return;
-  }
-
-  const lat =
-    Number(
-      $("postLocation").dataset.lat
-    );
-
-  const lon =
-    Number(
-      $("postLocation").dataset.lon
-    );
-
-  if(!Number.isFinite(lat) ||
-     !Number.isFinite(lon)){
-
-    showToast(
-      "Location nahi mili. Dobara try karo."
-    );
-
-    return;
-  }
-
-  isPosting = true;
-
-  $("publishBtn").disabled = true;
-
-  showLoading("Uploading snap...");
-
-  try{
-
-    const extension =
-      capturedMediaType === "video"
-      ? "webm"
-      : "jpg";
-
-    const path =
-      `${currentUser.id}/` +
-      `${Date.now()}.` +
-      extension;
-
-
-    /* ---------------------------------------------
-       Get current auth session
-    --------------------------------------------- */
-
-    const {
-      data:sessionData,
-      error:sessionError
-    } =
-      await supabaseClient.auth.getSession();
-
-    if(sessionError)
-      throw sessionError;
-
-    const session =
-      sessionData.session;
-
-    if(!session){
-
-      throw new Error(
-        "Login session expired."
-      );
-    }
-
-
-    /* ---------------------------------------------
-       Upload directly with access token
-    --------------------------------------------- */
-
-    const uploadUrl =
-      `${SUPABASE_URL}/storage/v1/object/past-snaps/${path}`;
-
-    const uploadResponse =
-      await fetch(
-        uploadUrl,
-        {
-          method:"POST",
-
-          headers:{
-            "Authorization":
-              `Bearer ${session.access_token}`,
-
-            "apikey":
-              SUPABASE_KEY,
-
-            "Content-Type":
-              capturedBlob.type ||
-              (
-                capturedMediaType === "video"
-                ? "video/webm"
-                : "image/jpeg"
-              )
-          },
-
-          body:capturedBlob
-        }
-      );
-
-    if(!uploadResponse.ok){
-
-      const errorText =
-        await uploadResponse.text();
-
-      throw new Error(
-        errorText ||
-        "Storage upload failed."
-      );
-    }
-
-    setProgress(65);
-
-
-    /* ---------------------------------------------
-       Public URL
-    --------------------------------------------- */
-
-    const imageUrl =
-      `${SUPABASE_URL}/storage/v1/object/public/past-snaps/${path}`;
-
-
-    /* ---------------------------------------------
-       Insert database row
-       NO SONG DATA
-    --------------------------------------------- */
-
-    const row = {
-
-      latitude:lat,
-
-      longitude:lon,
-
-      image_url:imageUrl,
-
-      media_type:
-        capturedMediaType,
-
-      duration_seconds:
-        capturedMediaType === "video"
-        ? lastRecordingDuration
-        : null,
-
-      width:
-        capturedWidth,
-
-      height:
-        capturedHeight,
-
-      user_id:
-        currentUser.id,
-
-      description:
-        $("postDescription")
-        .value
-        .trim(),
-
-      location_name:
-        $("postLocation")
-        .value
-        .trim()
-    };
-
-
-    const {
-      error:insertError
-    } =
-      await supabaseClient
-      .from("snaps")
-      .insert(row);
-
-    if(insertError)
-      throw insertError;
-
-    setProgress(100);
-
-    showToast(
-      "Snap successfully posted 👻"
-    );
-
-    closeModal("postModal");
-
-    capturedBlob = null;
-    capturedMediaType = null;
-
-    await loadSnaps();
-
-  }catch(err){
-
-    console.error(err);
-
-    showToast(
-      err.message ||
-      "Snap upload failed."
-    );
-
-  }finally{
-
-    isPosting = false;
-
-    $("publishBtn").disabled =
-      false;
-
-    setTimeout(
-      hideLoading,
-      400
-    );
-  }
-}
-
-
-/* =========================================================
-   CLUSTER OPEN
-========================================================= */
-
-function openCluster(snaps){
-
-  selectedCluster =
-    snaps;
-
-  $("clusterCount").textContent =
-    `${snaps.length} posts within 50 meters`;
-
-  const list =
-    $("clusterList");
-
-  list.innerHTML = "";
-
-  snaps.forEach(
-    snap=>{
-      list.appendChild(
-        createSnapListItem(snap)
-      );
-    }
-  );
-
-  openModal("clusterModal");
-}
-
-
-function createSnapListItem(snap){
-
-  const item =
-    document.createElement("div");
-
-  item.className =
-    "snapItem";
-
-  const thumb =
-    document.createElement(
-      snap.media_type === "video"
-      ? "video"
-      : "img"
-    );
-
-  thumb.className =
-    "snapThumb";
-
-  thumb.src =
-    snap.image_url;
-
-  if(snap.media_type === "video"){
-    thumb.muted = true;
-    thumb.playsInline = true;
-  }
-
-  const info =
-    document.createElement("div");
-
-  info.className =
-    "snapItemInfo";
-
-  const name =
-    document.createElement("div");
-
-  name.className =
-    "snapItemName";
-
-  name.textContent =
-    snap.display_name ||
-    "Past Snap User";
-
-
-  const meta =
-    document.createElement("div");
-
-  meta.className =
-    "snapItemMeta";
-
-  meta.textContent =
-    formatDateTime(
-      snap.created_at
-    );
-
-
-  const desc =
-    document.createElement("div");
-
-  desc.className =
-    "snapItemDesc";
-
-  desc.textContent =
-    snap.description ||
-    "No description";
-
-
-  info.appendChild(name);
-  info.appendChild(meta);
-  info.appendChild(desc);
-
-  item.appendChild(thumb);
-  item.appendChild(info);
-
-  item.addEventListener(
-    "click",
-    ()=>{
-      openSnapDetail(snap);
-    }
-  );
-
-  return item;
-}
-
-
-/* =========================================================
-   DATE/TIME
-========================================================= */
-
-function formatDateTime(date){
-
-  if(!date) return "";
-
-  const d =
-    new Date(date);
-
-  return d.toLocaleString(
-    "en-IN",
-    {
-      day:"2-digit",
-      month:"short",
-      year:"numeric",
-      hour:"2-digit",
-      minute:"2-digit"
-    }
-  );
-}
-
-
-/* =========================================================
-   SNAP DETAIL
-========================================================= */
-
-async function openSnapDetail(snap){
-
-  selectedPost =
-    snap;
-
-  const content =
-    $("detailContent");
-
-  content.innerHTML = "";
-
-  const media =
-    document.createElement(
-      snap.media_type === "video"
-      ? "video"
-      : "img"
-    );
-
-  media.className =
-    "previewMedia";
-
-  media.src =
-    snap.image_url;
-
-  if(snap.media_type === "video"){
-
-    media.controls = true;
-    media.playsInline = true;
-  }
-
-  content.appendChild(media);
-
-
-  /* ---------------------------------------------
-     USER
-  --------------------------------------------- */
-
-  const card =
-    document.createElement("div");
-
-  card.className =
-    "detailCard";
-
-
-  const top =
-    document.createElement("div");
-
-  top.className =
-    "detailTop";
-
-
-  const avatar =
-    document.createElement("div");
-
-  avatar.className =
-    "avatar";
-
-  avatar.textContent =
-    (
-      snap.display_name ||
-      "U"
-    )
-    .charAt(0)
-    .toUpperCase();
-
-
-  const userInfo =
-    document.createElement("div");
-
-
-  const name =
-    document.createElement("div");
-
-  name.className =
-    "detailName";
-
-  name.textContent =
-    snap.display_name ||
-    "Past Snap User";
-
-
-  const time =
-    document.createElement("div");
-
-  time.className =
-    "detailTime";
-
-  time.textContent =
-    formatDateTime(
-      snap.created_at
-    );
-
-
-  userInfo.appendChild(name);
-  userInfo.appendChild(time);
-
-  top.appendChild(avatar);
-  top.appendChild(userInfo);
-
-  card.appendChild(top);
-
-
-  /* ---------------------------------------------
-     LOCATION
-  --------------------------------------------- */
-
-  const location =
-    document.createElement("div");
-
-  location.className =
-    "detailLocation";
-
-  location.textContent =
-    "📍 " +
-    (
-      snap.location_name ||
-      `${Number(snap.latitude).toFixed(5)}, ${Number(snap.longitude).toFixed(5)}`
-    );
-
-  card.appendChild(location);
-
-
-  /* ---------------------------------------------
-     DESCRIPTION
-  --------------------------------------------- */
-
-  if(snap.description){
-
-    const desc =
-      document.createElement("div");
-
-    desc.className =
-      "detailDescription";
-
-    desc.textContent =
-      snap.description;
-
-    card.appendChild(desc);
-  }
-
-
-  /* ---------------------------------------------
-     SOCIAL
-  --------------------------------------------- */
-
-  const social =
-    document.createElement("div");
-
-  social.className =
-    "socialRow";
-
-
-  const likeBtn =
-    document.createElement("button");
-
-  likeBtn.className =
-    "socialBtn";
-
-  likeBtn.textContent =
-    "❤️ Like";
-
-
-  const commentBtn =
-    document.createElement("button");
-
-  commentBtn.className =
-    "socialBtn";
-
-  commentBtn.textContent =
-    "💬 Comments";
-
-
-  social.appendChild(likeBtn);
-  social.appendChild(commentBtn);
-
-  card.appendChild(social);
-
-  content.appendChild(card);
-
-
-  /* ---------------------------------------------
-     LOAD LIKES
-  --------------------------------------------- */
-
-  await refreshLikeButton(
-    snap.id,
-    likeBtn
-  );
-
-
-  likeBtn.addEventListener(
-    "click",
-    async ()=>{
-      await toggleLike(
-        snap.id,
-        likeBtn
-      );
-    }
-  );
-
-
-  /* ---------------------------------------------
-     COMMENTS
-  --------------------------------------------- */
-
-  const comments =
-    document.createElement("div");
-
-  comments.className =
-    "comments";
-
-  comments.innerHTML =
-    "<b>Comments</b>";
-
-  content.appendChild(comments);
-
-  await loadComments(
-    snap.id,
-    comments
-  );
-
-
-  /* ---------------------------------------------
-     COMMENT INPUT
-  --------------------------------------------- */
-
-  if(currentUser){
-
-    const input =
-      document.createElement("textarea");
-
-    input.placeholder =
-      "Write a comment...";
-
-    input.maxLength = 2000;
-
-    input.style.width =
-      "100%";
-
-    input.style.marginTop =
-      "10px";
-
-    input.style.background =
-      "#202020";
-
-    input.style.color =
-      "white";
-
-    input.style.border =
-      "1px solid #333";
-
-    input.style.borderRadius =
-      "12px";
-
-    input.style.padding =
-      "10px";
-
-
-    const send =
-      document.createElement("button");
-
-    send.className =
-      "action";
-
-    send.textContent =
-      "Post Comment";
-
-
-    send.addEventListener(
-      "click",
-      async ()=>{
-
-        const text =
-          input.value.trim();
-
-        if(!text) return;
-
-        const words =
-          text
-          .split(/\s+/)
-          .filter(Boolean);
-
-        if(words.length > 250){
-
-          showToast(
-            "Maximum 250 words."
+          throw new Error(
+            "User create nahi hua."
           );
 
-          return;
         }
 
-        const {error} =
+        const {
+          error: profileError
+        } =
           await supabaseClient
-          .from("snap_comments")
-          .insert({
-            snap_id:snap.id,
-            user_id:currentUser.id,
-            comment_text:text
+            .from("profiles")
+            .upsert({
+              id: data.user.id,
+              display_name: name
+            });
+
+        if (profileError) {
+
+          console.warn(
+            profileError
+          );
+
+        }
+
+        toast(
+          "Account successfully create ho gaya."
+        );
+
+        closeAuth();
+
+        await refreshAuth();
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast(
+          error.message ||
+          "Registration failed."
+        );
+
+      } finally {
+
+        hideLoading();
+
+      }
+
+    }
+
+
+    /* ============================================================
+       LOGIN
+    ============================================================ */
+
+    $("loginBtn").addEventListener(
+      "click",
+      loginUser
+    );
+
+
+    async function loginUser() {
+
+      const email =
+        $("loginEmail")
+          .value
+          .trim();
+
+      const password =
+        $("loginPassword")
+          .value;
+
+      if (!email || !password) {
+
+        toast("Email aur password enter karo.");
+
+        return;
+      }
+
+      showLoading("Login ho raha hai...");
+
+      try {
+
+        const {
+          error
+        } =
+          await supabaseClient.auth
+            .signInWithPassword({
+              email,
+              password
+            });
+
+        if (error) throw error;
+
+        toast("Login successful.");
+
+        closeAuth();
+
+        await refreshAuth();
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast(
+          error.message ||
+          "Login failed."
+        );
+
+      } finally {
+
+        hideLoading();
+
+      }
+
+    }
+
+
+    /* ============================================================
+       LOGOUT
+    ============================================================ */
+
+    $("logoutBtn").addEventListener(
+      "click",
+      async () => {
+
+        await supabaseClient.auth.signOut();
+
+        currentUser = null;
+
+        currentProfile = null;
+
+        updateAuthUI();
+
+        $("userPanel")
+          .classList.remove("show");
+
+        toast("Logout ho gaya.");
+
+      }
+    );
+
+
+    /* ============================================================
+       AUTH STATE
+    ============================================================ */
+
+    async function refreshAuth() {
+
+      const {
+        data
+      } =
+        await supabaseClient.auth
+          .getSession();
+
+      currentUser =
+        data.session
+          ? data.session.user
+          : null;
+
+      if (currentUser) {
+
+        await loadProfile();
+
+      } else {
+
+        currentProfile = null;
+
+      }
+
+      updateAuthUI();
+
+    }
+
+
+    async function loadProfile() {
+
+      if (!currentUser) return;
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("profiles")
+          .select("id,display_name")
+          .eq("id", currentUser.id)
+          .maybeSingle();
+
+      if (!error && data) {
+
+        currentProfile = data;
+
+      } else {
+
+        currentProfile = {
+          id: currentUser.id,
+          display_name:
+            currentUser.email
+              ? currentUser.email.split("@")[0]
+              : "User"
+        };
+
+      }
+
+    }
+
+
+    function updateAuthUI() {
+
+      if (currentUser) {
+
+        $("loggedOutPanel").style.display =
+          "none";
+
+        $("loggedInPanel").style.display =
+          "block";
+
+        $("profileName").textContent =
+          currentProfile?.display_name ||
+          "User";
+
+        $("profileEmail").textContent =
+          currentUser.email || "";
+
+        $("userBtn").textContent =
+          "👤";
+
+      } else {
+
+        $("loggedOutPanel").style.display =
+          "block";
+
+        $("loggedInPanel").style.display =
+          "none";
+
+      }
+
+    }
+
+
+    /* ============================================================
+       CAMERA OPEN
+    ============================================================ */
+
+    $("cameraOpenBtn").addEventListener(
+      "click",
+      openCamera
+    );
+
+
+    async function openCamera() {
+
+      if (!currentUser) {
+
+        toast("Pehle login karo.");
+
+        openAuth("login");
+
+        return;
+      }
+
+      try {
+
+        await startCamera();
+
+        $("cameraOverlay")
+          .classList.add("show");
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast(
+          "Camera permission allow karo."
+        );
+
+      }
+
+    }
+
+
+    async function startCamera() {
+
+      stopCamera();
+
+      cameraStream =
+        await navigator.mediaDevices
+          .getUserMedia({
+            video: {
+              facingMode: cameraFacing,
+              width: {
+                ideal: 1920
+              },
+              height: {
+                ideal: 1080
+              }
+            },
+            audio: true
           });
 
-        if(error){
+      $("cameraVideo").srcObject =
+        cameraStream;
+
+      applyCameraPreview();
+
+    }
+
+
+    function stopCamera() {
+
+      if (cameraStream) {
+
+        cameraStream
+          .getTracks()
+          .forEach(
+            track => track.stop()
+          );
+
+        cameraStream = null;
+
+      }
+
+      if ($("cameraVideo").srcObject) {
+
+        $("cameraVideo").srcObject = null;
+
+      }
+
+    }
+
+
+    $("cameraCloseBtn").addEventListener(
+      "click",
+      () => {
+
+        stopCamera();
+
+        $("cameraOverlay")
+          .classList.remove("show");
+
+      }
+    );
+
+
+    /* ============================================================
+       CAMERA SWITCH
+    ============================================================ */
+
+    $("cameraSwitchBtn").addEventListener(
+      "click",
+      async () => {
+
+        cameraFacing =
+          cameraFacing === "user"
+            ? "environment"
+            : "user";
+
+        try {
+
+          await startCamera();
+
+        } catch (error) {
 
           console.error(error);
 
-          showToast(
-            "Comment failed."
+          toast("Camera switch failed.");
+
+        }
+
+      }
+    );
+
+
+    /* ============================================================
+       CAMERA MODE
+    ============================================================ */
+
+    $("cameraModeBtn").addEventListener(
+      "click",
+      () => {
+
+        cameraMode =
+          cameraMode === "photo"
+            ? "video"
+            : "photo";
+
+        $("cameraModeBtn").textContent =
+          cameraMode === "photo"
+            ? "🎥"
+            : "📸";
+
+        $("previewTitle").textContent =
+          cameraMode === "photo"
+            ? "New Photo"
+            : "New Video";
+
+      }
+    );
+
+
+    /* ============================================================
+       MIRROR
+    ============================================================ */
+
+    $("cameraMirrorBtn").addEventListener(
+      "click",
+      () => {
+
+        mirrorEnabled =
+          !mirrorEnabled;
+
+        applyCameraPreview();
+
+      }
+    );
+
+
+    function applyCameraPreview() {
+
+      $("cameraVideo")
+        .classList.toggle(
+          "mirror",
+          mirrorEnabled &&
+          cameraFacing === "user"
+        );
+
+      applyFilter();
+
+    }
+
+
+    /* ============================================================
+       FILTERS
+    ============================================================ */
+
+    document
+      .querySelectorAll(".filterBtn")
+      .forEach(btn => {
+
+        btn.addEventListener(
+          "click",
+          () => {
+
+            document
+              .querySelectorAll(".filterBtn")
+              .forEach(
+                b =>
+                  b.classList.remove("active")
+              );
+
+            btn.classList.add("active");
+
+            selectedFilter =
+              btn.dataset.filter;
+
+            applyFilter();
+
+          }
+        );
+
+      });
+
+
+    function applyFilter() {
+
+      const video =
+        $("cameraVideo");
+
+      const filters = {
+
+        normal: "none",
+
+        vintage:
+          "sepia(.55) contrast(1.05) saturate(.85)",
+
+        bw:
+          "grayscale(1) contrast(1.08)",
+
+        warm:
+          "sepia(.2) saturate(1.4) contrast(1.04)",
+
+        cool:
+          "saturate(.85) hue-rotate(12deg) contrast(1.05)",
+
+        glow:
+          "brightness(1.12) saturate(1.15)",
+
+        night:
+          "brightness(.72) contrast(1.2) saturate(.85)",
+
+        colorpop:
+          "saturate(1.8) contrast(1.12)",
+
+        dream:
+          "brightness(1.08) contrast(.9) saturate(1.1)",
+
+        sunset:
+          "sepia(.3) saturate(1.55) hue-rotate(-8deg)"
+
+      };
+
+      video.style.filter =
+        filters[selectedFilter] ||
+        "none";
+
+    }
+
+
+    /* ============================================================
+       ZOOM
+    ============================================================ */
+
+    $("zoomInBtn").addEventListener(
+      "click",
+      () => {
+
+        zoomLevel =
+          Math.min(
+            20,
+            +(zoomLevel + .5).toFixed(1)
           );
 
-          return;
+        updateZoom();
+
+      }
+    );
+
+
+    $("zoomOutBtn").addEventListener(
+      "click",
+      () => {
+
+        zoomLevel =
+          Math.max(
+            .5,
+            +(zoomLevel - .5).toFixed(1)
+          );
+
+        updateZoom();
+
+      }
+    );
+
+
+    function updateZoom() {
+
+      $("zoomText").textContent =
+        zoomLevel.toFixed(1) + "x";
+
+      $("cameraVideo").style.transform =
+        (
+          mirrorEnabled &&
+          cameraFacing === "user"
+            ? "scaleX(-1) "
+            : ""
+        ) +
+        "scale(" +
+        zoomLevel +
+        ")";
+
+    }
+
+
+    /* ============================================================
+       CAPTURE
+    ============================================================ */
+
+    $("captureBtn").addEventListener(
+      "click",
+      () => {
+
+        if (cameraMode === "photo") {
+
+          capturePhoto();
+
+        } else {
+
+          if (
+            mediaRecorder &&
+            mediaRecorder.state === "recording"
+          ) {
+
+            stopRecording();
+
+          } else {
+
+            startRecording();
+
+          }
+
         }
+
+      }
+    );
+
+
+    /* ============================================================
+       PHOTO
+    ============================================================ */
+
+    function capturePhoto() {
+
+      if (!cameraStream) return;
+
+      const video =
+        $("cameraVideo");
+
+      const canvas =
+        document.createElement("canvas");
+
+      const width =
+        video.videoWidth || 1280;
+
+      const height =
+        video.videoHeight || 720;
+
+      canvas.width = width;
+
+      canvas.height = height;
+
+      const ctx =
+        canvas.getContext("2d");
+
+      if (
+        mirrorEnabled &&
+        cameraFacing === "user"
+      ) {
+
+        ctx.translate(width, 0);
+
+        ctx.scale(-1, 1);
+
+      }
+
+      applyCanvasFilter(
+        ctx,
+        width,
+        height
+      );
+
+      ctx.drawImage(
+        video,
+        0,
+        0,
+        width,
+        height
+      );
+
+      canvas.toBlob(
+        blob => {
+
+          if (!blob) {
+
+            toast("Photo capture failed.");
+
+            return;
+          }
+
+          currentPreviewBlob = blob;
+
+          currentPreviewType = "image";
+
+          currentPreviewWidth =
+            width;
+
+          currentPreviewHeight =
+            height;
+
+          showPreview();
+
+        },
+        "image/jpeg",
+        .90
+      );
+
+    }
+
+
+    function applyCanvasFilter(
+      ctx,
+      width,
+      height
+    ) {
+
+      const filters = {
+
+        normal: "none",
+
+        vintage:
+          "sepia(.55) contrast(1.05) saturate(.85)",
+
+        bw:
+          "grayscale(1) contrast(1.08)",
+
+        warm:
+          "sepia(.2) saturate(1.4) contrast(1.04)",
+
+        cool:
+          "saturate(.85) hue-rotate(12deg) contrast(1.05)",
+
+        glow:
+          "brightness(1.12) saturate(1.15)",
+
+        night:
+          "brightness(.72) contrast(1.2) saturate(.85)",
+
+        colorpop:
+          "saturate(1.8) contrast(1.12)",
+
+        dream:
+          "brightness(1.08) contrast(.9) saturate(1.1)",
+
+        sunset:
+          "sepia(.3) saturate(1.55) hue-rotate(-8deg)"
+
+      };
+
+      ctx.filter =
+        filters[selectedFilter] ||
+        "none";
+
+    }
+
+
+    /* ============================================================
+       VIDEO RECORD
+    ============================================================ */
+
+    function startRecording() {
+
+      if (!cameraStream) return;
+
+      recordedChunks = [];
+
+      recordedStartTime =
+        Date.now();
+
+      let mimeType =
+        "video/webm;codecs=vp9";
+
+      if (
+        !MediaRecorder.isTypeSupported(
+          mimeType
+        )
+      ) {
+
+        mimeType =
+          "video/webm";
+
+      }
+
+      try {
+
+        mediaRecorder =
+          new MediaRecorder(
+            cameraStream,
+            {
+              mimeType
+            }
+          );
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast("Video recording supported nahi hai.");
+
+        return;
+
+      }
+
+      mediaRecorder.ondataavailable =
+        event => {
+
+          if (event.data.size > 0) {
+
+            recordedChunks.push(
+              event.data
+            );
+
+          }
+
+        };
+
+
+      mediaRecorder.onstop =
+        () => {
+
+          recordedDuration =
+            Math.round(
+              (Date.now() -
+                recordedStartTime) /
+              1000
+            );
+
+          const blob =
+            new Blob(
+              recordedChunks,
+              {
+                type: mimeType
+              }
+            );
+
+          currentPreviewBlob =
+            blob;
+
+          currentPreviewType =
+            "video";
+
+          currentPreviewWidth =
+            $("cameraVideo").videoWidth;
+
+          currentPreviewHeight =
+            $("cameraVideo").videoHeight;
+
+          showPreview();
+
+        };
+
+
+      mediaRecorder.start();
+
+      $("captureBtn")
+        .classList.add("recording");
+
+      toast("Recording...");
+
+    }
+
+
+    function stopRecording() {
+
+      if (
+        mediaRecorder &&
+        mediaRecorder.state !== "inactive"
+      ) {
+
+        mediaRecorder.stop();
+
+      }
+
+      $("captureBtn")
+        .classList.remove("recording");
+
+    }
+
+
+    /* ============================================================
+       PREVIEW
+    ============================================================ */
+
+    function showPreview() {
+
+      const container =
+        $("previewMediaContainer");
+
+      container.innerHTML = "";
+
+      const url =
+        URL.createObjectURL(
+          currentPreviewBlob
+        );
+
+      if (currentPreviewType === "image") {
+
+        const img =
+          document.createElement("img");
+
+        img.src = url;
+
+        img.className =
+          "previewMedia";
+
+        container.appendChild(img);
+
+        $("videoQualityArea")
+          .style.display =
+          "none";
+
+      } else {
+
+        const video =
+          document.createElement("video");
+
+        video.src = url;
+
+        video.className =
+          "previewMedia";
+
+        video.controls = true;
+
+        video.playsInline = true;
+
+        container.appendChild(video);
+
+        $("videoQualityArea")
+          .style.display =
+          "block";
+
+      }
+
+      $("previewOverlay")
+        .classList.add("show");
+
+      stopCamera();
+
+      $("cameraOverlay")
+        .classList.remove("show");
+
+    }
+
+
+    $("previewCloseBtn").addEventListener(
+      "click",
+      () => {
+
+        closePreview();
+
+      }
+    );
+
+
+    function closePreview() {
+
+      $("previewOverlay")
+        .classList.remove("show");
+
+      currentPreviewBlob = null;
+
+    }
+
+
+    document
+      .querySelectorAll(".qualityBtn")
+      .forEach(btn => {
+
+        btn.addEventListener(
+          "click",
+          () => {
+
+            document
+              .querySelectorAll(".qualityBtn")
+              .forEach(
+                b =>
+                  b.classList.remove("active")
+              );
+
+            btn.classList.add("active");
+
+            selectedQuality =
+              Number(
+                btn.dataset.quality
+              );
+
+          }
+        );
+
+      });
+
+
+    /* ============================================================
+       POST SNAP
+    ============================================================ */
+
+    $("postSnapBtn").addEventListener(
+      "click",
+      postSnap
+    );
+
+
+    async function postSnap() {
+
+      if (!currentUser) {
+
+        toast("Login required.");
+
+        return;
+      }
+
+      if (!currentPreviewBlob) {
+
+        toast("Media select karo.");
+
+        return;
+      }
+
+      const description =
+        $("descriptionInput")
+          .value
+          .trim();
+
+      const locationName =
+        $("locationNameInput")
+          .value
+          .trim();
+
+      showLoading("Snap upload ho raha hai...");
+
+      try {
+
+        const {
+          data: sessionData,
+          error: sessionError
+        } =
+          await supabaseClient.auth
+            .getSession();
+
+        if (sessionError)
+          throw sessionError;
+
+        const session =
+          sessionData.session;
+
+        if (!session) {
+
+          throw new Error(
+            "Login session expire ho gaya."
+          );
+
+        }
+
+
+        /* GET USER LOCATION */
+
+        const position =
+          await getCurrentPosition();
+
+        const latitude =
+          position.coords.latitude;
+
+        const longitude =
+          position.coords.longitude;
+
+
+        /* FILE */
+
+        const extension =
+          currentPreviewType === "image"
+            ? "jpg"
+            : "webm";
+
+        const fileName =
+          currentUser.id +
+          "/" +
+          Date.now() +
+          "-" +
+          Math.random()
+            .toString(36)
+            .slice(2) +
+          "." +
+          extension;
+
+
+        /* UPLOAD */
+
+        const uploadResponse =
+          await fetch(
+            SUPABASE_URL +
+            "/storage/v1/object/past-snaps/" +
+            fileName,
+            {
+              method: "POST",
+
+              headers: {
+                "Authorization":
+                  "Bearer " +
+                  session.access_token,
+
+                "apikey":
+                  SUPABASE_KEY,
+
+                "Content-Type":
+                  currentPreviewBlob.type ||
+                  (
+                    currentPreviewType ===
+                    "image"
+                      ? "image/jpeg"
+                      : "video/webm"
+                  ),
+
+                "x-upsert":
+                  "false"
+              },
+
+              body:
+                currentPreviewBlob
+            }
+          );
+
+
+        if (!uploadResponse.ok) {
+
+          const uploadText =
+            await uploadResponse.text();
+
+          throw new Error(
+            "Storage upload failed: " +
+            uploadText
+          );
+
+        }
+
+
+        /* PUBLIC URL */
+
+        const imageUrl =
+          SUPABASE_URL +
+          "/storage/v1/object/public/past-snaps/" +
+          fileName;
+
+
+        /* INSERT DATABASE */
+
+        const insertData = {
+
+          latitude,
+
+          longitude,
+
+          image_url:
+            imageUrl,
+
+          media_type:
+            currentPreviewType,
+
+          duration_seconds:
+            currentPreviewType === "video"
+              ? recordedDuration
+              : null,
+
+          width:
+            currentPreviewWidth,
+
+          height:
+            currentPreviewHeight,
+
+          user_id:
+            currentUser.id,
+
+          description:
+            description || null,
+
+          location_name:
+            locationName || null
+
+        };
+
+
+        const {
+          error: insertError
+        } =
+          await supabaseClient
+            .from("snaps")
+            .insert(insertData);
+
+        if (insertError)
+          throw insertError;
+
+
+        toast(
+          "👻 Snap successfully posted!"
+        );
+
+        closePreview();
+
+        $("descriptionInput").value =
+          "";
+
+        $("locationNameInput").value =
+          "";
+
+        await loadSnaps();
+
+        map.setView(
+          [latitude, longitude],
+          17
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast(
+          error.message ||
+          "Snap upload failed."
+        );
+
+      } finally {
+
+        hideLoading();
+
+      }
+
+    }
+
+
+    function getCurrentPosition() {
+
+      return new Promise(
+        (resolve, reject) => {
+
+          if (!navigator.geolocation) {
+
+            reject(
+              new Error(
+                "Location supported nahi hai."
+              )
+            );
+
+            return;
+          }
+
+          navigator.geolocation
+            .getCurrentPosition(
+              resolve,
+              error => {
+
+                reject(
+                  new Error(
+                    "Location permission required."
+                  )
+                );
+
+              },
+              {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 30000
+              }
+            );
+
+        }
+      );
+
+    }
+
+
+    /* ============================================================
+       LOAD SNAPS
+    ============================================================ */
+
+    async function loadSnaps() {
+
+      try {
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient
+            .from("snaps")
+            .select(`
+              id,
+              latitude,
+              longitude,
+              image_url,
+              created_at,
+              media_type,
+              duration_seconds,
+              width,
+              height,
+              user_id,
+              description,
+              location_name
+            `)
+            .order(
+              "created_at",
+              {
+                ascending: false
+              }
+            );
+
+        if (error)
+          throw error;
+
+        allSnaps =
+          data || [];
+
+        await attachProfiles();
+
+        renderClusters();
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast(
+          "Snaps load nahi ho paaye."
+        );
+
+      }
+
+    }
+
+
+    async function attachProfiles() {
+
+      const ids =
+        [
+          ...new Set(
+            allSnaps
+              .map(
+                snap => snap.user_id
+              )
+              .filter(Boolean)
+          )
+        ];
+
+      if (!ids.length)
+        return;
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("profiles")
+          .select(
+            "id,display_name"
+          )
+          .in(
+            "id",
+            ids
+          );
+
+      if (error) {
+
+        console.warn(error);
+
+        return;
+
+      }
+
+      const mapProfiles =
+        {};
+
+      (data || [])
+        .forEach(profile => {
+
+          mapProfiles[
+            profile.id
+          ] = profile;
+
+        });
+
+
+      allSnaps =
+        allSnaps.map(
+          snap => ({
+
+            ...snap,
+
+            profile:
+              mapProfiles[
+                snap.user_id
+              ] || {
+                display_name:
+                  "Unknown user"
+              }
+
+          })
+        );
+
+    }
+
+
+    /* ============================================================
+       50M CLUSTERING
+    ============================================================ */
+
+    function distanceMeters(
+      lat1,
+      lon1,
+      lat2,
+      lon2
+    ) {
+
+      const R = 6371000;
+
+      const p1 =
+        lat1 * Math.PI / 180;
+
+      const p2 =
+        lat2 * Math.PI / 180;
+
+      const dLat =
+        (lat2 - lat1) *
+        Math.PI / 180;
+
+      const dLon =
+        (lon2 - lon1) *
+        Math.PI / 180;
+
+      const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(p1) *
+        Math.cos(p2) *
+        Math.sin(dLon / 2) ** 2;
+
+      const c =
+        2 *
+        Math.atan2(
+          Math.sqrt(a),
+          Math.sqrt(1 - a)
+        );
+
+      return R * c;
+
+    }
+
+
+    function makeClusters(
+      snaps
+    ) {
+
+      const clusters = [];
+
+      snaps.forEach(snap => {
+
+        let found = null;
+
+        for (
+          const cluster of clusters
+        ) {
+
+          const distance =
+            distanceMeters(
+              snap.latitude,
+              snap.longitude,
+              cluster.centerLat,
+              cluster.centerLng
+            );
+
+          if (distance <= 50) {
+
+            found = cluster;
+
+            break;
+
+          }
+
+        }
+
+
+        if (!found) {
+
+          clusters.push({
+
+            centerLat:
+              snap.latitude,
+
+            centerLng:
+              snap.longitude,
+
+            snaps: [snap]
+
+          });
+
+        } else {
+
+          found.snaps.push(
+            snap
+          );
+
+          /* recalculate center */
+
+          found.centerLat =
+            found.snaps.reduce(
+              (sum, item) =>
+                sum + item.latitude,
+              0
+            ) /
+            found.snaps.length;
+
+          found.centerLng =
+            found.snaps.reduce(
+              (sum, item) =>
+                sum + item.longitude,
+              0
+            ) /
+            found.snaps.length;
+
+        }
+
+      });
+
+      return clusters;
+
+    }
+
+
+    function renderClusters() {
+
+      if (!markerLayer)
+        return;
+
+      markerLayer.clearLayers();
+
+      const clusters =
+        makeClusters(allSnaps);
+
+      clusters.forEach(
+        cluster => {
+
+          const count =
+            cluster.snaps.length;
+
+          const icon =
+            L.divIcon({
+
+              className:
+                "ghost-marker",
+
+              html: `
+                <div style="
+                  width:62px;
+                  height:62px;
+                  border-radius:50%;
+                  background:rgba(0,0,0,.86);
+                  border:3px solid white;
+                  display:flex;
+                  align-items:center;
+                  justify-content:center;
+                  flex-direction:column;
+                  color:white;
+                  font-size:13px;
+                  font-weight:800;
+                  box-shadow:0 5px 18px rgba(0,0,0,.4);
+                ">
+                  <div style="font-size:25px;line-height:24px;">
+                    👻
+                  </div>
+                  <div>
+                    ${count}
+                  </div>
+                </div>
+              `,
+
+              iconSize:
+                [62,62],
+
+              iconAnchor:
+                [31,31]
+
+            });
+
+
+          const marker =
+            L.marker(
+              [
+                cluster.centerLat,
+                cluster.centerLng
+              ],
+              {
+                icon
+              }
+            );
+
+
+          marker.on(
+            "click",
+            () => {
+
+              openClusterViewer(
+                cluster.snaps
+              );
+
+            }
+          );
+
+
+          markerLayer.addLayer(
+            marker
+          );
+
+        }
+      );
+
+    }
+
+
+    /* ============================================================
+       FULL SCREEN CLUSTER VIEWER
+    ============================================================ */
+
+    function openClusterViewer(
+      snaps
+    ) {
+
+      if (!snaps || !snaps.length)
+        return;
+
+      currentViewerSnaps =
+        snaps;
+
+      currentViewerIndex = 0;
+
+      buildViewer();
+
+      $("viewer")
+        .classList.add("show");
+
+      document.body.style.overflow =
+        "hidden";
+
+      history.pushState(
+        {
+          pastSnapViewer: true
+        },
+        ""
+      );
+
+    }
+
+
+    function buildViewer() {
+
+      const track =
+        $("viewerTrack");
+
+      track.innerHTML = "";
+
+      currentViewerSnaps
+        .forEach(
+          (snap, index) => {
+
+            const slide =
+              document.createElement(
+                "div"
+              );
+
+            slide.className =
+              "viewerSlide";
+
+            const media =
+              document.createElement(
+                snap.media_type === "video"
+                  ? "video"
+                  : "img"
+              );
+
+            media.className =
+              "viewerMedia";
+
+            media.src =
+              snap.image_url;
+
+            if (
+              snap.media_type === "video"
+            ) {
+
+              media.controls = true;
+
+              media.playsInline = true;
+
+            }
+
+            slide.appendChild(
+              media
+            );
+
+
+            const info =
+              document.createElement(
+                "div"
+              );
+
+            info.className =
+              "viewerInfo";
+
+
+            const displayName =
+              snap.profile?.display_name ||
+              "Unknown user";
+
+            const date =
+              new Date(
+                snap.created_at
+              );
+
+
+            info.innerHTML = `
+
+              <div class="viewerName">
+                👤 ${escapeHtml(displayName)}
+              </div>
+
+              <div class="viewerLocation">
+                📍 ${escapeHtml(
+                  snap.location_name ||
+                  `${Number(snap.latitude).toFixed(5)}, ${Number(snap.longitude).toFixed(5)}`
+                )}
+              </div>
+
+              <div class="viewerDate">
+                🕒 ${formatDate(date)}
+              </div>
+
+              ${
+                snap.description
+                  ? `
+                    <div class="viewerDescription">
+                      ${escapeHtml(
+                        snap.description
+                      )}
+                    </div>
+                  `
+                  : ""
+              }
+
+              <div class="viewerActions">
+
+                <button
+                  class="viewerActionBtn likeBtn"
+                  data-id="${snap.id}"
+                >
+                  ❤️ <span class="likeCount">0</span>
+                </button>
+
+                <button
+                  class="viewerActionBtn commentBtn"
+                  data-id="${snap.id}"
+                >
+                  💬 <span class="commentCount">0</span>
+                </button>
+
+                <span
+                  style="
+                    color:#bbb;
+                    font-size:12px;
+                  "
+                  class="viewCount"
+                >
+                  👁️ 0
+                </span>
+
+              </div>
+
+            `;
+
+
+            slide.appendChild(
+              info
+            );
+
+            track.appendChild(
+              slide
+            );
+
+          }
+        );
+
+
+      document
+        .querySelectorAll(
+          ".likeBtn"
+        )
+        .forEach(btn => {
+
+          btn.addEventListener(
+            "click",
+            () => {
+
+              likeSnap(
+                Number(
+                  btn.dataset.id
+                )
+              );
+
+            }
+          );
+
+        });
+
+
+      document
+        .querySelectorAll(
+          ".commentBtn"
+        )
+        .forEach(btn => {
+
+          btn.addEventListener(
+            "click",
+            () => {
+
+              openComments(
+                Number(
+                  btn.dataset.id
+                )
+              );
+
+            }
+          );
+
+        });
+
+
+      updateViewerCounter();
+
+      loadViewerStats();
+
+      setTimeout(() => {
+
+        const first =
+          track.children[0];
+
+        if (first) {
+
+          first.scrollIntoView({
+            behavior: "instant",
+            block: "nearest",
+            inline: "start"
+          });
+
+        }
+
+      }, 30);
+
+    }
+
+
+    /* ============================================================
+       VIEWER SWIPE
+    ============================================================ */
+
+    $("viewerTrack")
+      .addEventListener(
+        "scroll",
+        () => {
+
+          const width =
+            $("viewerTrack").clientWidth;
+
+          if (!width) return;
+
+          const index =
+            Math.round(
+              $("viewerTrack")
+                .scrollLeft /
+              width
+            );
+
+          if (
+            index !==
+            currentViewerIndex
+          ) {
+
+            currentViewerIndex =
+              Math.max(
+                0,
+                Math.min(
+                  index,
+                  currentViewerSnaps.length - 1
+                )
+              );
+
+            updateViewerCounter();
+
+          }
+
+        }
+      );
+
+
+    function updateViewerCounter() {
+
+      $("viewerCounter").textContent =
+        `${currentViewerIndex + 1} / ${currentViewerSnaps.length}`;
+
+    }
+
+
+    /* ============================================================
+       CLOSE VIEWER
+    ============================================================ */
+
+    $("viewerCloseBtn").addEventListener(
+      "click",
+      closeViewer
+    );
+
+
+    function closeViewer(
+      skipHistory = false
+    ) {
+
+      $("viewer")
+        .classList.remove("show");
+
+      $("commentsPanel")
+        .classList.remove("show");
+
+      document.body.style.overflow =
+        "";
+
+      currentViewerSnaps = [];
+
+      currentViewerIndex = 0;
+
+      if (
+        !skipHistory &&
+        history.state?.pastSnapViewer
+      ) {
+
+        history.back();
+
+      }
+
+    }
+
+
+    /* ============================================================
+       BROWSER BACK
+    ============================================================ */
+
+    window.addEventListener(
+      "popstate",
+      () => {
+
+        if (
+          $("viewer")
+            .classList.contains("show")
+        ) {
+
+          closeViewer(true);
+
+          return;
+
+        }
+
+        if (
+          $("previewOverlay")
+            .classList.contains("show")
+        ) {
+
+          $("exitOverlay")
+            .classList.add("show");
+
+        }
+
+      }
+    );
+
+
+    /* ============================================================
+       EXIT BUTTONS
+    ============================================================ */
+
+    $("editExitBtn").addEventListener(
+      "click",
+      () => {
+
+        $("exitOverlay")
+          .classList.remove("show");
+
+      }
+    );
+
+
+    $("cancelExitBtn").addEventListener(
+      "click",
+      () => {
+
+        $("exitOverlay")
+          .classList.remove("show");
+
+      }
+    );
+
+
+    /* ============================================================
+       STATS
+    ============================================================ */
+
+    async function loadViewerStats() {
+
+      for (
+        const snap of currentViewerSnaps
+      ) {
+
+        try {
+
+          const [
+            likesResult,
+            commentsResult,
+            viewsResult
+          ] =
+            await Promise.all([
+
+              supabaseClient
+                .from("snap_likes")
+                .select(
+                  "id",
+                  {
+                    count:
+                      "exact",
+                    head: true
+                  }
+                )
+                .eq(
+                  "snap_id",
+                  snap.id
+                ),
+
+              supabaseClient
+                .from("snap_comments")
+                .select(
+                  "id",
+                  {
+                    count:
+                      "exact",
+                    head: true
+                  }
+                )
+                .eq(
+                  "snap_id",
+                  snap.id
+                ),
+
+              supabaseClient
+                .from("snap_views")
+                .select(
+                  "id",
+                  {
+                    count:
+                      "exact",
+                    head: true
+                  }
+                )
+                .eq(
+                  "snap_id",
+                  snap.id
+                )
+
+            ]);
+
+
+          const slide =
+            [
+              ...document
+                .querySelectorAll(
+                  ".viewerSlide"
+                )
+            ]
+            [
+              currentViewerSnaps
+                .indexOf(snap)
+            ];
+
+
+          if (!slide)
+            continue;
+
+
+          const likeCount =
+            slide.querySelector(
+              ".likeCount"
+            );
+
+          const commentCount =
+            slide.querySelector(
+              ".commentCount"
+            );
+
+          const viewCount =
+            slide.querySelector(
+              ".viewCount"
+            );
+
+
+          if (likeCount) {
+
+            likeCount.textContent =
+              likesResult.count || 0;
+
+          }
+
+          if (commentCount) {
+
+            commentCount.textContent =
+              commentsResult.count || 0;
+
+          }
+
+          if (viewCount) {
+
+            viewCount.textContent =
+              "👁️ " +
+              (viewsResult.count || 0);
+
+          }
+
+
+          if (
+            currentUser
+          ) {
+
+            await recordView(
+              snap.id
+            );
+
+          }
+
+        } catch (error) {
+
+          console.warn(error);
+
+        }
+
+      }
+
+    }
+
+
+    /* ============================================================
+       RECORD VIEW
+    ============================================================ */
+
+    async function recordView(
+      snapId
+    ) {
+
+      if (!currentUser)
+        return;
+
+      try {
+
+        await supabaseClient
+          .from("snap_views")
+          .upsert(
+            {
+              snap_id:
+                snapId,
+
+              user_id:
+                currentUser.id
+
+            },
+            {
+              onConflict:
+                "snap_id,user_id",
+              ignoreDuplicates:
+                true
+            }
+          );
+
+      } catch (error) {
+
+        console.warn(error);
+
+      }
+
+    }
+
+
+    /* ============================================================
+       LIKE
+    ============================================================ */
+
+    async function likeSnap(
+      snapId
+    ) {
+
+      if (!currentUser) {
+
+        toast("Like karne ke liye login karo.");
+
+        openAuth("login");
+
+        return;
+      }
+
+      try {
+
+        const {
+          data
+        } =
+          await supabaseClient
+            .from("snap_likes")
+            .select("id")
+            .eq(
+              "snap_id",
+              snapId
+            )
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+            .maybeSingle();
+
+
+        if (data) {
+
+          await supabaseClient
+            .from("snap_likes")
+            .delete()
+            .eq(
+              "id",
+              data.id
+            );
+
+          toast("Like removed.");
+
+        } else {
+
+          const {
+            error
+          } =
+            await supabaseClient
+              .from("snap_likes")
+              .insert({
+
+                snap_id:
+                  snapId,
+
+                user_id:
+                  currentUser.id
+
+              });
+
+          if (error)
+            throw error;
+
+          toast("❤️ Liked!");
+
+        }
+
+
+        refreshCurrentSnapStats(
+          snapId
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast(
+          "Like update failed."
+        );
+
+      }
+
+    }
+
+
+    async function refreshCurrentSnapStats(
+      snapId
+    ) {
+
+      const {
+        count
+      } =
+        await supabaseClient
+          .from("snap_likes")
+          .select(
+            "id",
+            {
+              count: "exact",
+              head: true
+            }
+          )
+          .eq(
+            "snap_id",
+            snapId
+          );
+
+
+      document
+        .querySelectorAll(
+          `.likeBtn[data-id="${snapId}"] .likeCount`
+        )
+        .forEach(
+          el =>
+            el.textContent =
+              count || 0
+        );
+
+    }
+
+
+    /* ============================================================
+       COMMENTS
+    ============================================================ */
+
+    async function openComments(
+      snapId
+    ) {
+
+      if (!currentUser) {
+
+        toast(
+          "Comment karne ke liye login karo."
+        );
+
+        openAuth("login");
+
+        return;
+
+      }
+
+      currentCommentSnapId =
+        snapId;
+
+      $("commentsPanel")
+        .classList.add("show");
+
+      await loadComments(
+        snapId
+      );
+
+    }
+
+
+    $("commentsCloseBtn")
+      .addEventListener(
+        "click",
+        () => {
+
+          $("commentsPanel")
+            .classList.remove("show");
+
+        }
+      );
+
+
+    async function loadComments(
+      snapId
+    ) {
+
+      const list =
+        $("commentsList");
+
+      list.innerHTML =
+        "<div style='color:#aaa'>Loading...</div>";
+
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+          .from("snap_comments")
+          .select(`
+            id,
+            comment_text,
+            created_at,
+            user_id
+          `)
+          .eq(
+            "snap_id",
+            snapId
+          )
+          .order(
+            "created_at",
+            {
+              ascending: true
+            }
+          );
+
+
+      if (error) {
+
+        console.error(error);
+
+        list.innerHTML =
+          "<div style='color:#aaa'>Comments load failed.</div>";
+
+        return;
+
+      }
+
+
+      if (!data?.length) {
+
+        list.innerHTML =
+          "<div style='color:#aaa'>No comments yet.</div>";
+
+        return;
+
+      }
+
+
+      const userIds =
+        [
+          ...new Set(
+            data.map(
+              c => c.user_id
+            )
+          )
+        ];
+
+
+      const {
+        data: profiles
+      } =
+        await supabaseClient
+          .from("profiles")
+          .select(
+            "id,display_name"
+          )
+          .in(
+            "id",
+            userIds
+          );
+
+
+      const profileMap =
+        {};
+
+      (profiles || [])
+        .forEach(
+          p =>
+            profileMap[p.id] =
+              p.display_name
+        );
+
+
+      list.innerHTML =
+        data
+          .map(
+            comment => `
+
+              <div class="comment">
+
+                <div class="commentName">
+                  ${escapeHtml(
+                    profileMap[
+                      comment.user_id
+                    ] ||
+                    "User"
+                  )}
+                </div>
+
+                <div class="commentText">
+                  ${escapeHtml(
+                    comment.comment_text
+                  )}
+                </div>
+
+              </div>
+
+            `
+          )
+          .join("");
+
+    }
+
+
+    $("commentSendBtn")
+      .addEventListener(
+        "click",
+        sendComment
+      );
+
+
+    $("commentInput")
+      .addEventListener(
+        "keydown",
+        e => {
+
+          if (
+            e.key === "Enter" &&
+            !e.shiftKey
+          ) {
+
+            e.preventDefault();
+
+            sendComment();
+
+          }
+
+        }
+      );
+
+
+    async function sendComment() {
+
+      if (!currentUser) {
+
+        toast("Login required.");
+
+        return;
+      }
+
+      if (!currentCommentSnapId)
+        return;
+
+      const input =
+        $("commentInput");
+
+      const text =
+        input.value.trim();
+
+      if (!text) return;
+
+      const words =
+        text
+          .split(/\s+/)
+          .filter(Boolean);
+
+      if (words.length > 250) {
+
+        toast(
+          "Comment max 250 words ka hai."
+        );
+
+        return;
+
+      }
+
+      if (text.length > 2000) {
+
+        toast(
+          "Comment bahut long hai."
+        );
+
+        return;
+
+      }
+
+
+      try {
+
+        const {
+          error
+        } =
+          await supabaseClient
+            .from("snap_comments")
+            .insert({
+
+              snap_id:
+                currentCommentSnapId,
+
+              user_id:
+                currentUser.id,
+
+              comment_text:
+                text
+
+            });
+
+        if (error)
+          throw error;
 
         input.value = "";
 
         await loadComments(
-          snap.id,
-          comments
+          currentCommentSnapId
         );
 
-        showToast(
-          "Comment added."
+        refreshCommentCount(
+          currentCommentSnapId
         );
+
+      } catch (error) {
+
+        console.error(error);
+
+        toast(
+          "Comment send failed."
+        );
+
       }
-    );
 
-
-    content.appendChild(input);
-    content.appendChild(send);
-  }
-
-
-  openModal("detailModal");
-
-  await registerView(snap.id);
-}
-
-
-/* =========================================================
-   LIKES
-========================================================= */
-
-async function refreshLikeButton(
-  snapId,
-  btn
-){
-
-  if(!currentUser){
-
-    btn.textContent =
-      "❤️ Like";
-
-    return;
-  }
-
-  const {data,error} =
-    await supabaseClient
-    .from("snap_likes")
-    .select("id")
-    .eq("snap_id",snapId)
-    .eq("user_id",currentUser.id)
-    .maybeSingle();
-
-  if(error) return;
-
-  if(data){
-
-    btn.classList.add("liked");
-    btn.textContent =
-      "❤️ Liked";
-
-  }else{
-
-    btn.classList.remove("liked");
-    btn.textContent =
-      "❤️ Like";
-  }
-}
-
-
-async function toggleLike(
-  snapId,
-  btn
-){
-
-  if(!currentUser){
-
-    showToast("Login required.");
-    return;
-  }
-
-  const {data} =
-    await supabaseClient
-    .from("snap_likes")
-    .select("id")
-    .eq("snap_id",snapId)
-    .eq("user_id",currentUser.id)
-    .maybeSingle();
-
-  if(data){
-
-    await supabaseClient
-    .from("snap_likes")
-    .delete()
-    .eq("id",data.id);
-
-  }else{
-
-    await supabaseClient
-    .from("snap_likes")
-    .insert({
-      snap_id:snapId,
-      user_id:currentUser.id
-    });
-  }
-
-  await refreshLikeButton(
-    snapId,
-    btn
-  );
-}
-
-
-/* =========================================================
-   COMMENTS
-========================================================= */
-
-async function loadComments(
-  snapId,
-  container
-){
-
-  const {data,error} =
-    await supabaseClient
-    .from("snap_comments")
-    .select("*")
-    .eq("snap_id",snapId)
-    .order("created_at",{
-      ascending:true
-    });
-
-  if(error){
-
-    console.error(error);
-    return;
-  }
-
-  const ids =
-    [...new Set(
-      (data || [])
-      .map(c=>c.user_id)
-    )];
-
-  let profiles = {};
-
-  if(ids.length){
-
-    const {data:pdata} =
-      await supabaseClient
-      .from("profiles")
-      .select("id,display_name")
-      .in("id",ids);
-
-    (pdata || []).forEach(
-      p=>{
-        profiles[p.id] =
-          p.display_name;
-      }
-    );
-  }
-
-  container.innerHTML =
-    "<b>Comments</b>";
-
-  (data || []).forEach(
-    comment=>{
-
-      const div =
-        document.createElement("div");
-
-      div.className =
-        "comment";
-
-      div.innerHTML = `
-        <div class="commentName">
-          ${escapeHtml(
-            profiles[comment.user_id] ||
-            "User"
-          )}
-        </div>
-
-        <div class="commentText">
-          ${escapeHtml(
-            comment.comment_text
-          )}
-        </div>
-      `;
-
-      container.appendChild(div);
-    }
-  );
-}
-
-
-/* =========================================================
-   VIEW
-========================================================= */
-
-async function registerView(
-  snapId
-){
-
-  if(!currentUser) return;
-
-  const {error} =
-    await supabaseClient
-    .from("snap_views")
-    .insert({
-      snap_id:snapId,
-      user_id:currentUser.id
-    });
-
-  /*
-    Duplicate view is expected because
-    snap_id + user_id is unique.
-  */
-
-  if(error){
-    console.log("View:",error.message);
-  }
-}
-
-
-/* =========================================================
-   NOTIFICATIONS
-========================================================= */
-
-$("notificationBtn").addEventListener(
-  "click",
-  async ()=>{
-
-    closeModal("authModal");
-
-    await loadNotifications();
-
-    openModal("notificationsModal");
-  }
-);
-
-
-async function loadNotifications(){
-
-  if(!currentUser) return;
-
-  const {data,error} =
-    await supabaseClient
-    .from("notifications")
-    .select("*")
-    .eq(
-      "recipient_id",
-      currentUser.id
-    )
-    .order("created_at",{
-      ascending:false
-    })
-    .limit(100);
-
-  if(error){
-
-    console.error(error);
-    return;
-  }
-
-  const container =
-    $("notificationsList");
-
-  container.innerHTML = "";
-
-  if(!data?.length){
-
-    container.innerHTML =
-      `<div style="color:#999">
-        No notifications.
-      </div>`;
-
-    return;
-  }
-
-  data.forEach(notification=>{
-
-    const div =
-      document.createElement("div");
-
-    div.className =
-      "comment";
-
-    div.textContent =
-      notification.message;
-
-    container.appendChild(div);
-  });
-
-  await supabaseClient
-  .from("notifications")
-  .update({
-    is_read:true
-  })
-  .eq(
-    "recipient_id",
-    currentUser.id
-  )
-  .eq(
-    "is_read",
-    false
-  );
-
-  updateNotificationDot();
-}
-
-
-async function updateNotificationDot(){
-
-  if(!currentUser){
-
-    $("notificationDot")
-      .style.display =
-      "none";
-
-    return;
-  }
-
-  const {count,error} =
-    await supabaseClient
-    .from("notifications")
-    .select(
-      "id",
-      {
-        count:"exact",
-        head:true
-      }
-    )
-    .eq(
-      "recipient_id",
-      currentUser.id
-    )
-    .eq(
-      "is_read",
-      false
-    );
-
-  if(error) return;
-
-  $("notificationDot")
-    .style.display =
-    count > 0
-    ? "block"
-    : "none";
-}
-
-
-/* =========================================================
-   GALLERY
-========================================================= */
-
-$("galleryBtn").addEventListener(
-  "click",
-  async ()=>{
-
-    await loadSnaps();
-
-    if(!allSnaps.length){
-
-      showToast(
-        "Abhi koi snap nahi hai."
-      );
-
-      return;
     }
 
-    const userLocation =
-      await getLocationPromise();
 
-    if(!userLocation){
+    async function refreshCommentCount(
+      snapId
+    ) {
 
-      showToast(
-        "Gallery ke liye location allow karo."
-      );
-
-      return;
-    }
-
-    const nearby =
-      allSnaps
-      .map(snap=>{
-
-        const distance =
-          distanceMeters(
-            userLocation.lat,
-            userLocation.lon,
-            Number(snap.latitude),
-            Number(snap.longitude)
+      const {
+        count
+      } =
+        await supabaseClient
+          .from("snap_comments")
+          .select(
+            "id",
+            {
+              count: "exact",
+              head: true
+            }
+          )
+          .eq(
+            "snap_id",
+            snapId
           );
 
-        return {
-          snap,
-          distance
-        };
-      })
-      .sort(
-        (a,b)=>a.distance-b.distance
-      )
-      .slice(0,100);
 
-    const list =
-      nearby.map(
-        x=>x.snap
-      );
+      document
+        .querySelectorAll(
+          `.commentBtn[data-id="${snapId}"] .commentCount`
+        )
+        .forEach(
+          el =>
+            el.textContent =
+              count || 0
+        );
 
-    openCluster(list);
-  }
-);
+    }
 
 
-/* =========================================================
-   LOCATION PROMISE
-========================================================= */
+    /* ============================================================
+       NOTIFICATIONS
+    ============================================================ */
 
-function getLocationPromise(){
+    async function checkNotifications() {
 
-  return new Promise(
-    resolve=>{
-
-      if(!navigator.geolocation){
-
-        resolve(null);
+      if (!currentUser)
         return;
+
+      try {
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient
+            .from("notifications")
+            .select(
+              "id,message,created_at"
+            )
+            .eq(
+              "recipient_id",
+              currentUser.id
+            )
+            .eq(
+              "is_read",
+              false
+            )
+            .order(
+              "created_at",
+              {
+                ascending: false
+              }
+            )
+            .limit(5);
+
+        if (error)
+          throw error;
+
+        if (data?.length) {
+
+          toast(
+            "🔔 " +
+            data[0].message
+          );
+
+          const ids =
+            data.map(
+              n => n.id
+            );
+
+          await supabaseClient
+            .from("notifications")
+            .update({
+              is_read: true
+            })
+            .in(
+              "id",
+              ids
+            );
+
+        }
+
+      } catch (error) {
+
+        console.warn(error);
+
       }
 
-      navigator.geolocation.getCurrentPosition(
+    }
 
-        position=>{
 
-          resolve({
-            lat:
-              position.coords.latitude,
+    /* ============================================================
+       ESCAPE HTML
+    ============================================================ */
 
-            lon:
-              position.coords.longitude
-          });
+    function escapeHtml(
+      value
+    ) {
 
-        },
+      return String(
+        value ?? ""
+      )
+        .replaceAll(
+          "&",
+          "&amp;"
+        )
+        .replaceAll(
+          "<",
+          "&lt;"
+        )
+        .replaceAll(
+          ">",
+          "&gt;"
+        )
+        .replaceAll(
+          '"',
+          "&quot;"
+        )
+        .replaceAll(
+          "'",
+          "&#039;"
+        );
 
-        ()=>{
-          resolve(null);
-        },
+    }
 
+
+    /* ============================================================
+       DATE FORMAT
+    ============================================================ */
+
+    function formatDate(
+      date
+    ) {
+
+      return date.toLocaleString(
+        "en-IN",
         {
-          enableHighAccuracy:true,
-          timeout:10000
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
         }
       );
+
     }
-  );
-}
 
 
-/* =========================================================
-   ESCAPE
-========================================================= */
+    /* ============================================================
+       SUPABASE AUTH LISTENER
+    ============================================================ */
 
-document.addEventListener(
-  "keydown",
-  e=>{
+    supabaseClient.auth
+      .onAuthStateChange(
+        async (
+          event,
+          session
+        ) => {
 
-    if(e.key !== "Escape") return;
+          currentUser =
+            session
+              ? session.user
+              : null;
 
-    const visible =
-      [
-        "authModal",
-        "cameraModal",
-        "postModal",
-        "clusterModal",
-        "detailModal",
-        "notificationsModal"
-      ]
-      .find(
-        id=>$(id).classList.contains("show")
+          if (currentUser) {
+
+            setTimeout(
+              async () => {
+
+                await loadProfile();
+
+                updateAuthUI();
+
+              },
+              0
+            );
+
+          } else {
+
+            currentProfile = null;
+
+            updateAuthUI();
+
+          }
+
+        }
       );
 
-    if(visible){
 
-      closeModal(visible);
-    }
-  }
-);
+    /* ============================================================
+       CLOSE USER PANEL WHEN MAP CLICKED
+    ============================================================ */
 
+    map?.on(
+      "click",
+      () => {
 
-/* =========================================================
-   BROWSER / ANDROID BACK
-========================================================= */
+        $("userPanel")
+          .classList.remove("show");
 
-window.addEventListener(
-  "popstate",
-  ()=>{
-
-    backHistoryActive = false;
-
-    const detailOpen =
-      $("detailModal")
-      .classList.contains("show");
-
-    const clusterOpen =
-      $("clusterModal")
-      .classList.contains("show");
-
-    const postOpen =
-      $("postModal")
-      .classList.contains("show");
-
-    const cameraOpen =
-      $("cameraModal")
-      .classList.contains("show");
-
-    if(cameraOpen){
-
-      closeModal("cameraModal");
-      return;
-    }
-
-    if(postOpen){
-
-      showExitConfirmation();
-      return;
-    }
-
-    if(detailOpen){
-
-      closeModal("detailModal");
-      return;
-    }
-
-    if(clusterOpen){
-
-      closeModal("clusterModal");
-      return;
-    }
-
-    /*
-      Browser may not allow a webpage to
-      completely control closing the tab.
-
-      For Android/browser navigation we
-      show our confirmation screen when
-      possible.
-    */
-
-    showExitConfirmation();
-  }
-);
-
-
-/* =========================================================
-   EXIT CONFIRMATION
-========================================================= */
-
-function showExitConfirmation(){
-
-  $("exitOverlay").style.display =
-    "flex";
-}
-
-
-function hideExitConfirmation(){
-
-  $("exitOverlay").style.display =
-    "none";
-}
-
-
-$("exitCancelBtn").addEventListener(
-  "click",
-  ()=>{
-    hideExitConfirmation();
-
-    history.pushState(
-      {pastSnapModal:true},
-      "",
-      location.href
+      }
     );
 
-    backHistoryActive = true;
-  }
-);
 
+    /* ============================================================
+       INITIALIZATION
+    ============================================================ */
 
-$("exitEditBtn").addEventListener(
-  "click",
-  ()=>{
+    async function init() {
 
-    hideExitConfirmation();
+      initMap();
 
-    if(
-      $("postModal")
-      .classList.contains("show")
-    ){
-      $("postDescription")
-        .focus();
+      await refreshAuth();
 
-      return;
+      await loadSnaps();
+
+      if (currentUser) {
+
+        await checkNotifications();
+
+      }
+
     }
 
-    showToast(
-      "Aap website par wapas aa gaye."
-    );
 
-    history.pushState(
-      {pastSnapModal:true},
-      "",
-      location.href
-    );
-
-    backHistoryActive = true;
-  }
-);
+    init();
 
 
-$("exitConfirmBtn").addEventListener(
-  "click",
-  ()=>{
-
-    hideExitConfirmation();
-
-    /*
-      Browser security normally prevents
-      JavaScript from force-closing a normal tab.
-      Going back is allowed when history permits.
-    */
-
-    if(history.length > 1){
-
-      history.back();
-
-    }else{
-
-      showToast(
-        "Browser security ke karan tab automatically close nahi ho sakta."
-      );
-    }
-  }
-);
-
-
-/* =========================================================
-   HTML ESCAPE
-========================================================= */
-
-function escapeHtml(value){
-
-  return String(value ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-}
-
-
-/* =========================================================
-   INITIAL LOAD
-========================================================= */
-
-(async function(){
-
-  try{
-
-    await loadUser();
-
-    initMap();
-
-    await updateNotificationDot();
+    /* ============================================================
+       PERIODIC REFRESH
+    ============================================================ */
 
     setInterval(
-      async ()=>{
+      async () => {
+
         await loadSnaps();
-        await updateNotificationDot();
+
+        if (currentUser) {
+
+          await checkNotifications();
+
+        }
+
       },
       30000
     );
 
-  }catch(err){
-
-    console.error(err);
-
-    showToast(
-      "Website load karte waqt error."
-    );
-  }
-
-})();
-
-</script>
+  </script>
 
 </body>
 </html>
