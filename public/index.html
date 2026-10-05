@@ -48,7 +48,6 @@ body{
 #topbar{
   position:absolute;
   z-index:1000;
-
   top:10px;
   left:10px;
   right:10px;
@@ -62,8 +61,7 @@ body{
   background:rgba(255,255,255,.95);
   border-radius:16px;
 
-  box-shadow:
-    0 4px 18px rgba(0,0,0,.25);
+  box-shadow:0 4px 18px rgba(0,0,0,.25);
 }
 
 #searchInput{
@@ -71,20 +69,17 @@ body{
   min-width:0;
 
   height:42px;
-
   padding:0 13px;
 
   border:1px solid #ddd;
   border-radius:12px;
 
   outline:none;
-
   font-size:14px;
 }
 
 #searchBtn{
   height:42px;
-
   padding:0 13px;
 
   border:0;
@@ -104,9 +99,7 @@ body{
 #map{
   position:absolute;
   inset:0;
-
   z-index:1;
-
   background:#ddd;
 }
 
@@ -133,8 +126,7 @@ body{
   font-weight:bold;
   font-size:14px;
 
-  box-shadow:
-    0 4px 18px rgba(0,0,0,.25);
+  box-shadow:0 4px 18px rgba(0,0,0,.25);
 }
 
 
@@ -194,11 +186,23 @@ body{
   display:block;
 
   /*
-   * IMPORTANT:
-   * No scaleX(-1).
-   * Front camera bhi normal direction me rahega.
+   * Default: back camera normal
    */
   transform:none;
+}
+
+
+/*
+ * IMPORTANT:
+ *
+ * Front/selfie camera preview is mirrored.
+ * This affects ONLY live preview.
+ *
+ * Captured photo is NOT mirrored.
+ */
+
+#cameraVideo.selfie-preview{
+  transform:scaleX(-1);
 }
 
 #cameraCanvas{
@@ -470,8 +474,7 @@ body{
 
   background:white;
 
-  box-shadow:
-    0 3px 12px rgba(0,0,0,.35);
+  box-shadow:0 3px 12px rgba(0,0,0,.35);
 
   font-size:22px;
 
@@ -498,9 +501,7 @@ body{
 <div id="app">
 
 
-  <!-- =================================================
-       SEARCH
-  ================================================== -->
+  <!-- SEARCH -->
 
   <div id="topbar">
 
@@ -517,32 +518,24 @@ body{
   </div>
 
 
-  <!-- =================================================
-       MAP
-  ================================================== -->
+  <!-- MAP -->
 
   <div id="map"></div>
 
 
-  <!-- =================================================
-       LOCATION
-  ================================================== -->
+  <!-- LOCATION -->
 
   <button id="locationBtn">
     📍 My Location
   </button>
 
 
-  <!-- =================================================
-       STATUS
-  ================================================== -->
+  <!-- STATUS -->
 
   <div id="status"></div>
 
 
-  <!-- =================================================
-       CAMERA
-  ================================================== -->
+  <!-- CAMERA -->
 
   <div id="cameraModal">
 
@@ -569,7 +562,8 @@ body{
     </div>
 
 
-    <!-- EXISTING FILTERS -->
+    <!-- EXISTING 10 FILTERS -->
+
     <div id="filterBar">
 
       <button
@@ -654,9 +648,7 @@ body{
   </div>
 
 
-  <!-- =================================================
-       PREVIEW
-  ================================================== -->
+  <!-- PREVIEW -->
 
   <div id="previewModal">
 
@@ -677,9 +669,7 @@ body{
   </div>
 
 
-  <!-- =================================================
-       GALLERY
-  ================================================== -->
+  <!-- GALLERY -->
 
   <div id="galleryModal">
 
@@ -1410,11 +1400,6 @@ function getUserLocation(){
       );
 
 
-      /*
-       * Location ke baad
-       * camera open.
-       */
-
       openCamera();
 
     },
@@ -1500,10 +1485,6 @@ async function openCamera(){
 
           video:{
 
-            /*
-             * Exact current camera.
-             */
-
             facingMode:
               currentFacingMode,
 
@@ -1526,15 +1507,31 @@ async function openCamera(){
       cameraStream;
 
 
-    /*
-     * IMPORTANT:
-     *
-     * Yaha koi scaleX(-1)
-     * nahi hai.
-     *
-     * Isliye left = left
-     * right = right.
-     */
+    /* ==============================================
+       FRONT CAMERA MIRROR FIX
+
+       user = front/selfie
+       environment = back camera
+
+       Only live preview is mirrored.
+       Captured image is NOT mirrored.
+    ============================================== */
+
+    if(
+      currentFacingMode === "user"
+    ){
+
+      video.classList.add(
+        "selfie-preview"
+      );
+
+    }else{
+
+      video.classList.remove(
+        "selfie-preview"
+      );
+
+    }
 
 
     await new Promise(
@@ -1565,8 +1562,7 @@ async function openCamera(){
 
 
     /*
-     * Current selected filter
-     * front/back dono par.
+     * Current selected filter.
      */
 
     applyCameraFilter();
@@ -1627,6 +1623,10 @@ function closeCamera(){
   video.srcObject =
     null;
 
+  video.classList.remove(
+    "selfie-preview"
+  );
+
 
   document
     .getElementById(
@@ -1668,11 +1668,6 @@ document
 
           : "user";
 
-
-      /*
-       * Selected filter remains
-       * same after camera switch.
-       */
 
       await openCamera();
 
@@ -1799,12 +1794,6 @@ function applyCameraFilter(){
     );
 
 
-  /*
-   * Important:
-   * !important CSS ko override
-   * karne ke liye setProperty.
-   */
-
   video.style.setProperty(
     "--camera-filter",
     filter
@@ -1832,11 +1821,6 @@ document
         "click",
         function(){
 
-          /*
-           * Remove active
-           * from all.
-           */
-
           document
             .querySelectorAll(
               ".filterBtn"
@@ -1852,10 +1836,6 @@ document
             );
 
 
-          /*
-           * Select clicked.
-           */
-
           button.classList.add(
             "active"
           );
@@ -1865,16 +1845,8 @@ document
             button.dataset.filter;
 
 
-          /*
-           * Apply immediately.
-           */
-
           applyCameraFilter();
 
-
-          /*
-           * Selected filter center.
-           */
 
           button.scrollIntoView({
 
@@ -1956,8 +1928,7 @@ function capturePhoto(){
 
 
   /*
-   * Same selected filter
-   * captured photo par.
+   * Same filter captured photo par.
    */
 
   ctx.filter =
@@ -1969,9 +1940,10 @@ function capturePhoto(){
   /*
    * IMPORTANT:
    *
-   * Video par CSS mirror nahi hai,
-   * isliye saved photo bhi
-   * correct direction me rahegi.
+   * Yaha mirror nahi hai.
+   *
+   * Isliye saved photo normal
+   * direction mein rahegi.
    */
 
   ctx.drawImage(
@@ -1997,10 +1969,6 @@ function capturePhoto(){
     .src =
       imageData;
 
-
-  /*
-   * Preview open.
-   */
 
   document
     .getElementById(
@@ -2037,7 +2005,7 @@ document
           "previewModal"
         )
         .style.display =
-          "none";
+        "none";
 
 
       openCamera();
@@ -2255,7 +2223,7 @@ async function postSnap(){
         "previewModal"
       )
       .style.display =
-        "none";
+      "none";
 
 
     showStatus(
@@ -2413,11 +2381,6 @@ async function searchLocation(){
       "📍 Location found."
     );
 
-
-    /*
-     * Visible area snaps
-     * automatically load honge.
-     */
 
     setTimeout(
       loadSnapsForVisibleArea,
@@ -2667,7 +2630,7 @@ document
           "galleryModal"
         )
         .style.display =
-          "none";
+        "none";
 
     }
   );
@@ -2679,7 +2642,6 @@ document
 
 let touchStartX =
   0;
-
 
 let touchEndX =
   0;
@@ -2771,7 +2733,7 @@ document.addEventListener(
           "galleryModal"
         )
         .style.display =
-          "none";
+        "none";
 
 
       document
@@ -2779,7 +2741,7 @@ document.addEventListener(
           "previewModal"
         )
         .style.display =
-          "none";
+        "none";
 
     }
 
@@ -2797,10 +2759,6 @@ document.addEventListener(
 
     initMap();
 
-    /*
-     * Map ready hone ke baad
-     * visible snaps load.
-     */
 
     setTimeout(
       function(){
