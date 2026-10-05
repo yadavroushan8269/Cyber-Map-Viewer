@@ -8,144 +8,563 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;background:#111;color:#fff;overflow:hidden}
-#app{width:100%;height:100%;position:relative}
-#map{position:absolute;inset:0;z-index:1}
+*{
+  box-sizing:border-box;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  font-family:Arial,sans-serif;
+  background:#111;
+  color:#fff;
+  overflow:hidden;
+}
+
+#app{
+  width:100%;
+  height:100%;
+  position:relative;
+}
+
+#map{
+  position:absolute;
+  inset:0;
+  z-index:1;
+}
+
+/* =========================
+   TOP BAR
+========================= */
 
 #topBar{
-  position:absolute;z-index:1000;top:12px;left:10px;right:10px;
-  display:flex;gap:7px;background:rgba(0,0,0,.72);padding:8px;border-radius:15px;
+  position:absolute;
+  z-index:1000;
+  top:12px;
+  left:10px;
+  right:10px;
+  display:flex;
+  gap:7px;
+  background:rgba(0,0,0,.72);
+  padding:8px;
+  border-radius:15px;
 }
-#searchInput{min-width:0;flex:1;border:0;outline:0;border-radius:10px;padding:11px;font-size:15px}
-#searchBtn,#postOpenBtn,#locBtn{
-  border:0;border-radius:10px;padding:10px 12px;background:#fff;color:#111;font-weight:700
+
+#searchInput{
+  min-width:0;
+  flex:1;
+  border:0;
+  outline:0;
+  border-radius:10px;
+  padding:11px;
+  font-size:15px;
 }
-#locBtn{position:absolute;z-index:1000;bottom:20px;left:50%;transform:translateX(-50%);white-space:nowrap}
+
+#searchBtn,
+#locBtn{
+  border:0;
+  border-radius:10px;
+  padding:10px 12px;
+  background:#fff;
+  color:#111;
+  font-weight:700;
+}
+
+#locBtn{
+  position:absolute;
+  z-index:1000;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  white-space:nowrap;
+}
+
+/* =========================
+   STATUS
+========================= */
 
 #status{
-  position:absolute;z-index:2000;top:75px;left:50%;transform:translateX(-50%);
-  background:rgba(0,0,0,.8);padding:8px 13px;border-radius:20px;font-size:13px;
-  display:none;max-width:90%;text-align:center
+  position:absolute;
+  z-index:2000;
+  top:75px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,.8);
+  padding:8px 13px;
+  border-radius:20px;
+  font-size:13px;
+  display:none;
+  max-width:90%;
+  text-align:center;
 }
+
+/* =========================
+   MODALS
+========================= */
 
 .modal{
-  display:none;position:absolute;inset:0;z-index:3000;background:#000;flex-direction:column
+  display:none;
+  position:absolute;
+  inset:0;
+  z-index:3000;
+  background:#000;
+  flex-direction:column;
 }
-#cameraVideo{width:100%;height:100%;object-fit:cover;background:#000;display:block}
-#cameraVideo.mirror-preview{transform:scaleX(-1)}
+
+/* =========================
+   CAMERA
+========================= */
+
+#cameraVideo{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  background:#000;
+  display:block;
+}
+
+#cameraVideo.mirror-preview{
+  transform:scaleX(-1);
+}
+
 #cameraTop{
-  position:absolute;top:12px;left:0;right:0;display:flex;justify-content:space-between;padding:10px;z-index:10
+  position:absolute;
+  top:12px;
+  left:0;
+  right:0;
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+  z-index:10;
 }
-#cameraTop button,.roundBtn{
-  border:0;background:rgba(0,0,0,.6);color:#fff;border-radius:50%;width:46px;height:46px;font-size:21px
+
+#cameraTop button,
+.roundBtn{
+  border:0;
+  background:rgba(0,0,0,.6);
+  color:#fff;
+  border-radius:50%;
+  width:46px;
+  height:46px;
+  font-size:21px;
 }
-#cameraCanvas{display:none}
+
+#cameraCanvas{
+  display:none;
+}
+
+/* =========================
+   MODE
+========================= */
 
 #modeBar{
-  position:absolute;bottom:152px;left:50%;transform:translateX(-50%);
-  z-index:10;display:flex;background:rgba(0,0,0,.65);border-radius:20px;padding:4px
+  position:absolute;
+  bottom:152px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:10;
+  display:flex;
+  background:rgba(0,0,0,.65);
+  border-radius:20px;
+  padding:4px;
 }
+
 #modeBar button{
-  border:0;background:transparent;color:#aaa;padding:8px 14px;border-radius:17px;font-weight:700
+  border:0;
+  background:transparent;
+  color:#aaa;
+  padding:8px 14px;
+  border-radius:17px;
+  font-weight:700;
 }
-#modeBar button.active{background:#fff;color:#111}
+
+#modeBar button.active{
+  background:#fff;
+  color:#111;
+}
+
+/* =========================
+   ZOOM
+========================= */
 
 #zoomBox{
-  position:absolute;right:10px;top:50%;transform:translateY(-50%);
-  z-index:10;background:rgba(0,0,0,.6);border-radius:18px;padding:8px 5px;
-  display:flex;flex-direction:column;align-items:center;gap:6px
+  position:absolute;
+  right:10px;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:10;
+  background:rgba(0,0,0,.6);
+  border-radius:18px;
+  padding:8px 5px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
 }
-#zoomRange{writing-mode:vertical-lr;direction:rtl;width:30px;height:170px}
-#zoomValue{font-size:12px;font-weight:700}
+
+#zoomRange{
+  writing-mode:vertical-lr;
+  direction:rtl;
+  width:30px;
+  height:170px;
+}
+
+#zoomValue{
+  font-size:12px;
+  font-weight:700;
+}
+
+/* =========================
+   FILTERS
+========================= */
 
 #filterBar{
-  position:absolute;bottom:91px;left:0;right:0;z-index:10;
-  display:flex;gap:7px;overflow-x:auto;padding:7px 10px;scrollbar-width:none
+  position:absolute;
+  bottom:91px;
+  left:0;
+  right:0;
+  z-index:10;
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  padding:7px 10px;
+  scrollbar-width:none;
 }
-#filterBar::-webkit-scrollbar{display:none}
+
+#filterBar::-webkit-scrollbar{
+  display:none;
+}
+
 .filterBtn{
-  flex:0 0 auto;border:0;background:rgba(0,0,0,.62);color:#fff;
-  padding:8px 12px;border-radius:17px;font-size:12px
+  flex:0 0 auto;
+  border:0;
+  background:rgba(0,0,0,.62);
+  color:#fff;
+  padding:8px 12px;
+  border-radius:17px;
+  font-size:12px;
 }
-.filterBtn.active{background:#fff;color:#111}
+
+.filterBtn.active{
+  background:#fff;
+  color:#111;
+}
+
+/* =========================
+   CAMERA BOTTOM
+========================= */
 
 #cameraBottom{
-  position:absolute;bottom:15px;left:0;right:0;z-index:10;
-  display:flex;justify-content:center;align-items:center;gap:28px
+  position:absolute;
+  bottom:15px;
+  left:0;
+  right:0;
+  z-index:10;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:28px;
 }
+
 #mirrorBtn{
-  border:0;background:rgba(0,0,0,.65);color:#fff;border-radius:20px;padding:10px 14px
+  border:0;
+  background:rgba(0,0,0,.65);
+  color:#fff;
+  border-radius:20px;
+  padding:10px 14px;
 }
-#mirrorBtn.active{background:#fff;color:#111}
+
+#mirrorBtn.active{
+  background:#fff;
+  color:#111;
+}
+
 #captureBtn{
-  width:70px;height:70px;border-radius:50%;border:6px solid #fff;background:#fff
+  width:70px;
+  height:70px;
+  border-radius:50%;
+  border:6px solid #fff;
+  background:#fff;
 }
-#captureBtn.recording{background:#e33;border-radius:18px}
-#recordTimer{position:absolute;bottom:83px;left:50%;transform:translateX(-50%);z-index:11;
-  background:rgba(0,0,0,.7);padding:6px 12px;border-radius:16px;display:none;font-weight:700}
 
-#previewModal{background:#111}
-#previewMediaBox{flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
-#previewImage,#previewVideo{max-width:100%;max-height:100%;object-fit:contain}
-#previewInfo{padding:10px;text-align:center;font-size:13px;background:#181818}
-#previewBottom{display:flex;gap:10px;padding:12px}
+#captureBtn.recording{
+  background:#e33;
+  border-radius:18px;
+}
+
+#recordTimer{
+  position:absolute;
+  bottom:83px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:11;
+  background:rgba(0,0,0,.7);
+  padding:6px 12px;
+  border-radius:16px;
+  display:none;
+  font-weight:700;
+}
+
+/* =========================
+   PREVIEW
+========================= */
+
+#previewModal{
+  background:#111;
+}
+
+#previewMediaBox{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:0;
+}
+
+#previewImage,
+#previewVideo{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+
+#previewInfo{
+  padding:10px;
+  text-align:center;
+  font-size:13px;
+  background:#181818;
+}
+
+#previewBottom{
+  display:flex;
+  gap:10px;
+  padding:12px;
+}
+
 #previewBottom button{
-  flex:1;border:0;border-radius:12px;padding:13px;font-size:16px;font-weight:700
+  flex:1;
+  border:0;
+  border-radius:12px;
+  padding:13px;
+  font-size:16px;
+  font-weight:700;
 }
-#cancelPreviewBtn{background:#333;color:#fff}
-#postBtn{background:#fff;color:#111}
-#postBtn:disabled{opacity:.45}
 
-#qualityBox{display:flex;gap:6px;justify-content:center;padding:8px;background:#181818}
-.qualityBtn{border:0;background:#333;color:#fff;border-radius:9px;padding:7px 12px}
-.qualityBtn.active{background:#fff;color:#111}
+#cancelPreviewBtn{
+  background:#333;
+  color:#fff;
+}
+
+#postBtn{
+  background:#fff;
+  color:#111;
+}
+
+#postBtn:disabled{
+  opacity:.45;
+}
+
+/* =========================
+   QUALITY
+========================= */
+
+#qualityBox{
+  display:flex;
+  gap:6px;
+  justify-content:center;
+  padding:8px;
+  background:#181818;
+}
+
+.qualityBtn{
+  border:0;
+  background:#333;
+  color:#fff;
+  border-radius:9px;
+  padding:7px 12px;
+}
+
+.qualityBtn.active{
+  background:#fff;
+  color:#111;
+}
+
+/* =========================
+   UPLOAD
+========================= */
 
 #uploadBox{
-  display:none;position:absolute;z-index:5000;left:50%;top:50%;transform:translate(-50%,-50%);
-  width:min(90%,360px);background:#181818;border-radius:16px;padding:20px;box-shadow:0 10px 50px #000
+  display:none;
+  position:absolute;
+  z-index:5000;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(90%,360px);
+  background:#181818;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 10px 50px #000;
 }
-#uploadTitle{font-size:18px;font-weight:700}
-#uploadText{margin-top:8px;color:#bbb;font-size:13px}
-#uploadTrack{height:10px;background:#333;border-radius:10px;overflow:hidden;margin-top:18px}
-#uploadBar{height:100%;width:0;background:#fff}
-#uploadPercent{text-align:center;margin-top:8px;font-weight:700}
 
-#galleryTop{display:flex;justify-content:space-between;align-items:center;padding:12px}
-#galleryImageBox{flex:1;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;touch-action:pan-y}
-#galleryDetails{position:absolute;left:10px;right:10px;bottom:10px;z-index:5;background:rgba(0,0,0,.72);padding:10px;border-radius:12px;font-size:12px;line-height:1.5}
-#galleryImage,#galleryVideo{max-width:100%;max-height:100%;object-fit:contain}
-.galleryArrow{display:none}
-#prevBtn{left:8px}#nextBtn{right:8px}
-#closeGalleryBtn{border:0;background:#333;color:#fff;border-radius:50%;width:42px;height:42px;font-size:20px}
+#uploadTitle{
+  font-size:18px;
+  font-weight:700;
+}
 
-.leaflet-control-attribution{font-size:9px}
+#uploadText{
+  margin-top:8px;
+  color:#bbb;
+  font-size:13px;
+}
+
+#uploadTrack{
+  height:10px;
+  background:#333;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:18px;
+}
+
+#uploadBar{
+  height:100%;
+  width:0;
+  background:#fff;
+}
+
+#uploadPercent{
+  text-align:center;
+  margin-top:8px;
+  font-weight:700;
+}
+
+/* =========================
+   GALLERY / VIEWER
+========================= */
+
+#galleryTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px;
+}
+
+#galleryImageBox{
+  flex:1;
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:0;
+  touch-action:pan-y;
+}
+
+#galleryDetails{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:10px;
+  z-index:5;
+  background:rgba(0,0,0,.72);
+  padding:10px;
+  border-radius:12px;
+  font-size:12px;
+  line-height:1.5;
+}
+
+#galleryImage,
+#galleryVideo{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+
+.galleryArrow{
+  display:none;
+}
+
+#closeGalleryBtn{
+  border:0;
+  background:#333;
+  color:#fff;
+  border-radius:50%;
+  width:42px;
+  height:42px;
+  font-size:20px;
+}
+
+/* =========================
+   GHOST MARKER
+========================= */
+
+.leaflet-control-attribution{
+  font-size:9px;
+}
+
 .markerGhost{
-  width:40px;height:40px;border-radius:50%;background:#fff;color:#111;
-  display:flex;align-items:center;justify-content:center;font-size:20px;border:3px solid #111;
-  position:relative
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:#fff;
+  color:#111;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  border:3px solid #111;
+  position:relative;
 }
-.markerGhost span{position:absolute;right:-8px;top:-8px;background:#111;color:#fff;border-radius:10px;
-  min-width:18px;text-align:center;font-size:10px;padding:2px}
+
+.markerGhost span{
+  position:absolute;
+  right:-8px;
+  top:-8px;
+  background:#111;
+  color:#fff;
+  border-radius:10px;
+  min-width:18px;
+  text-align:center;
+  font-size:10px;
+  padding:2px;
+}
 </style>
 </head>
 
 <body>
+
 <div id="app">
+
   <div id="map"></div>
 
+  <!-- ONLY SEARCH -->
   <div id="topBar">
-    <input id="searchInput" type="text" placeholder="🔍 Search any location...">
+    <input
+      id="searchInput"
+      type="text"
+      placeholder="🔍 Search any location..."
+    >
     <button id="searchBtn">Search</button>
-    <button id="postOpenBtn">Post Snap</button>
   </div>
 
+  <!-- ONLY WAY TO START CAMERA -->
   <button id="locBtn">📍 My Location</button>
+
   <div id="status"></div>
 
-  <!-- CAMERA -->
+  <!-- =========================
+       CAMERA
+  ========================= -->
+
   <div id="cameraModal" class="modal">
-    <video id="cameraVideo" autoplay playsinline muted></video>
+
+    <video
+      id="cameraVideo"
+      autoplay
+      playsinline
+      muted
+    ></video>
+
     <canvas id="cameraCanvas"></canvas>
 
     <div id="cameraTop">
@@ -155,883 +574,2897 @@ html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif;backgroun
 
     <div id="zoomBox">
       <div id="zoomValue">1×</div>
-      <input id="zoomRange" type="range" min="0.5" max="20" step="0.1" value="1">
+
+      <input
+        id="zoomRange"
+        type="range"
+        min="0.5"
+        max="20"
+        step="0.1"
+        value="1"
+      >
     </div>
 
     <div id="modeBar">
-      <button id="photoModeBtn" class="active">📷 Photo</button>
-      <button id="videoModeBtn">🎥 Video</button>
+
+      <button
+        id="photoModeBtn"
+        class="active"
+      >
+        📷 Photo
+      </button>
+
+      <button id="videoModeBtn">
+        🎥 Video
+      </button>
+
     </div>
 
     <div id="filterBar">
-      <button class="filterBtn active" data-filter="none">Normal</button>
-      <button class="filterBtn" data-filter="vintage">Vintage</button>
-      <button class="filterBtn" data-filter="bw">B&W</button>
-      <button class="filterBtn" data-filter="warm">Warm</button>
-      <button class="filterBtn" data-filter="cool">Cool</button>
-      <button class="filterBtn" data-filter="glow">Glow</button>
-      <button class="filterBtn" data-filter="night">Night</button>
-      <button class="filterBtn" data-filter="pop">Color Pop</button>
-      <button class="filterBtn" data-filter="dream">Dream</button>
-      <button class="filterBtn" data-filter="sunset">Sunset</button>
+
+      <button class="filterBtn active" data-filter="none">
+        Normal
+      </button>
+
+      <button class="filterBtn" data-filter="vintage">
+        Vintage
+      </button>
+
+      <button class="filterBtn" data-filter="bw">
+        B&W
+      </button>
+
+      <button class="filterBtn" data-filter="warm">
+        Warm
+      </button>
+
+      <button class="filterBtn" data-filter="cool">
+        Cool
+      </button>
+
+      <button class="filterBtn" data-filter="glow">
+        Glow
+      </button>
+
+      <button class="filterBtn" data-filter="night">
+        Night
+      </button>
+
+      <button class="filterBtn" data-filter="pop">
+        Color Pop
+      </button>
+
+      <button class="filterBtn" data-filter="dream">
+        Dream
+      </button>
+
+      <button class="filterBtn" data-filter="sunset">
+        Sunset
+      </button>
+
     </div>
 
-    <div id="recordTimer">00:00</div>
+    <div id="recordTimer">
+      00:00
+    </div>
 
     <div id="cameraBottom">
-      <button id="mirrorBtn">🪞 Mirror</button>
+
+      <button id="mirrorBtn">
+        🪞 Mirror
+      </button>
+
       <button id="captureBtn"></button>
+
     </div>
+
   </div>
 
-  <!-- PREVIEW -->
+  <!-- =========================
+       PREVIEW
+  ========================= -->
+
   <div id="previewModal" class="modal">
+
     <div id="previewMediaBox">
-      <img id="previewImage" style="display:none">
-      <video id="previewVideo" style="display:none" controls playsinline></video>
+
+      <img
+        id="previewImage"
+        style="display:none"
+      >
+
+      <video
+        id="previewVideo"
+        style="display:none"
+        controls
+        playsinline
+      ></video>
+
     </div>
 
     <div id="qualityBox">
-      <button class="qualityBtn active" data-quality="480">480p</button>
-      <button class="qualityBtn" data-quality="720">720p</button>
-      <button class="qualityBtn" data-quality="1080">1080p</button>
+
+      <button
+        class="qualityBtn active"
+        data-quality="480"
+      >
+        480p
+      </button>
+
+      <button
+        class="qualityBtn"
+        data-quality="720"
+      >
+        720p
+      </button>
+
+      <button
+        class="qualityBtn"
+        data-quality="1080"
+      >
+        1080p
+      </button>
+
     </div>
 
-    <div id="previewInfo">Ready</div>
+    <div id="previewInfo">
+      Ready
+    </div>
 
     <div id="previewBottom">
-      <button id="cancelPreviewBtn">Retake</button>
-      <button id="postBtn">📍 Post Snap</button>
+
+      <button id="cancelPreviewBtn">
+        Retake
+      </button>
+
+      <button id="postBtn">
+        📍 Post Snap
+      </button>
+
     </div>
+
   </div>
 
-  <!-- UPLOAD -->
+  <!-- =========================
+       UPLOAD
+  ========================= -->
+
   <div id="uploadBox">
-    <div id="uploadTitle">📤 Uploading Snap</div>
-    <div id="uploadText">Please wait...</div>
-    <div id="uploadTrack"><div id="uploadBar"></div></div>
-    <div id="uploadPercent">0%</div>
+
+    <div id="uploadTitle">
+      📤 Uploading Snap
+    </div>
+
+    <div id="uploadText">
+      Please wait...
+    </div>
+
+    <div id="uploadTrack">
+      <div id="uploadBar"></div>
+    </div>
+
+    <div id="uploadPercent">
+      0%
+    </div>
+
   </div>
 
-  <!-- GALLERY -->
+  <!-- =========================
+       FULL SCREEN VIEWER
+  ========================= -->
+
   <div id="galleryModal" class="modal">
+
     <div id="galleryTop">
-      <span id="galleryCounter">1 / 1</span>
-      <button id="closeGalleryBtn">✕</button>
+
+      <span id="galleryCounter">
+        1 / 1
+      </span>
+
+      <button id="closeGalleryBtn">
+        ✕
+      </button>
+
     </div>
+
     <div id="galleryImageBox">
+
       <div id="galleryDetails"></div>
-      <img id="galleryImage" style="display:none">
-      <video id="galleryVideo" style="display:none" controls playsinline></video>
-      <button id="prevBtn" class="galleryArrow">‹</button>
-      <button id="nextBtn" class="galleryArrow">›</button>
+
+      <img
+        id="galleryImage"
+        style="display:none"
+      >
+
+      <video
+        id="galleryVideo"
+        style="display:none"
+        controls
+        playsinline
+      ></video>
+
     </div>
+
   </div>
+
 </div>
 
+
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
+
 /* =========================
    SUPABASE
 ========================= */
-const SUPABASE_URL = "https://zzxhymydsvwpjbyaslde.supabase.co";
-const SUPABASE_KEY = "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
-const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const SUPABASE_URL =
+  "https://zzxhymydsvwpjbyaslde.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
+
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
 
 /* =========================
    GLOBALS
 ========================= */
+
 let map;
+
 let cameraStream = null;
+
 let currentFacing = "environment";
+
 let mirrorEnabled = false;
+
 let currentFilter = "none";
+
 let currentMode = "photo";
+
 let currentZoom = 1;
 
 let recorder = null;
+
 let recordedChunks = [];
+
 let recordingStartedAt = 0;
+
 let recordingTimer = null;
 
 let capturedBlob = null;
+
 let capturedImageData = null;
+
 let capturedVideoUrl = null;
+
 let capturedType = null;
+
 let selectedQuality = 480;
 
 let isPostingSnap = false;
+
 let currentPosition = null;
+
 let capturedLatitude = null;
+
 let capturedLongitude = null;
+
 let userLocationMarker = null;
 
 let galleryItems = [];
+
 let galleryIndex = 0;
+
 let markerGroups = {};
 
-const cameraModal = document.getElementById("cameraModal");
-const previewModal = document.getElementById("previewModal");
-const galleryModal = document.getElementById("galleryModal");
-const cameraVideo = document.getElementById("cameraVideo");
-const cameraCanvas = document.getElementById("cameraCanvas");
+
+const cameraModal =
+  document.getElementById("cameraModal");
+
+const previewModal =
+  document.getElementById("previewModal");
+
+const galleryModal =
+  document.getElementById("galleryModal");
+
+const cameraVideo =
+  document.getElementById("cameraVideo");
+
+const cameraCanvas =
+  document.getElementById("cameraCanvas");
+
 
 /* =========================
    STATUS
 ========================= */
-function showStatus(msg, ms=2200){
-  const el = document.getElementById("status");
+
+function showStatus(msg,ms=2200){
+
+  const el =
+    document.getElementById("status");
+
   el.textContent = msg;
+
   el.style.display = "block";
+
   clearTimeout(showStatus.t);
-  showStatus.t = setTimeout(()=>el.style.display="none",ms);
+
+  showStatus.t =
+    setTimeout(
+      ()=>el.style.display="none",
+      ms
+    );
 }
+
 
 /* =========================
    MAP
 ========================= */
-map = L.map("map", {
-  zoomControl:true,
-  attributionControl:true
-}).setView([20.5937,78.9629],5);
 
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-  maxZoom:20,
-  attribution:"© OpenStreetMap contributors"
-}).addTo(map);
+map =
+  L.map("map",{
+    zoomControl:true,
+    attributionControl:true
+  })
+  .setView(
+    [20.5937,78.9629],
+    5
+  );
+
+
+L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  {
+    maxZoom:20,
+    attribution:
+      "© OpenStreetMap contributors"
+  }
+).addTo(map);
+
+
+/* IMPORTANT:
+   No map click handler.
+   Touching map will NEVER open camera.
+*/
+
+
+/* =========================
+   DISTANCE
+========================= */
 
 function distanceMeters(a,b){
-  const R=6371000;
-  const p1=a.lat*Math.PI/180,p2=b.lat*Math.PI/180;
-  const dp=(b.lat-a.lat)*Math.PI/180;
-  const dl=(b.lng-a.lng)*Math.PI/180;
-  const x=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
-  return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+
+  const R = 6371000;
+
+  const p1 =
+    a.lat * Math.PI / 180;
+
+  const p2 =
+    b.lat * Math.PI / 180;
+
+  const dp =
+    (b.lat-a.lat) *
+    Math.PI / 180;
+
+  const dl =
+    (b.lng-a.lng) *
+    Math.PI / 180;
+
+  const x =
+    Math.sin(dp/2)**2 +
+    Math.cos(p1) *
+    Math.cos(p2) *
+    Math.sin(dl/2)**2;
+
+  return (
+    2 *
+    R *
+    Math.atan2(
+      Math.sqrt(x),
+      Math.sqrt(1-x)
+    )
+  );
 }
+
+
+/* =========================
+   GHOST ICON
+========================= */
 
 function makeGhostIcon(count){
+
   return L.divIcon({
+
     className:"",
-    html:'<div class="markerGhost">👻<span>'+count+'</span></div>',
+
+    html:
+      '<div class="markerGhost">' +
+      '👻' +
+      '<span>' +
+      count +
+      '</span>' +
+      '</div>',
+
     iconSize:[40,40],
+
     iconAnchor:[20,20]
+
   });
 }
+
+
+/* =========================
+   CLUSTER SNAPS
+========================= */
 
 function renderSnaps(rows){
-  Object.values(markerGroups).forEach(m=>map.removeLayer(m));
-  markerGroups={};
 
-  const groups=[];
+  Object.values(markerGroups)
+    .forEach(marker=>{
+      map.removeLayer(marker);
+    });
+
+  markerGroups = {};
+
+  const groups = [];
+
   rows.forEach(row=>{
-    let group=groups.find(g=>distanceMeters(
-      {lat:g.latitude,lng:g.longitude},
-      {lat:row.latitude,lng:row.longitude}
-    ) < 50);
+
+    let group =
+      groups.find(g =>
+        distanceMeters(
+          {
+            lat:g.latitude,
+            lng:g.longitude
+          },
+          {
+            lat:Number(row.latitude),
+            lng:Number(row.longitude)
+          }
+        ) < 50
+      );
+
     if(!group){
-      group={latitude:row.latitude,longitude:row.longitude,items:[]};
+
+      group = {
+
+        latitude:
+          Number(row.latitude),
+
+        longitude:
+          Number(row.longitude),
+
+        items:[]
+
+      };
+
       groups.push(group);
+
     }
+
     group.items.push(row);
+
   });
+
 
   groups.forEach((g,i)=>{
-    const marker=L.marker([g.latitude,g.longitude],{icon:makeGhostIcon(g.items.length)}).addTo(map);
-    marker.on("click",()=>openGallery(g.items));
-    markerGroups[i]=marker;
+
+    const marker =
+      L.marker(
+        [
+          g.latitude,
+          g.longitude
+        ],
+        {
+          icon:
+            makeGhostIcon(
+              g.items.length
+            )
+        }
+      ).addTo(map);
+
+
+    marker.on(
+      "click",
+      ()=>{
+        openGallery(
+          g.items
+        );
+      }
+    );
+
+
+    markerGroups[i] =
+      marker;
+
   });
+
 }
+
+
+/* =========================
+   LOAD SNAPS
+========================= */
 
 async function loadSnaps(){
-  const {data,error}=await supabaseClient
-    .from("snaps")
-    .select("*")
-    .order("created_at",{ascending:false});
+
+  const {data,error} =
+    await supabaseClient
+      .from("snaps")
+      .select("*")
+      .order(
+        "created_at",
+        {
+          ascending:false
+        }
+      );
+
 
   if(error){
+
     console.error(error);
-    showStatus("Snaps load nahi ho paaye.");
+
+    showStatus(
+      "Snaps load nahi ho paaye."
+    );
+
     return;
   }
-  renderSnaps(data || []);
+
+
+  renderSnaps(
+    data || []
+  );
+
 }
 
+
+/* =========================
+   SEARCH
+========================= */
+
 async function searchPlace(){
-  const q=document.getElementById("searchInput").value.trim();
+
+  const q =
+    document
+      .getElementById("searchInput")
+      .value
+      .trim();
+
   if(!q)return;
 
-  showStatus("Location search ho rahi hai...");
-  try{
-    const url="https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&limit=8&accept-language=en&q="+
-      encodeURIComponent(q+", India");
 
-    const res=await fetch(url,{headers:{"Accept":"application/json"}});
-    const data=await res.json();
+  showStatus(
+    "Location search ho rahi hai..."
+  );
+
+
+  try{
+
+    const url =
+      "https://nominatim.openstreetmap.org/search" +
+      "?format=jsonv2" +
+      "&addressdetails=1" +
+      "&limit=8" +
+      "&accept-language=en" +
+      "&q=" +
+      encodeURIComponent(
+        q + ", India"
+      );
+
+
+    const res =
+      await fetch(
+        url,
+        {
+          headers:{
+            "Accept":
+              "application/json"
+          }
+        }
+      );
+
+
+    const data =
+      await res.json();
+
 
     if(!data.length){
-      showStatus("Location nahi mili.");
+
+      showStatus(
+        "Location nahi mili."
+      );
+
       return;
     }
 
-    const p=data[0];
-    const lat=Number(p.lat),lon=Number(p.lon);
-    map.setView([lat,lon],15);
-    showStatus(p.display_name || "Location found");
+
+    const p =
+      data[0];
+
+
+    const lat =
+      Number(p.lat);
+
+    const lon =
+      Number(p.lon);
+
+
+    map.setView(
+      [lat,lon],
+      15
+    );
+
+
+    showStatus(
+      p.display_name ||
+      "Location found"
+    );
+
   }catch(e){
+
     console.error(e);
-    showStatus("Search failed.");
+
+    showStatus(
+      "Search failed."
+    );
+
   }
+
 }
 
-document.getElementById("searchBtn").onclick=searchPlace;
-document.getElementById("searchInput").addEventListener("keydown",e=>{
-  if(e.key==="Enter")searchPlace();
-});
+
+document
+  .getElementById("searchBtn")
+  .onclick =
+    searchPlace;
+
+
+document
+  .getElementById("searchInput")
+  .addEventListener(
+    "keydown",
+    e=>{
+      if(e.key==="Enter"){
+        searchPlace();
+      }
+    }
+  );
+
 
 /* =========================
-   LOCATION
+   GET LOCATION
+   ONLY THIS OPENS CAMERA
 ========================= */
-function getMyLocation(){
+
+async function getMyLocationAndOpenCamera(){
+
   if(!navigator.geolocation){
-    showStatus("Browser location support nahi karta.");
+
+    showStatus(
+      "Browser location support nahi karta."
+    );
+
     return;
   }
 
-  showStatus("Location mil rahi hai...");
-  navigator.geolocation.getCurrentPosition(pos=>{
-    currentPosition={
-      latitude:pos.coords.latitude,
-      longitude:pos.coords.longitude
+
+  showStatus(
+    "Live location mil rahi hai..."
+  );
+
+
+  try{
+
+    const pos =
+      await getFreshPosition();
+
+
+    currentPosition = {
+
+      latitude:
+        pos.coords.latitude,
+
+      longitude:
+        pos.coords.longitude
+
     };
 
-    map.setView([currentPosition.latitude,currentPosition.longitude],17);
 
-    if(userLocationMarker)map.removeLayer(userLocationMarker);
+    const lat =
+      currentPosition.latitude;
 
-    userLocationMarker=L.circleMarker(
-      [currentPosition.latitude,currentPosition.longitude],
-      {radius:8}
-    ).addTo(map);
+    const lng =
+      currentPosition.longitude;
 
-    showStatus("📍 Current location set.");
-  },err=>{
-    console.error(err);
-    showStatus("Location permission allow karo.");
-  },{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+
+    map.setView(
+      [lat,lng],
+      17
+    );
+
+
+    if(userLocationMarker){
+
+      map.removeLayer(
+        userLocationMarker
+      );
+
+    }
+
+
+    userLocationMarker =
+      L.circleMarker(
+        [lat,lng],
+        {
+          radius:8
+        }
+      ).addTo(map);
+
+
+    /* THIS IS THE CAPTURE LOCATION */
+
+    capturedLatitude =
+      lat;
+
+    capturedLongitude =
+      lng;
+
+
+    /* NOW OPEN CAMERA */
+
+    openCameraWithHistory();
+
+
+  }catch(e){
+
+    console.error(e);
+
+    showStatus(
+      "Location permission allow karo.",
+      3000
+    );
+
+  }
+
 }
-document.getElementById("locBtn").onclick=getMyLocation;
+
+
+/* ONLY BUTTON EVENT */
+
+document
+  .getElementById("locBtn")
+  .onclick =
+    getMyLocationAndOpenCamera;
+
 
 /* =========================
-   LIVE GPS LOCK
+   FRESH GPS
 ========================= */
+
 function getFreshPosition(){
-  return new Promise((resolve,reject)=>{
-    if(!navigator.geolocation){ reject(new Error("Geolocation unsupported")); return; }
-    navigator.geolocation.getCurrentPosition(resolve,reject,{
-      enableHighAccuracy:true,
-      timeout:15000,
-      maximumAge:0
-    });
-  });
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      if(!navigator.geolocation){
+
+        reject(
+          new Error(
+            "Geolocation unsupported"
+          )
+        );
+
+        return;
+      }
+
+
+      navigator.geolocation.getCurrentPosition(
+        resolve,
+        reject,
+        {
+          enableHighAccuracy:true,
+          timeout:15000,
+          maximumAge:0
+        }
+      );
+
+    }
+  );
+
 }
+
+
+/* =========================
+   LOCK CAPTURE LOCATION
+========================= */
 
 async function lockCaptureLocation(){
+
   try{
-    const pos=await getFreshPosition();
-    capturedLatitude=pos.coords.latitude;
-    capturedLongitude=pos.coords.longitude;
-    currentPosition={latitude:capturedLatitude,longitude:capturedLongitude};
+
+    const pos =
+      await getFreshPosition();
+
+
+    capturedLatitude =
+      pos.coords.latitude;
+
+    capturedLongitude =
+      pos.coords.longitude;
+
+
+    currentPosition = {
+
+      latitude:
+        capturedLatitude,
+
+      longitude:
+        capturedLongitude
+
+    };
+
+
     return true;
+
+
   }catch(e){
+
     console.error(e);
-    showStatus("Live location required hai. Location permission allow karo.",3000);
+
+    showStatus(
+      "Live location required hai.",
+      3000
+    );
+
     return false;
+
   }
+
 }
+
 
 /* =========================
-   CAMERA
+   FILTER
 ========================= */
+
 function filterToCss(filter){
+
   switch(filter){
-    case "vintage":return "sepia(.7) contrast(1.1) saturate(.8)";
-    case "bw":return "grayscale(1)";
-    case "warm":return "sepia(.25) saturate(1.35)";
-    case "cool":return "saturate(.9) hue-rotate(15deg)";
-    case "glow":return "brightness(1.1) saturate(1.2)";
-    case "night":return "brightness(.65) contrast(1.25) saturate(1.2)";
-    case "pop":return "saturate(1.8) contrast(1.15)";
-    case "dream":return "brightness(1.08) contrast(.9) saturate(1.2)";
-    case "sunset":return "sepia(.25) saturate(1.5) hue-rotate(-10deg)";
-    default:return "none";
+
+    case "vintage":
+      return "sepia(.7) contrast(1.1) saturate(.8)";
+
+    case "bw":
+      return "grayscale(1)";
+
+    case "warm":
+      return "sepia(.25) saturate(1.35)";
+
+    case "cool":
+      return "saturate(.9) hue-rotate(15deg)";
+
+    case "glow":
+      return "brightness(1.1) saturate(1.2)";
+
+    case "night":
+      return "brightness(.65) contrast(1.25) saturate(1.2)";
+
+    case "pop":
+      return "saturate(1.8) contrast(1.15)";
+
+    case "dream":
+      return "brightness(1.08) contrast(.9) saturate(1.2)";
+
+    case "sunset":
+      return "sepia(.25) saturate(1.5) hue-rotate(-10deg)";
+
+    default:
+      return "none";
+
   }
+
 }
+
+
+/* =========================
+   MIRROR
+========================= */
 
 function updateMirrorPreview(){
+
   if(mirrorEnabled){
-    cameraVideo.classList.add("mirror-preview");
-    document.getElementById("mirrorBtn").classList.add("active");
-    document.getElementById("mirrorBtn").textContent="🪞 Mirror ON";
+
+    cameraVideo
+      .classList
+      .add("mirror-preview");
+
+    document
+      .getElementById("mirrorBtn")
+      .classList
+      .add("active");
+
+    document
+      .getElementById("mirrorBtn")
+      .textContent =
+        "🪞 Mirror ON";
+
   }else{
-    cameraVideo.classList.remove("mirror-preview");
-    document.getElementById("mirrorBtn").classList.remove("active");
-    document.getElementById("mirrorBtn").textContent="🪞 Mirror";
+
+    cameraVideo
+      .classList
+      .remove("mirror-preview");
+
+    document
+      .getElementById("mirrorBtn")
+      .classList
+      .remove("active");
+
+    document
+      .getElementById("mirrorBtn")
+      .textContent =
+        "🪞 Mirror";
+
   }
+
 }
+
 
 function updateLiveFilter(){
-  cameraVideo.style.filter=filterToCss(currentFilter);
+
+  cameraVideo.style.filter =
+    filterToCss(
+      currentFilter
+    );
+
 }
+
+
+/* =========================
+   OPEN CAMERA
+========================= */
 
 async function openCamera(){
+
   stopCameraStream();
+
 
   try{
-    cameraStream=await navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:{ideal:currentFacing},
-        width:{ideal:1920},
-        height:{ideal:1080}
-      },
-      audio:false
-    });
 
-    cameraVideo.srcObject=cameraStream;
-    cameraModal.style.display="flex";
+    cameraStream =
+      await navigator.mediaDevices
+        .getUserMedia({
+
+          video:{
+
+            facingMode:{
+              ideal:
+                currentFacing
+            },
+
+            width:{
+              ideal:1920
+            },
+
+            height:{
+              ideal:1080
+            }
+
+          },
+
+          audio:false
+
+        });
+
+
+    cameraVideo.srcObject =
+      cameraStream;
+
+
+    cameraModal.style.display =
+      "flex";
+
+
     updateMirrorPreview();
+
     updateLiveFilter();
+
     applyHardwareZoom();
+
+
   }catch(e){
+
     console.error(e);
-    showStatus("Camera permission nahi mili ya camera unavailable hai.");
+
+    showStatus(
+      "Camera permission nahi mili.",
+      3000
+    );
+
   }
+
 }
+
+
+/* =========================
+   STOP CAMERA
+========================= */
 
 function stopCameraStream(){
+
   if(cameraStream){
-    cameraStream.getTracks().forEach(t=>t.stop());
-    cameraStream=null;
+
+    cameraStream
+      .getTracks()
+      .forEach(
+        track=>track.stop()
+      );
+
+    cameraStream = null;
+
   }
-  cameraVideo.srcObject=null;
+
+  cameraVideo.srcObject = null;
+
 }
+
+
+/* =========================
+   CLOSE CAMERA
+========================= */
 
 function closeCamera(){
-  if(recorder && recorder.state==="recording") stopRecording();
+
+  if(
+    recorder &&
+    recorder.state === "recording"
+  ){
+
+    stopRecording();
+
+  }
+
+
   stopCameraStream();
-  cameraModal.style.display="none";
+
+  cameraModal.style.display =
+    "none";
+
 }
 
-document.getElementById("closeCameraBtn").onclick=closeCamera;
 
-document.getElementById("switchCameraBtn").onclick=async()=>{
-  currentFacing=currentFacing==="environment"?"user":"environment";
-  await openCamera();
-};
+/* =========================
+   CAMERA CLOSE
+========================= */
+
+document
+  .getElementById("closeCameraBtn")
+  .onclick =
+    closeCamera;
+
+
+/* =========================
+   SWITCH CAMERA
+========================= */
+
+document
+  .getElementById("switchCameraBtn")
+  .onclick =
+    async()=>{
+
+      currentFacing =
+        currentFacing === "environment"
+          ? "user"
+          : "environment";
+
+      await openCamera();
+
+    };
+
 
 /* =========================
    ZOOM
 ========================= */
+
 async function applyHardwareZoom(){
-  const track=cameraStream?.getVideoTracks?.()[0];
+
+  const track =
+    cameraStream
+      ?.getVideoTracks?.()[0];
+
+
   if(!track)return;
 
-  const caps=track.getCapabilities ? track.getCapabilities() : {};
+
+  const caps =
+    track.getCapabilities
+      ? track.getCapabilities()
+      : {};
+
+
   if(caps.zoom){
-    const z=Math.max(caps.zoom.min,Math.min(caps.zoom.max,currentZoom));
+
+    const z =
+      Math.max(
+        caps.zoom.min,
+        Math.min(
+          caps.zoom.max,
+          currentZoom
+        )
+      );
+
+
     try{
-      await track.applyConstraints({advanced:[{zoom:z}]});
-      cameraVideo.style.transform=mirrorEnabled?"scaleX(-1)":"none";
+
+      await track.applyConstraints({
+        advanced:[
+          {
+            zoom:z
+          }
+        ]
+      });
+
+
+      cameraVideo.style.transform =
+        mirrorEnabled
+          ? "scaleX(-1)"
+          : "none";
+
+
       return;
+
     }catch(e){}
+
   }
 
-  // Software preview fallback. Hardware ultrawide (true 0.5x) cannot be guaranteed
-  // by a normal browser camera API on every phone.
-  const scale=Math.max(.5,Math.min(20,currentZoom));
-  const x=mirrorEnabled?"scaleX(-1) ":"";
-  cameraVideo.style.transform=x+"scale("+scale+")";
+
+  const scale =
+    Math.max(
+      .5,
+      Math.min(
+        20,
+        currentZoom
+      )
+    );
+
+
+  const x =
+    mirrorEnabled
+      ? "scaleX(-1) "
+      : "";
+
+
+  cameraVideo.style.transform =
+    x +
+    "scale(" +
+    scale +
+    ")";
+
 }
 
-document.getElementById("zoomRange").oninput=async function(){
-  currentZoom=Number(this.value);
-  document.getElementById("zoomValue").textContent=currentZoom.toFixed(1).replace(".0","")+"×";
-  await applyHardwareZoom();
-};
+
+document
+  .getElementById("zoomRange")
+  .oninput =
+    async function(){
+
+      currentZoom =
+        Number(this.value);
+
+
+      document
+        .getElementById("zoomValue")
+        .textContent =
+          currentZoom
+            .toFixed(1)
+            .replace(".0","") +
+          "×";
+
+
+      await applyHardwareZoom();
+
+    };
+
 
 /* =========================
-   FILTERS + MIRROR
+   FILTER BUTTONS
 ========================= */
-document.querySelectorAll(".filterBtn").forEach(btn=>{
-  btn.onclick=()=>{
-    document.querySelectorAll(".filterBtn").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    currentFilter=btn.dataset.filter;
-    updateLiveFilter();
-  };
-});
 
-document.getElementById("mirrorBtn").onclick=async()=>{
-  mirrorEnabled=!mirrorEnabled;
-  updateMirrorPreview();
-  await applyHardwareZoom();
-};
+document
+  .querySelectorAll(".filterBtn")
+  .forEach(btn=>{
+
+    btn.onclick=()=>{
+
+      document
+        .querySelectorAll(".filterBtn")
+        .forEach(
+          b=>b.classList.remove("active")
+        );
+
+
+      btn.classList.add("active");
+
+
+      currentFilter =
+        btn.dataset.filter;
+
+
+      updateLiveFilter();
+
+    };
+
+  });
+
 
 /* =========================
-   PHOTO
+   MIRROR BUTTON
 ========================= */
-function drawVideoToCanvas(targetWidth,targetHeight){
-  cameraCanvas.width=targetWidth;
-  cameraCanvas.height=targetHeight;
-  const ctx=cameraCanvas.getContext("2d");
+
+document
+  .getElementById("mirrorBtn")
+  .onclick =
+    async()=>{
+
+      mirrorEnabled =
+        !mirrorEnabled;
+
+
+      updateMirrorPreview();
+
+      await applyHardwareZoom();
+
+    };
+
+
+/* =========================
+   CANVAS PHOTO
+========================= */
+
+function drawVideoToCanvas(
+  targetWidth,
+  targetHeight
+){
+
+  cameraCanvas.width =
+    targetWidth;
+
+  cameraCanvas.height =
+    targetHeight;
+
+
+  const ctx =
+    cameraCanvas.getContext(
+      "2d"
+    );
+
 
   ctx.save();
-  ctx.filter=filterToCss(currentFilter);
 
-  const vw=cameraVideo.videoWidth;
-  const vh=cameraVideo.videoHeight;
-  const targetRatio=targetWidth/targetHeight;
-  const sourceRatio=vw/vh;
 
-  let sw=vw,sh=vh;
-  if(sourceRatio>targetRatio) sw=vh*targetRatio;
-  else sh=vw/targetRatio;
+  ctx.filter =
+    filterToCss(
+      currentFilter
+    );
 
-  // Software zoom: >1 crops, <1 shows as much of source as possible.
-  const cropW=Math.min(vw,sw/currentZoom);
-  const cropH=Math.min(vh,sh/currentZoom);
-  const sx=(vw-cropW)/2;
-  const sy=(vh-cropH)/2;
+
+  const vw =
+    cameraVideo.videoWidth;
+
+  const vh =
+    cameraVideo.videoHeight;
+
+
+  const targetRatio =
+    targetWidth /
+    targetHeight;
+
+
+  const sourceRatio =
+    vw / vh;
+
+
+  let sw = vw;
+
+  let sh = vh;
+
+
+  if(sourceRatio > targetRatio){
+
+    sw =
+      vh * targetRatio;
+
+  }else{
+
+    sh =
+      vw / targetRatio;
+
+  }
+
+
+  const cropW =
+    Math.min(
+      vw,
+      sw / currentZoom
+    );
+
+
+  const cropH =
+    Math.min(
+      vh,
+      sh / currentZoom
+    );
+
+
+  const sx =
+    (vw-cropW)/2;
+
+
+  const sy =
+    (vh-cropH)/2;
+
 
   if(mirrorEnabled){
-    ctx.translate(targetWidth,0);
-    ctx.scale(-1,1);
+
+    ctx.translate(
+      targetWidth,
+      0
+    );
+
+    ctx.scale(
+      -1,
+      1
+    );
+
   }
 
-  ctx.drawImage(cameraVideo,sx,sy,cropW,cropH,0,0,targetWidth,targetHeight);
+
+  ctx.drawImage(
+    cameraVideo,
+    sx,
+    sy,
+    cropW,
+    cropH,
+    0,
+    0,
+    targetWidth,
+    targetHeight
+  );
+
+
   ctx.restore();
+
 }
 
-async function capturePhoto(){
-  if(!cameraStream || !cameraVideo.videoWidth){
-    showStatus("Camera ready nahi hai.");
-    return;
-  }
-
-  if(!(await lockCaptureLocation())) return;
-
-  const sourceW=cameraVideo.videoWidth;
-  const sourceH=cameraVideo.videoHeight;
-  drawVideoToCanvas(sourceW,sourceH);
-
-  capturedImageData=cameraCanvas.toDataURL("image/jpeg",.88);
-  capturedBlob=dataURLToBlob(capturedImageData);
-  capturedType="image";
-  capturedVideoUrl=null;
-
-  document.getElementById("previewImage").src=capturedImageData;
-  document.getElementById("previewImage").style.display="block";
-  document.getElementById("previewVideo").style.display="none";
-  document.getElementById("qualityBox").style.display="none";
-
-  document.getElementById("previewInfo").textContent=
-    "Photo • "+sourceW+"×"+sourceH+" • "+formatMB(capturedBlob.size);
-
-  stopCameraStream();
-  cameraModal.style.display="none";
-  previewModal.style.display="flex";
-}
 
 /* =========================
-   VIDEO RECORDING
+   CAPTURE PHOTO
 ========================= */
-function chooseMime(){
-  const types=[
-    "video/webm;codecs=vp9",
-    "video/webm;codecs=vp8",
-    "video/webm"
-  ];
-  return types.find(t=>MediaRecorder.isTypeSupported(t)) || "";
+
+async function capturePhoto(){
+
+  if(
+    !cameraStream ||
+    !cameraVideo.videoWidth
+  ){
+
+    showStatus(
+      "Camera ready nahi hai."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    !(await lockCaptureLocation())
+  ){
+
+    return;
+
+  }
+
+
+  const sourceW =
+    cameraVideo.videoWidth;
+
+  const sourceH =
+    cameraVideo.videoHeight;
+
+
+  drawVideoToCanvas(
+    sourceW,
+    sourceH
+  );
+
+
+  capturedImageData =
+    cameraCanvas.toDataURL(
+      "image/jpeg",
+      .88
+    );
+
+
+  capturedBlob =
+    dataURLToBlob(
+      capturedImageData
+    );
+
+
+  capturedType =
+    "image";
+
+
+  capturedVideoUrl =
+    null;
+
+
+  document
+    .getElementById("previewImage")
+    .src =
+      capturedImageData;
+
+
+  document
+    .getElementById("previewImage")
+    .style.display =
+      "block";
+
+
+  document
+    .getElementById("previewVideo")
+    .style.display =
+      "none";
+
+
+  document
+    .getElementById("qualityBox")
+    .style.display =
+      "none";
+
+
+  document
+    .getElementById("previewInfo")
+    .textContent =
+      "Photo • " +
+      sourceW +
+      "×" +
+      sourceH +
+      " • " +
+      formatMB(
+        capturedBlob.size
+      );
+
+
+  stopCameraStream();
+
+  cameraModal.style.display =
+    "none";
+
+
+  previewModal.style.display =
+    "flex";
+
 }
+
+
+/* =========================
+   VIDEO MIME
+========================= */
+
+function chooseMime(){
+
+  const types = [
+
+    "video/webm;codecs=vp9",
+
+    "video/webm;codecs=vp8",
+
+    "video/webm"
+
+  ];
+
+
+  return types.find(
+    t =>
+      MediaRecorder.isTypeSupported(t)
+  ) || "";
+
+}
+
+
+/* =========================
+   START RECORDING
+========================= */
 
 async function startRecording(){
-  if(!cameraStream)return;
-  if(!(await lockCaptureLocation())) return;
 
-  const mime=chooseMime();
-  if(!mime){
-    showStatus("Is browser me video recording supported nahi hai.");
+  if(!cameraStream)return;
+
+
+  if(
+    !(await lockCaptureLocation())
+  ){
+
     return;
+
   }
 
-  recordedChunks=[];
-  recorder=new MediaRecorder(cameraStream,{mimeType:mime});
-  recordingStartedAt=Date.now();
 
-  recorder.ondataavailable=e=>{
-    if(e.data && e.data.size)recordedChunks.push(e.data);
-  };
+  const mime =
+    chooseMime();
 
-  recorder.onstop=()=>{
-    const blob=new Blob(recordedChunks,{type:mime});
-    capturedBlob=blob;
-    capturedType="video";
-    capturedImageData=null;
-    capturedVideoUrl=URL.createObjectURL(blob);
 
-    document.getElementById("previewImage").style.display="none";
-    const pv=document.getElementById("previewVideo");
-    pv.style.display="block";
-    pv.src=capturedVideoUrl;
+  if(!mime){
+
+    showStatus(
+      "Video recording supported nahi hai."
+    );
+
+    return;
+
+  }
+
+
+  recordedChunks = [];
+
+
+  recorder =
+    new MediaRecorder(
+      cameraStream,
+      {
+        mimeType:mime
+      }
+    );
+
+
+  recordingStartedAt =
+    Date.now();
+
+
+  recorder.ondataavailable =
+    e=>{
+
+      if(
+        e.data &&
+        e.data.size
+      ){
+
+        recordedChunks.push(
+          e.data
+        );
+
+      }
+
+    };
+
+
+  recorder.onstop = ()=>{
+
+    const blob =
+      new Blob(
+        recordedChunks,
+        {
+          type:mime
+        }
+      );
+
+
+    capturedBlob =
+      blob;
+
+
+    capturedType =
+      "video";
+
+
+    capturedImageData =
+      null;
+
+
+    capturedVideoUrl =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    document
+      .getElementById("previewImage")
+      .style.display =
+        "none";
+
+
+    const pv =
+      document
+        .getElementById("previewVideo");
+
+
+    pv.style.display =
+      "block";
+
+
+    pv.src =
+      capturedVideoUrl;
+
+
     pv.load();
 
-    const duration=(Date.now()-recordingStartedAt)/1000;
-    document.getElementById("previewInfo").textContent=
-      "Duration: "+formatDuration(duration)+
-      " • Original: "+formatMB(blob.size)+
-      " • Resolution: "+cameraVideo.videoWidth+"×"+cameraVideo.videoHeight+
-      " • Selected quality: "+selectedQuality+"p";
 
-    document.getElementById("qualityBox").style.display="flex";
+    const duration =
+      (Date.now() -
+       recordingStartedAt) /
+      1000;
+
+
+    document
+      .getElementById("previewInfo")
+      .textContent =
+        "Duration: " +
+        formatDuration(
+          duration
+        ) +
+        " • Original: " +
+        formatMB(
+          blob.size
+        ) +
+        " • Resolution: " +
+        cameraVideo.videoWidth +
+        "×" +
+        cameraVideo.videoHeight +
+        " • Selected quality: " +
+        selectedQuality +
+        "p";
+
+
+    document
+      .getElementById("qualityBox")
+      .style.display =
+        "flex";
+
+
     stopCameraStream();
-    cameraModal.style.display="none";
-    previewModal.style.display="flex";
+
+    cameraModal.style.display =
+      "none";
+
+    previewModal.style.display =
+      "flex";
+
+
     updateRecordUI(false);
+
   };
 
+
   recorder.start(250);
+
   updateRecordUI(true);
-  recordingTimer=setInterval(updateRecordTimer,250);
+
+  recordingTimer =
+    setInterval(
+      updateRecordTimer,
+      250
+    );
+
 }
+
+
+/* =========================
+   STOP RECORDING
+========================= */
 
 function stopRecording(){
-  if(recorder && recorder.state==="recording"){
+
+  if(
+    recorder &&
+    recorder.state === "recording"
+  ){
+
     recorder.stop();
+
   }
-  clearInterval(recordingTimer);
-  recordingTimer=null;
+
+
+  clearInterval(
+    recordingTimer
+  );
+
+
+  recordingTimer =
+    null;
+
 }
+
+
+/* =========================
+   RECORD UI
+========================= */
 
 function updateRecordUI(on){
-  const btn=document.getElementById("captureBtn");
-  const timer=document.getElementById("recordTimer");
+
+  const btn =
+    document.getElementById(
+      "captureBtn"
+    );
+
+
+  const timer =
+    document.getElementById(
+      "recordTimer"
+    );
+
+
   if(on){
-    btn.classList.add("recording");
-    timer.style.display="block";
+
+    btn.classList.add(
+      "recording"
+    );
+
+    timer.style.display =
+      "block";
+
   }else{
-    btn.classList.remove("recording");
-    timer.style.display="none";
+
+    btn.classList.remove(
+      "recording"
+    );
+
+    timer.style.display =
+      "none";
+
   }
+
 }
+
 
 function updateRecordTimer(){
-  const seconds=Math.floor((Date.now()-recordingStartedAt)/1000);
-  document.getElementById("recordTimer").textContent=formatDuration(seconds);
+
+  const seconds =
+    Math.floor(
+      (Date.now() -
+       recordingStartedAt) /
+      1000
+    );
+
+
+  document
+    .getElementById(
+      "recordTimer"
+    )
+    .textContent =
+      formatDuration(
+        seconds
+      );
+
 }
 
-document.getElementById("captureBtn").onclick=()=>{
-  if(currentMode==="photo"){
-    capturePhoto();
-  }else{
-    if(recorder && recorder.state==="recording")stopRecording();
-    else startRecording();
-  }
-};
+
+/* =========================
+   CAPTURE BUTTON
+========================= */
+
+document
+  .getElementById("captureBtn")
+  .onclick =
+    ()=>{
+
+      if(
+        currentMode === "photo"
+      ){
+
+        capturePhoto();
+
+      }else{
+
+        if(
+          recorder &&
+          recorder.state === "recording"
+        ){
+
+          stopRecording();
+
+        }else{
+
+          startRecording();
+
+        }
+
+      }
+
+    };
+
 
 /* =========================
    MODES
 ========================= */
+
 function setMode(mode){
-  currentMode=mode;
-  document.getElementById("photoModeBtn").classList.toggle("active",mode==="photo");
-  document.getElementById("videoModeBtn").classList.toggle("active",mode==="video");
-  document.getElementById("captureBtn").classList.remove("recording");
+
+  currentMode =
+    mode;
+
+
+  document
+    .getElementById(
+      "photoModeBtn"
+    )
+    .classList
+    .toggle(
+      "active",
+      mode === "photo"
+    );
+
+
+  document
+    .getElementById(
+      "videoModeBtn"
+    )
+    .classList
+    .toggle(
+      "active",
+      mode === "video"
+    );
+
+
+  document
+    .getElementById(
+      "captureBtn"
+    )
+    .classList
+    .remove(
+      "recording"
+    );
+
 }
-document.getElementById("photoModeBtn").onclick=()=>setMode("photo");
-document.getElementById("videoModeBtn").onclick=()=>setMode("video");
+
+
+document
+  .getElementById(
+    "photoModeBtn"
+  )
+  .onclick =
+    ()=>setMode("photo");
+
+
+document
+  .getElementById(
+    "videoModeBtn"
+  )
+  .onclick =
+    ()=>setMode("video");
+
 
 /* =========================
-   PREVIEW
+   HELPERS
 ========================= */
+
 function formatMB(bytes){
-  return (bytes/1024/1024).toFixed(2)+" MB";
+
+  return (
+    bytes /
+    1024 /
+    1024
+  ).toFixed(2) +
+  " MB";
+
 }
+
+
 function formatDuration(sec){
-  sec=Math.max(0,Math.floor(sec));
-  const m=String(Math.floor(sec/60)).padStart(2,"0");
-  const s=String(sec%60).padStart(2,"0");
-  return m+":"+s;
+
+  sec =
+    Math.max(
+      0,
+      Math.floor(sec)
+    );
+
+
+  const m =
+    String(
+      Math.floor(sec/60)
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  const s =
+    String(
+      sec % 60
+    ).padStart(
+      2,
+      "0"
+    );
+
+
+  return m + ":" + s;
+
 }
+
+
 function dataURLToBlob(dataURL){
-  const [head,body]=dataURL.split(",");
-  const mime=head.match(/:(.*?);/)[1];
-  const binary=atob(body);
-  const arr=new Uint8Array(binary.length);
-  for(let i=0;i<binary.length;i++)arr[i]=binary.charCodeAt(i);
-  return new Blob([arr],{type:mime});
-}
 
-document.querySelectorAll(".qualityBtn").forEach(btn=>{
-  btn.onclick=()=>{
-    document.querySelectorAll(".qualityBtn").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    selectedQuality=Number(btn.dataset.quality);
+  const [
+    head,
+    body
+  ] =
+    dataURL.split(",");
 
-    if(capturedBlob){
-      document.getElementById("previewInfo").textContent +=
-        " • Target: "+selectedQuality+"p";
+
+  const mime =
+    head.match(
+      /:(.*?);/
+    )[1];
+
+
+  const binary =
+    atob(body);
+
+
+  const arr =
+    new Uint8Array(
+      binary.length
+    );
+
+
+  for(
+    let i=0;
+    i<binary.length;
+    i++
+  ){
+
+    arr[i] =
+      binary.charCodeAt(i);
+
+  }
+
+
+  return new Blob(
+    [arr],
+    {
+      type:mime
     }
-  };
-});
-
-document.getElementById("cancelPreviewBtn").onclick=()=>{
-  if(capturedVideoUrl)URL.revokeObjectURL(capturedVideoUrl);
-  capturedVideoUrl=null;
-  capturedBlob=null;
-  capturedImageData=null;
-  capturedLatitude=null;
-  capturedLongitude=null;
-  previewModal.style.display="none";
-  openCamera();
-};
-
-/* =========================
-   UPLOAD WITH REAL PROGRESS
-========================= */
-function setUploadProgress(percent,text){
-  const p=Math.max(0,Math.min(100,percent));
-  document.getElementById("uploadBar").style.width=p+"%";
-  document.getElementById("uploadPercent").textContent=Math.round(p)+"%";
-  document.getElementById("uploadText").textContent=text;
-}
-
-function xhrUpload(filePath,blob){
-  return new Promise((resolve,reject)=>{
-    const url=SUPABASE_URL+"/storage/v1/object/past-snaps/"+encodeURIComponent(filePath);
-    const xhr=new XMLHttpRequest();
-
-    xhr.open("POST",url,true);
-    xhr.setRequestHeader("apikey",SUPABASE_KEY);
-    xhr.setRequestHeader("Authorization","Bearer "+SUPABASE_KEY);
-    xhr.setRequestHeader("Content-Type",blob.type || "application/octet-stream");
-    xhr.setRequestHeader("x-upsert","false");
-
-    xhr.upload.onprogress=e=>{
-      if(e.lengthComputable){
-        const pct=(e.loaded/e.total)*100;
-        setUploadProgress(pct,
-          "Uploading "+formatMB(e.loaded)+" / "+formatMB(e.total));
-      }
-    };
-
-    xhr.onload=()=>{
-      if(xhr.status>=200 && xhr.status<300)resolve();
-      else reject(new Error("Storage upload failed: "+xhr.status+" "+xhr.responseText));
-    };
-    xhr.onerror=()=>reject(new Error("Network error"));
-    xhr.send(blob);
-  });
-}
-
-async function postSnap(){
-  if(isPostingSnap)return;
-  if(!capturedBlob){
-    showStatus("Pehle photo ya video capture karo.");
-    return;
-  }
-
-  if(capturedLatitude===null || capturedLongitude===null){
-    showStatus("Photo/video ki live location nahi mili.",3000);
-    return;
-  }
-
-  let postPosition;
-  try{
-    postPosition=await getFreshPosition();
-  }catch(e){
-    showStatus("Post karne ke liye live location required hai.",3000);
-    return;
-  }
-
-  const currentLat=postPosition.coords.latitude;
-  const currentLng=postPosition.coords.longitude;
-  const distance=distanceMeters(
-    {lat:capturedLatitude,lng:capturedLongitude},
-    {lat:currentLat,lng:currentLng}
   );
 
-  if(distance>50){
-    showStatus("❌ Post failed: capture location se 50 meter se zyada door ho.",4000);
+}
+
+
+/* =========================
+   QUALITY
+========================= */
+
+document
+  .querySelectorAll(
+    ".qualityBtn"
+  )
+  .forEach(btn=>{
+
+    btn.onclick =
+      ()=>{
+
+        document
+          .querySelectorAll(
+            ".qualityBtn"
+          )
+          .forEach(
+            b =>
+              b.classList
+               .remove(
+                 "active"
+               )
+          );
+
+
+        btn.classList.add(
+          "active"
+        );
+
+
+        selectedQuality =
+          Number(
+            btn.dataset.quality
+          );
+
+      };
+
+  });
+
+
+/* =========================
+   RETAKE
+========================= */
+
+document
+  .getElementById(
+    "cancelPreviewBtn"
+  )
+  .onclick =
+    ()=>{
+
+      if(capturedVideoUrl){
+
+        URL.revokeObjectURL(
+          capturedVideoUrl
+        );
+
+      }
+
+
+      capturedVideoUrl =
+        null;
+
+      capturedBlob =
+        null;
+
+      capturedImageData =
+        null;
+
+      capturedLatitude =
+        null;
+
+      capturedLongitude =
+        null;
+
+
+      previewModal.style.display =
+        "none";
+
+
+      /* Re-acquire fresh location
+         before reopening camera */
+
+      getMyLocationAndOpenCamera();
+
+    };
+
+
+/* =========================
+   UPLOAD PROGRESS
+========================= */
+
+function setUploadProgress(
+  percent,
+  text
+){
+
+  const p =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        percent
+      )
+    );
+
+
+  document
+    .getElementById(
+      "uploadBar"
+    )
+    .style.width =
+      p + "%";
+
+
+  document
+    .getElementById(
+      "uploadPercent"
+    )
+    .textContent =
+      Math.round(p) +
+      "%";
+
+
+  document
+    .getElementById(
+      "uploadText"
+    )
+    .textContent =
+      text;
+
+}
+
+
+/* =========================
+   STORAGE UPLOAD
+========================= */
+
+function xhrUpload(
+  filePath,
+  blob
+){
+
+  return new Promise(
+    (resolve,reject)=>{
+
+      const url =
+        SUPABASE_URL +
+        "/storage/v1/object/past-snaps/" +
+        encodeURIComponent(
+          filePath
+        );
+
+
+      const xhr =
+        new XMLHttpRequest();
+
+
+      xhr.open(
+        "POST",
+        url,
+        true
+      );
+
+
+      xhr.setRequestHeader(
+        "apikey",
+        SUPABASE_KEY
+      );
+
+
+      xhr.setRequestHeader(
+        "Authorization",
+        "Bearer " +
+        SUPABASE_KEY
+      );
+
+
+      xhr.setRequestHeader(
+        "Content-Type",
+        blob.type ||
+        "application/octet-stream"
+      );
+
+
+      xhr.setRequestHeader(
+        "x-upsert",
+        "false"
+      );
+
+
+      xhr.upload.onprogress =
+        e=>{
+
+          if(
+            e.lengthComputable
+          ){
+
+            const pct =
+              (
+                e.loaded /
+                e.total
+              ) * 100;
+
+
+            setUploadProgress(
+              pct,
+              "Uploading " +
+              formatMB(
+                e.loaded
+              ) +
+              " / " +
+              formatMB(
+                e.total
+              )
+            );
+
+          }
+
+        };
+
+
+      xhr.onload =
+        ()=>{
+
+          if(
+            xhr.status >= 200 &&
+            xhr.status < 300
+          ){
+
+            resolve();
+
+          }else{
+
+            reject(
+              new Error(
+                "Storage upload failed: " +
+                xhr.status +
+                " " +
+                xhr.responseText
+              )
+            );
+
+          }
+
+        };
+
+
+      xhr.onerror =
+        ()=>reject(
+          new Error(
+            "Network error"
+          )
+        );
+
+
+      xhr.send(blob);
+
+    }
+  );
+
+}
+
+
+/* =========================
+   POST SNAP
+========================= */
+
+async function postSnap(){
+
+  if(isPostingSnap)return;
+
+
+  if(!capturedBlob){
+
+    showStatus(
+      "Pehle photo ya video capture karo."
+    );
+
+    return;
+
+  }
+
+
+  if(
+    capturedLatitude === null ||
+    capturedLongitude === null
+  ){
+
+    showStatus(
+      "Photo/video ki live location nahi mili.",
+      3000
+    );
+
+    return;
+
+  }
+
+
+  /* Fresh GPS check */
+
+  let postPosition;
+
+
+  try{
+
+    postPosition =
+      await getFreshPosition();
+
+  }catch(e){
+
+    showStatus(
+      "Post karne ke liye live location required hai.",
+      3000
+    );
+
+    return;
+
+  }
+
+
+  const currentLat =
+    postPosition.coords.latitude;
+
+
+  const currentLng =
+    postPosition.coords.longitude;
+
+
+  const distance =
+    distanceMeters(
+      {
+        lat:
+          capturedLatitude,
+
+        lng:
+          capturedLongitude
+      },
+      {
+        lat:
+          currentLat,
+
+        lng:
+          currentLng
+      }
+    );
+
+
+  /* MUST BE WITHIN 50 METERS */
+
+  if(distance > 50){
+
+    showStatus(
+      "❌ Post failed: capture location se 50 meter se zyada door ho.",
+      4000
+    );
+
+    return;
+
+  }
+
+
+  isPostingSnap =
+    true;
+
+
+  const btn =
+    document.getElementById(
+      "postBtn"
+    );
+
+
+  btn.disabled =
+    true;
+
+
+  btn.textContent =
+    "Uploading...";
+
+
+  const uploadBox =
+    document.getElementById(
+      "uploadBox"
+    );
+
+
+  uploadBox.style.display =
+    "block";
+
+
+  setUploadProgress(
+    0,
+    "Preparing upload..."
+  );
+
+
+  try{
+
+    const ext =
+      capturedType === "video"
+        ? "webm"
+        : "jpg";
+
+
+    const filePath =
+      "snap_" +
+      Date.now() +
+      "_" +
+      Math.random()
+        .toString(36)
+        .slice(2,10) +
+      "." +
+      ext;
+
+
+    setUploadProgress(
+      0,
+      "Starting upload..."
+    );
+
+
+    await xhrUpload(
+      filePath,
+      capturedBlob
+    );
+
+
+    const publicUrl =
+      SUPABASE_URL +
+      "/storage/v1/object/public/past-snaps/" +
+      encodeURIComponent(
+        filePath
+      );
+
+
+    setUploadProgress(
+      100,
+      "Saving snap..."
+    );
+
+
+    const videoEl =
+      document.getElementById(
+        "previewVideo"
+      );
+
+
+    const duration =
+      videoEl.duration &&
+      Number.isFinite(
+        videoEl.duration
+      )
+        ? videoEl.duration
+        : null;
+
+
+    const row = {
+
+      latitude:
+        capturedLatitude,
+
+      longitude:
+        capturedLongitude,
+
+      image_url:
+        publicUrl,
+
+      media_type:
+        capturedType,
+
+      duration_seconds:
+        capturedType === "video"
+          ? duration
+          : null,
+
+      width:
+        capturedType === "video"
+          ? videoEl.videoWidth
+          : null,
+
+      height:
+        capturedType === "video"
+          ? videoEl.videoHeight
+          : null
+
+    };
+
+
+    const {error} =
+      await supabaseClient
+        .from("snaps")
+        .insert(row);
+
+
+    if(error){
+      throw error;
+    }
+
+
+    uploadBox.style.display =
+      "none";
+
+
+    previewModal.style.display =
+      "none";
+
+
+    showStatus(
+      "✅ Snap posted successfully!",
+      2500
+    );
+
+
+    if(capturedVideoUrl){
+
+      URL.revokeObjectURL(
+        capturedVideoUrl
+      );
+
+    }
+
+
+    capturedVideoUrl =
+      null;
+
+    capturedBlob =
+      null;
+
+    capturedImageData =
+      null;
+
+    capturedLatitude =
+      null;
+
+    capturedLongitude =
+      null;
+
+
+    await loadSnaps();
+
+
+  }catch(e){
+
+    console.error(e);
+
+
+    setUploadProgress(
+      0,
+      "Upload failed."
+    );
+
+
+    setTimeout(
+      ()=>{
+        uploadBox.style.display =
+          "none";
+      },
+      1200
+    );
+
+
+    showStatus(
+      "Upload failed. Dobara try karo.",
+      3000
+    );
+
+
+  }finally{
+
+    isPostingSnap =
+      false;
+
+
+    btn.disabled =
+      false;
+
+
+    btn.textContent =
+      "📍 Post Snap";
+
+  }
+
+}
+
+
+document
+  .getElementById(
+    "postBtn"
+  )
+  .onclick =
+    postSnap;
+
+
+/* =========================
+   FULL SCREEN VIEWER
+========================= */
+
+function openGallery(items){
+
+  galleryItems =
+    items || [];
+
+
+  galleryIndex =
+    0;
+
+
+  if(
+    !galleryItems.length
+  ){
     return;
   }
 
-  isPostingSnap=true;
-  const btn=document.getElementById("postBtn");
-  btn.disabled=true;
-  btn.textContent="Uploading...";
 
-  const uploadBox=document.getElementById("uploadBox");
-  uploadBox.style.display="block";
-  setUploadProgress(0,"Preparing upload...");
+  galleryModal.style.display =
+    "flex";
 
-  try{
-    const ext=capturedType==="video"?"webm":"jpg";
-    const mime=capturedType==="video"?"video/webm":"image/jpeg";
-    const filePath="snap_"+Date.now()+"_"+Math.random().toString(36).slice(2,10)+"."+ext;
 
-    setUploadProgress(0,"Starting upload...");
-    await xhrUpload(filePath,capturedBlob);
+  renderGalleryItem();
 
-    const publicUrl=SUPABASE_URL+
-      "/storage/v1/object/public/past-snaps/"+encodeURIComponent(filePath);
-
-    setUploadProgress(100,"Saving snap...");
-
-    const videoEl=document.getElementById("previewVideo");
-    const duration=videoEl.duration && Number.isFinite(videoEl.duration)
-      ? videoEl.duration
-      : null;
-
-    const row={
-      latitude:capturedLatitude,
-      longitude:capturedLongitude,
-      image_url:publicUrl,
-      media_type:capturedType,
-      duration_seconds:capturedType==="video"?duration:null,
-      width:capturedType==="video"?videoEl.videoWidth:null,
-      height:capturedType==="video"?videoEl.videoHeight:null
-    };
-
-    const {error}=await supabaseClient.from("snaps").insert(row);
-    if(error)throw error;
-
-    uploadBox.style.display="none";
-    previewModal.style.display="none";
-    showStatus("✅ Snap posted successfully!",2500);
-
-    if(capturedVideoUrl)URL.revokeObjectURL(capturedVideoUrl);
-    capturedVideoUrl=null;
-    capturedBlob=null;
-    capturedImageData=null;
-    capturedLatitude=null;
-    capturedLongitude=null;
-
-    await loadSnaps();
-  }catch(e){
-    console.error(e);
-    setUploadProgress(0,"Upload failed.");
-    setTimeout(()=>uploadBox.style.display="none",1200);
-    showStatus("Upload failed. Dobara try karo.",3000);
-  }finally{
-    isPostingSnap=false;
-    btn.disabled=false;
-    btn.textContent="📍 Post Snap";
-  }
 }
-document.getElementById("postBtn").onclick=postSnap;
+
 
 /* =========================
-   GALLERY
+   RENDER VIEWER
 ========================= */
-function openGallery(items){
-  galleryItems=items || [];
-  galleryIndex=0;
-  if(!galleryItems.length)return;
-  galleryModal.style.display="flex";
-  renderGalleryItem();
-}
 
 function renderGalleryItem(){
-  const item=galleryItems[galleryIndex];
-  document.getElementById("galleryCounter").textContent=
-    (galleryIndex+1)+" / "+galleryItems.length;
 
-  const img=document.getElementById("galleryImage");
-  const vid=document.getElementById("galleryVideo");
+  const item =
+    galleryItems[
+      galleryIndex
+    ];
 
-  img.style.display="none";
-  vid.style.display="none";
+
+  document
+    .getElementById(
+      "galleryCounter"
+    )
+    .textContent =
+      (galleryIndex+1) +
+      " / " +
+      galleryItems.length;
+
+
+  const img =
+    document.getElementById(
+      "galleryImage"
+    );
+
+
+  const vid =
+    document.getElementById(
+      "galleryVideo"
+    );
+
+
+  img.style.display =
+    "none";
+
+
+  vid.style.display =
+    "none";
+
+
   vid.pause();
-  img.src="";
 
-  if(item.media_type==="video" || /\.(webm|mp4|mov)$/i.test(item.image_url)){
-    vid.src=item.image_url;
-    vid.style.display="block";
+
+  img.src = "";
+
+
+  if(
+    item.media_type === "video" ||
+    /\.(webm|mp4|mov)$/i.test(
+      item.image_url
+    )
+  ){
+
+    vid.src =
+      item.image_url;
+
+    vid.style.display =
+      "block";
+
   }else{
-    img.src=item.image_url;
-    img.style.display="block";
+
+    img.src =
+      item.image_url;
+
+    img.style.display =
+      "block";
+
   }
 
-  const d=document.getElementById("galleryDetails");
-  const created=item.created_at ? new Date(item.created_at) : null;
-  const date=created ? created.toLocaleDateString() : "";
-  const time=created ? created.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"}) : "";
-  d.innerHTML=`<div><b>Location</b>: ${Number(item.latitude).toFixed(5)}, ${Number(item.longitude).toFixed(5)}</div>
-    <div><b>Date</b>: ${date} &nbsp; <b>Time</b>: ${time}</div>`;
+
+  const d =
+    document.getElementById(
+      "galleryDetails"
+    );
+
+
+  const created =
+    item.created_at
+      ? new Date(
+          item.created_at
+        )
+      : null;
+
+
+  const date =
+    created
+      ? created.toLocaleDateString()
+      : "";
+
+
+  const time =
+    created
+      ? created.toLocaleTimeString(
+          [],
+          {
+            hour:"2-digit",
+            minute:"2-digit"
+          }
+        )
+      : "";
+
+
+  d.innerHTML =
+    "<div>" +
+    "<b>Location</b>: " +
+    Number(
+      item.latitude
+    ).toFixed(5) +
+    ", " +
+    Number(
+      item.longitude
+    ).toFixed(5) +
+    "</div>" +
+
+    "<div>" +
+    "<b>Date</b>: " +
+    date +
+    " &nbsp; " +
+    "<b>Time</b>: " +
+    time +
+    "</div>";
+
 }
 
-document.getElementById("prevBtn").onclick=()=>{
-  if(!galleryItems.length)return;
-  galleryIndex=(galleryIndex-1+galleryItems.length)%galleryItems.length;
-  renderGalleryItem();
-};
-document.getElementById("nextBtn").onclick=()=>{
-  if(!galleryItems.length)return;
-  galleryIndex=(galleryIndex+1)%galleryItems.length;
-  renderGalleryItem();
-};
-let galleryTouchX=0;
-const galleryBox=document.getElementById("galleryImageBox");
-galleryBox.addEventListener("touchstart",e=>{
-  galleryTouchX=e.changedTouches[0].clientX;
-},{passive:true});
-galleryBox.addEventListener("touchend",e=>{
-  const dx=e.changedTouches[0].clientX-galleryTouchX;
-  if(Math.abs(dx)<50)return;
-  if(dx<0) document.getElementById("nextBtn").click();
-  else document.getElementById("prevBtn").click();
-},{passive:true});
-
-document.getElementById("closeGalleryBtn").onclick=()=>{
-  document.getElementById("galleryVideo").pause();
-  galleryModal.style.display="none";
-};
 
 /* =========================
-   ANDROID / BROWSER BACK
+   SWIPE VIEWER
 ========================= */
-let modalHistory=false;
+
+let galleryTouchX = 0;
+
+
+const galleryBox =
+  document.getElementById(
+    "galleryImageBox"
+  );
+
+
+galleryBox.addEventListener(
+  "touchstart",
+  e=>{
+
+    galleryTouchX =
+      e.changedTouches[0]
+       .clientX;
+
+  },
+  {
+    passive:true
+  }
+);
+
+
+galleryBox.addEventListener(
+  "touchend",
+  e=>{
+
+    const dx =
+      e.changedTouches[0]
+       .clientX -
+      galleryTouchX;
+
+
+    if(
+      Math.abs(dx) < 50
+    ){
+
+      return;
+
+    }
+
+
+    if(dx < 0){
+
+      galleryIndex =
+        (
+          galleryIndex + 1
+        ) %
+        galleryItems.length;
+
+    }else{
+
+      galleryIndex =
+        (
+          galleryIndex -
+          1 +
+          galleryItems.length
+        ) %
+        galleryItems.length;
+
+    }
+
+
+    renderGalleryItem();
+
+  },
+  {
+    passive:true
+  }
+);
+
+
+/* =========================
+   CLOSE VIEWER
+========================= */
+
+document
+  .getElementById(
+    "closeGalleryBtn"
+  )
+  .onclick =
+    ()=>{
+
+      document
+        .getElementById(
+          "galleryVideo"
+        )
+        .pause();
+
+
+      galleryModal.style.display =
+        "none";
+
+    };
+
+
+/* =========================
+   BROWSER BACK
+========================= */
+
+let modalHistory =
+  false;
+
 
 function openCameraWithHistory(){
+
   if(!modalHistory){
-    history.pushState({pastSnapModal:"camera"},"","#camera");
-    modalHistory=true;
+
+    history.pushState(
+      {
+        pastSnapModal:
+          "camera"
+      },
+      "",
+      "#camera"
+    );
+
+
+    modalHistory =
+      true;
+
   }
+
+
   openCamera();
+
 }
 
-window.addEventListener("popstate",()=>{
-  if(cameraModal.style.display==="flex"){
-    stopCameraStream();
-    cameraModal.style.display="none";
-  }
-  if(previewModal.style.display==="flex"){
-    previewModal.style.display="none";
-  }
-  modalHistory=false;
-});
 
-document.getElementById("postOpenBtn").onclick=async()=>{
-  if(!(await lockCaptureLocation())) return;
-  openCameraWithHistory();
-};
+window.addEventListener(
+  "popstate",
+  ()=>{
+
+    if(
+      cameraModal.style.display ===
+      "flex"
+    ){
+
+      stopCameraStream();
+
+      cameraModal.style.display =
+        "none";
+
+    }
+
+
+    if(
+      previewModal.style.display ===
+      "flex"
+    ){
+
+      previewModal.style.display =
+        "none";
+
+    }
+
+
+    modalHistory =
+      false;
+
+  }
+);
+
 
 /* =========================
    START
 ========================= */
+
 loadSnaps();
-getMyLocation();
+
 </script>
+
 </body>
 </html>
