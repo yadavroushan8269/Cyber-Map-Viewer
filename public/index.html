@@ -2,4657 +2,4181 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 <title>Past Snap</title>
 
 <link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
 
 html,body{
-margin:0;
-width:100%;
-height:100%;
-overflow:hidden;
-font-family:Arial,sans-serif;
-background:#111;
-color:#fff;
+  margin:0;
+  padding:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#111;
+  color:#fff;
 }
 
-button,input,textarea{font-family:inherit}
-button{cursor:pointer}
+button,input,textarea,select{
+  font:inherit;
+}
+
+button{
+  border:0;
+  cursor:pointer;
+}
+
+#app{
+  width:100%;
+  height:100%;
+  position:relative;
+}
 
 #map{
-position:absolute;
-inset:0;
-z-index:1;
+  position:absolute;
+  inset:0;
+  z-index:1;
 }
 
-#topBar{
-position:absolute;
-z-index:1000;
-top:10px;
-left:10px;
-right:10px;
-display:flex;
-gap:6px;
-padding:7px;
-border-radius:15px;
-background:rgba(0,0,0,.8);
+.topbar{
+  position:absolute;
+  top:12px;
+  left:12px;
+  right:12px;
+  z-index:1000;
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.searchBox{
+  flex:1;
+  display:flex;
+  background:rgba(20,20,20,.92);
+  border-radius:14px;
+  padding:4px;
+  box-shadow:0 5px 20px rgba(0,0,0,.25);
 }
 
 #searchInput{
-flex:1;
-min-width:0;
-border:0;
-outline:0;
-padding:11px;
-border-radius:10px;
-font-size:15px;
+  flex:1;
+  min-width:0;
+  border:0;
+  outline:0;
+  background:transparent;
+  color:white;
+  padding:11px;
 }
 
-#searchBtn,#locBtn{
-border:0;
-background:#fff;
-color:#111;
-font-weight:700;
-border-radius:10px;
-padding:10px 12px;
+#searchInput::placeholder{
+  color:#aaa;
 }
 
-#locBtn{
-position:absolute;
-z-index:2000;
-left:50%;
-bottom:18px;
-transform:translateX(-50%);
-white-space:nowrap;
-box-shadow:0 4px 20px #000;
+.iconBtn{
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  background:#252525;
+  color:#fff;
+  font-size:19px;
 }
 
-#status{
-position:absolute;
-z-index:9000;
-top:70px;
-left:50%;
-transform:translateX(-50%);
-display:none;
-background:rgba(0,0,0,.92);
-padding:8px 14px;
-border-radius:20px;
-font-size:13px;
-max-width:92%;
-text-align:center;
+.iconBtn:active{
+  transform:scale(.95);
 }
 
-/* AUTH */
-
-#authModal{
-position:absolute;
-inset:0;
-z-index:10000;
-display:none;
-align-items:center;
-justify-content:center;
-padding:20px;
-background:#111;
+.userBtn{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  background:#111;
+  border:2px solid white;
+  color:#fff;
+  font-size:18px;
 }
 
-.authBox{
-width:min(100%,380px);
-background:#1b1b1b;
-padding:22px;
-border-radius:20px;
-box-shadow:0 15px 60px #000;
+.bottomBar{
+  position:absolute;
+  left:10px;
+  right:10px;
+  bottom:12px;
+  z-index:1000;
+  display:flex;
+  gap:8px;
 }
 
-.authBox h2{
-margin:0 0 5px;
-text-align:center;
+.bottomBtn{
+  flex:1;
+  min-height:52px;
+  border-radius:16px;
+  background:rgba(15,15,15,.94);
+  color:#fff;
+  font-weight:bold;
+  box-shadow:0 5px 18px rgba(0,0,0,.3);
 }
 
-.authSub{
-text-align:center;
-color:#aaa;
-font-size:13px;
-margin-bottom:18px;
+.bottomBtn.primary{
+  background:#fff;
+  color:#111;
 }
 
-.authInput{
-width:100%;
-padding:13px;
-border:0;
-outline:0;
-border-radius:10px;
-margin-bottom:10px;
-font-size:15px;
+.bottomBtn:active{
+  transform:scale(.97);
 }
 
-.authBtn{
-width:100%;
-padding:13px;
-border:0;
-border-radius:11px;
-background:#fff;
-color:#111;
-font-weight:700;
-font-size:15px;
+.leaflet-control-attribution{
+  font-size:9px;
 }
 
-.authSwitch{
-text-align:center;
-margin-top:14px;
-font-size:13px;
-color:#aaa;
+.clusterGhost{
+  width:auto;
+  min-width:62px;
+  height:42px;
+  padding:0 9px;
+  border-radius:22px;
+  background:rgba(20,20,20,.94);
+  border:2px solid #fff;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  font-weight:bold;
+  font-size:15px;
+  box-shadow:0 4px 15px rgba(0,0,0,.35);
 }
 
-.authSwitch button{
-border:0;
-background:none;
-color:#fff;
-text-decoration:underline;
+.singleGhost{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:#111;
+  border:2px solid white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:22px;
+  box-shadow:0 4px 15px rgba(0,0,0,.35);
 }
-
-#logoutBtn,
-#notificationBtn{
-position:absolute;
-z-index:2000;
-top:65px;
-border:0;
-border-radius:10px;
-background:rgba(0,0,0,.78);
-color:#fff;
-padding:8px 11px;
-}
-
-#logoutBtn{
-right:10px;
-display:none;
-}
-
-#notificationBtn{
-left:10px;
-display:none;
-}
-
-/* MODAL */
 
 .modal{
-position:absolute;
-inset:0;
-z-index:5000;
-display:none;
-flex-direction:column;
-background:#111;
+  position:fixed;
+  inset:0;
+  z-index:5000;
+  background:rgba(0,0,0,.72);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
 }
 
-/* CAMERA */
+.modal.show{
+  display:flex;
+}
+
+.sheet{
+  width:100%;
+  max-width:700px;
+  max-height:94vh;
+  overflow:auto;
+  background:#151515;
+  border-radius:24px 24px 0 0;
+  padding:18px;
+  animation:slideUp .2s ease;
+}
+
+@keyframes slideUp{
+  from{
+    transform:translateY(100%);
+  }
+  to{
+    transform:translateY(0);
+  }
+}
+
+.modalTitle{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:14px;
+}
+
+.closeRow{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+.closeBtn{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:#292929;
+  color:white;
+  font-size:20px;
+}
+
+.field{
+  margin-bottom:12px;
+}
+
+.field label{
+  display:block;
+  font-size:13px;
+  color:#aaa;
+  margin-bottom:5px;
+}
+
+.field input,
+.field textarea{
+  width:100%;
+  border:1px solid #333;
+  outline:0;
+  background:#202020;
+  color:white;
+  border-radius:12px;
+  padding:12px;
+}
+
+.field textarea{
+  min-height:90px;
+  resize:none;
+}
+
+.action{
+  width:100%;
+  min-height:48px;
+  border-radius:13px;
+  background:#fff;
+  color:#111;
+  font-weight:bold;
+  margin-top:7px;
+}
+
+.action.dark{
+  background:#292929;
+  color:white;
+}
+
+.action.danger{
+  background:#b92d2d;
+  color:#fff;
+}
+
+.authTabs{
+  display:flex;
+  gap:8px;
+  margin-bottom:15px;
+}
+
+.authTabs button{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+  background:#282828;
+  color:#aaa;
+}
+
+.authTabs button.active{
+  background:white;
+  color:#111;
+}
+
+.cameraModal{
+  align-items:center;
+}
+
+.cameraSheet{
+  max-height:100vh;
+  height:100%;
+  border-radius:0;
+  padding:10px;
+  background:#000;
+  display:flex;
+  flex-direction:column;
+}
+
+.cameraPreviewWrap{
+  flex:1;
+  min-height:0;
+  position:relative;
+  background:#050505;
+  border-radius:18px;
+  overflow:hidden;
+}
 
 #cameraVideo{
-width:100%;
-height:100%;
-object-fit:cover;
-background:#000;
-}
-
-#cameraVideo.mirror-preview{
-transform:scaleX(-1);
-}
-
-#cameraTop{
-position:absolute;
-z-index:10;
-top:10px;
-left:0;
-right:0;
-display:flex;
-justify-content:space-between;
-padding:10px;
-}
-
-#cameraTop button,
-.roundBtn{
-width:46px;
-height:46px;
-border:0;
-border-radius:50%;
-background:rgba(0,0,0,.65);
-color:#fff;
-font-size:20px;
-}
-
-#cameraCanvas{
-display:none;
-}
-
-#zoomBox{
-position:absolute;
-z-index:10;
-right:8px;
-top:50%;
-transform:translateY(-50%);
-display:flex;
-flex-direction:column;
-align-items:center;
-gap:5px;
-padding:8px 5px;
-border-radius:18px;
-background:rgba(0,0,0,.65);
-}
-
-#zoomRange{
-writing-mode:vertical-lr;
-direction:rtl;
-width:30px;
-height:170px;
-}
-
-#zoomValue{
-font-size:12px;
-font-weight:700;
-}
-
-#modeBar{
-position:absolute;
-z-index:10;
-bottom:154px;
-left:50%;
-transform:translateX(-50%);
-display:flex;
-padding:4px;
-border-radius:20px;
-background:rgba(0,0,0,.65);
-}
-
-#modeBar button{
-border:0;
-background:none;
-color:#aaa;
-padding:8px 14px;
-border-radius:17px;
-font-weight:700;
-}
-
-#modeBar button.active{
-background:#fff;
-color:#111;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  transform-origin:center;
 }
 
-#filterBar{
-position:absolute;
-z-index:10;
-bottom:92px;
-left:0;
-right:0;
-display:flex;
-gap:7px;
-overflow-x:auto;
-padding:7px 10px;
-scrollbar-width:none;
+.cameraControls{
+  padding:10px 0 4px;
 }
 
-#filterBar::-webkit-scrollbar{
-display:none;
+.controlRow{
+  display:flex;
+  gap:7px;
+  overflow-x:auto;
+  padding:5px 0;
 }
 
-.filterBtn{
-flex:0 0 auto;
-border:0;
-background:rgba(0,0,0,.65);
-color:#fff;
-padding:8px 12px;
-border-radius:17px;
-font-size:12px;
+.smallControl{
+  flex:0 0 auto;
+  padding:9px 12px;
+  border-radius:11px;
+  background:#222;
+  color:#fff;
+  font-size:13px;
 }
 
-.filterBtn.active{
-background:#fff;
-color:#111;
+.smallControl.active{
+  background:#fff;
+  color:#111;
 }
 
-#cameraBottom{
-position:absolute;
-z-index:10;
-bottom:14px;
-left:0;
-right:0;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:20px;
+.captureRow{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:22px;
+  padding:8px 0;
 }
 
-#mirrorBtn{
-border:0;
-background:rgba(0,0,0,.65);
-color:#fff;
-padding:10px 14px;
-border-radius:20px;
+.captureBtn{
+  width:72px;
+  height:72px;
+  border-radius:50%;
+  background:white;
+  border:6px solid #555;
 }
 
-#mirrorBtn.active{
-background:#fff;
-color:#111;
+.captureBtn.recording{
+  background:#e33;
 }
 
-#captureBtn{
-width:70px;
-height:70px;
-border:6px solid #fff;
-border-radius:50%;
-background:#fff;
+.cameraClose{
+  position:absolute;
+  top:12px;
+  left:12px;
+  z-index:5;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:rgba(0,0,0,.65);
+  color:white;
 }
 
-#captureBtn.recording{
-background:#e33;
-border-radius:18px;
+.cameraMode{
+  position:absolute;
+  top:14px;
+  right:14px;
+  z-index:5;
+  padding:8px 12px;
+  background:rgba(0,0,0,.6);
+  border-radius:12px;
+  font-size:12px;
 }
 
-#recordTimer{
-position:absolute;
-z-index:11;
-bottom:82px;
-left:50%;
-transform:translateX(-50%);
-display:none;
-padding:6px 12px;
-border-radius:16px;
-background:rgba(0,0,0,.75);
-font-weight:700;
+.previewMedia{
+  width:100%;
+  max-height:55vh;
+  object-fit:contain;
+  background:#000;
+  border-radius:16px;
 }
 
-/* SONG */
-
-#songModal{
-background:rgba(0,0,0,.75);
-justify-content:flex-end;
-}
-
-.songSheet{
-max-height:82%;
-overflow:auto;
-padding:16px;
-border-radius:22px 22px 0 0;
-background:#151515;
-}
-
-.songHeader{
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.songHeader h3{
-margin:0;
-}
-
-.songClose{
-width:38px;
-height:38px;
-border:0;
-border-radius:50%;
-background:#333;
-color:#fff;
-}
-
-.songCategories{
-display:flex;
-gap:7px;
-overflow:auto;
-margin:14px 0;
-}
-
-.songCategory{
-border:0;
-padding:8px 13px;
-border-radius:18px;
-background:#333;
-color:#fff;
-white-space:nowrap;
-}
-
-.songCategory.active{
-background:#fff;
-color:#111;
-}
-
-.songItem{
-display:flex;
-align-items:center;
-gap:10px;
-padding:11px;
-margin-bottom:8px;
-border-radius:13px;
-background:#222;
-}
-
-.songPlay{
-width:40px;
-height:40px;
-border:0;
-border-radius:50%;
-background:#fff;
-color:#111;
-}
-
-.songInfo{
-flex:1;
-}
-
-.songTitle{
-font-weight:700;
-}
-
-.songArtist{
-margin-top:3px;
-font-size:12px;
-color:#aaa;
-}
-
-.songUse{
-border:0;
-border-radius:10px;
-padding:8px 10px;
-background:#fff;
-color:#111;
-font-weight:700;
-}
-
-#songEditor{
-display:none;
-margin-top:10px;
-padding:12px;
-border-radius:13px;
-background:#222;
-}
-
-#songRange{
-width:100%;
-}
-
-/* DETAILS */
-
-#detailsModal{
-padding:15px;
-overflow:auto;
-}
-
-.detailsBox{
-width:min(100%,500px);
-margin:auto;
-padding-top:20px;
-}
-
-.detailsTitle{
-font-size:21px;
-font-weight:700;
-margin-bottom:15px;
-}
-
-.locationCard{
-margin-bottom:12px;
-padding:12px;
-border-radius:12px;
-background:#1c1c1c;
-font-size:13px;
-}
-
-.detailsTextarea{
-width:100%;
-height:110px;
-resize:none;
-padding:13px;
-border:0;
-outline:0;
-border-radius:12px;
-font-size:15px;
-}
-
-.detailsButtons{
-display:flex;
-gap:10px;
-margin-top:10px;
-}
-
-.detailsButtons button{
-flex:1;
-border:0;
-padding:13px;
-border-radius:12px;
-font-weight:700;
-}
-
-#detailsBackBtn{
-background:#333;
-color:#fff;
-}
-
-#detailsNextBtn{
-background:#fff;
-color:#111;
-}
-
-/* PREVIEW */
-
-#previewMediaBox{
-flex:1;
-min-height:0;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#000;
-}
-
-#previewImage,
-#previewVideo{
-max-width:100%;
-max-height:100%;
-object-fit:contain;
-}
-
-#qualityBox{
-display:flex;
-justify-content:center;
-gap:6px;
-padding:8px;
-background:#181818;
-}
-
-.qualityBtn{
-border:0;
-padding:7px 12px;
-border-radius:9px;
-background:#333;
-color:#fff;
+.filterNormal{
+  filter:none;
 }
 
-.qualityBtn.active{
-background:#fff;
-color:#111;
+.filterVintage{
+  filter:sepia(.45) saturate(.85) contrast(.95);
 }
-
-#previewInfo{
-padding:10px;
-text-align:center;
-font-size:13px;
-background:#181818;
-}
-
-#previewBottom{
-display:flex;
-gap:10px;
-padding:12px;
-}
-
-#previewBottom button{
-flex:1;
-padding:13px;
-border:0;
-border-radius:12px;
-font-size:16px;
-font-weight:700;
-}
-
-#cancelPreviewBtn{
-background:#333;
-color:#fff;
-}
-
-#postBtn{
-background:#fff;
-color:#111;
-}
-
-/* UPLOAD */
-
-#uploadBox{
-position:absolute;
-z-index:15000;
-top:50%;
-left:50%;
-display:none;
-width:min(90%,360px);
-transform:translate(-50%,-50%);
-padding:20px;
-border-radius:16px;
-background:#181818;
-box-shadow:0 10px 50px #000;
-}
-
-#uploadTrack{
-height:10px;
-margin-top:18px;
-overflow:hidden;
-border-radius:10px;
-background:#333;
-}
-
-#uploadBar{
-width:0;
-height:100%;
-background:#fff;
-}
-
-#uploadPercent{
-margin-top:8px;
-text-align:center;
-font-weight:700;
-}
-
-/* POST DETAIL */
 
-#postDetailModal{
-overflow:auto;
+.filterBW{
+  filter:grayscale(1) contrast(1.08);
 }
 
-.postDetailBox{
-width:min(100%,600px);
-margin:auto;
-padding-bottom:30px;
+.filterWarm{
+  filter:sepia(.25) saturate(1.25) hue-rotate(-8deg);
 }
 
-.postDetailTop{
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:12px;
+.filterCool{
+  filter:saturate(.95) hue-rotate(18deg);
 }
 
-.postClose{
-width:40px;
-height:40px;
-border:0;
-border-radius:50%;
-background:#333;
-color:#fff;
+.filterGlow{
+  filter:brightness(1.1) saturate(1.3) contrast(.95);
 }
 
-#detailMediaBox{
-width:100%;
-min-height:250px;
-max-height:58vh;
-display:flex;
-align-items:center;
-justify-content:center;
-background:#000;
+.filterNight{
+  filter:brightness(.68) contrast(1.2) saturate(.8);
 }
 
-#detailImage,
-#detailVideo{
-max-width:100%;
-max-height:58vh;
-object-fit:contain;
+.filterColorPop{
+  filter:saturate(1.75) contrast(1.08);
 }
 
-.postMeta{
-padding:14px;
+.filterDream{
+  filter:brightness(1.08) saturate(.85) contrast(.9);
 }
 
-.postAuthor{
-font-size:18px;
-font-weight:700;
+.filterSunset{
+  filter:sepia(.22) saturate(1.35) hue-rotate(-12deg) brightness(1.03);
 }
 
-.postLocation,
-.postDate{
-margin-top:5px;
-font-size:13px;
-color:#aaa;
+.detailCard{
+  background:#202020;
+  border-radius:16px;
+  padding:13px;
+  margin-top:12px;
 }
 
-.postDescription{
-margin-top:12px;
-padding:12px;
-border-radius:12px;
-background:#1c1c1c;
-line-height:1.45;
-white-space:pre-wrap;
+.detailTop{
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
 
-.postSong{
-margin-top:10px;
-padding:12px;
-border-radius:12px;
-background:#1c1c1c;
+.avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  background:#333;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:bold;
 }
 
-#detailSongAudio{
-width:100%;
-margin-top:8px;
+.detailName{
+  font-weight:bold;
 }
 
-.postActions{
-display:flex;
-gap:8px;
-margin-top:12px;
+.detailTime{
+  color:#999;
+  font-size:12px;
+  margin-top:3px;
 }
 
-.postActions button{
-flex:1;
-padding:11px;
-border:0;
-border-radius:12px;
-background:#222;
-color:#fff;
-font-weight:700;
+.detailLocation{
+  margin-top:9px;
+  color:#bbb;
+  font-size:13px;
 }
 
-.postActions button.liked{
-background:#fff;
-color:#111;
+.detailDescription{
+  margin-top:9px;
+  line-height:1.45;
+  white-space:pre-wrap;
 }
 
-.commentTitle{
-margin-top:18px;
-font-weight:700;
+.socialRow{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
 }
 
-#commentInput{
-width:100%;
-height:90px;
-margin-top:8px;
-padding:12px;
-border:1px solid #444;
-border-radius:12px;
-background:#222;
-color:#fff;
-resize:none;
+.socialBtn{
+  flex:1;
+  padding:10px;
+  border-radius:12px;
+  background:#2c2c2c;
+  color:white;
 }
 
-.commentCount{
-font-size:11px;
-color:#888;
-text-align:right;
+.socialBtn.liked{
+  background:#fff;
+  color:#111;
 }
 
-#commentSendBtn{
-width:100%;
-margin-top:8px;
-padding:11px;
-border:0;
-border-radius:11px;
-background:#fff;
-color:#111;
-font-weight:700;
+.comments{
+  margin-top:12px;
 }
 
-.commentItem{
-margin-top:8px;
-padding:10px;
-border-radius:12px;
-background:#1c1c1c;
+.comment{
+  background:#292929;
+  border-radius:12px;
+  padding:9px;
+  margin-top:7px;
 }
 
-.commentAuthor{
-font-size:13px;
-font-weight:700;
+.commentName{
+  font-weight:bold;
+  font-size:13px;
 }
 
 .commentText{
-margin-top:5px;
-color:#ddd;
-white-space:pre-wrap;
+  margin-top:3px;
+  font-size:13px;
+  color:#ddd;
 }
 
-.commentTime{
-margin-top:5px;
-font-size:10px;
-color:#777;
+.clusterHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:10px;
 }
 
-/* NOTIFICATIONS */
-
-#notificationModal{
-background:rgba(0,0,0,.75);
-justify-content:flex-start;
-padding-top:115px;
+.clusterCount{
+  color:#aaa;
+  font-size:13px;
 }
 
-.notificationSheet{
-max-height:70%;
-overflow:auto;
-margin:0 10px;
-padding:12px;
-border-radius:16px;
-background:#181818;
+.snapList{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
 }
 
-.notificationHeader{
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-bottom:8px;
+.snapItem{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  padding:9px;
+  border-radius:14px;
+  background:#222;
+  cursor:pointer;
 }
 
-.notificationHeader button{
-width:36px;
-height:36px;
-border:0;
-border-radius:50%;
-background:#333;
-color:#fff;
+.snapThumb{
+  width:72px;
+  height:72px;
+  border-radius:10px;
+  object-fit:cover;
+  background:#111;
 }
 
-.notificationItem{
-margin-bottom:7px;
-padding:11px;
-border-radius:11px;
-background:#222;
+.snapItemInfo{
+  min-width:0;
+  flex:1;
 }
 
-.notificationItem.unread{
-background:#303030;
+.snapItemName{
+  font-weight:bold;
 }
 
-.notificationDate{
-margin-top:5px;
-font-size:10px;
-color:#777;
+.snapItemMeta{
+  color:#999;
+  font-size:11px;
+  margin-top:4px;
 }
 
-/* GALLERY */
-
-#galleryModal{
-background:#111;
+.snapItemDesc{
+  color:#ccc;
+  font-size:12px;
+  margin-top:5px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
-#galleryTop{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:12px;
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:86px;
+  transform:translateX(-50%);
+  z-index:9000;
+  background:#111;
+  color:white;
+  border:1px solid #444;
+  padding:11px 15px;
+  border-radius:13px;
+  display:none;
+  max-width:90%;
+  text-align:center;
 }
 
-#galleryImageBox{
-position:relative;
-flex:1;
-min-height:0;
-display:flex;
-align-items:center;
-justify-content:center;
+#loading{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  background:rgba(0,0,0,.65);
+  display:none;
+  align-items:center;
+  justify-content:center;
 }
 
-#galleryImage,
-#galleryVideo{
-max-width:100%;
-max-height:100%;
-object-fit:contain;
+.loadingBox{
+  background:#181818;
+  padding:20px;
+  border-radius:16px;
+  text-align:center;
+  min-width:190px;
 }
 
-.galleryArrow{
-position:absolute;
-top:50%;
-width:45px;
-height:60px;
-border:0;
-border-radius:10px;
-transform:translateY(-50%);
-background:rgba(0,0,0,.65);
-color:#fff;
-font-size:38px;
+.spinner{
+  width:35px;
+  height:35px;
+  border:4px solid #444;
+  border-top-color:white;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  margin:0 auto 12px;
 }
 
-#prevBtn{left:8px}
-#nextBtn{right:8px}
-
-#closeGalleryBtn{
-width:42px;
-height:42px;
-border:0;
-border-radius:50%;
-background:#333;
-color:#fff;
-font-size:20px;
+@keyframes spin{
+  to{transform:rotate(360deg)}
 }
 
-/* MARKER */
-
-.markerGhost{
-position:relative;
-width:40px;
-height:40px;
-display:flex;
-align-items:center;
-justify-content:center;
-border:3px solid #111;
-border-radius:50%;
-background:#fff;
-color:#111;
-font-size:20px;
+.progress{
+  width:100%;
+  height:8px;
+  background:#333;
+  border-radius:10px;
+  overflow:hidden;
+  margin-top:10px;
 }
 
-.markerGhost span{
-position:absolute;
-right:-8px;
-top:-8px;
-min-width:18px;
-padding:2px;
-border-radius:10px;
-background:#111;
-color:#fff;
-font-size:10px;
-text-align:center;
+.progressBar{
+  height:100%;
+  width:0%;
+  background:white;
+}
+
+.hidden{
+  display:none !important;
+}
+
+.exitOverlay{
+  position:fixed;
+  inset:0;
+  z-index:12000;
+  background:rgba(0,0,0,.78);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.exitBox{
+  width:100%;
+  max-width:360px;
+  background:#1a1a1a;
+  border-radius:20px;
+  padding:20px;
+}
+
+.exitBox h3{
+  margin:0 0 8px;
+}
+
+.exitBox p{
+  color:#aaa;
+  font-size:14px;
+}
+
+.exitActions{
+  display:flex;
+  gap:8px;
+  margin-top:15px;
+}
+
+.exitActions button{
+  flex:1;
+  padding:12px;
+  border-radius:12px;
+}
+
+.editBtn{
+  background:white;
+  color:#111;
+}
+
+.cancelBtn{
+  background:#333;
+  color:white;
+}
+
+.exitBtn{
+  background:#b52c2c;
+  color:white;
+}
+
+#notificationDot{
+  position:absolute;
+  right:0;
+  top:0;
+  width:10px;
+  height:10px;
+  background:red;
+  border-radius:50%;
+  display:none;
 }
 </style>
 </head>
 
 <body>
 
-<div id="map"></div>
+<div id="app">
 
-<div id="topBar">
-<input id="searchInput" placeholder="🔍 Search any location">
-<button id="searchBtn">Search</button>
-</div>
+  <div id="map"></div>
 
-<button id="notificationBtn">
-🔔 <span id="notificationCount">0</span>
-</button>
+  <div class="topbar">
 
-<button id="logoutBtn">Logout</button>
+    <div class="searchBox">
+      <input
+        id="searchInput"
+        placeholder="Search place..."
+        autocomplete="off">
+      <button class="iconBtn" id="searchBtn">⌕</button>
+    </div>
 
-<button id="locBtn">📍 My Location</button>
+    <button class="userBtn" id="accountBtn">
+      👤
+      <span id="notificationDot"></span>
+    </button>
 
-<div id="status"></div>
+  </div>
 
+  <div class="bottomBar">
 
-<!-- AUTH -->
+    <button class="bottomBtn" id="locationBtn">
+      📍 My Location
+    </button>
 
-<div id="authModal">
+    <button class="bottomBtn primary" id="cameraBtn">
+      📸 Post Snap
+    </button>
 
-<div class="authBox">
+    <button class="bottomBtn" id="galleryBtn">
+      👻 Gallery
+    </button>
 
-<h2 id="authTitle">Past Snap</h2>
-
-<div class="authSub" id="authSub">
-Login to post your snaps
-</div>
-
-<input
-id="displayNameInput"
-class="authInput"
-placeholder="Display Name"
-style="display:none"
->
-
-<input
-id="emailInput"
-class="authInput"
-type="email"
-placeholder="Email"
->
-
-<input
-id="passwordInput"
-class="authInput"
-type="password"
-placeholder="Password"
->
-
-<button id="authBtn" class="authBtn">
-Login
-</button>
-
-<div class="authSwitch">
-
-<span id="authSwitchText">
-Don't have an account?
-</span>
-
-<button id="authSwitchBtn">
-Register
-</button>
-
-</div>
-
-</div>
-</div>
-
-
-<!-- CAMERA -->
-
-<div id="cameraModal" class="modal">
-
-<video
-id="cameraVideo"
-autoplay
-playsinline
-muted
-></video>
-
-<canvas id="cameraCanvas"></canvas>
-
-<div id="cameraTop">
-
-<button id="closeCameraBtn">✕</button>
-
-<div style="display:flex;gap:7px">
-
-<button id="songCameraBtn">🎵</button>
-
-<button id="switchCameraBtn">🔄</button>
-
-</div>
-
-</div>
-
-<div id="zoomBox">
-
-<div id="zoomValue">1×</div>
-
-<input
-id="zoomRange"
-type="range"
-min="0.5"
-max="20"
-step="0.1"
-value="1"
->
-
-</div>
-
-<div id="modeBar">
-
-<button id="photoModeBtn" class="active">
-📷 Photo
-</button>
-
-<button id="videoModeBtn">
-🎥 Video
-</button>
-
-</div>
-
-<div id="filterBar">
-
-<button class="filterBtn active" data-filter="none">Normal</button>
-<button class="filterBtn" data-filter="vintage">Vintage</button>
-<button class="filterBtn" data-filter="bw">B&W</button>
-<button class="filterBtn" data-filter="warm">Warm</button>
-<button class="filterBtn" data-filter="cool">Cool</button>
-<button class="filterBtn" data-filter="glow">Glow</button>
-<button class="filterBtn" data-filter="night">Night</button>
-<button class="filterBtn" data-filter="pop">Color Pop</button>
-<button class="filterBtn" data-filter="dream">Dream</button>
-<button class="filterBtn" data-filter="sunset">Sunset</button>
-
-</div>
-
-<div id="recordTimer">00:00</div>
-
-<div id="cameraBottom">
-
-<button id="mirrorBtn">🪞 Mirror</button>
-
-<button id="captureBtn"></button>
-
-</div>
+  </div>
 
 </div>
 
 
-<!-- SONG -->
+<!-- AUTH MODAL -->
 
-<div id="songModal" class="modal">
+<div class="modal" id="authModal">
+  <div class="sheet">
 
-<div class="songSheet">
+    <div class="closeRow">
+      <div class="modalTitle">Account</div>
+      <button class="closeBtn" onclick="closeModal('authModal')">×</button>
+    </div>
 
-<div class="songHeader">
+    <div id="loggedOutBox">
 
-<h3>🎵 Add Song</h3>
+      <div class="authTabs">
+        <button id="loginTab" class="active">Login</button>
+        <button id="registerTab">Register</button>
+      </div>
 
-<button class="songClose" id="closeSongBtn">
-✕
-</button>
+      <div class="field">
+        <label>Email</label>
+        <input id="authEmail" type="email" placeholder="Email">
+      </div>
 
-</div>
+      <div class="field">
+        <label>Password</label>
+        <input id="authPassword" type="password" placeholder="Password">
+      </div>
 
-<div class="songCategories">
+      <div class="field hidden" id="displayNameField">
+        <label>Display Name</label>
+        <input id="displayNameInput" placeholder="Your name">
+      </div>
 
-<button class="songCategory active" data-category="Viral">
-Viral
-</button>
+      <button class="action" id="authSubmitBtn">
+        Login
+      </button>
 
-<button class="songCategory" data-category="Hindi">
-Hindi
-</button>
+      <div id="authMessage"
+           style="margin-top:10px;color:#aaa;font-size:13px">
+      </div>
 
-<button class="songCategory" data-category="Bhojpuri">
-Bhojpuri
-</button>
+    </div>
 
-<button class="songCategory" data-category="Haryanvi">
-Haryanvi
-</button>
+    <div id="loggedInBox" class="hidden">
 
-</div>
+      <div class="detailCard">
 
-<div id="songList"></div>
+        <div class="detailTop">
+          <div class="avatar" id="accountAvatar">U</div>
 
-<div id="songEditor">
+          <div>
+            <div class="detailName" id="accountName">User</div>
+            <div class="detailTime" id="accountEmail"></div>
+          </div>
+        </div>
 
-<b id="selectedSongTitle">
-Selected Song
-</b>
+      </div>
 
-<div style="display:flex;justify-content:space-between;color:#aaa;font-size:12px;margin-top:8px">
-<span id="songStartLabel">0:00</span>
-<span>30 sec</span>
-</div>
+      <button class="action" id="notificationBtn">
+        🔔 Notifications
+      </button>
 
-<input
-id="songRange"
-type="range"
-min="0"
-max="0"
-value="0"
-step="1"
->
+      <button class="action dark" id="logoutBtn">
+        Logout
+      </button>
 
-<button
-id="useSongBtn"
-style="width:100%;margin-top:10px;padding:11px;border:0;border-radius:10px;font-weight:700"
->
-Use Song
-</button>
+    </div>
 
-</div>
-
-</div>
-</div>
-
-
-<!-- PREVIEW -->
-
-<div id="previewModal" class="modal">
-
-<div id="previewMediaBox">
-
-<img id="previewImage" style="display:none">
-
-<video
-id="previewVideo"
-style="display:none"
-controls
-playsinline
-></video>
-
-</div>
-
-<div id="qualityBox">
-
-<button class="qualityBtn active" data-quality="480">
-480p
-</button>
-
-<button class="qualityBtn" data-quality="720">
-720p
-</button>
-
-<button class="qualityBtn" data-quality="1080">
-1080p
-</button>
-
-</div>
-
-<div id="previewInfo">
-Ready
-</div>
-
-<div id="previewBottom">
-
-<button id="cancelPreviewBtn">
-Retake
-</button>
-
-<button id="postBtn">
-Next
-</button>
-
-</div>
-
+  </div>
 </div>
 
 
-<!-- DETAILS -->
+<!-- CAMERA MODAL -->
 
-<div id="detailsModal" class="modal">
+<div class="modal cameraModal" id="cameraModal">
 
-<div class="detailsBox">
+  <div class="cameraSheet">
 
-<div class="detailsTitle">
-Post Details
+    <div class="cameraPreviewWrap">
+
+      <button class="cameraClose" id="cameraCloseBtn">×</button>
+
+      <div class="cameraMode" id="cameraModeText">
+        PHOTO
+      </div>
+
+      <video id="cameraVideo"
+             autoplay
+             playsinline
+             muted></video>
+
+    </div>
+
+    <div class="cameraControls">
+
+      <div class="controlRow">
+
+        <button class="smallControl active"
+                data-filter="Normal">
+          Normal
+        </button>
+
+        <button class="smallControl"
+                data-filter="Vintage">
+          Vintage
+        </button>
+
+        <button class="smallControl"
+                data-filter="B&W">
+          B&W
+        </button>
+
+        <button class="smallControl"
+                data-filter="Warm">
+          Warm
+        </button>
+
+        <button class="smallControl"
+                data-filter="Cool">
+          Cool
+        </button>
+
+        <button class="smallControl"
+                data-filter="Glow">
+          Glow
+        </button>
+
+        <button class="smallControl"
+                data-filter="Night">
+          Night
+        </button>
+
+        <button class="smallControl"
+                data-filter="Color Pop">
+          Color Pop
+        </button>
+
+        <button class="smallControl"
+                data-filter="Dream">
+          Dream
+        </button>
+
+        <button class="smallControl"
+                data-filter="Sunset">
+          Sunset
+        </button>
+
+      </div>
+
+      <div class="controlRow">
+
+        <button class="smallControl" id="cameraFlipBtn">
+          🔄 Camera
+        </button>
+
+        <button class="smallControl" id="mirrorBtn">
+          🪞 Mirror
+        </button>
+
+        <button class="smallControl" id="zoomOutBtn">
+          −
+        </button>
+
+        <button class="smallControl" id="zoomLabel">
+          1×
+        </button>
+
+        <button class="smallControl" id="zoomInBtn">
+          +
+        </button>
+
+        <button class="smallControl" id="videoModeBtn">
+          🎥 Video
+        </button>
+
+      </div>
+
+      <div class="controlRow">
+
+        <button class="smallControl active"
+                data-quality="480">
+          480p
+        </button>
+
+        <button class="smallControl"
+                data-quality="720">
+          720p
+        </button>
+
+        <button class="smallControl"
+                data-quality="1080">
+          1080p
+        </button>
+
+      </div>
+
+      <div class="captureRow">
+
+        <button class="captureBtn"
+                id="captureBtn">
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
 </div>
 
-<div class="locationCard">
 
-<div>
-<b>Posted by:</b>
-<span id="detailsUserName"></span>
-</div>
+<!-- PREVIEW / POST MODAL -->
 
-<br>
+<div class="modal" id="postModal">
 
-<div>
-<b>Location:</b>
-</div>
+  <div class="sheet">
 
-<div id="detailsLocation">
-Getting location...
-</div>
+    <div class="closeRow">
 
-</div>
+      <div class="modalTitle">
+        Post Snap
+      </div>
 
-<textarea
-id="descriptionInput"
-class="detailsTextarea"
-placeholder="Write something about this snap..."
-maxlength="500"
-></textarea>
+      <button class="closeBtn"
+              id="postCloseBtn">
+        ×
+      </button>
 
-<div style="font-size:11px;color:#777;text-align:right">
-Maximum 500 characters
-</div>
+    </div>
 
-<div style="margin-top:10px;padding:11px;border-radius:12px;background:#1c1c1c">
+    <div id="previewContainer"></div>
 
-<div style="font-size:13px;color:#aaa">
-Selected Song
-</div>
+    <div class="field">
+      <label>Description</label>
+      <textarea
+        id="postDescription"
+        maxlength="2000"
+        placeholder="Write something..."></textarea>
+    </div>
 
-<div id="selectedSongDetails">
-No song selected
-</div>
+    <div class="field">
+      <label>Location</label>
+      <input id="postLocation"
+             placeholder="Detecting location..."
+             readonly>
+    </div>
 
-</div>
+    <button class="action"
+            id="publishBtn">
+      📤 Post Snap
+    </button>
 
-<div class="detailsButtons">
+    <button class="action dark"
+            id="retakeBtn">
+      🔄 Retake
+    </button>
 
-<button id="detailsBackBtn">
-Back
-</button>
-
-<button id="detailsNextBtn">
-📍 Post Snap
-</button>
-
-</div>
-
-</div>
+  </div>
 </div>
 
 
-<!-- UPLOAD -->
+<!-- CLUSTER MODAL -->
 
-<div id="uploadBox">
+<div class="modal" id="clusterModal">
 
-<div style="font-weight:700;font-size:18px">
-📤 Uploading Snap
+  <div class="sheet">
+
+    <div class="closeRow">
+
+      <div>
+        <div class="modalTitle">
+          👻 Nearby Snaps
+        </div>
+
+        <div class="clusterCount"
+             id="clusterCount">
+        </div>
+      </div>
+
+      <button class="closeBtn"
+              onclick="closeModal('clusterModal')">
+        ×
+      </button>
+
+    </div>
+
+    <div class="snapList"
+         id="clusterList">
+    </div>
+
+  </div>
 </div>
 
-<div id="uploadText" style="margin-top:8px;color:#aaa;font-size:13px">
-Please wait...
-</div>
 
-<div id="uploadTrack">
-<div id="uploadBar"></div>
-</div>
+<!-- POST DETAIL MODAL -->
 
-<div id="uploadPercent">
-0%
-</div>
+<div class="modal" id="detailModal">
 
-</div>
+  <div class="sheet">
 
+    <div class="closeRow">
 
-<!-- POST DETAIL -->
+      <div class="modalTitle">
+        Snap
+      </div>
 
-<div id="postDetailModal" class="modal">
+      <button class="closeBtn"
+              id="detailCloseBtn">
+        ×
+      </button>
 
-<div class="postDetailBox">
+    </div>
 
-<div class="postDetailTop">
+    <div id="detailContent"></div>
 
-<b>Past Snap</b>
-
-<button id="closePostDetail" class="postClose">
-✕
-</button>
-
-</div>
-
-<div id="detailMediaBox">
-
-<img id="detailImage" style="display:none">
-
-<video
-id="detailVideo"
-style="display:none"
-controls
-playsinline
-></video>
-
-</div>
-
-<div class="postMeta">
-
-<div class="postAuthor" id="detailAuthor"></div>
-
-<div class="postLocation" id="detailLocation"></div>
-
-<div class="postDate" id="detailDate"></div>
-
-<div class="postDescription" id="detailDescription">
-No description
-</div>
-
-<div class="postSong">
-
-<div id="detailSongName">
-🎵 No song
-</div>
-
-<audio
-id="detailSongAudio"
-controls
-style="display:none"
-></audio>
-
-</div>
-
-<div class="postActions">
-
-<button id="detailLikeBtn">
-❤️ Like <span id="detailLikeCount">0</span>
-</button>
-
-<button id="detailViewCount">
-👁️ <span id="detailViews">0</span>
-</button>
-
-<button id="detailCommentCount">
-💬 <span id="detailComments">0</span>
-</button>
-
-</div>
-
-<div class="commentTitle">
-Comments
-</div>
-
-<textarea
-id="commentInput"
-maxlength="2000"
-placeholder="Write a comment..."
-></textarea>
-
-<div id="commentWordCount" class="commentCount">
-0 / 250 words
-</div>
-
-<button id="commentSendBtn">
-Send Comment
-</button>
-
-<div id="commentsList"></div>
-
-</div>
-</div>
+  </div>
 </div>
 
 
 <!-- NOTIFICATIONS -->
 
-<div id="notificationModal" class="modal">
+<div class="modal" id="notificationsModal">
 
-<div class="notificationSheet">
+  <div class="sheet">
 
-<div class="notificationHeader">
+    <div class="closeRow">
 
-<b>🔔 Notifications</b>
+      <div class="modalTitle">
+        🔔 Notifications
+      </div>
 
-<button id="closeNotificationBtn">
-✕
-</button>
+      <button class="closeBtn"
+              onclick="closeModal('notificationsModal')">
+        ×
+      </button>
 
-</div>
+    </div>
 
-<div id="notificationList">
-Loading...
-</div>
+    <div id="notificationsList">
+    </div>
 
-</div>
-</div>
-
-
-<!-- GALLERY -->
-
-<div id="galleryModal" class="modal">
-
-<div id="galleryTop">
-
-<span id="galleryCounter">1 / 1</span>
-
-<button id="closeGalleryBtn">✕</button>
-
-</div>
-
-<div id="galleryImageBox">
-
-<img id="galleryImage" style="display:none">
-
-<video
-id="galleryVideo"
-style="display:none"
-controls
-playsinline
-></video>
-
-<button id="prevBtn" class="galleryArrow">‹</button>
-
-<button id="nextBtn" class="galleryArrow">›</button>
-
-</div>
-
+  </div>
 </div>
 
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- EXIT CONFIRM -->
+
+<div class="exitOverlay" id="exitOverlay">
+
+  <div class="exitBox">
+
+    <h3>Website close kare?</h3>
+
+    <p>
+      Agar abhi bahar jaoge to Past Snap close ho jayega.
+    </p>
+
+    <div class="exitActions">
+
+      <button class="editBtn"
+              id="exitEditBtn">
+        Edit
+      </button>
+
+      <button class="cancelBtn"
+              id="exitCancelBtn">
+        Cancel
+      </button>
+
+      <button class="exitBtn"
+              id="exitConfirmBtn">
+        Exit
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div id="toast"></div>
+
+<div id="loading">
+
+  <div class="loadingBox">
+
+    <div class="spinner"></div>
+
+    <div id="loadingText">
+      Please wait...
+    </div>
+
+    <div class="progress">
+      <div class="progressBar"
+           id="progressBar"></div>
+    </div>
+
+  </div>
+
+</div>
+
 
 <script>
 
 /* =========================================================
-SUPABASE
+   SUPABASE
 ========================================================= */
 
 const SUPABASE_URL =
-"https://zzxhymydsvwpjbyaslde.supabase.co";
+  "https://zzxhymydsvwpjbyaslde.supabase.co";
 
 const SUPABASE_KEY =
-"sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
+  "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
 
 const supabaseClient =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
-);
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
 
 
 /* =========================================================
-DOM
+   GLOBALS
 ========================================================= */
 
-const $ = id => document.getElementById(id);
+let currentUser = null;
+let currentProfile = null;
 
-const mapEl=$("map");
-const authModal=$("authModal");
-const cameraModal=$("cameraModal");
-const previewModal=$("previewModal");
-const detailsModal=$("detailsModal");
-const songModal=$("songModal");
-const postDetailModal=$("postDetailModal");
-const notificationModal=$("notificationModal");
-const galleryModal=$("galleryModal");
+let map = null;
+let userMarker = null;
 
-const cameraVideo=$("cameraVideo");
-const cameraCanvas=$("cameraCanvas");
+let allSnaps = [];
+let markerLayers = [];
+
+let currentStream = null;
+let currentFacingMode = "user";
+
+let currentFilter = "Normal";
+let currentMirror = true;
+
+let currentZoom = 1;
+
+let cameraMode = "photo";
+let selectedQuality = 480;
+
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordingStartedAt = 0;
+let lastRecordingDuration = 0;
+
+let capturedBlob = null;
+let capturedMediaType = null;
+
+let capturedWidth = null;
+let capturedHeight = null;
+
+let selectedPost = null;
+let selectedCluster = [];
+
+let isPosting = false;
+
+let backHistoryActive = false;
+
+const CLUSTER_RADIUS_METERS = 50;
 
 
 /* =========================================================
-GLOBALS
+   HELPERS
 ========================================================= */
 
-let map=null;
-
-let currentUser=null;
-let currentProfile=null;
-
-let cameraStream=null;
-let currentFacing="environment";
-
-let mirrorEnabled=false;
-let currentFilter="none";
-let currentMode="photo";
-let currentZoom=1;
-
-let recorder=null;
-let recordedChunks=[];
-let recordingTimer=null;
-let recordingStartedAt=0;
-let lastRecordingDuration=0;
-
-let capturedBlob=null;
-let capturedType=null;
-let capturedVideoUrl=null;
-
-let currentPosition=null;
-let selectedQuality=480;
-
-let selectedSong=null;
-let selectedSongAudio=null;
-let selectedSongStart=0;
-let selectedSongCategory="Viral";
-
-let currentDetailSnap=null;
-
-let galleryItems=[];
-let galleryIndex=0;
-
-let markerLayer=[];
-
-let isPostingSnap=false;
-
-
-/* =========================================================
-HELPERS
-========================================================= */
-
-function escapeHTML(value){
-
-return String(value ?? "")
-.replaceAll("&","&amp;")
-.replaceAll("<","&lt;")
-.replaceAll(">","&gt;")
-.replaceAll('"',"&quot;")
-.replaceAll("'","&#039;");
-
+function $(id){
+  return document.getElementById(id);
 }
 
-function formatTime(seconds){
+function showToast(message){
 
-seconds=Math.max(
-0,
-Math.floor(Number(seconds)||0)
-);
+  const el = $("toast");
 
-const m=Math.floor(seconds/60);
-const s=seconds%60;
+  el.textContent = message;
+  el.style.display = "block";
 
-return `${m}:${String(s).padStart(2,"0")}`;
+  clearTimeout(window.__toastTimer);
 
+  window.__toastTimer =
+    setTimeout(()=>{
+      el.style.display = "none";
+    },3000);
 }
 
-function formatDate(date){
 
-try{
+function showLoading(text="Please wait..."){
 
-return new Intl.DateTimeFormat(
-"en-IN",
-{
-dateStyle:"medium",
-timeStyle:"short"
-}
-).format(new Date(date));
-
-}catch(e){
-
-return new Date(date).toLocaleString();
-
+  $("loadingText").textContent = text;
+  $("progressBar").style.width = "0%";
+  $("loading").style.display = "flex";
 }
 
+
+function hideLoading(){
+  $("loading").style.display = "none";
 }
 
-function wordCount(text){
 
-const clean=text.trim();
-
-if(!clean) return 0;
-
-return clean.split(/\s+/).length;
-
+function setProgress(percent){
+  $("progressBar").style.width =
+    Math.max(0,Math.min(100,percent)) + "%";
 }
 
-function showStatus(message,ms=3000){
 
-const el=$("status");
+function openModal(id){
 
-el.textContent=message;
-el.style.display="block";
+  $(id).classList.add("show");
 
-clearTimeout(showStatus.timer);
+  if(
+    id !== "cameraModal" &&
+    id !== "authModal"
+  ){
+    pushBackState();
+  }
+}
 
-showStatus.timer=setTimeout(()=>{
 
-el.style.display="none";
+function closeModal(id){
 
-},ms);
+  $(id).classList.remove("show");
 
+  if(id === "cameraModal"){
+    stopCamera();
+  }
+
+  if(id === "detailModal"){
+    selectedPost = null;
+  }
+}
+
+
+function pushBackState(){
+
+  if(backHistoryActive) return;
+
+  history.pushState(
+    {pastSnapModal:true},
+    "",
+    location.href
+  );
+
+  backHistoryActive = true;
 }
 
 
 /* =========================================================
-AUTH
-========================================================= */
-
-let authMode="login";
-
-function updateAuthUI(){
-
-if(authMode==="login"){
-
-$("authTitle").textContent="Past Snap";
-$("authSub").textContent="Login to post your snaps";
-$("displayNameInput").style.display="none";
-$("authBtn").textContent="Login";
-$("authSwitchText").textContent="Don't have an account?";
-$("authSwitchBtn").textContent="Register";
-
-}else{
-
-$("authTitle").textContent="Create Account";
-$("authSub").textContent="Register to post and interact";
-$("displayNameInput").style.display="block";
-$("authBtn").textContent="Register";
-$("authSwitchText").textContent="Already have an account?";
-$("authSwitchBtn").textContent="Login";
-
-}
-
-}
-
-function showAuth(){
-
-updateAuthUI();
-
-authModal.style.display="flex";
-
-}
-
-function hideAuth(){
-
-authModal.style.display="none";
-
-}
-
-$("authSwitchBtn").onclick=()=>{
-
-authMode=
-authMode==="login"
-?"register"
-:"login";
-
-updateAuthUI();
-
-};
-
-
-$("authBtn").onclick=async()=>{
-
-const email=
-$("emailInput").value.trim();
-
-const password=
-$("passwordInput").value;
-
-const name=
-$("displayNameInput").value.trim();
-
-if(!email || !password){
-
-showStatus("Email aur password required");
-
-return;
-
-}
-
-try{
-
-if(authMode==="register"){
-
-if(!name){
-
-showStatus("Display name required");
-
-return;
-
-}
-
-const {data,error}=
-await supabaseClient.auth.signUp({
-
-email,
-password
-
-});
-
-if(error) throw error;
-
-if(data.user){
-
-const {error:profileError}=
-await supabaseClient
-.from("profiles")
-.upsert({
-
-id:data.user.id,
-display_name:name
-
-});
-
-if(profileError) throw profileError;
-
-}
-
-showStatus("Registration successful");
-
-authMode="login";
-updateAuthUI();
-
-}else{
-
-const {error}=
-await supabaseClient.auth.signInWithPassword({
-
-email,
-password
-
-});
-
-if(error) throw error;
-
-showStatus("Login successful");
-
-}
-
-}catch(error){
-
-console.error(error);
-
-showStatus(
-error.message ||
-"Authentication failed"
-);
-
-}
-
-};
-
-
-$("logoutBtn").onclick=async()=>{
-
-await supabaseClient.auth.signOut();
-
-location.reload();
-
-};
-
-
-/* =========================================================
-USER
-========================================================= */
-
-async function loadUser(){
-
-const {data,error}=
-await supabaseClient.auth.getSession();
-
-if(error){
-
-console.error(error);
-
-}
-
-currentUser=
-data.session?.user || null;
-
-if(!currentUser){
-
-$("logoutBtn").style.display="none";
-$("notificationBtn").style.display="none";
-
-return;
-
-}
-
-hideAuth();
-
-$("logoutBtn").style.display="block";
-$("notificationBtn").style.display="block";
-
-const {data:profile}=
-await supabaseClient
-.from("profiles")
-.select("id,display_name")
-.eq("id",currentUser.id)
-.maybeSingle();
-
-currentProfile=profile;
-
-await updateNotificationCount();
-
-}
-
-
-/* =========================================================
-MAP
+   MAP
 ========================================================= */
 
 function initMap(){
 
-map=L.map("map",{
-zoomControl:true
-}).setView(
-[20.5937,78.9629],
-5
+  map = L.map("map",{
+    zoomControl:false
+  }).setView(
+    [17.3850,78.4867],
+    14
+  );
+
+  L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+      maxZoom:20,
+      attribution:"© OpenStreetMap"
+    }
+  ).addTo(map);
+
+  loadSnaps();
+}
+
+
+/* =========================================================
+   DISTANCE
+========================================================= */
+
+function distanceMeters(
+  lat1,
+  lon1,
+  lat2,
+  lon2
+){
+
+  const R = 6371000;
+
+  const p1 =
+    lat1 * Math.PI / 180;
+
+  const p2 =
+    lat2 * Math.PI / 180;
+
+  const dp =
+    (lat2-lat1) * Math.PI / 180;
+
+  const dl =
+    (lon2-lon1) * Math.PI / 180;
+
+  const a =
+    Math.sin(dp/2) *
+    Math.sin(dp/2) +
+
+    Math.cos(p1) *
+    Math.cos(p2) *
+    Math.sin(dl/2) *
+    Math.sin(dl/2);
+
+  const c =
+    2 *
+    Math.atan2(
+      Math.sqrt(a),
+      Math.sqrt(1-a)
+    );
+
+  return R*c;
+}
+
+
+/* =========================================================
+   50M CLUSTERING
+========================================================= */
+
+function build50mClusters(snaps){
+
+  const clusters = [];
+  const used = new Set();
+
+  for(let i=0;i<snaps.length;i++){
+
+    if(used.has(i)) continue;
+
+    const base = snaps[i];
+
+    const cluster = [base];
+
+    used.add(i);
+
+    let changed = true;
+
+    /*
+      Important:
+      We keep adding posts that are within
+      50m of the cluster center.
+    */
+
+    while(changed){
+
+      changed = false;
+
+      const center =
+        cluster.reduce(
+          (acc,s)=>{
+            acc.lat += Number(s.latitude);
+            acc.lng += Number(s.longitude);
+            return acc;
+          },
+          {lat:0,lng:0}
+        );
+
+      center.lat /= cluster.length;
+      center.lng /= cluster.length;
+
+      for(let j=0;j<snaps.length;j++){
+
+        if(used.has(j)) continue;
+
+        const candidate = snaps[j];
+
+        const d =
+          distanceMeters(
+            center.lat,
+            center.lng,
+            Number(candidate.latitude),
+            Number(candidate.longitude)
+          );
+
+        if(d <= CLUSTER_RADIUS_METERS){
+
+          cluster.push(candidate);
+          used.add(j);
+          changed = true;
+        }
+      }
+    }
+
+    const center =
+      cluster.reduce(
+        (acc,s)=>{
+          acc.lat += Number(s.latitude);
+          acc.lng += Number(s.longitude);
+          return acc;
+        },
+        {lat:0,lng:0}
+      );
+
+    center.lat /= cluster.length;
+    center.lng /= cluster.length;
+
+    clusters.push({
+      lat:center.lat,
+      lng:center.lng,
+      snaps:cluster
+    });
+  }
+
+  return clusters;
+}
+
+
+/* =========================================================
+   MARKERS
+========================================================= */
+
+function clearMarkers(){
+
+  markerLayers.forEach(
+    layer => map.removeLayer(layer)
+  );
+
+  markerLayers = [];
+}
+
+
+function createGhostIcon(count){
+
+  if(count <= 1){
+
+    return L.divIcon({
+      className:"",
+      html:`<div class="singleGhost">👻</div>`,
+      iconSize:[42,42],
+      iconAnchor:[21,21]
+    });
+
+  }
+
+  return L.divIcon({
+
+    className:"",
+
+    html:`
+      <div class="clusterGhost">
+        ${count} 👻
+      </div>
+    `,
+
+    iconSize:[80,42],
+    iconAnchor:[40,21]
+  });
+}
+
+
+function renderClusters(){
+
+  if(!map) return;
+
+  clearMarkers();
+
+  const clusters =
+    build50mClusters(allSnaps);
+
+  clusters.forEach(cluster=>{
+
+    const marker =
+      L.marker(
+        [cluster.lat,cluster.lng],
+        {
+          icon:createGhostIcon(
+            cluster.snaps.length
+          )
+        }
+      );
+
+    marker.on(
+      "click",
+      ()=>{
+        openCluster(cluster.snaps);
+      }
+    );
+
+    marker.addTo(map);
+
+    markerLayers.push(marker);
+  });
+}
+
+
+/* =========================================================
+   LOAD SNAPS
+========================================================= */
+
+async function loadSnaps(){
+
+  try{
+
+    const {data,error} =
+      await supabaseClient
+      .from("snaps")
+      .select("*")
+      .order("created_at",{
+        ascending:false
+      });
+
+    if(error){
+      console.error(error);
+      showToast("Snaps load nahi ho paaye.");
+      return;
+    }
+
+    allSnaps = data || [];
+
+    await attachProfiles(allSnaps);
+
+    renderClusters();
+
+  }catch(err){
+
+    console.error(err);
+
+    showToast(
+      "Snaps load karte waqt error."
+    );
+  }
+}
+
+
+/* =========================================================
+   PROFILES
+========================================================= */
+
+async function attachProfiles(snaps){
+
+  const ids =
+    [...new Set(
+      snaps
+      .map(s=>s.user_id)
+      .filter(Boolean)
+    )];
+
+  if(!ids.length) return;
+
+  const {data,error} =
+    await supabaseClient
+    .from("profiles")
+    .select("id,display_name")
+    .in("id",ids);
+
+  if(error){
+    console.warn(error);
+    return;
+  }
+
+  const mapProfiles = {};
+
+  (data || []).forEach(profile=>{
+    mapProfiles[profile.id] =
+      profile.display_name;
+  });
+
+  snaps.forEach(snap=>{
+    snap.display_name =
+      mapProfiles[snap.user_id] ||
+      "Past Snap User";
+  });
+}
+
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+$("searchBtn").addEventListener(
+  "click",
+  searchPlace
 );
 
-L.tileLayer(
-"https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-{
-maxZoom:20,
-attribution:"© OpenStreetMap"
-}
-).addTo(map);
+$("searchInput").addEventListener(
+  "keydown",
+  e=>{
+    if(e.key === "Enter"){
+      searchPlace();
+    }
+  }
+);
 
-loadGhostMarkers();
-
-}
-
-
-/* =========================================================
-GEOCODING
-========================================================= */
-
-async function reverseGeocode(lat,lon){
-
-try{
-
-const url=
-"https://nominatim.openstreetmap.org/reverse"+
-"?format=json"+
-"&lat="+encodeURIComponent(lat)+
-"&lon="+encodeURIComponent(lon)+
-"&zoom=18"+
-"&addressdetails=1"+
-"&accept-language=en";
-
-const response=
-await fetch(url);
-
-if(!response.ok){
-
-throw new Error("Geocoding failed");
-
-}
-
-const data=
-await response.json();
-
-const a=data.address || {};
-
-const village=
-a.village ||
-a.hamlet ||
-a.town ||
-a.city ||
-a.municipality ||
-"";
-
-const district=
-a.county ||
-a.district ||
-"";
-
-const state=
-a.state ||
-"";
-
-const country=
-a.country ||
-"";
-
-return [
-village,
-district,
-state,
-country
-].filter(Boolean).join(", ");
-
-}catch(error){
-
-console.error(error);
-
-return "Location unavailable";
-
-}
-
-}
-
-
-/* =========================================================
-SEARCH
-========================================================= */
 
 async function searchPlace(){
 
-const q=
-$("searchInput").value.trim();
+  const q =
+    $("searchInput").value.trim();
 
-if(!q) return;
+  if(!q) return;
 
-try{
+  try{
 
-showStatus("Searching...");
+    showLoading("Searching...");
 
-const url=
-"https://nominatim.openstreetmap.org/search"+
-"?format=json"+
-"&q="+encodeURIComponent(q)+
-"&limit=1"+
-"&accept-language=en";
+    const url =
+      "https://nominatim.openstreetmap.org/search?" +
+      new URLSearchParams({
+        q,
+        format:"json",
+        limit:"1",
+        addressdetails:"1"
+      });
 
-const response=await fetch(url);
+    const response =
+      await fetch(url,{
+        headers:{
+          "Accept-Language":"en"
+        }
+      });
 
-if(!response.ok){
+    const data =
+      await response.json();
 
-throw new Error();
+    if(!data.length){
 
+      showToast("Place nahi mila.");
+      return;
+    }
+
+    const lat =
+      Number(data[0].lat);
+
+    const lon =
+      Number(data[0].lon);
+
+    map.setView(
+      [lat,lon],
+      17
+    );
+
+  }catch(err){
+
+    console.error(err);
+    showToast("Search failed.");
+
+  }finally{
+
+    hideLoading();
+  }
 }
 
-const data=await response.json();
 
-if(!data.length){
+/* =========================================================
+   CURRENT LOCATION
+========================================================= */
 
-showStatus("Location nahi mili");
-
-return;
-
-}
-
-map.setView(
-[
-parseFloat(data[0].lat),
-parseFloat(data[0].lon)
-],
-15
+$("locationBtn").addEventListener(
+  "click",
+  getCurrentLocation
 );
 
-showStatus(data[0].display_name);
 
-}catch(error){
+function getCurrentLocation(){
 
-console.error(error);
+  if(!navigator.geolocation){
 
-showStatus("Search failed");
+    showToast(
+      "Location supported nahi hai."
+    );
 
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+    position=>{
+
+      const lat =
+        position.coords.latitude;
+
+      const lon =
+        position.coords.longitude;
+
+      map.setView(
+        [lat,lon],
+        18
+      );
+
+      if(userMarker){
+        map.removeLayer(userMarker);
+      }
+
+      userMarker =
+        L.marker([lat,lon])
+        .addTo(map)
+        .bindPopup("📍 You are here");
+
+    },
+
+    error=>{
+
+      console.error(error);
+
+      showToast(
+        "Location permission allow karo."
+      );
+
+    },
+
+    {
+      enableHighAccuracy:true,
+      timeout:10000
+    }
+  );
 }
 
+
+/* =========================================================
+   AUTH
+========================================================= */
+
+let authMode = "login";
+
+
+$("accountBtn").addEventListener(
+  "click",
+  async ()=>{
+    await loadUser();
+    openModal("authModal");
+  }
+);
+
+
+$("loginTab").addEventListener(
+  "click",
+  ()=>{
+    authMode = "login";
+
+    $("loginTab").classList.add("active");
+    $("registerTab").classList.remove("active");
+
+    $("displayNameField")
+      .classList.add("hidden");
+
+    $("authSubmitBtn").textContent =
+      "Login";
+  }
+);
+
+
+$("registerTab").addEventListener(
+  "click",
+  ()=>{
+    authMode = "register";
+
+    $("registerTab").classList.add("active");
+    $("loginTab").classList.remove("active");
+
+    $("displayNameField")
+      .classList.remove("hidden");
+
+    $("authSubmitBtn").textContent =
+      "Register";
+  }
+);
+
+
+$("authSubmitBtn").addEventListener(
+  "click",
+  handleAuth
+);
+
+
+async function handleAuth(){
+
+  const email =
+    $("authEmail").value.trim();
+
+  const password =
+    $("authPassword").value;
+
+  const displayName =
+    $("displayNameInput")
+    .value.trim();
+
+  $("authMessage").textContent =
+    "";
+
+  if(!email || !password){
+
+    $("authMessage").textContent =
+      "Email aur password required hai.";
+
+    return;
+  }
+
+  try{
+
+    if(authMode === "register"){
+
+      if(!displayName){
+
+        $("authMessage").textContent =
+          "Display Name required hai.";
+
+        return;
+      }
+
+      const {data,error} =
+        await supabaseClient.auth.signUp({
+          email,
+          password
+        });
+
+      if(error) throw error;
+
+      if(data.user){
+
+        const {error:profileError} =
+          await supabaseClient
+          .from("profiles")
+          .upsert({
+            id:data.user.id,
+            display_name:displayName
+          });
+
+        if(profileError){
+          console.warn(profileError);
+        }
+      }
+
+      $("authMessage").textContent =
+        "Registration successful.";
+
+      await loadUser();
+
+      showToast("Account ready.");
+
+    }else{
+
+      const {error} =
+        await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+      if(error) throw error;
+
+      await loadUser();
+
+      showToast("Login successful.");
+    }
+
+  }catch(err){
+
+    console.error(err);
+
+    $("authMessage").textContent =
+      err.message ||
+      "Authentication failed.";
+  }
 }
 
-$("searchBtn").onclick=searchPlace;
 
-$("searchInput").addEventListener(
-"keydown",
-e=>{
+/* =========================================================
+   LOAD USER
+========================================================= */
 
-if(e.key==="Enter"){
+async function loadUser(){
 
-searchPlace();
+  const {data} =
+    await supabaseClient.auth.getSession();
 
+  currentUser =
+    data.session?.user || null;
+
+  if(!currentUser){
+
+    $("loggedOutBox")
+      .classList.remove("hidden");
+
+    $("loggedInBox")
+      .classList.add("hidden");
+
+    return;
+  }
+
+  const {data:profile} =
+    await supabaseClient
+    .from("profiles")
+    .select("*")
+    .eq("id",currentUser.id)
+    .maybeSingle();
+
+  currentProfile = profile;
+
+  $("loggedOutBox")
+    .classList.add("hidden");
+
+  $("loggedInBox")
+    .classList.remove("hidden");
+
+  const name =
+    profile?.display_name ||
+    currentUser.email?.split("@")[0] ||
+    "User";
+
+  $("accountName").textContent =
+    name;
+
+  $("accountEmail").textContent =
+    currentUser.email || "";
+
+  $("accountAvatar").textContent =
+    name.charAt(0).toUpperCase();
 }
 
-}
+
+/* =========================================================
+   AUTH STATE
+========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+  async ()=>{
+    await loadUser();
+    await updateNotificationDot();
+  }
 );
 
 
 /* =========================================================
-GPS
+   LOGOUT
 ========================================================= */
 
-$("locBtn").onclick=()=>{
+$("logoutBtn").addEventListener(
+  "click",
+  async ()=>{
 
-if(!navigator.geolocation){
+    await supabaseClient.auth.signOut();
 
-showStatus("GPS supported nahi hai");
+    currentUser = null;
+    currentProfile = null;
 
-return;
+    closeModal("authModal");
 
-}
-
-navigator.geolocation.getCurrentPosition(
-
-async position=>{
-
-currentPosition={
-
-lat:position.coords.latitude,
-lon:position.coords.longitude,
-accuracy:position.coords.accuracy
-
-};
-
-map.setView(
-[
-currentPosition.lat,
-currentPosition.lon
-],
-17
+    showToast("Logged out.");
+  }
 );
-
-if(!currentUser){
-
-showAuth();
-
-return;
-
-}
-
-await openCamera();
-
-},
-
-error=>{
-
-console.error(error);
-
-showStatus(
-"GPS permission allow karo"
-);
-
-},
-
-{
-
-enableHighAccuracy:true,
-timeout:15000,
-maximumAge:0
-
-}
-
-);
-
-};
 
 
 /* =========================================================
-CAMERA
+   CAMERA
 ========================================================= */
+
+$("cameraBtn").addEventListener(
+  "click",
+  openCamera
+);
+
 
 async function openCamera(){
 
-if(!currentUser){
+  if(!currentUser){
 
-showAuth();
+    showToast(
+      "Snap post karne ke liye login karo."
+    );
 
-return;
+    openModal("authModal");
 
+    return;
+  }
+
+  try{
+
+    cameraMode = "photo";
+
+    $("cameraModeText").textContent =
+      "PHOTO";
+
+    openModal("cameraModal");
+
+    await startCamera();
+
+  }catch(err){
+
+    console.error(err);
+
+    closeModal("cameraModal");
+
+    showToast(
+      "Camera permission allow karo."
+    );
+  }
 }
 
-if(!navigator.mediaDevices?.getUserMedia){
 
-showStatus(
-"Is browser me camera supported nahi hai"
-);
+async function startCamera(){
 
-return;
+  stopCamera();
 
+  const constraints = {
+
+    video:{
+      facingMode:currentFacingMode,
+
+      width:{
+        ideal:
+          selectedQuality === 1080
+          ? 1920
+          : selectedQuality === 720
+          ? 1280
+          : 854
+      },
+
+      height:{
+        ideal:
+          selectedQuality === 1080
+          ? 1080
+          : selectedQuality === 720
+          ? 720
+          : 480
+      }
+    },
+
+    audio:true
+  };
+
+  currentStream =
+    await navigator.mediaDevices
+    .getUserMedia(constraints);
+
+  $("cameraVideo").srcObject =
+    currentStream;
+
+  applyCameraPreview();
 }
 
-try{
-
-stopCamera();
-
-cameraStream=
-await navigator.mediaDevices.getUserMedia({
-
-video:{
-
-facingMode:{
-ideal:currentFacing
-},
-
-width:{
-ideal:1920
-},
-
-height:{
-ideal:1080
-}
-
-},
-
-audio:true
-
-});
-
-cameraVideo.srcObject=
-cameraStream;
-
-cameraModal.style.display="flex";
-
-applyCameraFilter();
-
-if(currentZoom!==1){
-
-$("zoomRange").value=currentZoom;
-
-}
-
-}catch(error){
-
-console.error(error);
-
-showStatus(
-"Camera permission required"
-);
-
-}
-
-}
 
 function stopCamera(){
 
-if(cameraStream){
+  if(currentStream){
 
-cameraStream
-.getTracks()
-.forEach(track=>{
+    currentStream
+      .getTracks()
+      .forEach(
+        track=>track.stop()
+      );
 
-try{
-track.stop();
-}catch(e){}
+    currentStream = null;
+  }
 
-});
+  if(mediaRecorder &&
+     mediaRecorder.state !== "inactive"){
 
-cameraStream=null;
+    mediaRecorder.stop();
+  }
 
+  mediaRecorder = null;
 }
 
-cameraVideo.srcObject=null;
 
-}
-
-
-$("closeCameraBtn").onclick=()=>{
-
-if(recorder &&
-recorder.state==="recording"){
-
-stopRecording();
-
-}
-
-stopCamera();
-
-cameraModal.style.display="none";
-
-};
-
-
-/* =========================================================
-CAMERA SWITCH
-========================================================= */
-
-$("switchCameraBtn").onclick=async()=>{
-
-currentFacing=
-currentFacing==="environment"
-?"user"
-:"environment";
-
-await openCamera();
-
-};
-
-
-/* =========================================================
-MIRROR
-========================================================= */
-
-$("mirrorBtn").onclick=()=>{
-
-mirrorEnabled=!mirrorEnabled;
-
-$("mirrorBtn")
-.classList.toggle(
-"active",
-mirrorEnabled
+$("cameraCloseBtn").addEventListener(
+  "click",
+  ()=>{
+    closeModal("cameraModal");
+  }
 );
 
-cameraVideo.classList.toggle(
-"mirror-preview",
-mirrorEnabled
-);
 
-};
+/* =========================================================
+   CAMERA FLIP
+========================================================= */
+
+$("cameraFlipBtn").addEventListener(
+  "click",
+  async ()=>{
+
+    currentFacingMode =
+      currentFacingMode === "user"
+      ? "environment"
+      : "user";
+
+    try{
+      await startCamera();
+    }catch(err){
+      console.error(err);
+      showToast("Camera switch failed.");
+    }
+  }
+);
 
 
 /* =========================================================
-FILTERS
+   MIRROR
 ========================================================= */
 
-const filters={
+$("mirrorBtn").addEventListener(
+  "click",
+  ()=>{
 
-none:"none",
+    currentMirror =
+      !currentMirror;
 
-vintage:"sepia(.5) saturate(.8) contrast(1.05)",
+    $("mirrorBtn").classList.toggle(
+      "active",
+      currentMirror
+    );
 
-bw:"grayscale(1)",
+    applyCameraPreview();
+  }
+);
 
-warm:"sepia(.25) saturate(1.35) contrast(1.05)",
 
-cool:"hue-rotate(20deg) saturate(.9)",
+function applyCameraPreview(){
 
-glow:"brightness(1.15) saturate(1.2) contrast(.95)",
+  let transform =
+    `scale(${currentMirror ? -1 : 1},1)`;
 
-night:"brightness(.65) contrast(1.25) saturate(.8)",
+  transform +=
+    ` scale(${currentZoom})`;
 
-pop:"saturate(1.8) contrast(1.1)",
-
-dream:"brightness(1.1) saturate(.75) contrast(.9)",
-
-sunset:"sepia(.25) saturate(1.6) hue-rotate(-8deg)"
-
-};
-
-function applyCameraFilter(){
-
-cameraVideo.style.filter=
-filters[currentFilter] || "none";
-
+  $("cameraVideo").style.transform =
+    transform;
 }
 
-document.querySelectorAll(".filterBtn")
-.forEach(btn=>{
 
-btn.onclick=()=>{
+/* =========================================================
+   ZOOM
+========================================================= */
+
+function updateZoom(){
+
+  $("zoomLabel").textContent =
+    currentZoom.toFixed(
+      currentZoom < 1 ? 1 : 0
+    ) + "×";
+
+  applyCameraPreview();
+}
+
+
+$("zoomInBtn").addEventListener(
+  "click",
+  ()=>{
+    currentZoom =
+      Math.min(
+        20,
+        Number(
+          (currentZoom + 0.5)
+          .toFixed(1)
+        )
+      );
+
+    updateZoom();
+  }
+);
+
+
+$("zoomOutBtn").addEventListener(
+  "click",
+  ()=>{
+    currentZoom =
+      Math.max(
+        .5,
+        Number(
+          (currentZoom - 0.5)
+          .toFixed(1)
+        )
+      );
+
+    updateZoom();
+  }
+);
+
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+const filterMap = {
+
+  "Normal":"filterNormal",
+
+  "Vintage":"filterVintage",
+
+  "B&W":"filterBW",
+
+  "Warm":"filterWarm",
+
+  "Cool":"filterCool",
+
+  "Glow":"filterGlow",
+
+  "Night":"filterNight",
+
+  "Color Pop":"filterColorPop",
+
+  "Dream":"filterDream",
+
+  "Sunset":"filterSunset"
+};
+
 
 document
-.querySelectorAll(".filterBtn")
-.forEach(x=>
-x.classList.remove("active")
-);
-
-btn.classList.add("active");
-
-currentFilter=
-btn.dataset.filter;
-
-applyCameraFilter();
-
-};
-
-});
-
-
-/* =========================================================
-MODE
-========================================================= */
-
-$("photoModeBtn").onclick=()=>{
-
-currentMode="photo";
-
-$("photoModeBtn").classList.add("active");
-$("videoModeBtn").classList.remove("active");
-
-};
-
-$("videoModeBtn").onclick=()=>{
-
-currentMode="video";
-
-$("videoModeBtn").classList.add("active");
-$("photoModeBtn").classList.remove("active");
-
-};
-
-
-/* =========================================================
-ZOOM
-========================================================= */
-
-$("zoomRange").oninput=async e=>{
-
-currentZoom=
-parseFloat(e.target.value);
-
-$("zoomValue").textContent=
-currentZoom.toFixed(1)+"×";
-
-if(!cameraStream) return;
-
-const track=
-cameraStream.getVideoTracks()[0];
-
-const capabilities=
-track.getCapabilities?.();
-
-if(capabilities?.zoom){
-
-const zoom=Math.max(
-
-capabilities.zoom.min,
-
-Math.min(
-currentZoom,
-capabilities.zoom.max
+.querySelectorAll(
+  "[data-filter]"
 )
+.forEach(btn=>{
 
-);
+  btn.addEventListener(
+    "click",
+    ()=>{
 
-try{
+      currentFilter =
+        btn.dataset.filter;
 
-await track.applyConstraints({
+      document
+      .querySelectorAll(
+        "[data-filter]"
+      )
+      .forEach(
+        b=>b.classList.remove("active")
+      );
 
-advanced:[
-{zoom}
-]
+      btn.classList.add("active");
+
+      $("cameraVideo").className =
+        filterMap[currentFilter] || "";
+    }
+  );
 
 });
 
-}catch(error){
-
-console.log("Hardware zoom unavailable");
-
-}
-
-}
-
-};
-
 
 /* =========================================================
-PHOTO
+   QUALITY
 ========================================================= */
 
-function capturePhoto(){
+document
+.querySelectorAll(
+  "[data-quality]"
+)
+.forEach(btn=>{
 
-if(!cameraStream) return;
+  btn.addEventListener(
+    "click",
+    ()=>{
 
-const width=
-cameraVideo.videoWidth;
+      selectedQuality =
+        Number(btn.dataset.quality);
 
-const height=
-cameraVideo.videoHeight;
+      document
+      .querySelectorAll(
+        "[data-quality]"
+      )
+      .forEach(
+        b=>b.classList.remove("active")
+      );
 
-if(!width || !height){
+      btn.classList.add("active");
+    }
+  );
+});
 
-showStatus("Camera ready hone do");
 
-return;
+/* =========================================================
+   PHOTO / VIDEO MODE
+========================================================= */
 
-}
+$("videoModeBtn").addEventListener(
+  "click",
+  ()=>{
 
-cameraCanvas.width=width;
-cameraCanvas.height=height;
+    cameraMode =
+      cameraMode === "photo"
+      ? "video"
+      : "photo";
 
-const ctx=
-cameraCanvas.getContext("2d");
+    $("cameraModeText").textContent =
+      cameraMode.toUpperCase();
 
-ctx.save();
+    $("videoModeBtn").textContent =
+      cameraMode === "video"
+      ? "📷 Photo"
+      : "🎥 Video";
 
-if(mirrorEnabled){
-
-ctx.translate(width,0);
-ctx.scale(-1,1);
-
-}
-
-ctx.filter=
-filters[currentFilter] || "none";
-
-ctx.drawImage(
-cameraVideo,
-0,
-0,
-width,
-height
+  }
 );
 
-ctx.restore();
 
-cameraCanvas.toBlob(
+/* =========================================================
+   CAPTURE
+========================================================= */
 
-blob=>{
+$("captureBtn").addEventListener(
+  "click",
+  async ()=>{
 
-if(!blob){
+    if(cameraMode === "photo"){
 
-showStatus("Photo capture failed");
+      await capturePhoto();
 
-return;
+    }else{
 
-}
+      if(
+        mediaRecorder &&
+        mediaRecorder.state === "recording"
+      ){
 
-capturedBlob=blob;
-capturedType="image";
+        stopRecording();
 
-openPreview();
+      }else{
 
-},
-
-"image/jpeg",
-.92
-
+        startRecording();
+      }
+    }
+  }
 );
 
+
+/* =========================================================
+   CAPTURE PHOTO
+========================================================= */
+
+async function capturePhoto(){
+
+  if(!currentStream){
+
+    showToast("Camera ready nahi hai.");
+    return;
+  }
+
+  const video =
+    $("cameraVideo");
+
+  const canvas =
+    document.createElement("canvas");
+
+  const vw =
+    video.videoWidth || 1280;
+
+  const vh =
+    video.videoHeight || 720;
+
+  canvas.width = vw;
+  canvas.height = vh;
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.save();
+
+  if(currentMirror){
+
+    ctx.translate(vw,0);
+    ctx.scale(-1,1);
+  }
+
+  ctx.filter =
+    getCanvasFilter(currentFilter);
+
+  ctx.drawImage(
+    video,
+    0,
+    0,
+    vw,
+    vh
+  );
+
+  ctx.restore();
+
+  canvas.toBlob(
+    async blob=>{
+
+      capturedBlob = blob;
+
+      capturedMediaType =
+        "image";
+
+      capturedWidth =
+        canvas.width;
+
+      capturedHeight =
+        canvas.height;
+
+      await openPostPreview();
+
+    },
+    "image/jpeg",
+    .90
+  );
 }
 
 
 /* =========================================================
-VIDEO
+   FILTER FOR CANVAS
+========================================================= */
+
+function getCanvasFilter(filter){
+
+  const filters = {
+
+    "Normal":"none",
+
+    "Vintage":
+      "sepia(.45) saturate(.85) contrast(.95)",
+
+    "B&W":
+      "grayscale(1) contrast(1.08)",
+
+    "Warm":
+      "sepia(.25) saturate(1.25)",
+
+    "Cool":
+      "saturate(.95) hue-rotate(18deg)",
+
+    "Glow":
+      "brightness(1.1) saturate(1.3)",
+
+    "Night":
+      "brightness(.68) contrast(1.2)",
+
+    "Color Pop":
+      "saturate(1.75) contrast(1.08)",
+
+    "Dream":
+      "brightness(1.08) saturate(.85)",
+
+    "Sunset":
+      "sepia(.22) saturate(1.35)"
+  };
+
+  return filters[filter] || "none";
+}
+
+
+/* =========================================================
+   VIDEO RECORD
 ========================================================= */
 
 function startRecording(){
 
-if(!cameraStream) return;
+  if(!currentStream){
 
-recordedChunks=[];
-lastRecordingDuration=0;
+    showToast("Camera ready nahi hai.");
+    return;
+  }
 
-let mime="video/webm";
+  recordedChunks = [];
 
-if(
-MediaRecorder.isTypeSupported(
-"video/webm;codecs=vp9,opus"
-)
-){
+  const mimeTypes = [
 
-mime="video/webm;codecs=vp9,opus";
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm"
+  ];
 
-}else if(
-MediaRecorder.isTypeSupported(
-"video/webm;codecs=vp8,opus"
-)
-){
+  let mimeType = "";
 
-mime="video/webm;codecs=vp8,opus";
+  for(const type of mimeTypes){
 
-}else if(
-MediaRecorder.isTypeSupported(
-"video/webm"
-)
-){
+    if(
+      MediaRecorder.isTypeSupported(type)
+    ){
+      mimeType = type;
+      break;
+    }
+  }
 
-mime="video/webm";
+  try{
 
-}
+    mediaRecorder =
+      new MediaRecorder(
+        currentStream,
+        mimeType
+        ? {mimeType}
+        : undefined
+      );
 
-try{
+  }catch(err){
 
-recorder=
-new MediaRecorder(
-cameraStream,
-{
+    console.error(err);
 
-mimeType:mime,
+    showToast(
+      "Video recording supported nahi hai."
+    );
 
-videoBitsPerSecond:
-selectedQuality===480
-?2500000
-:selectedQuality===720
-?5000000
-:8000000
+    return;
+  }
 
-}
-);
+  recordingStartedAt =
+    Date.now();
 
-}catch(error){
+  mediaRecorder.ondataavailable =
+    event=>{
 
-console.error(error);
+      if(event.data &&
+         event.data.size > 0){
 
-showStatus(
-"Video recording supported nahi hai"
-);
+        recordedChunks.push(
+          event.data
+        );
+      }
+    };
 
-return;
 
-}
+  mediaRecorder.onstop =
+    async ()=>{
 
-recorder.ondataavailable=e=>{
+      lastRecordingDuration =
+        Math.round(
+          (Date.now() -
+            recordingStartedAt) / 1000
+        );
 
-if(e.data && e.data.size){
+      const blob =
+        new Blob(
+          recordedChunks,
+          {
+            type:
+              mimeType ||
+              "video/webm"
+          }
+        );
 
-recordedChunks.push(e.data);
+      capturedBlob = blob;
 
-}
+      capturedMediaType =
+        "video";
 
-};
+      capturedWidth =
+        $("cameraVideo").videoWidth;
 
-recorder.onstop=()=>{
+      capturedHeight =
+        $("cameraVideo").videoHeight;
 
-clearInterval(recordingTimer);
+      $("captureBtn")
+        .classList.remove(
+          "recording"
+        );
 
-recordingTimer=null;
+      await openPostPreview();
+    };
 
-$("recordTimer").style.display="none";
 
-lastRecordingDuration=
-Math.max(
-1,
-Math.floor(
-(Date.now()-recordingStartedAt)/1000
-)
-);
+  mediaRecorder.start();
 
-const blob=
-new Blob(
-recordedChunks,
-{
-type:recorder.mimeType ||
-"video/webm"
-}
-);
+  $("captureBtn")
+    .classList.add("recording");
 
-capturedBlob=blob;
-capturedType="video";
-
-capturedVideoUrl=
-URL.createObjectURL(blob);
-
-openPreview();
-
-};
-
-recordingStartedAt=Date.now();
-
-recorder.start(250);
-
-$("captureBtn")
-.classList.add("recording");
-
-$("recordTimer").style.display="block";
-
-$("recordTimer").textContent="00:00";
-
-recordingTimer=
-setInterval(()=>{
-
-const seconds=
-Math.floor(
-(Date.now()-recordingStartedAt)/1000
-);
-
-$("recordTimer").textContent=
-formatTime(seconds);
-
-},500);
-
+  showToast(
+    "Recording started. Dubara press karke stop karo."
+  );
 }
 
 
 function stopRecording(){
 
-if(
-recorder &&
-recorder.state==="recording"
+  if(
+    mediaRecorder &&
+    mediaRecorder.state === "recording"
+  ){
+
+    mediaRecorder.stop();
+  }
+}
+
+
+/* =========================================================
+   POST PREVIEW
+========================================================= */
+
+async function openPostPreview(){
+
+  closeModal("cameraModal");
+
+  const container =
+    $("previewContainer");
+
+  container.innerHTML = "";
+
+  if(capturedMediaType === "image"){
+
+    const img =
+      document.createElement("img");
+
+    img.className =
+      "previewMedia";
+
+    img.src =
+      URL.createObjectURL(
+        capturedBlob
+      );
+
+    container.appendChild(img);
+
+  }else{
+
+    const video =
+      document.createElement("video");
+
+    video.className =
+      "previewMedia";
+
+    video.controls = true;
+    video.playsInline = true;
+
+    video.src =
+      URL.createObjectURL(
+        capturedBlob
+      );
+
+    container.appendChild(video);
+  }
+
+  $("postDescription").value =
+    "";
+
+  $("postLocation").value =
+    "Detecting location...";
+
+  openModal("postModal");
+
+  await detectPostLocation();
+}
+
+
+/* =========================================================
+   POST LOCATION
+========================================================= */
+
+async function detectPostLocation(){
+
+  if(!navigator.geolocation){
+
+    $("postLocation").value =
+      "Location unavailable";
+
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+
+    async position=>{
+
+      const lat =
+        position.coords.latitude;
+
+      const lon =
+        position.coords.longitude;
+
+      const name =
+        await reverseGeocode(
+          lat,
+          lon
+        );
+
+      $("postLocation").value =
+        name ||
+        `${lat.toFixed(5)}, ${lon.toFixed(5)}`;
+
+      $("postLocation").dataset.lat =
+        lat;
+
+      $("postLocation").dataset.lon =
+        lon;
+    },
+
+    ()=>{
+      $("postLocation").value =
+        "Location unavailable";
+    },
+
+    {
+      enableHighAccuracy:true,
+      timeout:12000
+    }
+  );
+}
+
+
+/* =========================================================
+   REVERSE GEOCODE
+========================================================= */
+
+async function reverseGeocode(
+  lat,
+  lon
 ){
 
-recorder.stop();
+  try{
 
-$("captureBtn")
-.classList.remove("recording");
+    const url =
+      "https://nominatim.openstreetmap.org/reverse?" +
+      new URLSearchParams({
+        lat,
+        lon,
+        format:"json",
+        zoom:"18"
+      });
 
-}
+    const response =
+      await fetch(url,{
+        headers:{
+          "Accept-Language":"en"
+        }
+      });
 
+    const data =
+      await response.json();
+
+    return data.display_name || "";
+
+  }catch(err){
+
+    console.warn(err);
+
+    return "";
+  }
 }
 
 
 /* =========================================================
-CAPTURE
+   RETAKE
 ========================================================= */
 
-$("captureBtn").onclick=()=>{
+$("retakeBtn").addEventListener(
+  "click",
+  async ()=>{
 
-if(currentMode==="photo"){
+    closeModal("postModal");
 
-capturePhoto();
+    await openCamera();
+  }
+);
 
-}else{
 
-if(
-recorder &&
-recorder.state==="recording"
+/* =========================================================
+   CLOSE POST
+========================================================= */
+
+$("postCloseBtn").addEventListener(
+  "click",
+  ()=>{
+    closeModal("postModal");
+  }
+);
+
+
+/* =========================================================
+   PUBLISH SNAP
+========================================================= */
+
+$("publishBtn").addEventListener(
+  "click",
+  publishSnap
+);
+
+
+async function publishSnap(){
+
+  if(isPosting) return;
+
+  if(!currentUser){
+
+    showToast("Please login first.");
+    return;
+  }
+
+  if(!capturedBlob){
+
+    showToast("No media selected.");
+    return;
+  }
+
+  const lat =
+    Number(
+      $("postLocation").dataset.lat
+    );
+
+  const lon =
+    Number(
+      $("postLocation").dataset.lon
+    );
+
+  if(!Number.isFinite(lat) ||
+     !Number.isFinite(lon)){
+
+    showToast(
+      "Location nahi mili. Dobara try karo."
+    );
+
+    return;
+  }
+
+  isPosting = true;
+
+  $("publishBtn").disabled = true;
+
+  showLoading("Uploading snap...");
+
+  try{
+
+    const extension =
+      capturedMediaType === "video"
+      ? "webm"
+      : "jpg";
+
+    const path =
+      `${currentUser.id}/` +
+      `${Date.now()}.` +
+      extension;
+
+
+    /* ---------------------------------------------
+       Get current auth session
+    --------------------------------------------- */
+
+    const {
+      data:sessionData,
+      error:sessionError
+    } =
+      await supabaseClient.auth.getSession();
+
+    if(sessionError)
+      throw sessionError;
+
+    const session =
+      sessionData.session;
+
+    if(!session){
+
+      throw new Error(
+        "Login session expired."
+      );
+    }
+
+
+    /* ---------------------------------------------
+       Upload directly with access token
+    --------------------------------------------- */
+
+    const uploadUrl =
+      `${SUPABASE_URL}/storage/v1/object/past-snaps/${path}`;
+
+    const uploadResponse =
+      await fetch(
+        uploadUrl,
+        {
+          method:"POST",
+
+          headers:{
+            "Authorization":
+              `Bearer ${session.access_token}`,
+
+            "apikey":
+              SUPABASE_KEY,
+
+            "Content-Type":
+              capturedBlob.type ||
+              (
+                capturedMediaType === "video"
+                ? "video/webm"
+                : "image/jpeg"
+              )
+          },
+
+          body:capturedBlob
+        }
+      );
+
+    if(!uploadResponse.ok){
+
+      const errorText =
+        await uploadResponse.text();
+
+      throw new Error(
+        errorText ||
+        "Storage upload failed."
+      );
+    }
+
+    setProgress(65);
+
+
+    /* ---------------------------------------------
+       Public URL
+    --------------------------------------------- */
+
+    const imageUrl =
+      `${SUPABASE_URL}/storage/v1/object/public/past-snaps/${path}`;
+
+
+    /* ---------------------------------------------
+       Insert database row
+       NO SONG DATA
+    --------------------------------------------- */
+
+    const row = {
+
+      latitude:lat,
+
+      longitude:lon,
+
+      image_url:imageUrl,
+
+      media_type:
+        capturedMediaType,
+
+      duration_seconds:
+        capturedMediaType === "video"
+        ? lastRecordingDuration
+        : null,
+
+      width:
+        capturedWidth,
+
+      height:
+        capturedHeight,
+
+      user_id:
+        currentUser.id,
+
+      description:
+        $("postDescription")
+        .value
+        .trim(),
+
+      location_name:
+        $("postLocation")
+        .value
+        .trim()
+    };
+
+
+    const {
+      error:insertError
+    } =
+      await supabaseClient
+      .from("snaps")
+      .insert(row);
+
+    if(insertError)
+      throw insertError;
+
+    setProgress(100);
+
+    showToast(
+      "Snap successfully posted 👻"
+    );
+
+    closeModal("postModal");
+
+    capturedBlob = null;
+    capturedMediaType = null;
+
+    await loadSnaps();
+
+  }catch(err){
+
+    console.error(err);
+
+    showToast(
+      err.message ||
+      "Snap upload failed."
+    );
+
+  }finally{
+
+    isPosting = false;
+
+    $("publishBtn").disabled =
+      false;
+
+    setTimeout(
+      hideLoading,
+      400
+    );
+  }
+}
+
+
+/* =========================================================
+   CLUSTER OPEN
+========================================================= */
+
+function openCluster(snaps){
+
+  selectedCluster =
+    snaps;
+
+  $("clusterCount").textContent =
+    `${snaps.length} posts within 50 meters`;
+
+  const list =
+    $("clusterList");
+
+  list.innerHTML = "";
+
+  snaps.forEach(
+    snap=>{
+      list.appendChild(
+        createSnapListItem(snap)
+      );
+    }
+  );
+
+  openModal("clusterModal");
+}
+
+
+function createSnapListItem(snap){
+
+  const item =
+    document.createElement("div");
+
+  item.className =
+    "snapItem";
+
+  const thumb =
+    document.createElement(
+      snap.media_type === "video"
+      ? "video"
+      : "img"
+    );
+
+  thumb.className =
+    "snapThumb";
+
+  thumb.src =
+    snap.image_url;
+
+  if(snap.media_type === "video"){
+    thumb.muted = true;
+    thumb.playsInline = true;
+  }
+
+  const info =
+    document.createElement("div");
+
+  info.className =
+    "snapItemInfo";
+
+  const name =
+    document.createElement("div");
+
+  name.className =
+    "snapItemName";
+
+  name.textContent =
+    snap.display_name ||
+    "Past Snap User";
+
+
+  const meta =
+    document.createElement("div");
+
+  meta.className =
+    "snapItemMeta";
+
+  meta.textContent =
+    formatDateTime(
+      snap.created_at
+    );
+
+
+  const desc =
+    document.createElement("div");
+
+  desc.className =
+    "snapItemDesc";
+
+  desc.textContent =
+    snap.description ||
+    "No description";
+
+
+  info.appendChild(name);
+  info.appendChild(meta);
+  info.appendChild(desc);
+
+  item.appendChild(thumb);
+  item.appendChild(info);
+
+  item.addEventListener(
+    "click",
+    ()=>{
+      openSnapDetail(snap);
+    }
+  );
+
+  return item;
+}
+
+
+/* =========================================================
+   DATE/TIME
+========================================================= */
+
+function formatDateTime(date){
+
+  if(!date) return "";
+
+  const d =
+    new Date(date);
+
+  return d.toLocaleString(
+    "en-IN",
+    {
+      day:"2-digit",
+      month:"short",
+      year:"numeric",
+      hour:"2-digit",
+      minute:"2-digit"
+    }
+  );
+}
+
+
+/* =========================================================
+   SNAP DETAIL
+========================================================= */
+
+async function openSnapDetail(snap){
+
+  selectedPost =
+    snap;
+
+  const content =
+    $("detailContent");
+
+  content.innerHTML = "";
+
+  const media =
+    document.createElement(
+      snap.media_type === "video"
+      ? "video"
+      : "img"
+    );
+
+  media.className =
+    "previewMedia";
+
+  media.src =
+    snap.image_url;
+
+  if(snap.media_type === "video"){
+
+    media.controls = true;
+    media.playsInline = true;
+  }
+
+  content.appendChild(media);
+
+
+  /* ---------------------------------------------
+     USER
+  --------------------------------------------- */
+
+  const card =
+    document.createElement("div");
+
+  card.className =
+    "detailCard";
+
+
+  const top =
+    document.createElement("div");
+
+  top.className =
+    "detailTop";
+
+
+  const avatar =
+    document.createElement("div");
+
+  avatar.className =
+    "avatar";
+
+  avatar.textContent =
+    (
+      snap.display_name ||
+      "U"
+    )
+    .charAt(0)
+    .toUpperCase();
+
+
+  const userInfo =
+    document.createElement("div");
+
+
+  const name =
+    document.createElement("div");
+
+  name.className =
+    "detailName";
+
+  name.textContent =
+    snap.display_name ||
+    "Past Snap User";
+
+
+  const time =
+    document.createElement("div");
+
+  time.className =
+    "detailTime";
+
+  time.textContent =
+    formatDateTime(
+      snap.created_at
+    );
+
+
+  userInfo.appendChild(name);
+  userInfo.appendChild(time);
+
+  top.appendChild(avatar);
+  top.appendChild(userInfo);
+
+  card.appendChild(top);
+
+
+  /* ---------------------------------------------
+     LOCATION
+  --------------------------------------------- */
+
+  const location =
+    document.createElement("div");
+
+  location.className =
+    "detailLocation";
+
+  location.textContent =
+    "📍 " +
+    (
+      snap.location_name ||
+      `${Number(snap.latitude).toFixed(5)}, ${Number(snap.longitude).toFixed(5)}`
+    );
+
+  card.appendChild(location);
+
+
+  /* ---------------------------------------------
+     DESCRIPTION
+  --------------------------------------------- */
+
+  if(snap.description){
+
+    const desc =
+      document.createElement("div");
+
+    desc.className =
+      "detailDescription";
+
+    desc.textContent =
+      snap.description;
+
+    card.appendChild(desc);
+  }
+
+
+  /* ---------------------------------------------
+     SOCIAL
+  --------------------------------------------- */
+
+  const social =
+    document.createElement("div");
+
+  social.className =
+    "socialRow";
+
+
+  const likeBtn =
+    document.createElement("button");
+
+  likeBtn.className =
+    "socialBtn";
+
+  likeBtn.textContent =
+    "❤️ Like";
+
+
+  const commentBtn =
+    document.createElement("button");
+
+  commentBtn.className =
+    "socialBtn";
+
+  commentBtn.textContent =
+    "💬 Comments";
+
+
+  social.appendChild(likeBtn);
+  social.appendChild(commentBtn);
+
+  card.appendChild(social);
+
+  content.appendChild(card);
+
+
+  /* ---------------------------------------------
+     LOAD LIKES
+  --------------------------------------------- */
+
+  await refreshLikeButton(
+    snap.id,
+    likeBtn
+  );
+
+
+  likeBtn.addEventListener(
+    "click",
+    async ()=>{
+      await toggleLike(
+        snap.id,
+        likeBtn
+      );
+    }
+  );
+
+
+  /* ---------------------------------------------
+     COMMENTS
+  --------------------------------------------- */
+
+  const comments =
+    document.createElement("div");
+
+  comments.className =
+    "comments";
+
+  comments.innerHTML =
+    "<b>Comments</b>";
+
+  content.appendChild(comments);
+
+  await loadComments(
+    snap.id,
+    comments
+  );
+
+
+  /* ---------------------------------------------
+     COMMENT INPUT
+  --------------------------------------------- */
+
+  if(currentUser){
+
+    const input =
+      document.createElement("textarea");
+
+    input.placeholder =
+      "Write a comment...";
+
+    input.maxLength = 2000;
+
+    input.style.width =
+      "100%";
+
+    input.style.marginTop =
+      "10px";
+
+    input.style.background =
+      "#202020";
+
+    input.style.color =
+      "white";
+
+    input.style.border =
+      "1px solid #333";
+
+    input.style.borderRadius =
+      "12px";
+
+    input.style.padding =
+      "10px";
+
+
+    const send =
+      document.createElement("button");
+
+    send.className =
+      "action";
+
+    send.textContent =
+      "Post Comment";
+
+
+    send.addEventListener(
+      "click",
+      async ()=>{
+
+        const text =
+          input.value.trim();
+
+        if(!text) return;
+
+        const words =
+          text
+          .split(/\s+/)
+          .filter(Boolean);
+
+        if(words.length > 250){
+
+          showToast(
+            "Maximum 250 words."
+          );
+
+          return;
+        }
+
+        const {error} =
+          await supabaseClient
+          .from("snap_comments")
+          .insert({
+            snap_id:snap.id,
+            user_id:currentUser.id,
+            comment_text:text
+          });
+
+        if(error){
+
+          console.error(error);
+
+          showToast(
+            "Comment failed."
+          );
+
+          return;
+        }
+
+        input.value = "";
+
+        await loadComments(
+          snap.id,
+          comments
+        );
+
+        showToast(
+          "Comment added."
+        );
+      }
+    );
+
+
+    content.appendChild(input);
+    content.appendChild(send);
+  }
+
+
+  openModal("detailModal");
+
+  await registerView(snap.id);
+}
+
+
+/* =========================================================
+   LIKES
+========================================================= */
+
+async function refreshLikeButton(
+  snapId,
+  btn
 ){
 
-stopRecording();
+  if(!currentUser){
 
-}else{
+    btn.textContent =
+      "❤️ Like";
 
-startRecording();
+    return;
+  }
 
-}
+  const {data,error} =
+    await supabaseClient
+    .from("snap_likes")
+    .select("id")
+    .eq("snap_id",snapId)
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
 
-}
+  if(error) return;
 
-};
+  if(data){
 
+    btn.classList.add("liked");
+    btn.textContent =
+      "❤️ Liked";
 
-/* =========================================================
-PREVIEW
-========================================================= */
+  }else{
 
-function openPreview(){
-
-const img=$("previewImage");
-const video=$("previewVideo");
-
-img.style.display="none";
-video.style.display="none";
-
-if(capturedType==="image"){
-
-img.src=
-URL.createObjectURL(capturedBlob);
-
-img.style.display="block";
-
-$("previewInfo").textContent=
-"Photo ready";
-
-}else{
-
-video.src=capturedVideoUrl;
-
-video.style.display="block";
-
-$("previewInfo").textContent=
-"Video ready";
-
-}
-
-previewModal.style.display="flex";
-
-}
-
-$("cancelPreviewBtn").onclick=()=>{
-
-previewModal.style.display="none";
-
-if(capturedVideoUrl){
-
-URL.revokeObjectURL(
-capturedVideoUrl
-);
-
-}
-
-capturedVideoUrl=null;
-capturedBlob=null;
-capturedType=null;
-
-};
-
-
-/* =========================================================
-QUALITY
-========================================================= */
-
-document.querySelectorAll(".qualityBtn")
-.forEach(btn=>{
-
-btn.onclick=()=>{
-
-document
-.querySelectorAll(".qualityBtn")
-.forEach(x=>
-x.classList.remove("active")
-);
-
-btn.classList.add("active");
-
-selectedQuality=
-parseInt(btn.dataset.quality);
-
-};
-
-});
-
-
-/* =========================================================
-SONG LIBRARY
-========================================================= */
-
-const SONG_LIBRARY=[
-
-{
-title:"Viral Demo",
-artist:"Licensed Audio",
-category:"Viral",
-src:""
-},
-
-{
-title:"Hindi Demo",
-artist:"Licensed Audio",
-category:"Hindi",
-src:""
-},
-
-{
-title:"Bhojpuri Demo",
-artist:"Licensed Audio",
-category:"Bhojpuri",
-src:""
-},
-
-{
-title:"Haryanvi Demo",
-artist:"Licensed Audio",
-category:"Haryanvi",
-src:""
-}
-
-];
-
-
-function renderSongs(){
-
-const list=$("songList");
-
-list.innerHTML="";
-
-SONG_LIBRARY
-.filter(song=>
-song.category===selectedSongCategory
-)
-.forEach(song=>{
-
-const item=
-document.createElement("div");
-
-item.className="songItem";
-
-item.innerHTML=`
-
-<button class="songPlay">
-▶
-</button>
-
-<div class="songInfo">
-
-<div class="songTitle">
-${escapeHTML(song.title)}
-</div>
-
-<div class="songArtist">
-${escapeHTML(song.artist)}
-</div>
-
-</div>
-
-<button class="songUse">
-Use
-</button>
-
-`;
-
-item.querySelector(".songPlay")
-.onclick=()=>{
-
-if(!song.src){
-
-showStatus(
-"Is song ka licensed audio URL add nahi hua."
-);
-
-return;
-
-}
-
-if(selectedSongAudio){
-
-selectedSongAudio.pause();
-
-}
-
-selectedSongAudio=
-new Audio(song.src);
-
-selectedSongAudio.play();
-
-setTimeout(()=>{
-
-if(selectedSongAudio){
-
-selectedSongAudio.pause();
-
-}
-
-},30000);
-
-};
-
-
-item.querySelector(".songUse")
-.onclick=()=>{
-
-selectedSong=song;
-
-selectedSongStart=0;
-
-$("selectedSongTitle").textContent=
-song.title+" — "+song.artist;
-
-$("songEditor").style.display="block";
-
-$("songRange").value=0;
-$("songRange").max=0;
-
-if(song.src){
-
-if(selectedSongAudio){
-
-selectedSongAudio.pause();
-
-}
-
-selectedSongAudio=
-new Audio(song.src);
-
-selectedSongAudio.onloadedmetadata=()=>{
-
-const duration=
-Number(selectedSongAudio.duration)||30;
-
-$("songRange").max=
-Math.max(
-0,
-Math.floor(duration-30)
-);
-
-};
-
-}else{
-
-showStatus(
-"Audio URL available nahi hai."
-);
-
-}
-
-};
-
-list.appendChild(item);
-
-});
-
+    btn.classList.remove("liked");
+    btn.textContent =
+      "❤️ Like";
+  }
 }
 
 
-document.querySelectorAll(".songCategory")
-.forEach(btn=>{
-
-btn.onclick=()=>{
-
-document
-.querySelectorAll(".songCategory")
-.forEach(x=>
-x.classList.remove("active")
-);
-
-btn.classList.add("active");
-
-selectedSongCategory=
-btn.dataset.category;
-
-renderSongs();
-
-};
-
-});
-
-
-$("songRange").oninput=e=>{
-
-selectedSongStart=
-parseInt(e.target.value)||0;
-
-$("songStartLabel").textContent=
-formatTime(selectedSongStart);
-
-};
-
-
-$("useSongBtn").onclick=()=>{
-
-if(!selectedSong){
-
-showStatus("Song select karo");
-
-return;
-
-}
-
-$("selectedSongDetails").textContent=
-"🎵 "+
-selectedSong.title+
-" — "+
-selectedSong.artist+
-" | Start: "+
-formatTime(selectedSongStart);
-
-songModal.style.display="none";
-
-};
-
-
-$("songCameraBtn").onclick=()=>{
-
-renderSongs();
-
-songModal.style.display="flex";
-
-};
-
-
-$("closeSongBtn").onclick=()=>{
-
-songModal.style.display="none";
-
-if(selectedSongAudio){
-
-selectedSongAudio.pause();
-
-}
-
-};
-
-
-/* =========================================================
-NEXT → DETAILS
-========================================================= */
-
-$("postBtn").onclick=async()=>{
-
-if(!capturedBlob){
-
-showStatus(
-"Pehle photo/video capture karo"
-);
-
-return;
-
-}
-
-previewModal.style.display="none";
-
-if(!currentPosition){
-
-showStatus(
-"Fresh GPS location le raha hoon..."
-);
-
-await getFreshLocation();
-
-}
-
-if(!currentPosition){
-
-showStatus(
-"GPS location nahi mili"
-);
-
-previewModal.style.display="flex";
-
-return;
-
-}
-
-$("detailsUserName").textContent=
-currentProfile?.display_name ||
-currentUser?.email ||
-"User";
-
-$("detailsLocation").textContent=
-"Loading location...";
-
-detailsModal.style.display="flex";
-
-const location=
-await reverseGeocode(
-currentPosition.lat,
-currentPosition.lon
-);
-
-$("detailsLocation").textContent=
-location ||
-"Location unavailable";
-
-};
-
-
-/* =========================================================
-FRESH GPS
-========================================================= */
-
-function getFreshLocation(){
-
-return new Promise(resolve=>{
-
-if(!navigator.geolocation){
-
-resolve(null);
-
-return;
-
-}
-
-navigator.geolocation.getCurrentPosition(
-
-position=>{
-
-currentPosition={
-
-lat:position.coords.latitude,
-lon:position.coords.longitude,
-accuracy:position.coords.accuracy
-
-};
-
-resolve(currentPosition);
-
-},
-
-error=>{
-
-console.error(error);
-
-currentPosition=null;
-
-resolve(null);
-
-},
-
-{
-
-enableHighAccuracy:true,
-timeout:15000,
-maximumAge:0
-
-}
-
-);
-
-});
-
-}
-
-
-/* =========================================================
-DETAIL BACK
-========================================================= */
-
-$("detailsBackBtn").onclick=()=>{
-
-detailsModal.style.display="none";
-
-previewModal.style.display="flex";
-
-};
-
-
-/* =========================================================
-UPLOAD
-========================================================= */
-
-async function uploadFile(blob,path){
-
-const {
-data:{session}
-}=
-await supabaseClient.auth.getSession();
-
-if(!session){
-
-throw new Error(
-"Login session expired"
-);
-
-}
-
-return new Promise(
-(resolve,reject)=>{
-
-const xhr=
-new XMLHttpRequest();
-
-const uploadURL=
-SUPABASE_URL+
-"/storage/v1/object/past-snaps/"+
-path;
-
-xhr.open(
-"POST",
-uploadURL,
-true
-);
-
-xhr.setRequestHeader(
-"apikey",
-SUPABASE_KEY
-);
-
-xhr.setRequestHeader(
-"Authorization",
-"Bearer "+
-session.access_token
-);
-
-xhr.setRequestHeader(
-"Content-Type",
-blob.type
-);
-
-xhr.upload.onprogress=e=>{
-
-if(e.lengthComputable){
-
-const percent=
-Math.round(
-(e.loaded/e.total)*100
-);
-
-$("uploadBar").style.width=
-percent+"%";
-
-$("uploadPercent").textContent=
-percent+"%";
-
-}
-
-};
-
-xhr.onload=()=>{
-
-if(
-xhr.status>=200 &&
-xhr.status<300
+async function toggleLike(
+  snapId,
+  btn
 ){
 
-resolve();
-
-}else{
-
-console.error(
-"Storage error:",
-xhr.responseText
-);
-
-reject(
-new Error(
-xhr.responseText ||
-"Upload failed"
-)
-);
-
-}
-
-};
-
-xhr.onerror=()=>{
-
-reject(
-new Error(
-"Network upload error"
-)
-);
-
-};
-
-xhr.send(blob);
-
-});
-
-}
-
-
-/* =========================================================
-POST SNAP
-========================================================= */
-
-$("detailsNextBtn").onclick=async()=>{
-
-if(isPostingSnap) return;
-
-if(!currentUser){
-
-showAuth();
-
-return;
-
-}
-
-isPostingSnap=true;
-
-try{
-
-const fresh=
-await getFreshLocation();
-
-if(!fresh){
-
-throw new Error(
-"Fresh GPS location required"
-);
-
-}
-
-currentPosition=fresh;
-
-const description=
-$("descriptionInput")
-.value.trim();
-
-const locationName=
-$("detailsLocation")
-.textContent.trim();
-
-const timestamp=Date.now();
-
-const extension=
-capturedType==="video"
-?"webm"
-:"jpg";
-
-const path=
-currentUser.id+
-"/"+
-timestamp+
-"."+extension;
-
-$("uploadBox").style.display="block";
-
-$("uploadBar").style.width="0%";
-$("uploadPercent").textContent="0%";
-
-$("uploadText").textContent=
-"Uploading your snap...";
-
-await uploadFile(
-capturedBlob,
-path
-);
-
-const publicURL=
-supabaseClient.storage
-.from("past-snaps")
-.getPublicUrl(path)
-.data.publicUrl;
-
-const row={
-
-latitude:fresh.lat,
-
-longitude:fresh.lon,
-
-image_url:publicURL,
-
-media_type:capturedType,
-
-duration_seconds:
-capturedType==="video"
-?lastRecordingDuration
-:null,
-
-width:
-capturedType==="image"
-?cameraVideo.videoWidth || null
-:null,
-
-height:
-capturedType==="image"
-?cameraVideo.videoHeight || null
-:null,
-
-user_id:currentUser.id,
-
-description:
-description || null,
-
-song_name:
-selectedSong?.title || null,
-
-location_name:
-locationName || null,
-
-song_url:
-selectedSong?.src || null,
-
-song_start_seconds:
-selectedSong
-?selectedSongStart
-:0,
-
-song_duration_seconds:
-selectedSong
-?30
-:null
-
-};
-
-const {error}=
-await supabaseClient
-.from("snaps")
-.insert(row);
-
-if(error){
-
-throw error;
-
-}
-
-$("uploadText").textContent=
-"Posted successfully!";
-
-$("uploadPercent").textContent="100%";
-
-$("uploadBar").style.width="100%";
-
-setTimeout(()=>{
-
-$("uploadBox").style.display="none";
-
-},800);
-
-showStatus(
-"👻 Snap posted successfully"
-);
-
-detailsModal.style.display="none";
-
-stopCamera();
-
-cameraModal.style.display="none";
-
-capturedBlob=null;
-
-capturedVideoUrl=null;
-
-capturedType=null;
-
-selectedSong=null;
-
-selectedSongStart=0;
-
-$("descriptionInput").value="";
-
-$("selectedSongDetails").textContent=
-"No song selected";
-
-await loadGhostMarkers();
-
-}catch(error){
-
-console.error(error);
-
-$("uploadBox").style.display="none";
-
-showStatus(
-error.message ||
-"Snap upload failed"
-);
-
-}finally{
-
-isPostingSnap=false;
-
-}
-
-};
-
-
-/* =========================================================
-LOAD SNAPS
-========================================================= */
-
-async function loadSnaps(){
-
-const {data,error}=
-await supabaseClient
-.from("snaps")
-.select("*")
-.order(
-"created_at",
-{
-ascending:false
-}
-);
-
-if(error){
-
-console.error(
-"Load snaps error:",
-error
-);
-
-return [];
-
-}
-
-return data || [];
-
+  if(!currentUser){
+
+    showToast("Login required.");
+    return;
+  }
+
+  const {data} =
+    await supabaseClient
+    .from("snap_likes")
+    .select("id")
+    .eq("snap_id",snapId)
+    .eq("user_id",currentUser.id)
+    .maybeSingle();
+
+  if(data){
+
+    await supabaseClient
+    .from("snap_likes")
+    .delete()
+    .eq("id",data.id);
+
+  }else{
+
+    await supabaseClient
+    .from("snap_likes")
+    .insert({
+      snap_id:snapId,
+      user_id:currentUser.id
+    });
+  }
+
+  await refreshLikeButton(
+    snapId,
+    btn
+  );
 }
 
 
 /* =========================================================
-PROFILES
+   COMMENTS
 ========================================================= */
 
-async function getProfiles(userIds){
-
-const ids=
-[
-...new Set(
-(userIds||[])
-.filter(Boolean)
-)
-];
-
-if(!ids.length) return {};
-
-const {data,error}=
-await supabaseClient
-.from("profiles")
-.select("id,display_name")
-.in("id",ids);
-
-if(error){
-
-console.error(error);
-
-return {};
-
-}
-
-const profileMap={};
-
-(data||[]).forEach(profile=>{
-
-profileMap[profile.id]=
-profile.display_name;
-
-});
-
-return profileMap;
-
-}
-
-
-/* =========================================================
-GHOST MARKERS
-========================================================= */
-
-async function loadGhostMarkers(){
-
-if(!map) return;
-
-markerLayer.forEach(marker=>{
-
-try{
-
-map.removeLayer(marker);
-
-}catch(e){}
-
-});
-
-markerLayer=[];
-
-const snaps=
-await loadSnaps();
-
-const groups={};
-
-snaps.forEach(snap=>{
-
-const key=
-Number(snap.latitude).toFixed(5)+
-","+
-Number(snap.longitude).toFixed(5);
-
-if(!groups[key]){
-
-groups[key]=[];
-
-}
-
-groups[key].push(snap);
-
-});
-
-
-Object.values(groups).forEach(group=>{
-
-const latest=group[0];
-
-const icon=
-L.divIcon({
-
-className:"",
-
-html:`
-
-<div class="markerGhost">
-
-👻
-
-<span>
-${group.length}
-</span>
-
-</div>
-
-`,
-
-iconSize:[40,40],
-
-iconAnchor:[20,20]
-
-});
-
-const marker=
-L.marker(
-[
-latest.latitude,
-latest.longitude
-],
-{
-icon
-}
-).addTo(map);
-
-marker.on(
-"click",
-()=>{
-
-openPostDetail(latest);
-
-}
-);
-
-markerLayer.push(marker);
-
-});
-
-}
-
-
-/* =========================================================
-OPEN POST DETAIL
-========================================================= */
-
-async function openPostDetail(snap){
-
-if(!snap) return;
-
-currentDetailSnap=snap;
-
-const image=$("detailImage");
-const video=$("detailVideo");
-
-image.style.display="none";
-video.style.display="none";
-
-image.removeAttribute("src");
-video.removeAttribute("src");
-
-if(snap.media_type==="video"){
-
-video.src=snap.image_url;
-video.style.display="block";
-
-}else{
-
-image.src=snap.image_url;
-image.style.display="block";
-
-}
-
-
-const profiles=
-await getProfiles(
-[snap.user_id]
-);
-
-$("detailAuthor").textContent=
-"👤 "+
-(
-profiles[snap.user_id] ||
-"Past Snap User"
-);
-
-$("detailLocation").textContent=
-"📍 "+
-(
-snap.location_name ||
-`${snap.latitude}, ${snap.longitude}`
-);
-
-$("detailDate").textContent=
-"🕐 "+
-formatDate(snap.created_at);
-
-$("detailDescription").textContent=
-snap.description ||
-"No description added.";
-
-
-/* SONG */
-
-const songAudio=
-$("detailSongAudio");
-
-const songName=
-$("detailSongName");
-
-songAudio.pause();
-
-songAudio.removeAttribute("src");
-
-songAudio.style.display="none";
-
-songAudio.onload=null;
-songAudio.onloadedmetadata=null;
-songAudio.ontimeupdate=null;
-
-songAudio.load();
-
-if(snap.song_name){
-
-songName.textContent=
-"🎵 "+snap.song_name;
-
-if(snap.song_url){
-
-songAudio.src=
-snap.song_url;
-
-songAudio.style.display="block";
-
-songAudio.onloadedmetadata=()=>{
-
-const start=
-Number(
-snap.song_start_seconds || 0
-);
-
-try{
-
-songAudio.currentTime=start;
-
-}catch(e){}
-
-};
-
-songAudio.ontimeupdate=()=>{
-
-const start=
-Number(
-snap.song_start_seconds || 0
-);
-
-const duration=
-Number(
-snap.song_duration_seconds || 30
-);
-
-if(
-songAudio.currentTime >=
-start+duration
+async function loadComments(
+  snapId,
+  container
 ){
 
-songAudio.pause();
+  const {data,error} =
+    await supabaseClient
+    .from("snap_comments")
+    .select("*")
+    .eq("snap_id",snapId)
+    .order("created_at",{
+      ascending:true
+    });
 
-}
+  if(error){
 
-};
+    console.error(error);
+    return;
+  }
 
-}else{
+  const ids =
+    [...new Set(
+      (data || [])
+      .map(c=>c.user_id)
+    )];
 
-songName.textContent=
-"🎵 "+
-snap.song_name+
-" — audio not attached";
+  let profiles = {};
 
-}
+  if(ids.length){
 
-}else{
+    const {data:pdata} =
+      await supabaseClient
+      .from("profiles")
+      .select("id,display_name")
+      .in("id",ids);
 
-songName.textContent=
-"🎵 No song";
+    (pdata || []).forEach(
+      p=>{
+        profiles[p.id] =
+          p.display_name;
+      }
+    );
+  }
 
-}
+  container.innerHTML =
+    "<b>Comments</b>";
 
+  (data || []).forEach(
+    comment=>{
 
-/* MODAL */
+      const div =
+        document.createElement("div");
 
-postDetailModal.style.display="flex";
+      div.className =
+        "comment";
 
-await refreshPostStats();
+      div.innerHTML = `
+        <div class="commentName">
+          ${escapeHtml(
+            profiles[comment.user_id] ||
+            "User"
+          )}
+        </div>
 
-await registerView(snap);
+        <div class="commentText">
+          ${escapeHtml(
+            comment.comment_text
+          )}
+        </div>
+      `;
 
-}
-
-
-/* =========================================================
-VIEW
-========================================================= */
-
-async function registerView(snap){
-
-if(!currentUser) return;
-
-if(!snap?.id) return;
-
-try{
-
-const {error}=
-await supabaseClient
-.from("snap_views")
-.upsert(
-
-{
-snap_id:snap.id,
-user_id:currentUser.id
-},
-
-{
-onConflict:"snap_id,user_id",
-ignoreDuplicates:true
-}
-
-);
-
-if(error){
-
-console.error(
-"View error:",
-error
-);
-
-}
-
-}catch(error){
-
-console.error(error);
-
-}
-
+      container.appendChild(div);
+    }
+  );
 }
 
 
 /* =========================================================
-POST STATS
+   VIEW
 ========================================================= */
 
-async function refreshPostStats(){
-
-if(!currentDetailSnap) return;
-
-const id=
-currentDetailSnap.id;
-
-
-/* LIKES */
-
-const {
-count:likeCount,
-error:likeError
-}=
-await supabaseClient
-.from("snap_likes")
-.select("*",{
-count:"exact",
-head:true
-})
-.eq("snap_id",id);
-
-if(likeError){
-
-console.error(likeError);
-
-}
-
-
-/* VIEWS */
-
-const {
-count:viewCount,
-error:viewError
-}=
-await supabaseClient
-.from("snap_views")
-.select("*",{
-count:"exact",
-head:true
-})
-.eq("snap_id",id);
-
-if(viewError){
-
-console.error(viewError);
-
-}
-
-
-/* COMMENTS */
-
-const {
-count:commentCount,
-error:commentError
-}=
-await supabaseClient
-.from("snap_comments")
-.select("*",{
-count:"exact",
-head:true
-})
-.eq("snap_id",id);
-
-if(commentError){
-
-console.error(commentError);
-
-}
-
-
-$("detailLikeCount").textContent=
-likeCount || 0;
-
-$("detailViews").textContent=
-viewCount || 0;
-
-$("detailComments").textContent=
-commentCount || 0;
-
-
-/* USER LIKE */
-
-let liked=false;
-
-if(currentUser){
-
-const {data,error}=
-await supabaseClient
-.from("snap_likes")
-.select("id")
-.eq("snap_id",id)
-.eq("user_id",currentUser.id)
-.maybeSingle();
-
-if(error &&
-error.code!=="PGRST116"){
-
-console.error(error);
-
-}
-
-liked=!!data;
-
-}
-
-$("detailLikeBtn")
-.classList.toggle(
-"liked",
-liked
-);
-
-await loadComments();
-
-}
-
-
-/* =========================================================
-LIKE
-========================================================= */
-
-$("detailLikeBtn").onclick=async()=>{
-
-if(!currentUser){
-
-showAuth();
-
-return;
-
-}
-
-if(!currentDetailSnap) return;
-
-const id=
-currentDetailSnap.id;
-
-try{
-
-const {data,error:findError}=
-await supabaseClient
-.from("snap_likes")
-.select("id")
-.eq("snap_id",id)
-.eq("user_id",currentUser.id)
-.maybeSingle();
-
-if(
-findError &&
-findError.code!=="PGRST116"
+async function registerView(
+  snapId
 ){
 
-throw findError;
+  if(!currentUser) return;
 
+  const {error} =
+    await supabaseClient
+    .from("snap_views")
+    .insert({
+      snap_id:snapId,
+      user_id:currentUser.id
+    });
+
+  /*
+    Duplicate view is expected because
+    snap_id + user_id is unique.
+  */
+
+  if(error){
+    console.log("View:",error.message);
+  }
 }
-
-if(data){
-
-const {error}=
-await supabaseClient
-.from("snap_likes")
-.delete()
-.eq("id",data.id);
-
-if(error) throw error;
-
-}else{
-
-const {error}=
-await supabaseClient
-.from("snap_likes")
-.insert({
-
-snap_id:id,
-user_id:currentUser.id
-
-});
-
-if(error) throw error;
-
-}
-
-await refreshPostStats();
-
-await updateNotificationCount();
-
-}catch(error){
-
-console.error(error);
-
-showStatus(
-error.message ||
-"Like failed"
-);
-
-}
-
-};
 
 
 /* =========================================================
-COMMENTS
+   NOTIFICATIONS
 ========================================================= */
 
-async function loadComments(){
+$("notificationBtn").addEventListener(
+  "click",
+  async ()=>{
 
-if(!currentDetailSnap) return;
+    closeModal("authModal");
 
-const {data,error}=
-await supabaseClient
-.from("snap_comments")
-.select("*")
-.eq(
-"snap_id",
-currentDetailSnap.id
-)
-.order(
-"created_at",
-{
-ascending:true
-}
+    await loadNotifications();
+
+    openModal("notificationsModal");
+  }
 );
-
-if(error){
-
-console.error(error);
-
-$("commentsList").innerHTML=
-`<div style="color:#f77;margin-top:10px">
-Comments load nahi hue.
-</div>`;
-
-return;
-
-}
-
-const profiles=
-await getProfiles(
-(data||[]).map(
-x=>x.user_id
-)
-);
-
-const list=
-$("commentsList");
-
-list.innerHTML="";
-
-if(!data?.length){
-
-list.innerHTML=
-`<div style="color:#777;margin-top:10px;font-size:13px">
-No comments yet.
-</div>`;
-
-return;
-
-}
-
-data.forEach(comment=>{
-
-const div=
-document.createElement("div");
-
-div.className="commentItem";
-
-div.innerHTML=`
-
-<div class="commentAuthor">
-
-${escapeHTML(
-profiles[comment.user_id] ||
-"User"
-)}
-
-</div>
-
-<div class="commentText">
-
-${escapeHTML(
-comment.comment_text
-)}
-
-</div>
-
-<div class="commentTime">
-
-${formatDate(
-comment.created_at
-)}
-
-</div>
-
-`;
-
-list.appendChild(div);
-
-});
-
-}
-
-
-/* WORD COUNT */
-
-$("commentInput")
-.addEventListener(
-"input",
-e=>{
-
-const words=
-wordCount(e.target.value);
-
-$("commentWordCount")
-.textContent=
-words+" / 250 words";
-
-if(words>250){
-
-e.target.style.borderColor="#f33";
-
-}else{
-
-e.target.style.borderColor="#444";
-
-}
-
-}
-);
-
-
-/* SEND COMMENT */
-
-$("commentSendBtn").onclick=async()=>{
-
-if(!currentUser){
-
-showAuth();
-
-return;
-
-}
-
-if(!currentDetailSnap) return;
-
-const input=
-$("commentInput");
-
-const text=
-input.value.trim();
-
-if(!text){
-
-showStatus(
-"Comment empty hai"
-);
-
-return;
-
-}
-
-const words=
-wordCount(text);
-
-if(words>250){
-
-showStatus(
-"Comment maximum 250 words ka ho sakta hai"
-);
-
-return;
-
-}
-
-try{
-
-const {error}=
-await supabaseClient
-.from("snap_comments")
-.insert({
-
-snap_id:
-currentDetailSnap.id,
-
-user_id:
-currentUser.id,
-
-comment_text:
-text
-
-});
-
-if(error) throw error;
-
-input.value="";
-
-$("commentWordCount")
-.textContent=
-"0 / 250 words";
-
-await loadComments();
-
-await refreshPostStats();
-
-showStatus(
-"Comment posted"
-);
-
-}catch(error){
-
-console.error(error);
-
-showStatus(
-error.message ||
-"Comment failed"
-);
-
-}
-
-};
-
-
-/* =========================================================
-NOTIFICATIONS
-========================================================= */
-
-async function getNotifications(){
-
-if(!currentUser) return [];
-
-const {data,error}=
-await supabaseClient
-.from("notifications")
-.select("*")
-.eq(
-"recipient_id",
-currentUser.id
-)
-.order(
-"created_at",
-{
-ascending:false
-}
-)
-.limit(50);
-
-if(error){
-
-console.error(error);
-
-return [];
-
-}
-
-return data || [];
-
-}
-
-
-async function updateNotificationCount(){
-
-if(!currentUser) return;
-
-const {count,error}=
-await supabaseClient
-.from("notifications")
-.select("*",{
-count:"exact",
-head:true
-})
-.eq(
-"recipient_id",
-currentUser.id
-)
-.eq(
-"is_read",
-false
-);
-
-if(error){
-
-console.error(error);
-
-return;
-
-}
-
-$("notificationCount")
-.textContent=
-count || 0;
-
-}
 
 
 async function loadNotifications(){
 
-const list=
-$("notificationList");
+  if(!currentUser) return;
 
-const notifications=
-await getNotifications();
+  const {data,error} =
+    await supabaseClient
+    .from("notifications")
+    .select("*")
+    .eq(
+      "recipient_id",
+      currentUser.id
+    )
+    .order("created_at",{
+      ascending:false
+    })
+    .limit(100);
 
-list.innerHTML="";
+  if(error){
 
-if(!notifications.length){
+    console.error(error);
+    return;
+  }
 
-list.innerHTML=
-`<div style="padding:20px;text-align:center;color:#777">
-No notifications
-</div>`;
+  const container =
+    $("notificationsList");
 
-return;
+  container.innerHTML = "";
 
-}
+  if(!data?.length){
 
-notifications.forEach(notification=>{
+    container.innerHTML =
+      `<div style="color:#999">
+        No notifications.
+      </div>`;
 
-const div=
-document.createElement("div");
+    return;
+  }
 
-div.className=
-"notificationItem "+
-(
-notification.is_read
-?""
-:"unread"
-);
+  data.forEach(notification=>{
 
-div.innerHTML=`
+    const div =
+      document.createElement("div");
 
-<div>
-${escapeHTML(
-notification.message
-)}
-</div>
+    div.className =
+      "comment";
 
-<div class="notificationDate">
-${formatDate(
-notification.created_at
-)}
-</div>
+    div.textContent =
+      notification.message;
 
-`;
+    container.appendChild(div);
+  });
 
-div.onclick=async()=>{
+  await supabaseClient
+  .from("notifications")
+  .update({
+    is_read:true
+  })
+  .eq(
+    "recipient_id",
+    currentUser.id
+  )
+  .eq(
+    "is_read",
+    false
+  );
 
-if(notification.snap_id){
-
-const {
-data,
-error
-}=
-await supabaseClient
-.from("snaps")
-.select("*")
-.eq(
-"id",
-notification.snap_id
-)
-.maybeSingle();
-
-if(error){
-
-console.error(error);
-
-return;
-
-}
-
-if(data){
-
-notificationModal.style.display="none";
-
-await openPostDetail(data);
-
-}
-
-}
-
-};
-
-list.appendChild(div);
-
-});
-
+  updateNotificationDot();
 }
 
 
-$("notificationBtn").onclick=async()=>{
+async function updateNotificationDot(){
 
-notificationModal.style.display="flex";
+  if(!currentUser){
 
-await loadNotifications();
+    $("notificationDot")
+      .style.display =
+      "none";
 
-if(currentUser){
+    return;
+  }
 
-const {error}=
-await supabaseClient
-.from("notifications")
-.update({
-is_read:true
-})
-.eq(
-"recipient_id",
-currentUser.id
-)
-.eq(
-"is_read",
-false
-);
+  const {count,error} =
+    await supabaseClient
+    .from("notifications")
+    .select(
+      "id",
+      {
+        count:"exact",
+        head:true
+      }
+    )
+    .eq(
+      "recipient_id",
+      currentUser.id
+    )
+    .eq(
+      "is_read",
+      false
+    );
 
-if(error){
+  if(error) return;
 
-console.error(error);
-
+  $("notificationDot")
+    .style.display =
+    count > 0
+    ? "block"
+    : "none";
 }
-
-}
-
-await updateNotificationCount();
-
-};
-
-
-$("closeNotificationBtn").onclick=()=>{
-
-notificationModal.style.display="none";
-
-};
 
 
 /* =========================================================
-POST DETAIL CLOSE
+   GALLERY
 ========================================================= */
 
-$("closePostDetail").onclick=()=>{
+$("galleryBtn").addEventListener(
+  "click",
+  async ()=>{
 
-$("detailSongAudio").pause();
-$("detailVideo").pause();
+    await loadSnaps();
 
-postDetailModal.style.display="none";
+    if(!allSnaps.length){
 
-};
+      showToast(
+        "Abhi koi snap nahi hai."
+      );
 
+      return;
+    }
 
-/* =========================================================
-GALLERY
-========================================================= */
+    const userLocation =
+      await getLocationPromise();
 
-async function openGallery(){
+    if(!userLocation){
 
-galleryItems=
-await loadSnaps();
+      showToast(
+        "Gallery ke liye location allow karo."
+      );
 
-if(!galleryItems.length){
+      return;
+    }
 
-showStatus(
-"Abhi koi snap nahi hai"
+    const nearby =
+      allSnaps
+      .map(snap=>{
+
+        const distance =
+          distanceMeters(
+            userLocation.lat,
+            userLocation.lon,
+            Number(snap.latitude),
+            Number(snap.longitude)
+          );
+
+        return {
+          snap,
+          distance
+        };
+      })
+      .sort(
+        (a,b)=>a.distance-b.distance
+      )
+      .slice(0,100);
+
+    const list =
+      nearby.map(
+        x=>x.snap
+      );
+
+    openCluster(list);
+  }
 );
 
-return;
 
+/* =========================================================
+   LOCATION PROMISE
+========================================================= */
+
+function getLocationPromise(){
+
+  return new Promise(
+    resolve=>{
+
+      if(!navigator.geolocation){
+
+        resolve(null);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+
+        position=>{
+
+          resolve({
+            lat:
+              position.coords.latitude,
+
+            lon:
+              position.coords.longitude
+          });
+
+        },
+
+        ()=>{
+          resolve(null);
+        },
+
+        {
+          enableHighAccuracy:true,
+          timeout:10000
+        }
+      );
+    }
+  );
 }
-
-galleryIndex=0;
-
-renderGallery();
-
-galleryModal.style.display="flex";
-
-}
-
-
-function renderGallery(){
-
-const snap=
-galleryItems[galleryIndex];
-
-if(!snap) return;
-
-$("galleryCounter").textContent=
-`${galleryIndex+1} / ${galleryItems.length}`;
-
-const image=
-$("galleryImage");
-
-const video=
-$("galleryVideo");
-
-image.style.display="none";
-video.style.display="none";
-
-video.pause();
-
-if(snap.media_type==="video"){
-
-video.src=snap.image_url;
-
-video.style.display="block";
-
-}else{
-
-image.src=snap.image_url;
-
-image.style.display="block";
-
-}
-
-}
-
-
-$("prevBtn").onclick=()=>{
-
-if(!galleryItems.length) return;
-
-galleryIndex=
-(
-galleryIndex-
-1+
-galleryItems.length
-)%
-galleryItems.length;
-
-renderGallery();
-
-};
-
-
-$("nextBtn").onclick=()=>{
-
-if(!galleryItems.length) return;
-
-galleryIndex=
-(
-galleryIndex+
-1
-)%
-galleryItems.length;
-
-renderGallery();
-
-};
-
-
-$("closeGalleryBtn").onclick=()=>{
-
-$("galleryVideo").pause();
-
-galleryModal.style.display="none";
-
-};
 
 
 /* =========================================================
-ANDROID BACK / ESC
+   ESCAPE
 ========================================================= */
-
-function closeTopModal(){
-
-const modals=[
-
-"notificationModal",
-"postDetailModal",
-"songModal",
-"detailsModal",
-"previewModal",
-"cameraModal",
-"galleryModal"
-
-];
-
-for(
-let i=0;
-i<modals.length;
-i++
-){
-
-const el=
-$(modals[i]);
-
-if(
-el &&
-getComputedStyle(el).display!=="none"
-){
-
-el.style.display="none";
-
-if(
-modals[i]==="cameraModal"
-){
-
-stopCamera();
-
-}
-
-return true;
-
-}
-
-}
-
-return false;
-
-}
-
 
 document.addEventListener(
-"keydown",
-e=>{
+  "keydown",
+  e=>{
 
-if(e.key==="Escape"){
+    if(e.key !== "Escape") return;
 
-closeTopModal();
+    const visible =
+      [
+        "authModal",
+        "cameraModal",
+        "postModal",
+        "clusterModal",
+        "detailModal",
+        "notificationsModal"
+      ]
+      .find(
+        id=>$(id).classList.contains("show")
+      );
 
-}
+    if(visible){
 
-}
+      closeModal(visible);
+    }
+  }
 );
 
 
 /* =========================================================
-SUPABASE AUTH LISTENER
+   BROWSER / ANDROID BACK
 ========================================================= */
 
-supabaseClient.auth.onAuthStateChange(
-async(event,session)=>{
+window.addEventListener(
+  "popstate",
+  ()=>{
 
-currentUser=
-session?.user || null;
+    backHistoryActive = false;
 
-if(currentUser){
+    const detailOpen =
+      $("detailModal")
+      .classList.contains("show");
 
-hideAuth();
+    const clusterOpen =
+      $("clusterModal")
+      .classList.contains("show");
 
-await loadUser();
+    const postOpen =
+      $("postModal")
+      .classList.contains("show");
 
-}else{
+    const cameraOpen =
+      $("cameraModal")
+      .classList.contains("show");
 
-$("logoutBtn").style.display="none";
-$("notificationBtn").style.display="none";
+    if(cameraOpen){
 
-}
+      closeModal("cameraModal");
+      return;
+    }
 
-}
+    if(postOpen){
+
+      showExitConfirmation();
+      return;
+    }
+
+    if(detailOpen){
+
+      closeModal("detailModal");
+      return;
+    }
+
+    if(clusterOpen){
+
+      closeModal("clusterModal");
+      return;
+    }
+
+    /*
+      Browser may not allow a webpage to
+      completely control closing the tab.
+
+      For Android/browser navigation we
+      show our confirmation screen when
+      possible.
+    */
+
+    showExitConfirmation();
+  }
 );
 
 
 /* =========================================================
-INITIALIZE
+   EXIT CONFIRMATION
 ========================================================= */
 
-initMap();
+function showExitConfirmation(){
 
-updateAuthUI();
+  $("exitOverlay").style.display =
+    "flex";
+}
 
-loadUser();
+
+function hideExitConfirmation(){
+
+  $("exitOverlay").style.display =
+    "none";
+}
+
+
+$("exitCancelBtn").addEventListener(
+  "click",
+  ()=>{
+    hideExitConfirmation();
+
+    history.pushState(
+      {pastSnapModal:true},
+      "",
+      location.href
+    );
+
+    backHistoryActive = true;
+  }
+);
+
+
+$("exitEditBtn").addEventListener(
+  "click",
+  ()=>{
+
+    hideExitConfirmation();
+
+    if(
+      $("postModal")
+      .classList.contains("show")
+    ){
+      $("postDescription")
+        .focus();
+
+      return;
+    }
+
+    showToast(
+      "Aap website par wapas aa gaye."
+    );
+
+    history.pushState(
+      {pastSnapModal:true},
+      "",
+      location.href
+    );
+
+    backHistoryActive = true;
+  }
+);
+
+
+$("exitConfirmBtn").addEventListener(
+  "click",
+  ()=>{
+
+    hideExitConfirmation();
+
+    /*
+      Browser security normally prevents
+      JavaScript from force-closing a normal tab.
+      Going back is allowed when history permits.
+    */
+
+    if(history.length > 1){
+
+      history.back();
+
+    }else{
+
+      showToast(
+        "Browser security ke karan tab automatically close nahi ho sakta."
+      );
+    }
+  }
+);
 
 
 /* =========================================================
-NOTIFICATION POLLING
+   HTML ESCAPE
 ========================================================= */
 
-setInterval(
-async()=>{
+function escapeHtml(value){
 
-if(currentUser){
-
-await updateNotificationCount();
-
+  return String(value ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
 }
 
-},
-20000
-);
+
+/* =========================================================
+   INITIAL LOAD
+========================================================= */
+
+(async function(){
+
+  try{
+
+    await loadUser();
+
+    initMap();
+
+    await updateNotificationDot();
+
+    setInterval(
+      async ()=>{
+        await loadSnaps();
+        await updateNotificationDot();
+      },
+      30000
+    );
+
+  }catch(err){
+
+    console.error(err);
+
+    showToast(
+      "Website load karte waqt error."
+    );
+  }
+
+})();
 
 </script>
 
