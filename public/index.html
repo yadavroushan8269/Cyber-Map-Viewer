@@ -41,9 +41,9 @@ body{
 }
 
 
-/* =====================================================
-   TOP SEARCH
-===================================================== */
+/* =========================
+   SEARCH
+========================= */
 
 #topbar{
   position:absolute;
@@ -92,9 +92,9 @@ body{
 }
 
 
-/* =====================================================
+/* =========================
    MAP
-===================================================== */
+========================= */
 
 #map{
   position:absolute;
@@ -104,9 +104,9 @@ body{
 }
 
 
-/* =====================================================
+/* =========================
    LOCATION
-===================================================== */
+========================= */
 
 #locationBtn{
   position:absolute;
@@ -130,9 +130,9 @@ body{
 }
 
 
-/* =====================================================
+/* =========================
    STATUS
-===================================================== */
+========================= */
 
 #status{
   position:absolute;
@@ -159,9 +159,9 @@ body{
 }
 
 
-/* =====================================================
+/* =========================
    CAMERA
-===================================================== */
+========================= */
 
 #cameraModal{
   position:fixed;
@@ -186,33 +186,36 @@ body{
   display:block;
 
   /*
-   * Default: back camera normal
+   * DEFAULT:
+   * Camera normal rahega.
+   * Koi mirror nahi.
    */
   transform:none;
 }
 
 
 /*
- * IMPORTANT:
- *
- * Front/selfie camera preview is mirrored.
- * This affects ONLY live preview.
- *
- * Captured photo is NOT mirrored.
+ * Sirf Mirror button ON hone par
+ * ye class lagegi.
  */
 
-#cameraVideo.selfie-preview{
+#cameraVideo.mirror-preview{
   transform:scaleX(-1);
 }
+
+
+/* =========================
+   CAMERA CANVAS
+========================= */
 
 #cameraCanvas{
   display:none;
 }
 
 
-/* =====================================================
+/* =========================
    CAMERA TOP
-===================================================== */
+========================= */
 
 #cameraTop{
   position:absolute;
@@ -226,9 +229,7 @@ body{
   justify-content:space-between;
 }
 
-#cameraTop button,
-#cameraBottom button{
-
+#cameraTop button{
   border:none;
   border-radius:50%;
 
@@ -242,10 +243,9 @@ body{
 }
 
 
-/* =====================================================
+/* =========================
    FILTERS
-   EXISTING 10 FILTERS ONLY
-===================================================== */
+========================= */
 
 #filterBar{
   position:absolute;
@@ -253,7 +253,7 @@ body{
 
   left:10px;
   right:10px;
-  bottom:105px;
+  bottom:125px;
 
   display:flex;
   gap:8px;
@@ -291,35 +291,69 @@ body{
 }
 
 
-/* =====================================================
+/* =========================
    CAMERA BOTTOM
-===================================================== */
+========================= */
 
 #cameraBottom{
   position:absolute;
-  z-index:20;
+  z-index:30;
 
   left:0;
   right:0;
-  bottom:25px;
+  bottom:20px;
 
   display:flex;
+  align-items:center;
   justify-content:center;
+
+  gap:22px;
+}
+
+#cameraBottom button{
+  border:none;
+  color:white;
+  background:rgba(0,0,0,.65);
 }
 
 #captureBtn{
   width:72px !important;
   height:72px !important;
 
+  border-radius:50% !important;
+
   border:5px solid white !important;
 
   background:white !important;
+
+  flex-shrink:0;
+}
+
+#mirrorBtn{
+  width:auto !important;
+  height:45px !important;
+
+  padding:0 16px;
+
+  border-radius:25px !important;
+
+  font-size:14px;
+  font-weight:bold;
+
+  border:1px solid rgba(255,255,255,.4) !important;
+
+  white-space:nowrap;
+}
+
+#mirrorBtn.active{
+  background:white !important;
+  color:#111 !important;
 }
 
 
-/* =====================================================
+/* =========================
    PREVIEW
-===================================================== */
+========================= */
 
 #previewModal{
   position:fixed;
@@ -338,6 +372,8 @@ body{
   height:calc(100% - 90px);
 
   object-fit:contain;
+
+  transform:none;
 }
 
 #previewBottom{
@@ -370,9 +406,9 @@ body{
 }
 
 
-/* =====================================================
+/* =========================
    GALLERY
-===================================================== */
+========================= */
 
 #galleryModal{
   position:fixed;
@@ -456,9 +492,9 @@ body{
 }
 
 
-/* =====================================================
+/* =========================
    SNAP MARKER
-===================================================== */
+========================= */
 
 .snap-marker{
   display:flex;
@@ -639,7 +675,13 @@ body{
     </div>
 
 
+    <!-- CAMERA BOTTOM -->
+
     <div id="cameraBottom">
+
+      <button id="mirrorBtn">
+        🪞 Mirror
+      </button>
 
       <button id="captureBtn"></button>
 
@@ -652,7 +694,9 @@ body{
 
   <div id="previewModal">
 
-    <img id="previewImage">
+    <img
+      id="previewImage"
+    >
 
     <div id="previewBottom">
 
@@ -739,29 +783,33 @@ let map = null;
 
 let cameraStream = null;
 
-let currentFacingMode =
-  "user";
+let currentFacingMode = "user";
 
-let currentFilter =
-  "none";
+let currentFilter = "none";
 
-let currentLocation =
-  null;
+let currentLocation = null;
 
-let allSnaps =
-  [];
+let allSnaps = [];
 
-let snapGroups =
-  [];
+let snapGroups = [];
 
-let gallerySnaps =
-  [];
+let gallerySnaps = [];
 
-let galleryIndex =
-  0;
+let galleryIndex = 0;
 
-let searchMarker =
-  null;
+let searchMarker = null;
+
+
+/*
+ * IMPORTANT
+ *
+ * Default = false
+ *
+ * Matlab camera kabhi mirror nahi hoga
+ * jab tak user Mirror button nahi dabata.
+ */
+
+let mirrorEnabled = false;
 
 
 /* =====================================================
@@ -821,22 +869,17 @@ function showStatus(message){
       "status"
     );
 
-  el.textContent =
-    message;
+  el.textContent = message;
 
-  el.style.display =
-    "block";
+  el.style.display = "block";
 
-  clearTimeout(
-    showStatus.timer
-  );
+  clearTimeout(showStatus.timer);
 
   showStatus.timer =
     setTimeout(
       function(){
 
-        el.style.display =
-          "none";
+        el.style.display = "none";
 
       },
       3500
@@ -852,12 +895,9 @@ function showStatus(message){
 function initMap(){
 
   map =
-    L.map(
-      "map",
-      {
-        zoomControl:true
-      }
-    ).setView(
+    L.map("map", {
+      zoomControl:true
+    }).setView(
       [20.5937,78.9629],
       5
     );
@@ -870,22 +910,18 @@ function initMap(){
 
       attribution:
         "&copy; OpenStreetMap contributors"
-
     }
   ).addTo(map);
 
 
-  let moveTimer =
-    null;
+  let moveTimer = null;
 
 
   map.on(
     "moveend",
     function(){
 
-      clearTimeout(
-        moveTimer
-      );
+      clearTimeout(moveTimer);
 
       moveTimer =
         setTimeout(
@@ -914,8 +950,7 @@ function distanceMeters(
   lon2
 ){
 
-  const R =
-    6371000;
+  const R = 6371000;
 
   const dLat =
     (lat2-lat1) *
@@ -966,15 +1001,13 @@ function makeGroups(snaps){
 
   const groups = [];
 
-  const GROUP_DISTANCE =
-    30;
+  const GROUP_DISTANCE = 30;
 
 
   snaps.forEach(
     function(snap){
 
-      let found =
-        null;
+      let found = null;
 
 
       for(
@@ -983,33 +1016,23 @@ function makeGroups(snaps){
         i++
       ){
 
-        const group =
-          groups[i];
+        const group = groups[i];
 
 
         const distance =
           distanceMeters(
-            Number(
-              snap.latitude
-            ),
-
-            Number(
-              snap.longitude
-            ),
-
+            Number(snap.latitude),
+            Number(snap.longitude),
             group.latitude,
-
             group.longitude
           );
 
 
         if(
-          distance <=
-          GROUP_DISTANCE
+          distance <= GROUP_DISTANCE
         ){
 
-          found =
-            group;
+          found = group;
 
           break;
 
@@ -1023,14 +1046,10 @@ function makeGroups(snaps){
         groups.push({
 
           latitude:
-            Number(
-              snap.latitude
-            ),
+            Number(snap.latitude),
 
           longitude:
-            Number(
-              snap.longitude
-            ),
+            Number(snap.longitude),
 
           snaps:[
             snap
@@ -1040,30 +1059,22 @@ function makeGroups(snaps){
 
       }else{
 
-        found.snaps.push(
-          snap
-        );
+        found.snaps.push(snap);
 
 
-        let latSum =
-          0;
+        let latSum = 0;
 
-        let lonSum =
-          0;
+        let lonSum = 0;
 
 
         found.snaps.forEach(
           function(item){
 
             latSum +=
-              Number(
-                item.latitude
-              );
+              Number(item.latitude);
 
             lonSum +=
-              Number(
-                item.longitude
-              );
+              Number(item.longitude);
 
           }
         );
@@ -1107,9 +1118,7 @@ function clearSnapMarkers(){
         layer.options.isSnapMarker
       ){
 
-        map.removeLayer(
-          layer
-        );
+        map.removeLayer(layer);
 
       }
 
@@ -1134,9 +1143,7 @@ function drawSnapMarkers(){
 
 
   snapGroups =
-    makeGroups(
-      allSnaps
-    );
+    makeGroups(allSnaps);
 
 
   snapGroups.forEach(
@@ -1160,32 +1167,23 @@ function drawSnapMarkers(){
       }
 
 
-      html +=
-        "</div>";
+      html += "</div>";
 
 
       const icon =
         L.divIcon({
 
-          html:
-            html,
+          html:html,
 
-          className:
-            "",
+          className:"",
 
           iconSize:[
-            count > 1
-              ? 65
-              : 40,
-
+            count > 1 ? 65 : 40,
             40
           ],
 
           iconAnchor:[
-            count > 1
-              ? 32
-              : 20,
-
+            count > 1 ? 32 : 20,
             20
           ]
 
@@ -1200,7 +1198,6 @@ function drawSnapMarkers(){
           ],
           {
             icon:icon,
-
             isSnapMarker:true
           }
         )
@@ -1211,9 +1208,7 @@ function drawSnapMarkers(){
         "click",
         function(){
 
-          openGallery(
-            group.snaps
-          );
+          openGallery(group.snaps);
 
         }
       );
@@ -1295,16 +1290,12 @@ async function loadSnapsForVisibleArea(){
 
 
     if(result.error){
-
       throw result.error;
-
     }
 
 
     allSnaps =
-      Array.isArray(
-        result.data
-      )
+      Array.isArray(result.data)
         ? result.data
         : [];
 
@@ -1325,7 +1316,7 @@ async function loadSnapsForVisibleArea(){
 
 
 /* =====================================================
-   LOCATION
+   GET USER LOCATION
 ===================================================== */
 
 function getUserLocation(){
@@ -1361,29 +1352,21 @@ function getUserLocation(){
 
       currentLocation = {
 
-        latitude:
-          lat,
+        latitude:lat,
 
-        longitude:
-          lng
+        longitude:lng
 
       };
 
 
       map.setView(
-        [
-          lat,
-          lng
-        ],
+        [lat,lng],
         17
       );
 
 
       L.circleMarker(
-        [
-          lat,
-          lng
-        ],
+        [lat,lng],
         {
           radius:8
         }
@@ -1407,10 +1390,7 @@ function getUserLocation(){
 
     function(error){
 
-      console.error(
-        error
-      );
-
+      console.error(error);
 
       showStatus(
         "Location permission allow karo."
@@ -1421,11 +1401,8 @@ function getUserLocation(){
 
     {
       enableHighAccuracy:true,
-
       timeout:15000,
-
       maximumAge:0
-
     }
 
   );
@@ -1434,7 +1411,76 @@ function getUserLocation(){
 
 
 /* =====================================================
-   CAMERA OPEN
+   APPLY MIRROR PREVIEW
+===================================================== */
+
+function updateMirrorPreview(){
+
+  const video =
+    document.getElementById(
+      "cameraVideo"
+    );
+
+
+  const button =
+    document.getElementById(
+      "mirrorBtn"
+    );
+
+
+  if(mirrorEnabled){
+
+    video.classList.add(
+      "mirror-preview"
+    );
+
+    button.classList.add(
+      "active"
+    );
+
+    button.textContent =
+      "🪞 Mirror ON";
+
+  }else{
+
+    video.classList.remove(
+      "mirror-preview"
+    );
+
+    button.classList.remove(
+      "active"
+    );
+
+    button.textContent =
+      "🪞 Mirror";
+
+  }
+
+}
+
+
+/* =====================================================
+   MIRROR BUTTON
+===================================================== */
+
+document
+  .getElementById("mirrorBtn")
+  .addEventListener(
+    "click",
+    function(){
+
+      mirrorEnabled =
+        !mirrorEnabled;
+
+
+      updateMirrorPreview();
+
+    }
+  );
+
+
+/* =====================================================
+   OPEN CAMERA
 ===================================================== */
 
 async function openCamera(){
@@ -1452,10 +1498,6 @@ async function openCamera(){
 
   try{
 
-    /*
-     * Previous camera stop.
-     */
-
     if(cameraStream){
 
       cameraStream
@@ -1468,15 +1510,10 @@ async function openCamera(){
           }
         );
 
-      cameraStream =
-        null;
+      cameraStream = null;
 
     }
 
-
-    /*
-     * Camera open.
-     */
 
     cameraStream =
       await navigator
@@ -1507,31 +1544,16 @@ async function openCamera(){
       cameraStream;
 
 
-    /* ==============================================
-       FRONT CAMERA MIRROR FIX
+    /*
+     * IMPORTANT:
+     *
+     * Camera open hote hi mirror
+     * sirf mirrorEnabled ke according.
+     *
+     * Default false hai.
+     */
 
-       user = front/selfie
-       environment = back camera
-
-       Only live preview is mirrored.
-       Captured image is NOT mirrored.
-    ============================================== */
-
-    if(
-      currentFacingMode === "user"
-    ){
-
-      video.classList.add(
-        "selfie-preview"
-      );
-
-    }else{
-
-      video.classList.remove(
-        "selfie-preview"
-      );
-
-    }
+    updateMirrorPreview();
 
 
     await new Promise(
@@ -1560,10 +1582,6 @@ async function openCamera(){
 
     await video.play();
 
-
-    /*
-     * Current selected filter.
-     */
 
     applyCameraFilter();
 
@@ -1608,8 +1626,7 @@ function closeCamera(){
         }
       );
 
-    cameraStream =
-      null;
+    cameraStream = null;
 
   }
 
@@ -1620,11 +1637,10 @@ function closeCamera(){
     );
 
 
-  video.srcObject =
-    null;
+  video.srcObject = null;
 
   video.classList.remove(
-    "selfie-preview"
+    "mirror-preview"
   );
 
 
@@ -1632,8 +1648,7 @@ function closeCamera(){
     .getElementById(
       "cameraModal"
     )
-    .style.display =
-      "none";
+    .style.display = "none";
 
 }
 
@@ -1661,11 +1676,8 @@ document
     async function(){
 
       currentFacingMode =
-        currentFacingMode ===
-        "user"
-
+        currentFacingMode === "user"
           ? "environment"
-
           : "user";
 
 
@@ -1679,9 +1691,7 @@ document
    FILTER CSS
 ===================================================== */
 
-function filterToCss(
-  filter
-){
+function filterToCss(filter){
 
   switch(filter){
 
@@ -1696,9 +1706,7 @@ function filterToCss(
 
     case "bw":
 
-      return (
-        "grayscale(1)"
-      );
+      return "grayscale(1)";
 
 
     case "warm":
@@ -1772,7 +1780,7 @@ function filterToCss(
 
 
 /* =====================================================
-   APPLY FILTER TO LIVE CAMERA
+   APPLY CAMERA FILTER
 ===================================================== */
 
 function applyCameraFilter(){
@@ -1788,20 +1796,10 @@ function applyCameraFilter(){
   }
 
 
-  const filter =
+  video.style.filter =
     filterToCss(
       currentFilter
     );
-
-
-  video.style.setProperty(
-    "--camera-filter",
-    filter
-  );
-
-
-  video.style.filter =
-    filter;
 
 }
 
@@ -1922,13 +1920,11 @@ function capturePhoto(){
 
 
   const ctx =
-    canvas.getContext(
-      "2d"
-    );
+    canvas.getContext("2d");
 
 
   /*
-   * Same filter captured photo par.
+   * Filter photo par apply hoga.
    */
 
   ctx.filter =
@@ -1938,22 +1934,67 @@ function capturePhoto(){
 
 
   /*
-   * IMPORTANT:
+   * IMPORTANT MIRROR LOGIC
    *
-   * Yaha mirror nahi hai.
+   * Mirror OFF:
+   * normal photo
    *
-   * Isliye saved photo normal
-   * direction mein rahegi.
+   * Mirror ON:
+   * photo horizontally flipped
    */
 
-  ctx.drawImage(
-    video,
-    0,
-    0,
-    width,
-    height
-  );
+  if(mirrorEnabled){
 
+    ctx.save();
+
+    ctx.translate(
+      width,
+      0
+    );
+
+    ctx.scale(
+      -1,
+      1
+    );
+
+
+    ctx.drawImage(
+      video,
+      0,
+      0,
+      width,
+      height
+    );
+
+
+    ctx.restore();
+
+  }else{
+
+    ctx.setTransform(
+      1,
+      0,
+      0,
+      1,
+      0,
+      0
+    );
+
+
+    ctx.drawImage(
+      video,
+      0,
+      0,
+      width,
+      height
+    );
+
+  }
+
+
+  /*
+   * Final image.
+   */
 
   const imageData =
     canvas.toDataURL(
@@ -1962,12 +2003,27 @@ function capturePhoto(){
     );
 
 
-  document
-    .getElementById(
+  const previewImage =
+    document.getElementById(
       "previewImage"
-    )
-    .src =
-      imageData;
+    );
+
+
+  /*
+   * Preview par CSS mirror nahi lagana.
+   * Canvas ne already correct image bana di.
+   */
+
+  previewImage.style.transform =
+    "none";
+
+
+  previewImage.style.filter =
+    "none";
+
+
+  previewImage.src =
+    imageData;
 
 
   document
@@ -1975,7 +2031,7 @@ function capturePhoto(){
       "cameraModal"
     )
     .style.display =
-      "none";
+    "none";
 
 
   document
@@ -1983,7 +2039,7 @@ function capturePhoto(){
       "previewModal"
     )
     .style.display =
-      "flex";
+    "flex";
 
 }
 
@@ -2015,12 +2071,10 @@ document
 
 
 /* =====================================================
-   IMAGE DATA TO BLOB
+   DATA URL TO BLOB
 ===================================================== */
 
-function dataURLtoBlob(
-  dataURL
-){
+function dataURLtoBlob(dataURL){
 
   const parts =
     dataURL.split(",");
@@ -2034,9 +2088,7 @@ function dataURLtoBlob(
 
 
   const binary =
-    atob(
-      parts[1]
-    );
+    atob(parts[1]);
 
 
   const array =
@@ -2058,9 +2110,7 @@ function dataURLtoBlob(
 
 
   return new Blob(
-    [
-      array
-    ],
+    [array],
     {
       type:mime
     }
@@ -2085,9 +2135,7 @@ document
 
 async function postSnap(){
 
-  if(
-    !currentLocation
-  ){
+  if(!currentLocation){
 
     showStatus(
       "Pehle location allow karo."
@@ -2099,10 +2147,9 @@ async function postSnap(){
 
 
   const image =
-    document
-      .getElementById(
-        "previewImage"
-      );
+    document.getElementById(
+      "previewImage"
+    );
 
 
   if(
@@ -2153,9 +2200,7 @@ async function postSnap(){
     const upload =
       await client
         .storage
-        .from(
-          "past-snaps"
-        )
+        .from("past-snaps")
         .upload(
           fileName,
           blob,
@@ -2178,9 +2223,7 @@ async function postSnap(){
     const publicData =
       client
         .storage
-        .from(
-          "past-snaps"
-        )
+        .from("past-snaps")
         .getPublicUrl(
           fileName
         );
@@ -2194,9 +2237,7 @@ async function postSnap(){
 
     const insert =
       await client
-        .from(
-          "snaps"
-        )
+        .from("snaps")
         .insert({
 
           latitude:
@@ -2334,22 +2375,14 @@ async function searchLocation(){
 
 
     const lat =
-      Number(
-        first.lat
-      );
-
+      Number(first.lat);
 
     const lon =
-      Number(
-        first.lon
-      );
+      Number(first.lon);
 
 
     map.setView(
-      [
-        lat,
-        lon
-      ],
+      [lat,lon],
       16
     );
 
@@ -2365,10 +2398,7 @@ async function searchLocation(){
 
     searchMarker =
       L.marker(
-        [
-          lat,
-          lon
-        ]
+        [lat,lon]
       )
       .addTo(map)
       .bindPopup(
@@ -2390,10 +2420,7 @@ async function searchLocation(){
 
   }catch(error){
 
-    console.error(
-      error
-    );
-
+    console.error(error);
 
     showStatus(
       "Search failed."
@@ -2423,8 +2450,7 @@ document
     function(event){
 
       if(
-        event.key ===
-        "Enter"
+        event.key === "Enter"
       ){
 
         searchLocation();
@@ -2453,9 +2479,7 @@ document
    GALLERY
 ===================================================== */
 
-function openGallery(
-  snaps
-){
+function openGallery(snaps){
 
   if(
     !snaps ||
@@ -2470,7 +2494,6 @@ function openGallery(
   gallerySnaps =
     snaps;
 
-
   galleryIndex =
     0;
 
@@ -2480,7 +2503,7 @@ function openGallery(
       "galleryModal"
     )
     .style.display =
-      "flex";
+    "flex";
 
 
   updateGallery();
@@ -2514,7 +2537,7 @@ function updateGallery(){
       "galleryImage"
     )
     .src =
-      snap.image_url;
+    snap.image_url;
 
 
   document
@@ -2523,12 +2546,8 @@ function updateGallery(){
     )
     .textContent =
 
-      (
-        galleryIndex + 1
-      ) +
-
+      (galleryIndex + 1) +
       " / " +
-
       gallerySnaps.length;
 
 }
@@ -2556,6 +2575,7 @@ document
 
 
       galleryIndex--;
+
 
       if(
         galleryIndex < 0
@@ -2596,13 +2616,13 @@ document
 
       galleryIndex++;
 
+
       if(
         galleryIndex >=
         gallerySnaps.length
       ){
 
-        galleryIndex =
-          0;
+        galleryIndex = 0;
 
       }
 
@@ -2640,11 +2660,9 @@ document
    SWIPE GALLERY
 ===================================================== */
 
-let touchStartX =
-  0;
+let touchStartX = 0;
 
-let touchEndX =
-  0;
+let touchEndX = 0;
 
 
 const galleryBox =
@@ -2681,8 +2699,7 @@ galleryBox.addEventListener(
 
 
     if(
-      Math.abs(diff) <
-      50
+      Math.abs(diff) < 50
     ){
 
       return;
@@ -2724,8 +2741,7 @@ document.addEventListener(
   function(event){
 
     if(
-      event.key ===
-      "Escape"
+      event.key === "Escape"
     ){
 
       document
