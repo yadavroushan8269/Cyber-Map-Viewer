@@ -18,169 +18,294 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+/* =========================================================
+   MAIN PAGE
+========================================================= */
+
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(
+    path.join(__dirname, "public", "index.html")
+  );
 });
+
+/* =========================================================
+   SPA FALLBACK
+========================================================= */
 
 app.use((req, res) => {
-  res.sendFile(path.join(__dirname, "public", "index.html"));
+  res.sendFile(
+    path.join(__dirname, "public", "index.html")
+  );
 });
 
-// ============================================
-// SOCKET.IO
-// ============================================
+/* =========================================================
+   USERS
+========================================================= */
 
 const users = new Map();
 
+/* =========================================================
+   SOCKET.IO
+========================================================= */
+
 io.on("connection", (socket) => {
+
   console.log("User connected:", socket.id);
 
-  // ------------------------------------------
-  // JOIN ROOM
-  // ------------------------------------------
+  /* =======================================================
+     JOIN PERMANENT CALL ROOM
+  ======================================================= */
 
   socket.on("join-room", (roomId) => {
+
     if (!roomId) return;
 
-    roomId = String(roomId).trim().toUpperCase();
+    roomId = String(roomId)
+      .trim()
+      .toUpperCase();
 
-    // Leave old rooms
+    /* Remove socket from old rooms */
+
     for (const room of socket.rooms) {
+
       if (room !== socket.id) {
         socket.leave(room);
       }
     }
 
-    const existingUsers = io.sockets.adapter.rooms.get(roomId);
+    /* Check room capacity */
 
-    if (existingUsers && existingUsers.size >= 2) {
+    const existingUsers =
+      io.sockets.adapter.rooms.get(roomId);
+
+    if (
+      existingUsers &&
+      existingUsers.size >= 2
+    ) {
+
       socket.emit("room-full");
+
+      console.log(
+        `Room full: ${roomId}`
+      );
+
       return;
     }
+
+    /* Join */
 
     socket.join(roomId);
 
     users.set(socket.id, {
-      roomId
+      roomId: roomId
     });
 
     socket.emit("room-joined", {
-      roomId,
+      roomId: roomId,
       socketId: socket.id
     });
 
-    console.log(`${socket.id} joined room ${roomId}`);
-  });
-
-  // ------------------------------------------
-  // CALL USER
-  // ------------------------------------------
-
-  socket.on("call-user", ({ targetRoom, callerRoom }) => {
-    if (!targetRoom) return;
-
-    targetRoom = String(targetRoom).trim().toUpperCase();
-
-    const targetUsers = io.sockets.adapter.rooms.get(targetRoom);
-
-    if (!targetUsers || targetUsers.size === 0) {
-      socket.emit("call-unavailable", {
-        roomId: targetRoom
-      });
-      return;
-    }
-
-    let targetSocketId = null;
-
-    for (const id of targetUsers) {
-      if (id !== socket.id) {
-        targetSocketId = id;
-        break;
-      }
-    }
-
-    if (!targetSocketId) {
-      socket.emit("call-unavailable", {
-        roomId: targetRoom
-      });
-      return;
-    }
-
-    io.to(targetSocketId).emit("incoming-call", {
-      callerId: socket.id,
-      callerRoom: callerRoom || "",
-      targetRoom
-    });
-
-    socket.emit("call-ringing", {
-      roomId: targetRoom
-    });
-
     console.log(
-      `Call: ${callerRoom || socket.id} -> ${targetRoom}`
+      `${socket.id} joined room ${roomId}`
     );
   });
 
-  // ------------------------------------------
-  // ACCEPT CALL
-  // ------------------------------------------
+  /* =======================================================
+     CALL USER
+  ======================================================= */
 
-  socket.on("accept-call", ({ callerId }) => {
-    if (!callerId) return;
+  socket.on(
+    "call-user",
+    ({ targetRoom, callerRoom }) => {
 
-    io.to(callerId).emit("call-accepted", {
-      accepterId: socket.id
-    });
-  });
+      if (!targetRoom) return;
 
-  // ------------------------------------------
-  // REJECT CALL
-  // ------------------------------------------
+      targetRoom = String(targetRoom)
+        .trim()
+        .toUpperCase();
 
-  socket.on("reject-call", ({ callerId }) => {
-    if (!callerId) return;
+      const targetUsers =
+        io.sockets.adapter.rooms.get(targetRoom);
 
-    io.to(callerId).emit("call-rejected");
-  });
+      /*
+       * Target user must currently be online
+       * and connected to the permanent call room.
+       */
 
-  // ------------------------------------------
-  // WEBRTC SIGNAL
-  // ------------------------------------------
+      if (
+        !targetUsers ||
+        targetUsers.size === 0
+      ) {
 
-  socket.on("webrtc-signal", ({ targetId, signal }) => {
-    if (!targetId || !signal) return;
+        socket.emit("call-unavailable", {
+          roomId: targetRoom
+        });
 
-    io.to(targetId).emit("webrtc-signal", {
-      senderId: socket.id,
-      signal
-    });
-  });
+        console.log(
+          `Call unavailable: ${targetRoom}`
+        );
 
-  // ------------------------------------------
-  // END CALL
-  // ------------------------------------------
+        return;
+      }
 
-  socket.on("end-call", ({ targetId }) => {
-    if (!targetId) return;
+      /* Find another socket in target room */
 
-    io.to(targetId).emit("call-ended");
-  });
+      let targetSocketId = null;
 
-  // ------------------------------------------
-  // DISCONNECT
-  // ------------------------------------------
+      for (const id of targetUsers) {
+
+        if (id !== socket.id) {
+
+          targetSocketId = id;
+          break;
+        }
+      }
+
+      if (!targetSocketId) {
+
+        socket.emit("call-unavailable", {
+          roomId: targetRoom
+        });
+
+        return;
+      }
+
+      /* Send incoming call */
+
+      io.to(targetSocketId).emit(
+        "incoming-call",
+        {
+          callerId: socket.id,
+          callerRoom: callerRoom || "",
+          targetRoom: targetRoom
+        }
+      );
+
+      /* Tell caller */
+
+      socket.emit("call-ringing", {
+        roomId: targetRoom
+      });
+
+      console.log(
+        `Call: ${
+          callerRoom || socket.id
+        } -> ${targetRoom}`
+      );
+    }
+  );
+
+  /* =======================================================
+     ACCEPT CALL
+  ======================================================= */
+
+  socket.on(
+    "accept-call",
+    ({ callerId }) => {
+
+      if (!callerId) return;
+
+      io.to(callerId).emit(
+        "call-accepted",
+        {
+          accepterId: socket.id
+        }
+      );
+
+      console.log(
+        `Call accepted: ${callerId} -> ${socket.id}`
+      );
+    }
+  );
+
+  /* =======================================================
+     REJECT CALL
+  ======================================================= */
+
+  socket.on(
+    "reject-call",
+    ({ callerId }) => {
+
+      if (!callerId) return;
+
+      io.to(callerId).emit(
+        "call-rejected"
+      );
+
+      console.log(
+        `Call rejected by ${socket.id}`
+      );
+    }
+  );
+
+  /* =======================================================
+     WEBRTC SIGNAL
+  ======================================================= */
+
+  socket.on(
+    "webrtc-signal",
+    ({ targetId, signal }) => {
+
+      if (!targetId || !signal) return;
+
+      io.to(targetId).emit(
+        "webrtc-signal",
+        {
+          senderId: socket.id,
+          signal: signal
+        }
+      );
+    }
+  );
+
+  /* =======================================================
+     END CALL
+  ======================================================= */
+
+  socket.on(
+    "end-call",
+    ({ targetId }) => {
+
+      if (!targetId) return;
+
+      io.to(targetId).emit(
+        "call-ended"
+      );
+
+      console.log(
+        `Call ended: ${socket.id} -> ${targetId}`
+      );
+    }
+  );
+
+  /* =======================================================
+     DISCONNECT
+  ======================================================= */
 
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+
+    console.log(
+      "User disconnected:",
+      socket.id
+    );
 
     users.delete(socket.id);
   });
+
 });
 
-// ============================================
-// START SERVER
-// ============================================
+/* =========================================================
+   SERVER START
+========================================================= */
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log(`Past Snap running on port ${PORT}`);
-});
+server.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+
+    console.log(
+      `Past Snap running on port ${PORT}`
+    );
+
+  }
+);
