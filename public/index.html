@@ -1,646 +1,4207 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Past Snap</title>
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  >
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <meta
-    name="theme-color"
-    content="#000000"
-  >
+<style>
+*{box-sizing:border-box}
+html,body{
+ margin:0;width:100%;height:100%;
+ font-family:Arial,sans-serif;
+ background:#111;color:#fff;overflow:hidden
+}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
 
-  <title>PastSnap</title>
+#app,#map{width:100%;height:100%}
+#app{position:relative}
+#map{position:absolute;inset:0;z-index:1}
 
-  <link
-    rel="stylesheet"
-    href="style.css"
-  >
+#topBar{
+ position:absolute;z-index:1000;
+ top:10px;left:10px;right:10px;
+ display:flex;gap:6px;
+ background:rgba(0,0,0,.75);
+ padding:7px;border-radius:14px
+}
+#searchInput{
+ flex:1;min-width:0;border:0;border-radius:9px;
+ padding:10px;outline:none
+}
+#searchBtn,#accountBtn,#notificationBtn,#myRoomBtn{
+ border:0;border-radius:9px;
+ background:#fff;color:#111;
+ padding:9px 11px;font-weight:bold;
+ white-space:nowrap
+}
+#notificationBtn{position:relative}
+#notificationCount{
+ position:absolute;top:-6px;right:-5px;
+ background:#e33;color:#fff;border-radius:10px;
+ min-width:17px;font-size:10px;padding:2px 4px;
+ display:none
+}
 
-  <!-- Leaflet -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  >
+@media(max-width:600px){
+ #myRoomBtn,#accountBtn,#notificationBtn{
+  font-size:11px;
+  padding:9px 7px
+ }
+ #searchBtn{
+  font-size:11px;
+  padding:9px 8px
+ }
+}
 
+#locBtn{
+ position:absolute;z-index:1000;
+ bottom:20px;left:50%;
+ transform:translateX(-50%);
+ border:0;border-radius:12px;
+ background:#fff;color:#111;
+ padding:12px 17px;font-weight:bold
+}
+
+#status{
+ position:absolute;z-index:12000;
+ top:70px;left:50%;
+ transform:translateX(-50%);
+ background:rgba(0,0,0,.92);
+ padding:8px 13px;border-radius:20px;
+ font-size:13px;display:none;
+ max-width:90%;text-align:center
+}
+
+/* AUTH */
+#authModal{
+ display:none;position:absolute;inset:0;z-index:7000;
+ background:rgba(0,0,0,.82);
+ align-items:center;justify-content:center;padding:20px
+}
+#authBox{
+ width:min(94%,390px);background:#181818;
+ border-radius:20px;padding:22px;
+ box-shadow:0 20px 70px #000
+}
+#authBox h2{margin:0 0 6px}
+#authBox p{color:#aaa;font-size:13px}
+.authInput{
+ width:100%;margin:7px 0;border:1px solid #444;
+ background:#222;color:#fff;border-radius:10px;
+ padding:12px;outline:none
+}
+.authMainBtn{
+ width:100%;border:0;background:#fff;color:#111;
+ padding:12px;border-radius:10px;font-weight:bold;margin-top:8px
+}
+.authSwitch{
+ border:0;background:transparent;color:#fff;
+ margin-top:12px;width:100%;padding:7px
+}
+#authClose{
+ float:right;border:0;background:#333;color:#fff;
+ width:35px;height:35px;border-radius:50%
+}
+
+/* CALL PANEL */
+#callPanel{
+ display:none;
+ position:absolute;
+ z-index:2000;
+ top:68px;
+ right:10px;
+ width:min(90%,300px);
+ background:rgba(15,15,15,.96);
+ border:1px solid #333;
+ border-radius:15px;
+ padding:11px;
+ box-shadow:0 12px 40px #000
+}
+.callPanelTitle{
+ font-size:12px;color:#aaa;margin-bottom:6px
+}
+.myCallIdRow{
+ display:flex;gap:6px;align-items:center
+}
+#myCallId{
+ flex:1;background:#222;border:1px solid #444;
+ border-radius:9px;padding:9px;font-weight:bold;
+ letter-spacing:2px;text-align:center
+}
+#copyCallIdBtn{
+ border:0;border-radius:9px;padding:9px 11px;
+ background:#fff;color:#111;font-weight:bold
+}
+#targetCallId{
+ width:100%;margin-top:7px;
+ border:1px solid #444;background:#222;color:#fff;
+ border-radius:9px;padding:10px;outline:none;
+ text-transform:uppercase
+}
+#callUserBtn{
+ width:100%;margin-top:7px;border:0;
+ border-radius:9px;padding:10px;
+ background:#fff;color:#111;font-weight:bold
+}
+#callHint{
+ color:#777;font-size:10px;margin-top:6px;line-height:1.4
+}
+
+/* NOTIFICATIONS */
+#notificationPanel{
+ display:none;position:absolute;z-index:6500;
+ top:65px;right:10px;width:min(94%,360px);
+ max-height:70vh;overflow:auto;background:#181818;
+ border-radius:15px;box-shadow:0 15px 50px #000
+}
+#notificationHeader{
+ padding:13px;font-weight:bold;border-bottom:1px solid #333
+}
+.notificationItem{
+ padding:12px;border-bottom:1px solid #333;font-size:13px
+}
+.notificationItem.unread{background:#222}
+.notificationItem.clickable{cursor:pointer}
+.notificationItem.clickable:active{background:#333}
+.notificationTime{color:#888;font-size:11px;margin-top:4px}
+
+/* MODALS */
+.modal{
+ display:none;position:absolute;inset:0;z-index:3000;
+ background:#000;flex-direction:column
+}
+
+/* CAMERA */
+#cameraVideo{
+ width:100%;height:100%;object-fit:cover;background:#000
+}
+#cameraVideo.mirror-preview{transform:scaleX(-1)}
+#cameraTop{
+ position:absolute;top:10px;left:0;right:0;
+ display:flex;justify-content:space-between;
+ padding:10px;z-index:10
+}
+#cameraTop button{
+ border:0;background:rgba(0,0,0,.65);color:#fff;
+ border-radius:50%;width:46px;height:46px;font-size:20px
+}
+#cameraCanvas{display:none}
+#modeBar{
+ position:absolute;bottom:152px;left:50%;
+ transform:translateX(-50%);z-index:10;
+ display:flex;background:rgba(0,0,0,.65);
+ border-radius:20px;padding:4px
+}
+#modeBar button{
+ border:0;background:transparent;color:#aaa;
+ padding:8px 14px;border-radius:17px;font-weight:bold
+}
+#modeBar button.active{background:#fff;color:#111}
+#zoomBox{
+ position:absolute;right:8px;top:50%;
+ transform:translateY(-50%);z-index:10;
+ background:rgba(0,0,0,.6);border-radius:18px;
+ padding:8px 5px;display:flex;flex-direction:column;
+ align-items:center;gap:5px
+}
+#zoomRange{
+ writing-mode:vertical-lr;direction:rtl;
+ width:30px;height:170px
+}
+#zoomValue{font-size:12px;font-weight:bold}
+#filterBar{
+ position:absolute;bottom:91px;left:0;right:0;z-index:10;
+ display:flex;gap:7px;overflow-x:auto;
+ padding:7px 10px;scrollbar-width:none
+}
+#filterBar::-webkit-scrollbar{display:none}
+.filterBtn{
+ flex:0 0 auto;border:0;background:rgba(0,0,0,.62);
+ color:#fff;padding:8px 12px;border-radius:17px;font-size:12px
+}
+.filterBtn.active{background:#fff;color:#111}
+#cameraBottom{
+ position:absolute;bottom:15px;left:0;right:0;z-index:10;
+ display:flex;justify-content:center;align-items:center;gap:28px
+}
+#mirrorBtn{
+ border:0;background:rgba(0,0,0,.65);color:#fff;
+ border-radius:20px;padding:10px 14px
+}
+#mirrorBtn.active{background:#fff;color:#111}
+#captureBtn{
+ width:70px;height:70px;border-radius:50%;
+ border:6px solid #fff;background:#fff
+}
+#captureBtn.recording{background:#e33;border-radius:18px}
+#recordTimer{
+ position:absolute;bottom:83px;left:50%;
+ transform:translateX(-50%);z-index:11;
+ background:rgba(0,0,0,.7);padding:6px 12px;
+ border-radius:16px;display:none;font-weight:bold
+}
+
+/* PREVIEW */
+#previewModal{background:#111}
+#previewMediaBox{
+ flex:1;display:flex;align-items:center;
+ justify-content:center;min-height:0
+}
+#previewImage,#previewVideo{
+ max-width:100%;max-height:100%;object-fit:contain
+}
+#previewInfo{
+ padding:10px;text-align:center;font-size:13px;background:#181818
+}
+#descriptionInput{
+ width:calc(100% - 20px);margin:8px 10px;
+ min-height:55px;resize:none;
+ border:1px solid #444;background:#222;color:#fff;
+ border-radius:9px;padding:9px;outline:none
+}
+#previewBottom{display:flex;gap:10px;padding:12px}
+#previewBottom button{
+ flex:1;border:0;border-radius:12px;
+ padding:13px;font-weight:bold
+}
+#cancelPreviewBtn{background:#333;color:#fff}
+#postBtn{background:#fff;color:#111}
+#postBtn:disabled{opacity:.5}
+#qualityBox{
+ display:flex;gap:6px;justify-content:center;
+ padding:8px;background:#181818
+}
+.qualityBtn{
+ border:0;background:#333;color:#fff;
+ border-radius:9px;padding:7px 12px
+}
+.qualityBtn.active{background:#fff;color:#111}
+
+/* UPLOAD */
+#uploadBox{
+ display:none;position:absolute;z-index:8000;
+ left:50%;top:50%;transform:translate(-50%,-50%);
+ width:min(90%,360px);background:#181818;
+ border-radius:16px;padding:20px;box-shadow:0 10px 50px #000
+}
+#uploadTitle{font-weight:bold;font-size:18px}
+#uploadText{margin-top:8px;color:#aaa;font-size:13px}
+#uploadTrack{
+ height:10px;background:#333;border-radius:10px;
+ overflow:hidden;margin-top:18px
+}
+#uploadBar{height:100%;width:0;background:#fff}
+#uploadPercent{text-align:center;margin-top:8px;font-weight:bold}
+
+/* VIEWER */
+#galleryTop{
+ display:flex;justify-content:space-between;
+ align-items:center;padding:12px
+}
+#galleryImageBox{
+ flex:1;position:relative;display:flex;
+ align-items:center;justify-content:center;
+ min-height:0;touch-action:pan-y
+}
+#galleryImage,#galleryVideo{
+ max-width:100%;max-height:100%;object-fit:contain
+}
+#galleryDetails{
+ position:absolute;z-index:5;left:10px;right:10px;bottom:10px;
+ background:rgba(0,0,0,.82);padding:11px;
+ border-radius:13px;font-size:12px;line-height:1.55;
+ max-height:34%;overflow:auto;padding-bottom:15px
+}
+#likeUsers{margin-top:7px;color:#bbb;font-size:11px;line-height:1.4}
+#closeGalleryBtn{
+ border:0;background:#333;color:#fff;border-radius:50%;
+ width:42px;height:42px;font-size:20px
+}
+#socialBox{
+ position:absolute;z-index:8;right:12px;bottom:95px;
+ display:flex;flex-direction:column;gap:9px
+}
+.socialBtn{
+ border:0;background:rgba(0,0,0,.72);color:#fff;
+ border-radius:20px;padding:8px 10px;font-size:13px
+}
+.socialBtn.liked{background:#e53935}
+#commentBox{
+ display:none;position:absolute;z-index:20;
+ left:10px;right:10px;bottom:10px;
+ background:#181818;border-radius:15px;padding:10px
+}
+#commentInput{
+ width:100%;min-height:55px;resize:none;
+ border:1px solid #444;background:#222;color:#fff;
+ border-radius:9px;padding:9px;outline:none
+}
+#commentActions{display:flex;gap:7px;margin-top:7px}
+#commentActions button{
+ flex:1;border:0;padding:9px;border-radius:9px
+}
+#sendCommentBtn{background:#fff;color:#111}
+#cancelCommentBtn{background:#333;color:#fff}
+#commentsList{
+ position:absolute;z-index:15;left:10px;right:10px;bottom:72px;
+ max-height:45%;overflow:auto;display:none;
+ background:rgba(20,20,20,.96);border-radius:13px;padding:10px
+}
+.commentRow{
+ padding:8px 2px;border-bottom:1px solid #333;font-size:12px
+}
+.commentUser{font-weight:bold;color:#fff}
+.commentText{
+ margin-top:3px;line-height:1.4;word-break:break-word
+}
+.commentTime{font-size:10px;color:#888;margin-top:3px}
+.commentActions{margin-top:5px;display:flex;gap:8px}
+.replyBtn{
+ border:0;background:transparent;color:#aaa;
+ padding:2px 0;font-size:11px
+}
+.replyBtn:hover{color:#fff}
+.replyLabel{color:#888;font-size:10px;margin-bottom:3px}
+
+/* CALL */
+#callOverlay{
+ display:none;position:absolute;inset:0;z-index:10000;
+ background:rgba(0,0,0,.94);
+ align-items:center;justify-content:center;
+ text-align:center;padding:25px
+}
+#callBox{
+ width:min(92%,380px);background:#181818;
+ border-radius:22px;padding:25px;box-shadow:0 20px 80px #000
+}
+#callAvatar{
+ width:75px;height:75px;margin:auto;border-radius:50%;
+ background:#333;display:flex;align-items:center;
+ justify-content:center;font-size:35px
+}
+#callerText{margin:15px 0 20px;font-size:18px;font-weight:bold}
+.callActions{display:flex;gap:10px}
+.callActions button{
+ flex:1;border:0;border-radius:12px;padding:13px;font-weight:bold
+}
+#acceptCallBtn{background:#2eaf5d;color:#fff}
+#rejectCallBtn{background:#d83a3a;color:#fff}
+
+#activeCall{
+ display:none;position:absolute;inset:0;
+ z-index:9500;background:#000
+}
+#remoteVideo{
+ width:100%;height:100%;object-fit:cover;background:#111
+}
+#localVideo{
+ position:absolute;z-index:3;right:12px;top:65px;
+ width:105px;height:145px;object-fit:cover;
+ border-radius:12px;border:2px solid #fff;background:#222
+}
+#callTopBar{
+ position:absolute;top:10px;left:10px;right:10px;
+ z-index:5;display:flex;justify-content:space-between
+}
+#callStatus{
+ background:rgba(0,0,0,.7);padding:9px 13px;
+ border-radius:18px;font-size:13px
+}
+#callControls{
+ position:absolute;bottom:25px;left:0;right:0;
+ z-index:5;display:flex;justify-content:center;gap:12px
+}
+.callControl{
+ width:52px;height:52px;border:0;border-radius:50%;
+ background:rgba(255,255,255,.18);color:#fff;font-size:20px
+}
+#endCallBtn{background:#d83a3a}
+
+/* GHOST */
+.markerGhost{
+ width:40px;height:40px;border-radius:50%;
+ background:#fff;color:#111;display:flex;
+ align-items:center;justify-content:center;font-size:20px;
+ border:3px solid #111;position:relative
+}
+.markerGhost span{
+ position:absolute;right:-8px;top:-8px;
+ background:#111;color:#fff;border-radius:10px;
+ min-width:18px;text-align:center;font-size:10px;padding:2px
+}
+.leaflet-control-attribution{font-size:9px}
+</style>
 </head>
 
 <body>
 
-  <!-- =====================================================
-       CYBER BACKGROUND
-  ====================================================== -->
+<div id="app">
 
-  <div class="crt-overlay"></div>
-  <div class="scanlines"></div>
+<div id="map"></div>
 
+<div id="topBar">
+ <input id="searchInput" placeholder="🔍 Search any location">
+ <button id="searchBtn">Search</button>
 
-  <!-- =====================================================
-       TOP BAR
-  ====================================================== -->
+ <button id="notificationBtn">
+  🔔
+  <span id="notificationCount"></span>
+ </button>
 
-  <header class="topBar">
+ <button id="myRoomBtn">
+  📞 My Room ID
+ </button>
 
-    <div class="brand">
-      <span class="brandIcon">◉</span>
-      <span>PAST<span>SNAP</span></span>
-    </div>
+ <button id="accountBtn">
+  Login
+ </button>
+</div>
 
+<div id="callPanel">
+ <div class="callPanelTitle">📞 My Permanent Call ID</div>
 
-    <div class="searchBox">
+ <div class="myCallIdRow">
+  <span id="myCallId">------</span>
+  <button id="copyCallIdBtn">Copy</button>
+ </div>
 
-      <input
-        id="searchInput"
-        type="text"
-        placeholder="SEARCH LOCATION..."
-        autocomplete="off"
-      >
+ <input
+  id="targetCallId"
+  placeholder="Dusre user ka Call ID"
+  autocomplete="off"
+  maxlength="6"
+ >
 
-      <button
-        id="searchBtn"
-        type="button"
-      >
-        SEARCH
-      </button>
+ <button id="callUserBtn">📞 Call User</button>
 
-    </div>
+ <div id="callHint">
+  Apna Call ID share karke doosra user tumhe call kar sakta hai.
+ </div>
+</div>
 
+<button id="locBtn">📍 My Location</button>
 
-    <div class="topActions">
+<div id="status"></div>
 
-      <button
-        id="notificationBtn"
-        class="cyberBtn iconBtn"
-        type="button"
-      >
-        🔔
-        <span
-          id="notificationCount"
-          class="notificationBadge"
-        ></span>
-      </button>
+<!-- AUTH -->
+<div id="authModal">
+ <div id="authBox">
+  <button id="authClose">✕</button>
 
+  <h2 id="authTitle">Register</h2>
 
-      <button
-        id="myRoomBtn"
-        class="cyberBtn"
-        type="button"
-      >
-        📞 MY ROOM ID
-      </button>
+  <p id="authSubtitle">
+   Register to post and interact with snaps.
+  </p>
 
+  <input id="authName" class="authInput" placeholder="Display Name">
 
-      <button
-        id="accountBtn"
-        class="cyberBtn"
-        type="button"
-      >
-        LOGIN
-      </button>
+  <input id="authEmail" class="authInput" type="email" placeholder="Email">
 
-    </div>
+  <input id="authPassword" class="authInput" type="password" placeholder="Password">
 
-  </header>
+  <button id="authMainBtn" class="authMainBtn">
+   Register
+  </button>
 
+  <button id="authSwitch" class="authSwitch">
+   Already have an account? Login
+  </button>
+ </div>
+</div>
 
-  <!-- =====================================================
-       STATUS BAR
-  ====================================================== -->
+<!-- NOTIFICATIONS -->
+<div id="notificationPanel">
+ <div id="notificationHeader">Notifications</div>
+ <div id="notificationList"></div>
+</div>
 
-  <div class="statusBar">
+<!-- CAMERA -->
+<div id="cameraModal" class="modal">
 
-    <div id="status">
-      SYSTEM READY...
-    </div>
+ <video id="cameraVideo" autoplay playsinline muted></video>
+ <canvas id="cameraCanvas"></canvas>
 
-    <div class="statusRight">
+ <div id="cameraTop">
+  <button id="closeCameraBtn">✕</button>
+  <button id="switchCameraBtn">🔄</button>
+ </div>
 
-      <span>
-        GPS:
-        <b id="gpsStatus">--</b>
-      </span>
+ <div id="zoomBox">
+  <div id="zoomValue">1×</div>
+  <input id="zoomRange" type="range" min="0.5" max="20" step="0.1" value="1">
+ </div>
 
-      <span>
-        SNAPS:
-        <b id="snapCount">0</b>
-      </span>
+ <div id="modeBar">
+  <button id="photoModeBtn" class="active">📷 Photo</button>
+  <button id="videoModeBtn">🎥 Video</button>
+ </div>
 
-    </div>
+ <div id="filterBar">
+  <button class="filterBtn active" data-filter="none">Normal</button>
+  <button class="filterBtn" data-filter="vintage">Vintage</button>
+  <button class="filterBtn" data-filter="bw">B&W</button>
+  <button class="filterBtn" data-filter="warm">Warm</button>
+  <button class="filterBtn" data-filter="cool">Cool</button>
+  <button class="filterBtn" data-filter="glow">Glow</button>
+  <button class="filterBtn" data-filter="night">Night</button>
+  <button class="filterBtn" data-filter="pop">Color Pop</button>
+  <button class="filterBtn" data-filter="dream">Dream</button>
+  <button class="filterBtn" data-filter="sunset">Sunset</button>
+ </div>
 
+ <div id="recordTimer">00:00</div>
+
+ <div id="cameraBottom">
+  <button id="mirrorBtn">🪞 Mirror</button>
+  <button id="captureBtn"></button>
+ </div>
+</div>
+
+<!-- PREVIEW -->
+<div id="previewModal" class="modal">
+
+ <div id="previewMediaBox">
+  <img id="previewImage" style="display:none">
+  <video id="previewVideo" style="display:none" controls playsinline></video>
+ </div>
+
+ <div id="qualityBox">
+  <button class="qualityBtn active" data-quality="480">480p</button>
+  <button class="qualityBtn" data-quality="720">720p</button>
+  <button class="qualityBtn" data-quality="1080">1080p</button>
+ </div>
+
+ <textarea
+  id="descriptionInput"
+  maxlength="2000"
+  placeholder="Description likho (optional)..."
+ ></textarea>
+
+ <div id="previewInfo">Ready</div>
+
+ <div id="previewBottom">
+  <button id="cancelPreviewBtn">Retake</button>
+  <button id="postBtn">📍 Post Snap</button>
+ </div>
+</div>
+
+<!-- UPLOAD -->
+<div id="uploadBox">
+ <div id="uploadTitle">📤 Uploading Snap</div>
+ <div id="uploadText">Please wait...</div>
+ <div id="uploadTrack">
+  <div id="uploadBar"></div>
+ </div>
+ <div id="uploadPercent">0%</div>
+</div>
+
+<!-- VIEWER -->
+<div id="galleryModal" class="modal">
+
+ <div id="galleryTop">
+  <span id="galleryCounter">1 / 1</span>
+  <button id="closeGalleryBtn">✕</button>
+ </div>
+
+ <div id="galleryImageBox">
+
+  <img id="galleryImage" style="display:none">
+
+  <video id="galleryVideo" style="display:none" controls playsinline></video>
+
+  <div id="galleryDetails">
+   <div id="likeUsers"></div>
   </div>
 
+  <div id="socialBox">
+   <button id="likeBtn" class="socialBtn">
+    ❤️ <span id="likeCount">0</span>
+   </button>
 
-  <!-- =====================================================
-       MAP
-  ====================================================== -->
+   <button id="commentBtn" class="socialBtn">
+    💬 <span id="commentCount">0</span>
+   </button>
 
-  <main id="map"></main>
-
-
-  <!-- =====================================================
-       MAP CONTROLS
-  ====================================================== -->
-
-  <div class="mapControls">
-
-    <button
-      id="compassBtn"
-      class="mapControl cyberBtn"
-      type="button"
-      title="Rotate map"
-    >
-      🧭
-    </button>
-
-
-    <button
-      id="myLocationBtn"
-      class="mapControl cyberBtn"
-      type="button"
-      title="My location / Snap"
-    >
-      ◎
-    </button>
-
-
-    <button
-      id="mapModeBtn"
-      class="mapControl cyberBtn"
-      type="button"
-      title="Reset map rotation"
-    >
-      ⟳
-    </button>
-
+   <button id="viewBtn" class="socialBtn">
+    👁️ <span id="viewCount">0</span>
+   </button>
   </div>
 
+  <div id="commentsList"></div>
 
-  <!-- =====================================================
-       CAMERA PANEL
-  ====================================================== -->
+  <div id="commentBox">
+   <textarea
+    id="commentInput"
+    maxlength="2000"
+    placeholder="Write a comment..."
+   ></textarea>
 
-  <section
-    id="cameraPanel"
-    class="panel cameraPanel hidden"
-  >
+   <div id="commentActions">
+    <button id="cancelCommentBtn">Cancel</button>
+    <button id="sendCommentBtn">Send</button>
+   </div>
+  </div>
+ </div>
+</div>
 
-    <div class="panelHeader">
+<!-- INCOMING CALL -->
+<div id="callOverlay">
+ <div id="callBox">
 
-      <span>
-        CAMERA // GPS LOCK
-      </span>
+  <div id="callAvatar">📞</div>
 
-      <button
-        id="closeCameraBtn"
-        class="closeBtn"
-        type="button"
-      >
-        ×
-      </button>
+  <div id="callerText">
+   Incoming call...
+  </div>
 
+  <div class="callActions">
+   <button id="rejectCallBtn">Reject</button>
+   <button id="acceptCallBtn">Accept</button>
+  </div>
+
+ </div>
+</div>
+
+<!-- ACTIVE CALL -->
+<div id="activeCall">
+
+ <video id="remoteVideo" autoplay playsinline></video>
+ <video id="localVideo" autoplay playsinline muted></video>
+
+ <div id="callTopBar">
+  <div id="callStatus">Connecting...</div>
+ </div>
+
+ <div id="callControls">
+  <button id="muteCallBtn" class="callControl">🎙️</button>
+  <button id="cameraCallBtn" class="callControl">📹</button>
+  <button id="endCallBtn" class="callControl">📞</button>
+ </div>
+
+</div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+/* =========================================================
+   SUPABASE
+========================================================= */
+
+const SUPABASE_URL=
+ "https://zzxhymydsvwpjbyaslde.supabase.co";
+
+const SUPABASE_KEY=
+ "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
+
+const supabaseClient=
+ window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+ );
+
+/* =========================================================
+   SOCKET
+========================================================= */
+
+const socket=io({
+ transports:["websocket","polling"]
+});
+
+/* =========================================================
+   GLOBALS
+========================================================= */
+
+let currentUser=null;
+let currentProfile=null;
+let authMode="register";
+
+let map=null;
+
+let cameraStream=null;
+let currentFacing="environment";
+let mirrorEnabled=false;
+let currentFilter="none";
+let currentMode="photo";
+let currentZoom=1;
+
+let recorder=null;
+let recordedChunks=[];
+let recordingStartedAt=0;
+let recordingTimer=null;
+
+let capturedBlob=null;
+let capturedImageData=null;
+let capturedVideoUrl=null;
+let capturedType=null;
+
+let capturedLatitude=null;
+let capturedLongitude=null;
+
+let selectedQuality=480;
+let userLocationMarker=null;
+
+let galleryItems=[];
+let galleryIndex=0;
+let markerGroups={};
+let currentGallerySnap=null;
+let isPostingSnap=false;
+
+let myRoom=null;
+
+let currentCallPeerId=null;
+let incomingCallerId=null;
+let incomingCallerRoom=null;
+
+let peerConnection=null;
+let localCallStream=null;
+let remoteCallStream=null;
+
+let callMuted=false;
+let callCameraOff=false;
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const cameraModal=
+ document.getElementById("cameraModal");
+
+const previewModal=
+ document.getElementById("previewModal");
+
+const galleryModal=
+ document.getElementById("galleryModal");
+
+const cameraVideo=
+ document.getElementById("cameraVideo");
+
+const cameraCanvas=
+ document.getElementById("cameraCanvas");
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function showStatus(msg,ms=2500){
+
+ const el=document.getElementById("status");
+
+ el.textContent=msg;
+ el.style.display="block";
+
+ clearTimeout(showStatus.timer);
+
+ showStatus.timer=setTimeout(()=>{
+  el.style.display="none";
+ },ms);
+}
+
+/* =========================================================
+   MAP
+========================================================= */
+
+map=L.map("map").setView(
+ [20.5937,78.9629],
+ 5
+);
+
+L.tileLayer(
+ "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+ {
+  maxZoom:20,
+  attribution:"© OpenStreetMap contributors"
+ }
+).addTo(map);
+
+/* =========================================================
+   DISTANCE
+========================================================= */
+
+function distanceMeters(a,b){
+
+ const R=6371000;
+
+ const p1=a.lat*Math.PI/180;
+ const p2=b.lat*Math.PI/180;
+
+ const dp=(b.lat-a.lat)*Math.PI/180;
+ const dl=(b.lng-a.lng)*Math.PI/180;
+
+ const x=
+  Math.sin(dp/2)**2+
+  Math.cos(p1)*Math.cos(p2)*
+  Math.sin(dl/2)**2;
+
+ return 2*R*Math.atan2(
+  Math.sqrt(x),
+  Math.sqrt(1-x)
+ );
+}
+
+/* =========================================================
+   GHOST MARKERS
+========================================================= */
+
+function makeGhostIcon(count){
+
+ return L.divIcon({
+  className:"",
+  html:
+   `<div class="markerGhost">
+     👻
+     <span>${count}</span>
+    </div>`,
+  iconSize:[40,40],
+  iconAnchor:[20,20]
+ });
+}
+
+function renderSnaps(rows){
+
+ Object.values(markerGroups).forEach(marker=>{
+  try{map.removeLayer(marker)}catch(e){}
+ });
+
+ markerGroups={};
+
+ const groups=[];
+
+ (rows||[]).forEach(row=>{
+
+  const lat=Number(row.latitude);
+  const lng=Number(row.longitude);
+
+  if(!Number.isFinite(lat)||!Number.isFinite(lng))
+   return;
+
+  let group=groups.find(g=>
+   distanceMeters(
+    {lat:g.latitude,lng:g.longitude},
+    {lat,lng}
+   )<50
+  );
+
+  if(!group){
+   group={
+    latitude:lat,
+    longitude:lng,
+    items:[]
+   };
+   groups.push(group);
+  }
+
+  group.items.push(row);
+ });
+
+ groups.forEach((group,index)=>{
+
+  const marker=L.marker(
+   [group.latitude,group.longitude],
+   {icon:makeGhostIcon(group.items.length)}
+  ).addTo(map);
+
+  marker.on("click",()=>{
+   openGallery(group.items);
+  });
+
+  markerGroups[index]=marker;
+ });
+}
+
+/* =========================================================
+   LOAD SNAPS
+========================================================= */
+
+async function loadSnaps(){
+
+ const {data,error}=
+  await supabaseClient
+   .from("snaps")
+   .select("*")
+   .order("created_at",{ascending:false});
+
+ if(error){
+  console.error("LOAD SNAPS:",error);
+  showStatus("Snaps load nahi ho paaye.");
+  return;
+ }
+
+ renderSnaps(data||[]);
+}
+
+/* =========================================================
+   SEARCH
+========================================================= */
+
+async function searchPlace(){
+
+ const q=
+  document.getElementById("searchInput")
+  .value.trim();
+
+ if(!q)return;
+
+ showStatus("Location search ho rahi hai...");
+
+ try{
+
+  const response=
+   await fetch(
+    "https://nominatim.openstreetmap.org/search"+
+    "?format=jsonv2&limit=8&q="+
+    encodeURIComponent(q+", India")
+   );
+
+  const data=await response.json();
+
+  if(!data.length){
+   showStatus("Location nahi mili.");
+   return;
+  }
+
+  map.setView(
+   [Number(data[0].lat),Number(data[0].lon)],
+   15
+  );
+
+ }catch(error){
+
+  console.error(error);
+  showStatus("Search failed.");
+ }
+}
+
+document.getElementById("searchBtn").onclick=searchPlace;
+
+document.getElementById("searchInput")
+ .addEventListener("keydown",e=>{
+  if(e.key==="Enter")searchPlace();
+ });
+
+/* =========================================================
+   PERMANENT ROOM ID
+   IMPORTANT:
+   This function NEVER opens callPanel.
+========================================================= */
+
+function generateRoomId(){
+
+ const chars=
+  "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+ let result="";
+
+ for(let i=0;i<6;i++){
+  result+=chars[
+   Math.floor(Math.random()*chars.length)
+  ];
+ }
+
+ return result;
+}
+
+async function createMyRoom(){
+
+ if(!currentUser)
+  return null;
+
+ if(myRoom){
+
+  document.getElementById(
+   "myCallId"
+  ).textContent=myRoom;
+
+  return myRoom;
+ }
+
+ const {data,error}=
+  await supabaseClient
+   .from("profiles")
+   .select("call_room_id")
+   .eq("id",currentUser.id)
+   .maybeSingle();
+
+ if(error)
+  console.error("CALL ROOM LOAD:",error);
+
+ if(data?.call_room_id){
+
+  myRoom=data.call_room_id;
+
+  document.getElementById(
+   "myCallId"
+  ).textContent=myRoom;
+
+  return myRoom;
+ }
+
+ for(let attempt=0;attempt<5;attempt++){
+
+  const newRoom=generateRoomId();
+
+  const {
+   data:updateData,
+   error:updateError
+  }=
+   await supabaseClient
+    .from("profiles")
+    .update({
+     call_room_id:newRoom
+    })
+    .eq("id",currentUser.id)
+    .select("call_room_id")
+    .maybeSingle();
+
+  if(
+   !updateError &&
+   updateData?.call_room_id
+  ){
+
+   myRoom=updateData.call_room_id;
+
+   document.getElementById(
+    "myCallId"
+   ).textContent=myRoom;
+
+   console.log(
+    "Permanent Call ID:",
+    myRoom
+   );
+
+   return myRoom;
+  }
+
+  console.error(
+   "CALL ROOM CREATE:",
+   updateError
+  );
+ }
+
+ showStatus(
+  "Permanent Call ID create nahi hua.",
+  5000
+ );
+
+ return null;
+}
+
+async function joinOwnCallRoom(){
+
+ if(!currentUser)
+  return null;
+
+ const room=
+  await createMyRoom();
+
+ if(!room)
+  return null;
+
+ socket.emit(
+  "join-room",
+  room
+ );
+
+ document.getElementById(
+  "myCallId"
+ ).textContent=room;
+
+ /*
+  IMPORTANT:
+  callPanel yahan open nahi hota.
+ */
+
+ return room;
+}
+
+/* =========================================================
+   AUTH LOAD
+========================================================= */
+
+async function loadAuth(){
+
+ const {data}=await supabaseClient
+  .auth
+  .getSession();
+
+ currentUser=
+  data.session?.user||null;
+
+ if(currentUser){
+
+  await loadProfile();
+
+  document.getElementById(
+   "accountBtn"
+  ).textContent=
+   currentProfile?.display_name||"Account";
+
+  await createMyRoom();
+  await joinOwnCallRoom();
+  await loadNotifications();
+
+ }else{
+
+  document.getElementById(
+   "accountBtn"
+  ).textContent="Login";
+
+  document.getElementById(
+   "callPanel"
+  ).style.display="none";
+ }
+}
+
+async function loadProfile(){
+
+ if(!currentUser)return;
+
+ const {data,error}=
+  await supabaseClient
+   .from("profiles")
+   .select("*")
+   .eq("id",currentUser.id)
+   .maybeSingle();
+
+ if(error){
+  console.error("PROFILE:",error);
+  return;
+ }
+
+ currentProfile=data;
+}
+
+/* =========================================================
+   AUTH MODAL
+========================================================= */
+
+function openAuth(mode="register"){
+
+ authMode=mode;
+
+ document.getElementById(
+  "authModal"
+ ).style.display="flex";
+
+ const name=
+  document.getElementById("authName");
+
+ const title=
+  document.getElementById("authTitle");
+
+ const main=
+  document.getElementById("authMainBtn");
+
+ const sw=
+  document.getElementById("authSwitch");
+
+ if(mode==="register"){
+
+  title.textContent="Register";
+  name.style.display="block";
+  main.textContent="Register";
+  sw.textContent=
+   "Already have an account? Login";
+
+ }else{
+
+  title.textContent="Login";
+  name.style.display="none";
+  main.textContent="Login";
+  sw.textContent="Create new account";
+ }
+}
+
+document.getElementById(
+ "accountBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ const name=
+  currentProfile?.display_name||"Account";
+
+ const yes=confirm(
+  name+"\n\nLogout karna hai?"
+ );
+
+ if(!yes)return;
+
+ try{
+
+  const {error}=
+   await supabaseClient
+    .auth
+    .signOut();
+
+  if(error)throw error;
+
+  showStatus("Logout successful.");
+
+ }catch(error){
+
+  console.error("LOGOUT:",error);
+
+  showStatus(
+   "Logout failed.",
+   4000
+  );
+ }
+};
+
+/* =========================================================
+   MY ROOM ID BUTTON
+   ONLY THIS BUTTON CONTROLS CALL PANEL
+========================================================= */
+
+document.getElementById(
+ "myRoomBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ const panel=
+  document.getElementById("callPanel");
+
+ if(panel.style.display==="block"){
+
+  panel.style.display="none";
+  return;
+ }
+
+ if(!myRoom)
+  await createMyRoom();
+
+ if(!myRoom){
+
+  showStatus(
+   "Permanent Room ID ready nahi hai.",
+   4000
+  );
+
+  return;
+ }
+
+ document.getElementById(
+  "myCallId"
+ ).textContent=myRoom;
+
+ panel.style.display="block";
+};
+
+/* =========================================================
+   AUTH CLOSE/SWITCH
+========================================================= */
+
+document.getElementById(
+ "authClose"
+).onclick=()=>{
+
+ document.getElementById(
+  "authModal"
+ ).style.display="none";
+};
+
+document.getElementById(
+ "authSwitch"
+).onclick=()=>{
+
+ openAuth(
+  authMode==="register"
+   ?"login"
+   :"register"
+ );
+};
+
+/* =========================================================
+   AUTH SUBMIT
+========================================================= */
+
+async function submitAuth(){
+
+ const name=
+  document.getElementById(
+   "authName"
+  ).value.trim();
+
+ const email=
+  document.getElementById(
+   "authEmail"
+  ).value.trim();
+
+ const password=
+  document.getElementById(
+   "authPassword"
+  ).value;
+
+ if(!email||!password){
+
+  showStatus(
+   "Email aur password bharna zaroori hai."
+  );
+
+  return;
+ }
+
+ try{
+
+  if(authMode==="register"){
+
+   if(!name){
+
+    showStatus(
+     "Display name bharna zaroori hai."
+    );
+
+    return;
+   }
+
+   const {data,error}=
+    await supabaseClient.auth
+     .signUp({
+      email,
+      password
+     });
+
+   if(error)throw error;
+
+   if(!data.user){
+
+    showStatus(
+     "Registration complete. Email verification check karo.",
+     5000
+    );
+
+    return;
+   }
+
+   const {error:profileError}=
+    await supabaseClient
+     .from("profiles")
+     .upsert({
+      id:data.user.id,
+      display_name:name
+     });
+
+   if(profileError)
+    throw profileError;
+
+   currentUser=data.user;
+
+   await loadProfile();
+   await createMyRoom();
+   await joinOwnCallRoom();
+
+   showStatus(
+    "✅ Registration successful!"
+   );
+
+  }else{
+
+   const {data,error}=
+    await supabaseClient.auth
+     .signInWithPassword({
+      email,
+      password
+     });
+
+   if(error)throw error;
+
+   currentUser=data.user;
+
+   await loadProfile();
+   await createMyRoom();
+   await joinOwnCallRoom();
+
+   showStatus(
+    "✅ Login successful!"
+   );
+  }
+
+  document.getElementById(
+   "authModal"
+  ).style.display="none";
+
+  document.getElementById("authName").value="";
+  document.getElementById("authEmail").value="";
+  document.getElementById("authPassword").value="";
+
+  document.getElementById(
+   "accountBtn"
+  ).textContent=
+   currentProfile?.display_name||"Account";
+
+  await loadNotifications();
+
+ }catch(error){
+
+  console.error("AUTH:",error);
+
+  showStatus(
+   error.message||"Authentication failed.",
+   6000
+  );
+ }
+}
+
+document.getElementById(
+ "authMainBtn"
+).onclick=submitAuth;
+
+/* =========================================================
+   AUTH STATE
+========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+ async(event,session)=>{
+
+  currentUser=
+   session?.user||null;
+
+  if(currentUser){
+
+   await loadProfile();
+
+   document.getElementById(
+    "accountBtn"
+   ).textContent=
+    currentProfile?.display_name||"Account";
+
+   await createMyRoom();
+   await joinOwnCallRoom();
+   await loadNotifications();
+
+  }else{
+
+   currentProfile=null;
+   myRoom=null;
+
+   document.getElementById(
+    "accountBtn"
+   ).textContent="Login";
+
+   document.getElementById(
+    "callPanel"
+   ).style.display="none";
+  }
+ }
+);
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+async function loadNotifications(){
+
+ if(!currentUser){
+
+  document.getElementById(
+   "notificationCount"
+  ).style.display="none";
+
+  return;
+ }
+
+ const {data,error}=
+  await supabaseClient
+   .from("notifications")
+   .select("*")
+   .eq("recipient_id",currentUser.id)
+   .order("created_at",{ascending:false})
+   .limit(50);
+
+ if(error){
+  console.error("NOTIFICATIONS:",error);
+  return;
+ }
+
+ const unread=
+  (data||[]).filter(n=>!n.is_read).length;
+
+ const count=
+  document.getElementById(
+   "notificationCount"
+  );
+
+ if(unread){
+
+  count.textContent=
+   unread>99?"99+":unread;
+
+  count.style.display="block";
+
+ }else{
+
+  count.style.display="none";
+ }
+
+ const list=
+  document.getElementById(
+   "notificationList"
+  );
+
+ if(!data?.length){
+
+  list.innerHTML=
+   `<div class="notificationItem">
+     No notifications yet.
+    </div>`;
+
+  return;
+ }
+
+ list.innerHTML=
+  data.map(n=>`
+
+   <div
+    class="notificationItem
+    ${n.is_read?"":"unread"}
+    ${n.snap_id?"clickable":""}"
+    data-notification-id="${escapeHtml(n.id||"")}"
+    data-snap-id="${escapeHtml(n.snap_id||"")}"
+    data-comment-id="${escapeHtml(n.comment_id||"")}"
+   >
+    <div>
+     ${escapeHtml(n.message||"New notification")}
     </div>
 
+    <div class="notificationTime">
+     ${
+      n.created_at
+       ?new Date(n.created_at).toLocaleString()
+       :""
+     }
+    </div>
+   </div>
+  `).join("");
 
-    <div class="cameraViewport">
+ list.querySelectorAll(
+  ".notificationItem"
+ ).forEach(item=>{
 
-      <video
-        id="cameraVideo"
-        autoplay
-        muted
-        playsinline
-      ></video>
+  item.onclick=async()=>{
 
-      <div
-        id="gpsLockIndicator"
-        class="gpsLock"
-      >
-        GPS: WAITING...
-      </div>
+   const notificationId=
+    item.dataset.notificationId;
 
+   const snapId=
+    Number(item.dataset.snapId);
+
+   if(notificationId){
+
+    await supabaseClient
+     .from("notifications")
+     .update({is_read:true})
+     .eq("id",notificationId)
+     .eq("recipient_id",currentUser.id);
+   }
+
+   if(!snapId){
+
+    await loadNotifications();
+    return;
+   }
+
+   const {data:snap,error}=
+    await supabaseClient
+     .from("snaps")
+     .select("*")
+     .eq("id",snapId)
+     .maybeSingle();
+
+   if(error||!snap){
+
+    showStatus("Post nahi mila.");
+    await loadNotifications();
+    return;
+   }
+
+   document.getElementById(
+    "notificationPanel"
+   ).style.display="none";
+
+   await openGallery([snap]);
+
+   if(item.dataset.commentId){
+
+    document.getElementById(
+     "commentsList"
+    ).style.display="block";
+
+    await loadComments(snap.id);
+   }
+
+   await loadNotifications();
+  };
+ });
+}
+
+document.getElementById(
+ "notificationBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ const panel=
+  document.getElementById(
+   "notificationPanel"
+  );
+
+ panel.style.display=
+  panel.style.display==="block"
+   ?"none"
+   :"block";
+
+ if(panel.style.display==="block")
+  await loadNotifications();
+};
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHtml(value){
+
+ return String(value??"")
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+}
+
+/* =========================================================
+   LOCATION
+========================================================= */
+
+function getFreshPosition(){
+
+ return new Promise((resolve,reject)=>{
+
+  navigator.geolocation.getCurrentPosition(
+   resolve,
+   reject,
+   {
+    enableHighAccuracy:true,
+    timeout:15000,
+    maximumAge:0
+   }
+  );
+ });
+}
+
+async function openCameraFromLocation(){
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ if(!navigator.geolocation){
+
+  showStatus(
+   "Location support nahi hai."
+  );
+
+  return;
+ }
+
+ showStatus(
+  "Live location mil rahi hai..."
+ );
+
+ try{
+
+  const pos=
+   await getFreshPosition();
+
+  capturedLatitude=
+   pos.coords.latitude;
+
+  capturedLongitude=
+   pos.coords.longitude;
+
+  if(userLocationMarker)
+   map.removeLayer(userLocationMarker);
+
+  userLocationMarker=
+   L.circleMarker(
+    [
+     capturedLatitude,
+     capturedLongitude
+    ],
+    {radius:8}
+   ).addTo(map);
+
+  map.setView(
+   [capturedLatitude,capturedLongitude],
+   17
+  );
+
+  await openCamera();
+
+ }catch(error){
+
+  console.error(error);
+
+  showStatus(
+   "Location permission allow karo.",
+   3500
+  );
+ }
+}
+
+document.getElementById(
+ "locBtn"
+).onclick=openCameraFromLocation;
+
+async function lockCaptureLocation(){
+
+ try{
+
+  const pos=
+   await getFreshPosition();
+
+  capturedLatitude=
+   pos.coords.latitude;
+
+  capturedLongitude=
+   pos.coords.longitude;
+
+  return true;
+
+ }catch(error){
+
+  showStatus(
+   "Live location required hai.",
+   3000
+  );
+
+  return false;
+ }
+}
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+function filterToCss(filter){
+
+ switch(filter){
+
+  case "vintage":
+   return "sepia(.7) contrast(1.1) saturate(.8)";
+
+  case "bw":
+   return "grayscale(1)";
+
+  case "warm":
+   return "sepia(.25) saturate(1.35)";
+
+  case "cool":
+   return "saturate(.9) hue-rotate(15deg)";
+
+  case "glow":
+   return "brightness(1.1) saturate(1.2)";
+
+  case "night":
+   return "brightness(.65) contrast(1.25) saturate(1.2)";
+
+  case "pop":
+   return "saturate(1.8) contrast(1.15)";
+
+  case "dream":
+   return "brightness(1.08) contrast(.9) saturate(1.2)";
+
+  case "sunset":
+   return "sepia(.25) saturate(1.5) hue-rotate(-10deg)";
+
+  default:
+   return "none";
+ }
+}
+
+function updateMirrorPreview(){
+
+ cameraVideo.classList.toggle(
+  "mirror-preview",
+  mirrorEnabled
+ );
+
+ document.getElementById(
+  "mirrorBtn"
+ ).classList.toggle(
+  "active",
+  mirrorEnabled
+ );
+
+ document.getElementById(
+  "mirrorBtn"
+ ).textContent=
+  mirrorEnabled
+   ?"🪞 Mirror ON"
+   :"🪞 Mirror";
+}
+
+function updateLiveFilter(){
+
+ cameraVideo.style.filter=
+  filterToCss(currentFilter);
+}
+
+async function openCamera(){
+
+ stopCameraStream();
+
+ try{
+
+  cameraStream=
+   await navigator.mediaDevices
+    .getUserMedia({
+     video:{
+      facingMode:{ideal:currentFacing},
+      width:{ideal:1920},
+      height:{ideal:1080}
+     },
+     audio:false
+    });
+
+  cameraVideo.srcObject=cameraStream;
+  cameraModal.style.display="flex";
+
+  updateMirrorPreview();
+  updateLiveFilter();
+
+  await applyHardwareZoom();
+
+ }catch(error){
+
+  console.error("CAMERA:",error);
+
+  showStatus(
+   "Camera permission nahi mili.",
+   3500
+  );
+ }
+}
+
+function stopCameraStream(){
+
+ if(cameraStream){
+
+  cameraStream.getTracks().forEach(track=>{
+   track.stop();
+  });
+
+  cameraStream=null;
+ }
+
+ cameraVideo.srcObject=null;
+}
+
+function closeCamera(){
+
+ if(
+  recorder&&
+  recorder.state==="recording"
+ ){
+  stopRecording();
+ }
+
+ stopCameraStream();
+
+ cameraModal.style.display="none";
+}
+
+document.getElementById(
+ "closeCameraBtn"
+).onclick=closeCamera;
+
+document.getElementById(
+ "switchCameraBtn"
+).onclick=async()=>{
+
+ currentFacing=
+  currentFacing==="environment"
+   ?"user"
+   :"environment";
+
+ await openCamera();
+};
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+async function applyHardwareZoom(){
+
+ const track=
+  cameraStream?.getVideoTracks?.()[0];
+
+ if(!track)return;
+
+ const caps=
+  track.getCapabilities
+   ?track.getCapabilities()
+   :{};
+
+ if(caps.zoom){
+
+  const z=Math.max(
+   caps.zoom.min,
+   Math.min(caps.zoom.max,currentZoom)
+  );
+
+  try{
+
+   await track.applyConstraints({
+    advanced:[{zoom:z}]
+   });
+
+  }catch(e){}
+ }
+}
+
+document.getElementById(
+ "zoomRange"
+).oninput=async function(){
+
+ currentZoom=Number(this.value);
+
+ document.getElementById(
+  "zoomValue"
+ ).textContent=
+  currentZoom
+   .toFixed(1)
+   .replace(".0","")+"×";
+
+ await applyHardwareZoom();
+};
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+document.querySelectorAll(
+ ".filterBtn"
+).forEach(btn=>{
+
+ btn.onclick=()=>{
+
+  document.querySelectorAll(
+   ".filterBtn"
+  ).forEach(b=>b.classList.remove("active"));
+
+  btn.classList.add("active");
+
+  currentFilter=btn.dataset.filter;
+
+  updateLiveFilter();
+ };
+});
+
+document.getElementById(
+ "mirrorBtn"
+).onclick=()=>{
+
+ mirrorEnabled=!mirrorEnabled;
+
+ updateMirrorPreview();
+};
+
+/* =========================================================
+   PHOTO
+========================================================= */
+
+function drawVideoToCanvas(w,h){
+
+ cameraCanvas.width=w;
+ cameraCanvas.height=h;
+
+ const ctx=
+  cameraCanvas.getContext("2d");
+
+ ctx.save();
+
+ ctx.filter=
+  filterToCss(currentFilter);
+
+ if(mirrorEnabled){
+
+  ctx.translate(w,0);
+  ctx.scale(-1,1);
+ }
+
+ ctx.drawImage(
+  cameraVideo,
+  0,0,w,h
+ );
+
+ ctx.restore();
+}
+
+async function capturePhoto(){
+
+ if(
+  !cameraStream||
+  !cameraVideo.videoWidth
+ ){
+
+  showStatus(
+   "Camera ready nahi hai."
+  );
+
+  return;
+ }
+
+ if(!(await lockCaptureLocation()))
+  return;
+
+ drawVideoToCanvas(
+  cameraVideo.videoWidth,
+  cameraVideo.videoHeight
+ );
+
+ capturedImageData=
+  cameraCanvas.toDataURL(
+   "image/jpeg",
+   .88
+  );
+
+ capturedBlob=
+  dataURLToBlob(capturedImageData);
+
+ capturedType="image";
+ capturedVideoUrl=null;
+
+ document.getElementById(
+  "previewImage"
+ ).src=capturedImageData;
+
+ document.getElementById(
+  "previewImage"
+ ).style.display="block";
+
+ document.getElementById(
+  "previewVideo"
+ ).style.display="none";
+
+ document.getElementById(
+  "qualityBox"
+ ).style.display="none";
+
+ document.getElementById(
+  "previewInfo"
+ ).textContent=
+  "Photo • "+
+  cameraVideo.videoWidth+
+  "×"+
+  cameraVideo.videoHeight;
+
+ stopCameraStream();
+
+ cameraModal.style.display="none";
+ previewModal.style.display="flex";
+}
+
+/* =========================================================
+   VIDEO
+========================================================= */
+
+function chooseMime(){
+
+ const types=[
+  "video/webm;codecs=vp9",
+  "video/webm;codecs=vp8",
+  "video/webm"
+ ];
+
+ return types.find(
+  t=>MediaRecorder.isTypeSupported(t)
+ )||"";
+}
+
+async function startRecording(){
+
+ if(!cameraStream)return;
+
+ if(!(await lockCaptureLocation()))
+  return;
+
+ const mime=chooseMime();
+
+ if(!mime){
+
+  showStatus(
+   "Video recording supported nahi hai."
+  );
+
+  return;
+ }
+
+ recordedChunks=[];
+
+ recorder=
+  new MediaRecorder(
+   cameraStream,
+   {mimeType:mime}
+  );
+
+ recordingStartedAt=Date.now();
+
+ recorder.ondataavailable=e=>{
+
+  if(e.data&&e.data.size)
+   recordedChunks.push(e.data);
+ };
+
+ recorder.onstop=()=>{
+
+  capturedBlob=
+   new Blob(
+    recordedChunks,
+    {type:mime}
+   );
+
+  capturedType="video";
+
+  capturedVideoUrl=
+   URL.createObjectURL(capturedBlob);
+
+  document.getElementById(
+   "previewImage"
+  ).style.display="none";
+
+  const video=
+   document.getElementById(
+    "previewVideo"
+   );
+
+  video.style.display="block";
+  video.src=capturedVideoUrl;
+
+  document.getElementById(
+   "previewInfo"
+  ).textContent=
+   "Video • "+formatMB(capturedBlob.size);
+
+  document.getElementById(
+   "qualityBox"
+  ).style.display="flex";
+
+  stopCameraStream();
+
+  cameraModal.style.display="none";
+  previewModal.style.display="flex";
+
+  updateRecordUI(false);
+ };
+
+ recorder.start(250);
+
+ updateRecordUI(true);
+
+ recordingTimer=
+  setInterval(updateRecordTimer,250);
+}
+
+function stopRecording(){
+
+ if(
+  recorder&&
+  recorder.state==="recording"
+ ){
+  recorder.stop();
+ }
+
+ clearInterval(recordingTimer);
+ recordingTimer=null;
+}
+
+function updateRecordUI(on){
+
+ const btn=
+  document.getElementById("captureBtn");
+
+ const timer=
+  document.getElementById("recordTimer");
+
+ btn.classList.toggle("recording",on);
+ timer.style.display=on?"block":"none";
+}
+
+function updateRecordTimer(){
+
+ const seconds=
+  Math.floor(
+   (Date.now()-recordingStartedAt)/1000
+  );
+
+ document.getElementById(
+  "recordTimer"
+ ).textContent=
+  formatDuration(seconds);
+}
+
+document.getElementById(
+ "captureBtn"
+).onclick=()=>{
+
+ if(currentMode==="photo"){
+
+  capturePhoto();
+
+ }else{
+
+  if(
+   recorder&&
+   recorder.state==="recording"
+  ){
+   stopRecording();
+  }else{
+   startRecording();
+  }
+ }
+};
+
+document.getElementById(
+ "photoModeBtn"
+).onclick=()=>{
+
+ currentMode="photo";
+
+ document.getElementById(
+  "photoModeBtn"
+ ).classList.add("active");
+
+ document.getElementById(
+  "videoModeBtn"
+ ).classList.remove("active");
+};
+
+document.getElementById(
+ "videoModeBtn"
+).onclick=()=>{
+
+ currentMode="video";
+
+ document.getElementById(
+  "videoModeBtn"
+ ).classList.add("active");
+
+ document.getElementById(
+  "photoModeBtn"
+ ).classList.remove("active");
+};
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function formatMB(bytes){
+
+ return (
+  bytes/1024/1024
+ ).toFixed(2)+" MB";
+}
+
+function formatDuration(sec){
+
+ sec=Math.max(0,Math.floor(sec));
+
+ return String(
+  Math.floor(sec/60)
+ ).padStart(2,"0")+
+ ":"+
+ String(sec%60).padStart(2,"0");
+}
+
+function dataURLToBlob(dataURL){
+
+ const parts=dataURL.split(",");
+
+ const mime=
+  parts[0].match(/:(.*?);/)[1];
+
+ const binary=atob(parts[1]);
+
+ const arr=
+  new Uint8Array(binary.length);
+
+ for(let i=0;i<binary.length;i++)
+  arr[i]=binary.charCodeAt(i);
+
+ return new Blob(
+  [arr],
+  {type:mime}
+ );
+}
+
+/* =========================================================
+   RETAKE
+========================================================= */
+
+document.getElementById(
+ "cancelPreviewBtn"
+).onclick=()=>{
+
+ if(capturedVideoUrl)
+  URL.revokeObjectURL(capturedVideoUrl);
+
+ capturedVideoUrl=null;
+ capturedBlob=null;
+ capturedImageData=null;
+
+ document.getElementById(
+  "descriptionInput"
+ ).value="";
+
+ previewModal.style.display="none";
+
+ openCamera();
+};
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+function setUploadProgress(percent,text){
+
+ document.getElementById(
+  "uploadBar"
+ ).style.width=
+  percent+"%";
+
+ document.getElementById(
+  "uploadPercent"
+ ).textContent=
+  Math.round(percent)+"%";
+
+ document.getElementById(
+  "uploadText"
+ ).textContent=text;
+}
+
+async function uploadFile(path,blob,accessToken){
+
+ const url=
+  SUPABASE_URL+
+  "/storage/v1/object/past-snaps/"+
+  encodeURIComponent(path);
+
+ const xhr=new XMLHttpRequest();
+
+ return new Promise((resolve,reject)=>{
+
+  xhr.open("POST",url,true);
+
+  xhr.setRequestHeader(
+   "apikey",
+   SUPABASE_KEY
+  );
+
+  xhr.setRequestHeader(
+   "Authorization",
+   "Bearer "+accessToken
+  );
+
+  xhr.setRequestHeader(
+   "Content-Type",
+   blob.type
+  );
+
+  xhr.setRequestHeader(
+   "x-upsert",
+   "false"
+  );
+
+  xhr.upload.onprogress=e=>{
+
+   if(e.lengthComputable){
+
+    setUploadProgress(
+     e.loaded/e.total*100,
+     "Uploading..."
+    );
+   }
+  };
+
+  xhr.onload=()=>{
+
+   if(xhr.status>=200&&xhr.status<300)
+    resolve();
+   else
+    reject(
+     new Error(
+      xhr.responseText||"Upload failed"
+     )
+    );
+  };
+
+  xhr.onerror=()=>{
+   reject(new Error("Network error"));
+  };
+
+  xhr.send(blob);
+ });
+}
+
+/* =========================================================
+   POST
+========================================================= */
+
+async function postSnap(){
+
+ if(isPostingSnap)return;
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ if(!capturedBlob){
+
+  showStatus("Pehle capture karo.");
+  return;
+ }
+
+ if(
+  capturedLatitude===null||
+  capturedLongitude===null
+ ){
+
+  showStatus("Capture location nahi mili.");
+  return;
+ }
+
+ let pos;
+
+ try{
+
+  pos=await getFreshPosition();
+
+ }catch(e){
+
+  showStatus(
+   "Live location required hai.",
+   3000
+  );
+
+  return;
+ }
+
+ const currentLat=pos.coords.latitude;
+ const currentLng=pos.coords.longitude;
+
+ const distance=
+  distanceMeters(
+   {
+    lat:capturedLatitude,
+    lng:capturedLongitude
+   },
+   {
+    lat:currentLat,
+    lng:currentLng
+   }
+  );
+
+ if(distance>50){
+
+  showStatus(
+   "❌ Post failed: capture location se 50 meter se zyada door ho.",
+   4500
+  );
+
+  return;
+ }
+
+ isPostingSnap=true;
+
+ const btn=
+  document.getElementById("postBtn");
+
+ btn.disabled=true;
+ btn.textContent="Uploading...";
+
+ const {data:sessionData}=
+  await supabaseClient.auth.getSession();
+
+ const accessToken=
+  sessionData?.session?.access_token;
+
+ if(!accessToken){
+
+  isPostingSnap=false;
+  btn.disabled=false;
+  btn.textContent="📍 Post Snap";
+
+  openAuth("login");
+  return;
+ }
+
+ document.getElementById(
+  "uploadBox"
+ ).style.display="block";
+
+ setUploadProgress(
+  0,
+  "Preparing upload..."
+ );
+
+ try{
+
+  const extension=
+   capturedType==="video"
+    ?"webm"
+    :"jpg";
+
+  const path=
+   currentUser.id+
+   "/snap_"+Date.now()+
+   "_"+
+   Math.random().toString(36).slice(2,9)+
+   "."+
+   extension;
+
+  await uploadFile(
+   path,
+   capturedBlob,
+   accessToken
+  );
+
+  const publicUrl=
+   SUPABASE_URL+
+   "/storage/v1/object/public/past-snaps/"+
+   path;
+
+  const description=
+   document.getElementById(
+    "descriptionInput"
+   ).value.trim();
+
+  const {
+   data:newSnap,
+   error
+  }=
+   await supabaseClient
+    .from("snaps")
+    .insert({
+     latitude:capturedLatitude,
+     longitude:capturedLongitude,
+     image_url:publicUrl,
+     media_type:capturedType,
+     user_id:currentUser.id,
+     description:description||null
+    })
+    .select()
+    .single();
+
+  if(error)throw error;
+
+  console.log("NEW SNAP:",newSnap);
+
+  document.getElementById(
+   "uploadBox"
+  ).style.display="none";
+
+  previewModal.style.display="none";
+
+  showStatus(
+   "✅ Snap posted successfully!",
+   3000
+  );
+
+  capturedBlob=null;
+  capturedImageData=null;
+  capturedLatitude=null;
+  capturedLongitude=null;
+
+  document.getElementById(
+   "descriptionInput"
+  ).value="";
+
+  if(capturedVideoUrl){
+
+   URL.revokeObjectURL(
+    capturedVideoUrl
+   );
+
+   capturedVideoUrl=null;
+  }
+
+  await loadSnaps();
+
+ }catch(error){
+
+  console.error("POST ERROR:",error);
+
+  document.getElementById(
+   "uploadBox"
+  ).style.display="none";
+
+  showStatus(
+   "Post failed: "+
+   (error.message||"Unknown error"),
+   6000
+  );
+
+ }finally{
+
+  isPostingSnap=false;
+  btn.disabled=false;
+  btn.textContent="📍 Post Snap";
+ }
+}
+
+document.getElementById(
+ "postBtn"
+).onclick=postSnap;
+
+/* =========================================================
+   QUALITY
+========================================================= */
+
+document.querySelectorAll(
+ ".qualityBtn"
+).forEach(btn=>{
+
+ btn.onclick=()=>{
+
+  document.querySelectorAll(
+   ".qualityBtn"
+  ).forEach(b=>
+   b.classList.remove("active")
+  );
+
+  btn.classList.add("active");
+
+  selectedQuality=
+   Number(btn.dataset.quality);
+ };
+});
+
+/* =========================================================
+   GALLERY
+========================================================= */
+
+async function openGallery(items){
+
+ galleryItems=items||[];
+ galleryIndex=0;
+
+ if(!galleryItems.length)return;
+
+ galleryModal.style.display="flex";
+
+ await renderGalleryItem();
+}
+
+async function renderGalleryItem(){
+
+ const item=
+  galleryItems[galleryIndex];
+
+ currentGallerySnap=item;
+
+ document.getElementById(
+  "galleryCounter"
+ ).textContent=
+  (galleryIndex+1)+" / "+galleryItems.length;
+
+ const img=
+  document.getElementById("galleryImage");
+
+ const video=
+  document.getElementById("galleryVideo");
+
+ img.style.display="none";
+ video.style.display="none";
+ video.pause();
+
+ if(item.media_type==="video"){
+
+  video.src=item.image_url;
+  video.style.display="block";
+
+ }else{
+
+  img.src=item.image_url;
+  img.style.display="block";
+ }
+
+ await loadPostDetails(item);
+}
+
+/* =========================================================
+   POST DETAILS
+========================================================= */
+
+async function loadPostDetails(item){
+
+ let profile=null;
+
+ if(item.user_id){
+
+  const {data,error}=
+   await supabaseClient
+    .from("profiles")
+    .select("display_name")
+    .eq("id",item.user_id)
+    .maybeSingle();
+
+  if(error)
+   console.error("POST PROFILE:",error);
+
+  profile=data;
+ }
+
+ const likeResult=
+  await supabaseClient
+   .from("snap_likes")
+   .select("*",{count:"exact",head:true})
+   .eq("snap_id",item.id);
+
+ const commentResult=
+  await supabaseClient
+   .from("snap_comments")
+   .select("*",{count:"exact",head:true})
+   .eq("snap_id",item.id);
+
+ const viewResult=
+  await supabaseClient
+   .from("snap_views")
+   .select("*",{count:"exact",head:true})
+   .eq("snap_id",item.id);
+
+ const likes=likeResult.count||0;
+ const comments=commentResult.count||0;
+ const views=viewResult.count||0;
+
+ let likeUsers=[];
+
+ const likeUsersResult=
+  await supabaseClient
+   .from("snap_likes")
+   .select("user_id")
+   .eq("snap_id",item.id);
+
+ if(!likeUsersResult.error){
+
+  const ids=[
+   ...new Set(
+    (likeUsersResult.data||[])
+     .map(x=>x.user_id)
+     .filter(Boolean)
+   )
+  ];
+
+  if(ids.length){
+
+   const {data}=await supabaseClient
+    .from("profiles")
+    .select("id,display_name")
+    .in("id",ids);
+
+   likeUsers=data||[];
+  }
+ }
+
+ let liked=false;
+
+ if(currentUser){
+
+  const {data}=await supabaseClient
+   .from("snap_likes")
+   .select("id")
+   .eq("snap_id",item.id)
+   .eq("user_id",currentUser.id)
+   .maybeSingle();
+
+  liked=!!data;
+ }
+
+ const date=
+  item.created_at
+   ?new Date(item.created_at).toLocaleDateString()
+   :"";
+
+ const time=
+  item.created_at
+   ?new Date(item.created_at).toLocaleTimeString(
+    [],
+    {hour:"2-digit",minute:"2-digit"}
+   )
+   :"";
+
+ const location=
+  Number(item.latitude).toFixed(5)+
+  ", "+
+  Number(item.longitude).toFixed(5);
+
+ const likeText=
+  likeUsers.length
+   ?`
+    ❤️ Liked by:
+    ${likeUsers.slice(0,8)
+      .map(p=>
+       escapeHtml(p.display_name||"User")
+      )
+      .join(", ")}
+    ${
+     likeUsers.length>8
+      ?" + "+(likeUsers.length-8)+" more"
+      :""
+    }
+   `
+   :"";
+
+ document.getElementById(
+  "galleryDetails"
+ ).innerHTML=`
+
+  <div>
+   <b>👤 Posted by:</b>
+   ${escapeHtml(profile?.display_name||"User")}
+  </div>
+
+  <div>
+   <b>📍 Location:</b>
+   ${location}
+  </div>
+
+  <div>
+   <b>📅 Date:</b> ${date}
+   &nbsp;
+   <b>🕐 Time:</b> ${time}
+  </div>
+
+  ${
+   item.description
+    ?`
+     <div>
+      <b>📝 Description:</b>
+      ${escapeHtml(item.description)}
+     </div>
+    `
+    :""
+  }
+
+  <div id="likeUsers">
+   ${likeText}
+  </div>
+ `;
+
+ document.getElementById("likeCount").textContent=likes;
+ document.getElementById("commentCount").textContent=comments;
+ document.getElementById("viewCount").textContent=views;
+
+ document.getElementById(
+  "likeBtn"
+ ).classList.toggle("liked",liked);
+
+ document.getElementById(
+  "commentsList"
+ ).style.display="none";
+
+ document.getElementById(
+  "commentBox"
+ ).style.display="none";
+
+ document.getElementById(
+  "commentInput"
+ ).value="";
+
+ delete document.getElementById(
+  "commentInput"
+ ).dataset.parentId;
+
+ await addViewOnce(item);
+}
+
+/* =========================================================
+   VIEW
+========================================================= */
+
+async function addViewOnce(item){
+
+ if(!currentUser)return;
+
+ const {error}=
+  await supabaseClient
+   .from("snap_views")
+   .insert({
+    snap_id:item.id,
+    user_id:currentUser.id
+   });
+
+ if(error)return;
+
+ const {count}=
+  await supabaseClient
+   .from("snap_views")
+   .select("*",{count:"exact",head:true})
+   .eq("snap_id",item.id);
+
+ document.getElementById(
+  "viewCount"
+ ).textContent=count||0;
+}
+
+/* =========================================================
+   LIKE
+========================================================= */
+
+document.getElementById(
+ "likeBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ if(!currentGallerySnap)return;
+
+ const snapId=currentGallerySnap.id;
+
+ const {data:existing,error:checkError}=
+  await supabaseClient
+   .from("snap_likes")
+   .select("id")
+   .eq("snap_id",snapId)
+   .eq("user_id",currentUser.id)
+   .maybeSingle();
+
+ if(checkError){
+
+  console.error("LIKE CHECK:",checkError);
+  showStatus("Like check failed.");
+  return;
+ }
+
+ if(existing){
+
+  const {error}=
+   await supabaseClient
+    .from("snap_likes")
+    .delete()
+    .eq("id",existing.id);
+
+  if(error){
+
+   showStatus("Like remove nahi hua.");
+   return;
+  }
+
+ }else{
+
+  const {error}=
+   await supabaseClient
+    .from("snap_likes")
+    .insert({
+     snap_id:snapId,
+     user_id:currentUser.id
+    });
+
+  if(error){
+
+   showStatus("Like nahi hua.");
+   return;
+  }
+ }
+
+ await loadPostDetails(
+  currentGallerySnap
+ );
+};
+
+/* =========================================================
+   COMMENTS
+========================================================= */
+
+document.getElementById(
+ "commentBtn"
+).onclick=async()=>{
+
+ if(!currentGallerySnap)return;
+
+ const list=
+  document.getElementById("commentsList");
+
+ const box=
+  document.getElementById("commentBox");
+
+ if(list.style.display!=="block"){
+
+  list.style.display="block";
+
+  await loadComments(
+   currentGallerySnap.id
+  );
+
+  if(currentUser){
+
+   box.style.display="block";
+
+  }else{
+
+   box.style.display="none";
+
+   showStatus(
+    "Comment karne ke liye login karo.",
+    2500
+   );
+  }
+
+ }else{
+
+  list.style.display="none";
+  box.style.display="none";
+ }
+};
+
+async function loadComments(snapId){
+
+ const {data,error}=
+  await supabaseClient
+   .from("snap_comments")
+   .select("*")
+   .eq("snap_id",snapId)
+   .order("created_at",{ascending:true});
+
+ if(error){
+
+  console.error("COMMENTS:",error);
+
+  showStatus(
+   "Comments load nahi hue: "+
+   (error.message||"database error"),
+   5000
+  );
+
+  return;
+ }
+
+ const list=
+  document.getElementById("commentsList");
+
+ list.style.display="block";
+
+ if(!data?.length){
+
+  list.innerHTML=
+   `<div style="color:#aaa;padding:8px">
+     No comments yet.
+    </div>`;
+
+  return;
+ }
+
+ const userIds=[
+  ...new Set(
+   data.map(x=>x.user_id).filter(Boolean)
+  )
+ ];
+
+ let profiles=[];
+
+ if(userIds.length){
+
+  const result=
+   await supabaseClient
+    .from("profiles")
+    .select("id,display_name")
+    .in("id",userIds);
+
+  profiles=result.data||[];
+ }
+
+ const names={};
+
+ profiles.forEach(p=>{
+  names[p.id]=p.display_name;
+ });
+
+ function renderComment(comment,depth=0){
+
+  const children=
+   data.filter(
+    x=>
+     String(x.parent_comment_id||"")===
+     String(comment.id)
+   );
+
+  const username=
+   names[comment.user_id]||"User";
+
+  return `
+
+   <div class="commentRow"
+    style="margin-left:${Math.min(depth,4)*15}px">
+
+    ${
+     depth>0
+      ?`<div class="replyLabel">↳ Reply</div>`
+      :""
+    }
+
+    <div class="commentUser">
+     ${escapeHtml(username)}
     </div>
 
-
-    <div class="cameraControls">
-
-      <button
-        id="switchCameraBtn"
-        class="cyberBtn"
-        type="button"
-      >
-        🔄 CAMERA
-      </button>
-
-
-      <button
-        id="photoModeBtn"
-        class="cyberBtn active"
-        type="button"
-      >
-        PHOTO
-      </button>
-
-
-      <button
-        id="videoModeBtn"
-        class="cyberBtn"
-        type="button"
-      >
-        VIDEO
-      </button>
-
+    <div class="commentText">
+     ${escapeHtml(comment.comment_text)}
     </div>
 
-
-    <div class="captureControls">
-
-      <button
-        id="captureBtn"
-        class="captureBtn"
-        type="button"
-      >
-        ●
-      </button>
-
-
-      <button
-        id="recordBtn"
-        class="cyberBtn hidden"
-        type="button"
-      >
-        ● RECORD
-      </button>
-
-
-      <button
-        id="stopRecordBtn"
-        class="cyberBtn hidden"
-        type="button"
-      >
-        ■ STOP
-      </button>
-
+    <div class="commentTime">
+     ${
+      comment.created_at
+       ?new Date(comment.created_at).toLocaleString()
+       :""
+     }
     </div>
 
-  </section>
-
-
-  <!-- =====================================================
-       PREVIEW PANEL
-  ====================================================== -->
-
-  <section
-    id="previewPanel"
-    class="panel previewPanel hidden"
-  >
-
-    <div class="panelHeader">
-
-      <span>
-        SNAP PREVIEW
-      </span>
-
-    </div>
-
-
-    <div
-      id="previewMedia"
-      class="previewMedia"
-    ></div>
-
-
-    <div
-      id="previewCoordinates"
-      class="coordinates"
-    >
-      GPS: --
-    </div>
-
-
-    <textarea
-      id="descriptionInput"
-      placeholder="ENTER SNAP DESCRIPTION..."
-      maxlength="500"
-    ></textarea>
-
-
-    <div class="previewActions">
-
-      <button
-        id="retakeBtn"
-        class="cyberBtn"
-        type="button"
-      >
-        RETAKE
-      </button>
-
-
-      <button
-        id="postSnapBtn"
-        class="cyberBtn primaryBtn"
-        type="button"
-      >
-        POST SNAP
-      </button>
-
-    </div>
-
-  </section>
-
-
-  <!-- =====================================================
-       CALL PANEL
-  ====================================================== -->
-
-  <section
-    id="callPanel"
-    class="panel callPanel"
-    style="display:none;"
-  >
-
-    <div class="panelHeader">
-
-      <span>
-        CALL // TERMINAL
-      </span>
-
-      <button
-        id="closeCallPanelBtn"
-        class="closeBtn"
-        type="button"
-      >
-        ×
-      </button>
-
-    </div>
-
-
-    <div class="callIdBox">
-
-      <div class="smallLabel">
-        MY PERMANENT CALL ID
-      </div>
-
-      <div class="myCallIdRow">
-
-        <strong id="myCallId">
-          ------
-        </strong>
-
+    ${
+     currentUser
+      ?`
+       <div class="commentActions">
         <button
-          id="copyCallIdBtn"
-          class="cyberBtn"
-          type="button"
+         class="replyBtn"
+         data-reply-id="${escapeHtml(comment.id)}"
+         data-reply-name="${escapeHtml(username)}"
         >
-          COPY
+         ↩ Reply
         </button>
+       </div>
+      `
+      :""
+    }
 
-      </div>
+    ${
+     children.length
+      ?children
+       .map(c=>renderComment(c,depth+1))
+       .join("")
+      :""
+    }
 
-    </div>
+   </div>
+  `;
+ }
 
+ const roots=
+  data.filter(c=>!c.parent_comment_id);
 
-    <div class="callDivider">
-      TARGET USER
-    </div>
+ const rootHtml=
+  roots.map(c=>renderComment(c)).join("");
 
+ const rootIds=
+  new Set(roots.map(c=>String(c.id)));
 
-    <input
-      id="targetCallId"
-      type="text"
-      maxlength="6"
-      autocomplete="off"
-      placeholder="ENTER CALL ID"
-    >
+ const orphanHtml=
+  data
+   .filter(
+    c=>
+     c.parent_comment_id&&
+     !rootIds.has(String(c.parent_comment_id))
+   )
+   .map(c=>renderComment(c))
+   .join("");
 
+ list.innerHTML=
+  rootHtml+orphanHtml;
 
-    <button
-      id="callUserBtn"
-      class="cyberBtn primaryBtn fullBtn"
-      type="button"
-    >
-      📞 CALL USER
-    </button>
+ list.querySelectorAll(
+  ".replyBtn"
+ ).forEach(btn=>{
 
+  btn.onclick=()=>{
 
-    <div
-      id="callHint"
-      class="callHint"
-    >
-      CALL ID NEVER CHANGES.
-    </div>
+   if(!currentUser){
 
-  </section>
+    openAuth("login");
+    return;
+   }
 
+   const input=
+    document.getElementById("commentInput");
 
-  <!-- =====================================================
-       INCOMING CALL
-  ====================================================== -->
+   input.value=
+    "@"+btn.dataset.replyName+" ";
 
-  <section
-    id="incomingCallOverlay"
-    class="overlay incomingCallOverlay hidden"
-  >
+   input.dataset.parentId=
+    btn.dataset.replyId;
 
-    <div class="incomingCallBox">
+   document.getElementById(
+    "commentBox"
+   ).style.display="block";
 
-      <div class="incomingIcon">
-        📞
-      </div>
+   input.focus();
+  };
+ });
+}
 
+/* =========================================================
+   SEND COMMENT
+========================================================= */
 
-      <div class="incomingTitle">
-        INCOMING CALL
-      </div>
+document.getElementById(
+ "sendCommentBtn"
+).onclick=async()=>{
 
+ if(!currentUser){
 
-      <div
-        id="incomingCallerText"
-        class="incomingCallerText"
-      >
-        CALL FROM UNKNOWN
-      </div>
+  openAuth("login");
+  return;
+ }
 
+ if(!currentGallerySnap)return;
 
-      <div
-        id="incomingCallerRoom"
-        class="incomingCallerRoom"
-      >
-        ROOM ------
-      </div>
+ const input=
+  document.getElementById("commentInput");
 
+ const text=input.value.trim();
 
-      <div class="incomingActions">
+ if(!text){
 
-        <button
-          id="acceptCallBtn"
-          class="cyberBtn acceptBtn"
-          type="button"
-        >
-          ACCEPT
-        </button>
+  showStatus("Comment likho.");
+  return;
+ }
 
+ if(text.split(/\s+/).length>250){
 
-        <button
-          id="rejectCallBtn"
-          class="cyberBtn rejectBtn"
-          type="button"
-        >
-          REJECT
-        </button>
+  showStatus(
+   "Comment maximum 250 words ka hai."
+  );
+
+  return;
+ }
 
-      </div>
+ const parentId=
+  input.dataset.parentId||null;
 
-    </div>
+ const insertData={
+  snap_id:currentGallerySnap.id,
+  user_id:currentUser.id,
+  comment_text:text
+ };
 
-  </section>
+ if(parentId)
+  insertData.parent_comment_id=parentId;
 
+ const {error}=
+  await supabaseClient
+   .from("snap_comments")
+   .insert(insertData);
 
-  <!-- =====================================================
-       ACTIVE CALL
-  ====================================================== -->
+ if(error){
 
-  <section
-    id="activeCallOverlay"
-    class="overlay activeCallOverlay hidden"
-  >
+  console.error("COMMENT:",error);
 
-    <div class="activeCallBox">
+  showStatus(
+   "Comment post nahi hua: "+
+   (error.message||"database error"),
+   5000
+  );
 
-      <div class="remoteVideoBox">
+  return;
+ }
 
-        <video
-          id="remoteVideo"
-          autoplay
-          playsinline
-        ></video>
+ input.value="";
+ delete input.dataset.parentId;
 
+ await loadComments(
+  currentGallerySnap.id
+ );
 
-        <div
-          id="remoteCallStatus"
-          class="remoteCallStatus"
-        >
-          CONNECTING
-        </div>
+ await loadPostDetails(
+  currentGallerySnap
+ );
 
-      </div>
+ document.getElementById(
+  "commentsList"
+ ).style.display="block";
 
+ document.getElementById(
+  "commentBox"
+ ).style.display="block";
 
-      <div class="localVideoBox">
+ showStatus(
+  parentId
+   ?"↩️ Reply posted!"
+   :"💬 Comment posted!"
+ );
+};
 
-        <video
-          id="localVideo"
-          autoplay
-          muted
-          playsinline
-        ></video>
+document.getElementById(
+ "cancelCommentBtn"
+).onclick=()=>{
 
-      </div>
+ const input=
+  document.getElementById("commentInput");
 
+ input.value="";
+ delete input.dataset.parentId;
 
-      <div class="callControls">
+ document.getElementById(
+  "commentBox"
+ ).style.display="none";
 
-        <button
-          id="cameraBtn"
-          class="callControlBtn"
-          type="button"
-        >
-          📷
-        </button>
+ document.getElementById(
+  "commentsList"
+ ).style.display="none";
+};
 
+/* =========================================================
+   SWIPE
+========================================================= */
 
-        <button
-          id="micBtn"
-          class="callControlBtn"
-          type="button"
-        >
-          🎙️
-        </button>
+let touchStartX=0;
 
+const galleryBox=
+ document.getElementById("galleryImageBox");
 
-        <button
-          id="endBtn"
-          class="callControlBtn endCallBtn"
-          type="button"
-        >
-          ☎
-        </button>
+galleryBox.addEventListener(
+ "touchstart",
+ e=>{
+  touchStartX=
+   e.changedTouches[0].clientX;
+ },
+ {passive:true}
+);
 
-      </div>
+galleryBox.addEventListener(
+ "touchend",
+ async e=>{
 
-    </div>
+  const dx=
+   e.changedTouches[0].clientX-
+   touchStartX;
 
-  </section>
+  if(Math.abs(dx)<50)return;
 
+  if(dx<0){
 
-  <!-- =====================================================
-       NOTIFICATIONS
-  ====================================================== -->
+   galleryIndex=
+    (galleryIndex+1)%galleryItems.length;
 
-  <section
-    id="notificationPanel"
-    class="panel sidePanel hidden"
-  >
+  }else{
 
-    <div class="panelHeader">
+   galleryIndex=
+    (galleryIndex-1+galleryItems.length)%
+    galleryItems.length;
+  }
 
-      <span>
-        NOTIFICATIONS
-      </span>
+  await renderGalleryItem();
 
-      <button
-        id="closeNotificationBtn"
-        class="closeBtn"
-        type="button"
-      >
-        ×
-      </button>
+ },
+ {passive:true}
+);
 
-    </div>
+/* =========================================================
+   CLOSE GALLERY
+========================================================= */
 
+document.getElementById(
+ "closeGalleryBtn"
+).onclick=()=>{
 
-    <div
-      id="notificationList"
-      class="notificationList"
-    ></div>
+ document.getElementById(
+  "galleryVideo"
+ ).pause();
 
-  </section>
+ document.getElementById(
+  "commentsList"
+ ).style.display="none";
 
+ document.getElementById(
+  "commentBox"
+ ).style.display="none";
 
-  <!-- =====================================================
-       AUTH MODAL
-  ====================================================== -->
+ galleryModal.style.display="none";
 
-  <section
-    id="authModal"
-    class="overlay authOverlay hidden"
-  >
+ currentGallerySnap=null;
+};
 
-    <div class="authBox">
+/* =========================================================
+   SOCKET
+========================================================= */
 
-      <div class="panelHeader">
+socket.on(
+ "connect",
+ async()=>{
 
-        <span id="authTitle">
-          LOGIN
-        </span>
+  console.log(
+   "Socket connected:",
+   socket.id
+  );
 
-        <button
-          id="closeAuthBtn"
-          class="closeBtn"
-          type="button"
-        >
-          ×
-        </button>
+  if(currentUser)
+   await joinOwnCallRoom();
+ }
+);
 
-      </div>
+socket.on(
+ "room-joined",
+ data=>{
 
+  console.log("ROOM JOINED:",data);
 
-      <!-- LOGIN -->
+  if(data?.roomId){
 
-      <div id="loginForm">
+   myRoom=data.roomId;
 
-        <input
-          id="loginEmail"
-          type="
+   document.getElementById(
+    "myCallId"
+   ).textContent=myRoom;
+
+   /*
+    DO NOT OPEN CALL PANEL HERE.
+   */
+ }
+});
+
+socket.on(
+ "room-full",
+ ()=>{
+
+  showStatus(
+   "Call room full hai.",
+   3500
+  );
+});
+
+/* =========================================================
+   CALL PANEL ACTIONS
+========================================================= */
+
+document.getElementById(
+ "copyCallIdBtn"
+).onclick=async()=>{
+
+ if(!myRoom){
+
+  showStatus(
+   "Call ID abhi ready nahi hai."
+  );
+
+  return;
+ }
+
+ try{
+
+  await navigator.clipboard.writeText(
+   myRoom
+  );
+
+  showStatus(
+   "✅ Call ID copied!"
+  );
+
+ }catch(error){
+
+  showStatus(
+   "Call ID: "+myRoom,
+   5000
+  );
+ }
+};
+
+document.getElementById(
+ "callUserBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ const input=
+  document.getElementById("targetCallId");
+
+ const room=
+  input.value.trim().toUpperCase();
+
+ if(!room){
+
+  showStatus(
+   "Dusre user ka Call ID enter karo."
+  );
+
+  return;
+ }
+
+ if(room===myRoom){
+
+  showStatus(
+   "Apne hi Call ID par call nahi kar sakte."
+  );
+
+  return;
+ }
+
+ await startCallToRoom(room);
+};
+
+/* =========================================================
+   OUTGOING CALL
+========================================================= */
+
+async function startCallToRoom(room){
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ if(!room){
+
+  showStatus("Room ID nahi mila.");
+  return;
+ }
+
+ const ownRoom=
+  await joinOwnCallRoom();
+
+ if(!ownRoom){
+
+  showStatus(
+   "Apna Call ID ready nahi hai.",
+   4000
+  );
+
+  return;
+ }
+
+ room=
+  String(room)
+   .trim()
+   .toUpperCase();
+
+ showStatus(
+  "Calling "+room+"...",
+  4000
+ );
+
+ socket.emit(
+  "call-user",
+  {
+   targetRoom:room,
+   callerRoom:ownRoom
+  }
+);
+
+}
+
+socket.on(
+ "call-ringing",
+ data=>{
+
+  showStatus(
+   "📞 Calling room "+
+   (data?.roomId||"")+"...",
+   5000
+  );
+ }
+);
+
+socket.on(
+ "call-unavailable",
+ data=>{
+
+  showStatus(
+   "Room "+
+   (data?.roomId||"")+
+   " available nahi hai.",
+   4000
+  );
+ }
+);
+
+/* =========================================================
+   INCOMING CALL
+========================================================= */
+
+socket.on(
+ "incoming-call",
+ data=>{
+
+  incomingCallerId=
+   data.callerId;
+
+  incomingCallerRoom=
+   data.callerRoom||
+   data.targetRoom||
+   "";
+
+  document.getElementById(
+   "callerText"
+  ).textContent=
+   incomingCallerRoom
+    ?"📞 Room "+
+     incomingCallerRoom+
+     " is calling you"
+    :"📞 Incoming call...";
+
+  document.getElementById(
+   "callOverlay"
+  ).style.display="flex";
+});
+
+/* =========================================================
+   ACCEPT
+========================================================= */
+
+document.getElementById(
+ "acceptCallBtn"
+).onclick=async()=>{
+
+ if(!incomingCallerId)return;
+
+ const caller=incomingCallerId;
+
+ document.getElementById(
+  "callOverlay"
+ ).style.display="none";
+
+ currentCallPeerId=caller;
+
+ socket.emit(
+  "accept-call",
+  {callerId:caller}
+ );
+
+ await openActiveCall(
+  true,
+  caller
+ );
+
+ incomingCallerId=null;
+ incomingCallerRoom=null;
+};
+
+/* =========================================================
+   REJECT
+========================================================= */
+
+document.getElementById(
+ "rejectCallBtn"
+).onclick=()=>{
+
+ if(incomingCallerId){
+
+  socket.emit(
+   "reject-call",
+   {callerId:incomingCallerId}
+  );
+ }
+
+ document.getElementById(
+  "callOverlay"
+ ).style.display="none";
+
+ incomingCallerId=null;
+ incomingCallerRoom=null;
+};
+
+/* =========================================================
+   CALL ACCEPTED
+========================================================= */
+
+socket.on(
+ "call-accepted",
+ async data=>{
+
+  const peerId=data?.accepterId;
+
+  if(!peerId)return;
+
+  currentCallPeerId=peerId;
+
+  await openActiveCall(
+   false,
+   peerId
+  );
+ });
+
+socket.on(
+ "call-rejected",
+ ()=>{
+
+  showStatus(
+   "Call rejected.",
+   3500
+  );
+
+  cleanupCall();
+ });
+
+socket.on(
+ "call-ended",
+ ()=>{
+
+  showStatus(
+   "Call ended.",
+   3000
+  );
+
+  cleanupCall();
+ });
+
+/* =========================================================
+   WEBRTC
+========================================================= */
+
+async function openActiveCall(
+ isReceiver,
+ peerId
+){
+
+ try{
+
+  currentCallPeerId=peerId;
+
+  localCallStream=
+   await navigator.mediaDevices
+    .getUserMedia({
+     video:true,
+     audio:true
+    });
+
+  document.getElementById(
+   "localVideo"
+  ).srcObject=
+   localCallStream;
+
+  remoteCallStream=
+   new MediaStream();
+
+  document.getElementById(
+   "remoteVideo"
+  ).srcObject=
+   remoteCallStream;
+
+  document.getElementById(
+   "activeCall"
+  ).style.display="block";
+
+  document.getElementById(
+   "callStatus"
+  ).textContent=
+   "Connecting...";
+
+  peerConnection=
+   new RTCPeerConnection({
+
+    iceServers:[
+     {
+      urls:"stun:stun.l.google.com:19302"
+     },
+     {
+      urls:"stun:stun1.l.google.com:19302"
+     }
+    ]
+   });
+
+  localCallStream
+   .getTracks()
+   .forEach(track=>{
+
+    peerConnection.addTrack(
+     track,
+     localCallStream
+    );
+   });
+
+  peerConnection.ontrack=e=>{
+
+   const stream=e.streams?.[0];
+
+   if(stream){
+
+    stream.getTracks().forEach(track=>{
+
+     if(
+      !remoteCallStream
+       .getTracks()
+       .some(t=>t.id===track.id)
+     ){
+
+      remoteCallStream.addTrack(track);
+     }
+    });
+   }
+
+   document.getElementById(
+    "callStatus"
+   ).textContent=
+    "Connected";
+  };
+
+  peerConnection.onicecandidate=e=>{
+
+   if(e.candidate){
+
+    socket.emit(
+     "webrtc-signal",
+     {
+      targetId:peerId,
+      signal:{
+       type:"ice-candidate",
+       candidate:e.candidate
+      }
+     }
+    );
+   }
+  };
+
+  peerConnection.onconnectionstatechange=()=>{
+
+   if(!peerConnection)return;
+
+   const state=
+    peerConnection.connectionState;
+
+   if(state==="connected"){
+
+    document.getElementById(
+     "callStatus"
+    ).textContent="Connected";
+   }
+
+   if(
+    state==="failed"||
+    state==="disconnected"||
+    state==="closed"
+   ){
+
+    cleanupCall();
+   }
+  };
+
+  if(!isReceiver){
+
+   const offer=
+    await peerConnection.createOffer();
+
+   await peerConnection.setLocalDescription(
+    offer
+   );
+
+   socket.emit(
+    "webrtc-signal",
+    {
+     targetId:peerId,
+     signal:{
+      type:"offer",
+      sdp:offer
+     }
+    }
+   );
+  }
+
+ }catch(error){
+
+  console.error(
+   "CALL MEDIA:",
+   error
+  );
+
+  showStatus(
+   "Camera/mic permission required hai.",
+   4000
+  );
+
+  cleanupCall();
+ }
+}
+
+/* =========================================================
+   WEBRTC SIGNAL
+========================================================= */
+
+socket.on(
+ "webrtc-signal",
+ async data=>{
+
+  const signal=data?.signal;
+  const senderId=data?.senderId;
+
+  if(!signal||!senderId)return;
+
+  try{
+
+   if(!peerConnection){
+
+    currentCallPeerId=senderId;
+
+    await openActiveCall(
+     true,
+     senderId
+    );
+   }
+
+   if(signal.type==="offer"){
+
+    await peerConnection.setRemoteDescription(
+     new RTCSessionDescription(signal.sdp)
+    );
+
+    const answer=
+     await peerConnection.createAnswer();
+
+    await peerConnection.setLocalDescription(
+     answer
+    );
+
+    socket.emit(
+     "webrtc-signal",
+     {
+      targetId:senderId,
+      signal:{
+       type:"answer",
+       sdp:answer
+      }
+     }
+    );
+
+   }else if(signal.type==="answer"){
+
+    await peerConnection.setRemoteDescription(
+     new RTCSessionDescription(signal.sdp)
+    );
+
+   }else if(signal.type==="ice-candidate"){
+
+    if(signal.candidate){
+
+     await peerConnection.addIceCandidate(
+      new RTCIceCandidate(
+       signal.candidate
+      )
+     );
+    }
+   }
+
+  }catch(error){
+
+   console.error(
+    "WEBRTC SIGNAL:",
+    error
+   );
+  }
+});
+
+/* =========================================================
+   CALL CONTROLS
+========================================================= */
+
+document.getElementById(
+ "muteCallBtn"
+).onclick=()=>{
+
+ if(!localCallStream)return;
+
+ const audio=
+  localCallStream.getAudioTracks()[0];
+
+ if(!audio)return;
+
+ audio.enabled=!audio.enabled;
+
+ callMuted=!audio.enabled;
+
+ document.getElementById(
+  "muteCallBtn"
+ ).textContent=
+  callMuted?"🔇":"🎙️";
+};
+
+document.getElementById(
+ "cameraCallBtn"
+).onclick=()=>{
+
+ if(!localCallStream)return;
+
+ const video=
+  localCallStream.getVideoTracks()[0];
+
+ if(!video)return;
+
+ video.enabled=!video.enabled;
+
+ callCameraOff=!video.enabled;
+
+ document.getElementById(
+  "cameraCallBtn"
+ ).textContent=
+  callCameraOff?"🚫":"📹";
+};
+
+document.getElementById(
+ "endCallBtn"
+).onclick=()=>{
+
+ if(currentCallPeerId){
+
+  socket.emit(
+   "end-call",
+   {targetId:currentCallPeerId}
+  );
+ }
+
+ cleanupCall();
+};
+
+function cleanupCall(){
+
+ if(peerConnection){
+
+  try{
+   peerConnection.close();
+  }catch(e){}
+
+  peerConnection=null;
+ }
+
+ if(localCallStream){
+
+  localCallStream.getTracks().forEach(track=>{
+   track.stop();
+  });
+
+  localCallStream=null;
+ }
+
+ remoteCallStream=null;
+
+ document.getElementById(
+  "localVideo"
+ ).srcObject=null;
+
+ document.getElementById(
+  "remoteVideo"
+ ).srcObject=null;
+
+ document.getElementById(
+  "activeCall"
+ ).style.display="none";
+
+ document.getElementById(
+  "callOverlay"
+ ).style.display="none";
+
+ currentCallPeerId=null;
+
+ callMuted=false;
+ callCameraOff=false;
+
+ document.getElementById(
+  "muteCallBtn"
+ ).textContent="🎙️";
+
+ document.getElementById(
+  "cameraCallBtn"
+ ).textContent="📹";
+}
+
+/* =========================================================
+   BACK
+========================================================= */
+
+window.addEventListener(
+ "popstate",
+ ()=>{
+
+  if(cameraModal.style.display==="flex"){
+
+   stopCameraStream();
+   cameraModal.style.display="none";
+  }
+
+  if(previewModal.style.display==="flex")
+   previewModal.style.display="none";
+
+  if(galleryModal.style.display==="flex"){
+
+   document.getElementById(
+    "galleryVideo"
+   ).pause();
+
+   galleryModal.style.display="none";
+  }
+
+  if(
+   document.getElementById(
+    "activeCall"
+   ).style.display==="block"
+  ){
+   cleanupCall();
+  }
+ });
+
+/* =========================================================
+   SOCKET ERROR
+========================================================= */
+
+socket.on(
+ "connect_error",
+ error=>{
+
+  console.error(
+   "SOCKET CONNECT ERROR:",
+   error
+  );
+
+  showStatus(
+   "Call server connection failed.",
+   4000
+  );
+});
+
+/* =========================================================
+   START
+========================================================= */
+
+(async()=>{
+
+ await loadAuth();
+
+ await loadSnaps();
+
+ if(currentUser){
+
+  await createMyRoom();
+  await joinOwnCallRoom();
+ }
+
+})();
+</script>
+
+</body>
+</html>
