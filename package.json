@@ -1,7 +1,7 @@
 {
-  "name": "past-snap",
+  "name": "cyber-map-viewer",
   "version": "1.0.0",
-  "description": "PastSnap - Cyber Photo Map",
+  "description": "Cyber Map Viewer - Supabase map, snaps, comments and real-time calling",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
