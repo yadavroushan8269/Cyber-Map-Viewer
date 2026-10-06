@@ -44,6 +44,7 @@ button{cursor:pointer}
  min-width:17px;font-size:10px;padding:2px 4px;
  display:none
 }
+
 #locBtn{
  position:absolute;z-index:1000;
  bottom:20px;left:50%;
@@ -52,17 +53,19 @@ button{cursor:pointer}
  background:#fff;color:#111;
  padding:12px 17px;font-weight:bold
 }
+
 #status{
- position:absolute;z-index:9000;
+ position:absolute;z-index:12000;
  top:70px;left:50%;
  transform:translateX(-50%);
- background:rgba(0,0,0,.9);
+ background:rgba(0,0,0,.92);
  padding:8px 13px;border-radius:20px;
  font-size:13px;display:none;
  max-width:90%;text-align:center
 }
 
-/* AUTH */
+/* ================= AUTH ================= */
+
 #authModal{
  display:none;position:absolute;inset:0;z-index:7000;
  background:rgba(0,0,0,.82);
@@ -93,7 +96,79 @@ button{cursor:pointer}
  width:35px;height:35px;border-radius:50%
 }
 
-/* NOTIFICATIONS */
+/* ================= CALL PANEL ================= */
+
+#callPanel{
+ display:none;
+ position:absolute;
+ z-index:2000;
+ top:68px;
+ right:10px;
+ width:min(90%,300px);
+ background:rgba(15,15,15,.96);
+ border:1px solid #333;
+ border-radius:15px;
+ padding:11px;
+ box-shadow:0 12px 40px #000
+}
+.callPanelTitle{
+ font-size:12px;
+ color:#aaa;
+ margin-bottom:6px
+}
+.myCallIdRow{
+ display:flex;
+ gap:6px;
+ align-items:center
+}
+#myCallId{
+ flex:1;
+ background:#222;
+ border:1px solid #444;
+ border-radius:9px;
+ padding:9px;
+ font-weight:bold;
+ letter-spacing:2px;
+ text-align:center
+}
+#copyCallIdBtn{
+ border:0;
+ border-radius:9px;
+ padding:9px 11px;
+ background:#fff;
+ color:#111;
+ font-weight:bold
+}
+#targetCallId{
+ width:100%;
+ margin-top:7px;
+ border:1px solid #444;
+ background:#222;
+ color:#fff;
+ border-radius:9px;
+ padding:10px;
+ outline:none;
+ text-transform:uppercase
+}
+#callUserBtn{
+ width:100%;
+ margin-top:7px;
+ border:0;
+ border-radius:9px;
+ padding:10px;
+ background:#fff;
+ color:#111;
+ font-weight:bold
+}
+#callHint{
+ color:#777;
+ font-size:10px;
+ margin-top:6px;
+ line-height:1.4
+}
+
+/* ================= NOTIFICATIONS ================= */
+
 #notificationPanel{
  display:none;position:absolute;z-index:6500;
  top:65px;right:10px;width:min(94%,360px);
@@ -107,15 +182,19 @@ button{cursor:pointer}
  padding:12px;border-bottom:1px solid #333;font-size:13px
 }
 .notificationItem.unread{background:#222}
+.notificationItem.clickable{cursor:pointer}
+.notificationItem.clickable:active{background:#333}
 .notificationTime{color:#888;font-size:11px;margin-top:4px}
 
-/* MODALS */
+/* ================= MODALS ================= */
+
 .modal{
  display:none;position:absolute;inset:0;z-index:3000;
  background:#000;flex-direction:column
 }
 
-/* CAMERA */
+/* ================= CAMERA ================= */
+
 #cameraVideo{
  width:100%;height:100%;object-fit:cover;background:#000
 }
@@ -185,7 +264,8 @@ button{cursor:pointer}
  border-radius:16px;display:none;font-weight:bold
 }
 
-/* PREVIEW */
+/* ================= PREVIEW ================= */
+
 #previewModal{background:#111}
 #previewMediaBox{
  flex:1;display:flex;align-items:center;
@@ -226,7 +306,8 @@ button{cursor:pointer}
 }
 .qualityBtn.active{background:#fff;color:#111}
 
-/* UPLOAD */
+/* ================= UPLOAD ================= */
+
 #uploadBox{
  display:none;position:absolute;z-index:8000;
  left:50%;top:50%;transform:translate(-50%,-50%);
@@ -242,7 +323,8 @@ button{cursor:pointer}
 #uploadBar{height:100%;width:0;background:#fff}
 #uploadPercent{text-align:center;margin-top:8px;font-weight:bold}
 
-/* VIEWER */
+/* ================= VIEWER ================= */
+
 #galleryTop{
  display:flex;justify-content:space-between;
  align-items:center;padding:12px
@@ -257,9 +339,16 @@ button{cursor:pointer}
 }
 #galleryDetails{
  position:absolute;z-index:5;left:10px;right:10px;bottom:10px;
- background:rgba(0,0,0,.78);padding:11px;
+ background:rgba(0,0,0,.82);padding:11px;
  border-radius:13px;font-size:12px;line-height:1.55;
- max-height:32%;overflow:auto
+ max-height:34%;overflow:auto;
+ padding-bottom:15px
+}
+#likeUsers{
+ margin-top:7px;
+ color:#bbb;
+ font-size:11px;
+ line-height:1.4
 }
 #closeGalleryBtn{
  border:0;background:#333;color:#fff;border-radius:50%;
@@ -274,6 +363,7 @@ button{cursor:pointer}
  border-radius:20px;padding:8px 10px;font-size:13px
 }
 .socialBtn.liked{background:#e53935}
+
 #commentBox{
  display:none;position:absolute;z-index:20;
  left:10px;right:10px;bottom:10px;
@@ -290,18 +380,44 @@ button{cursor:pointer}
 }
 #sendCommentBtn{background:#fff;color:#111}
 #cancelCommentBtn{background:#333;color:#fff}
+
 #commentsList{
  position:absolute;z-index:15;left:10px;right:10px;bottom:72px;
- max-height:35%;overflow:auto;display:none;
- background:rgba(20,20,20,.94);border-radius:13px;padding:10px
+ max-height:45%;overflow:auto;display:none;
+ background:rgba(20,20,20,.96);border-radius:13px;padding:10px
 }
 .commentRow{
- padding:7px 2px;border-bottom:1px solid #333;font-size:12px
+ padding:8px 2px;border-bottom:1px solid #333;
+ font-size:12px
 }
-.commentUser{font-weight:bold}
-.commentTime{font-size:10px;color:#888}
+.commentUser{font-weight:bold;color:#fff}
+.commentText{
+ margin-top:3px;
+ line-height:1.4;
+ word-break:break-word
+}
+.commentTime{font-size:10px;color:#888;margin-top:3px}
+.commentActions{
+ margin-top:5px;
+ display:flex;
+ gap:8px
+}
+.replyBtn{
+ border:0;
+ background:transparent;
+ color:#aaa;
+ padding:2px 0;
+ font-size:11px
+}
+.replyBtn:hover{color:#fff}
+.replyLabel{
+ color:#888;
+ font-size:10px;
+ margin-bottom:3px
+}
 
-/* CALL */
+/* ================= CALL ================= */
+
 #callOverlay{
  display:none;
  position:absolute;inset:0;
@@ -402,11 +518,10 @@ button{cursor:pointer}
  color:#fff;
  font-size:20px
 }
-#endCallBtn{
- background:#d83a3a
-}
+#endCallBtn{background:#d83a3a}
 
-/* GHOST */
+/* ================= GHOST ================= */
+
 .markerGhost{
  width:40px;height:40px;border-radius:50%;
  background:#fff;color:#111;display:flex;
@@ -431,10 +546,34 @@ button{cursor:pointer}
 <div id="topBar">
  <input id="searchInput" placeholder="🔍 Search any location">
  <button id="searchBtn">Search</button>
- <button id="notificationBtn">🔔
+ <button id="notificationBtn">
+  🔔
   <span id="notificationCount"></span>
  </button>
  <button id="accountBtn">Login</button>
+</div>
+
+<!-- PERMANENT CALL ID PANEL -->
+<div id="callPanel">
+ <div class="callPanelTitle">📞 My Permanent Call ID</div>
+
+ <div class="myCallIdRow">
+  <span id="myCallId">------</span>
+  <button id="copyCallIdBtn">Copy</button>
+ </div>
+
+ <input
+  id="targetCallId"
+  placeholder="Dusre user ka Call ID"
+  autocomplete="off"
+  maxlength="6"
+ >
+
+ <button id="callUserBtn">📞 Call User</button>
+
+ <div id="callHint">
+  Apna Call ID share karke doosra user tumhe call kar sakta hai.
+ </div>
 </div>
 
 <button id="locBtn">📍 My Location</button>
@@ -444,29 +583,67 @@ button{cursor:pointer}
 <!-- AUTH -->
 <div id="authModal">
  <div id="authBox">
+
   <button id="authClose">✕</button>
+
   <h2 id="authTitle">Register</h2>
-  <p id="authSubtitle">Register to post and interact with snaps.</p>
 
-  <input id="authName" class="authInput" placeholder="Display Name">
-  <input id="authEmail" class="authInput" type="email" placeholder="Email">
-  <input id="authPassword" class="authInput" type="password" placeholder="Password">
+  <p id="authSubtitle">
+   Register to post and interact with snaps.
+  </p>
 
-  <button id="authMainBtn" class="authMainBtn">Register</button>
-  <button id="authSwitch" class="authSwitch">Already have an account? Login</button>
+  <input
+   id="authName"
+   class="authInput"
+   placeholder="Display Name"
+  >
+
+  <input
+   id="authEmail"
+   class="authInput"
+   type="email"
+   placeholder="Email"
+  >
+
+  <input
+   id="authPassword"
+   class="authInput"
+   type="password"
+   placeholder="Password"
+  >
+
+  <button id="authMainBtn" class="authMainBtn">
+   Register
+  </button>
+
+  <button id="authSwitch" class="authSwitch">
+   Already have an account? Login
+  </button>
+
  </div>
 </div>
 
 <!-- NOTIFICATIONS -->
 <div id="notificationPanel">
- <div id="notificationHeader">Notifications</div>
+
+ <div id="notificationHeader">
+  Notifications
+ </div>
+
  <div id="notificationList"></div>
+
 </div>
 
 <!-- CAMERA -->
 <div id="cameraModal" class="modal">
 
- <video id="cameraVideo" autoplay playsinline muted></video>
+ <video
+  id="cameraVideo"
+  autoplay
+  playsinline
+  muted
+ ></video>
+
  <canvas id="cameraCanvas"></canvas>
 
  <div id="cameraTop">
@@ -476,84 +653,201 @@ button{cursor:pointer}
 
  <div id="zoomBox">
   <div id="zoomValue">1×</div>
-  <input id="zoomRange" type="range" min="0.5" max="20" step="0.1" value="1">
+  <input
+   id="zoomRange"
+   type="range"
+   min="0.5"
+   max="20"
+   step="0.1"
+   value="1"
+  >
  </div>
 
  <div id="modeBar">
-  <button id="photoModeBtn" class="active">📷 Photo</button>
-  <button id="videoModeBtn">🎥 Video</button>
+  <button id="photoModeBtn" class="active">
+   📷 Photo
+  </button>
+
+  <button id="videoModeBtn">
+   🎥 Video
+  </button>
  </div>
 
  <div id="filterBar">
-  <button class="filterBtn active" data-filter="none">Normal</button>
-  <button class="filterBtn" data-filter="vintage">Vintage</button>
-  <button class="filterBtn" data-filter="bw">B&W</button>
-  <button class="filterBtn" data-filter="warm">Warm</button>
-  <button class="filterBtn" data-filter="cool">Cool</button>
-  <button class="filterBtn" data-filter="glow">Glow</button>
-  <button class="filterBtn" data-filter="night">Night</button>
-  <button class="filterBtn" data-filter="pop">Color Pop</button>
-  <button class="filterBtn" data-filter="dream">Dream</button>
-  <button class="filterBtn" data-filter="sunset">Sunset</button>
+
+  <button class="filterBtn active" data-filter="none">
+   Normal
+  </button>
+
+  <button class="filterBtn" data-filter="vintage">
+   Vintage
+  </button>
+
+  <button class="filterBtn" data-filter="bw">
+   B&W
+  </button>
+
+  <button class="filterBtn" data-filter="warm">
+   Warm
+  </button>
+
+  <button class="filterBtn" data-filter="cool">
+   Cool
+  </button>
+
+  <button class="filterBtn" data-filter="glow">
+   Glow
+  </button>
+
+  <button class="filterBtn" data-filter="night">
+   Night
+  </button>
+
+  <button class="filterBtn" data-filter="pop">
+   Color Pop
+  </button>
+
+  <button class="filterBtn" data-filter="dream">
+   Dream
+  </button>
+
+  <button class="filterBtn" data-filter="sunset">
+   Sunset
+  </button>
+
  </div>
 
  <div id="recordTimer">00:00</div>
 
  <div id="cameraBottom">
-  <button id="mirrorBtn">🪞 Mirror</button>
+
+  <button id="mirrorBtn">
+   🪞 Mirror
+  </button>
+
   <button id="captureBtn"></button>
+
  </div>
+
 </div>
 
 <!-- PREVIEW -->
 <div id="previewModal" class="modal">
 
  <div id="previewMediaBox">
-  <img id="previewImage" style="display:none">
-  <video id="previewVideo" style="display:none" controls playsinline></video>
+
+  <img
+   id="previewImage"
+   style="display:none"
+  >
+
+  <video
+   id="previewVideo"
+   style="display:none"
+   controls
+   playsinline
+  ></video>
+
  </div>
 
  <div id="qualityBox">
-  <button class="qualityBtn active" data-quality="480">480p</button>
-  <button class="qualityBtn" data-quality="720">720p</button>
-  <button class="qualityBtn" data-quality="1080">1080p</button>
+
+  <button class="qualityBtn active" data-quality="480">
+   480p
+  </button>
+
+  <button class="qualityBtn" data-quality="720">
+   720p
+  </button>
+
+  <button class="qualityBtn" data-quality="1080">
+   1080p
+  </button>
+
  </div>
 
- <textarea id="descriptionInput" maxlength="2000"
-  placeholder="Description likho (optional)..."></textarea>
+ <textarea
+  id="descriptionInput"
+  maxlength="2000"
+  placeholder="Description likho (optional)..."
+ ></textarea>
 
- <div id="previewInfo">Ready</div>
+ <div id="previewInfo">
+  Ready
+ </div>
 
  <div id="previewBottom">
-  <button id="cancelPreviewBtn">Retake</button>
-  <button id="postBtn">📍 Post Snap</button>
+
+  <button id="cancelPreviewBtn">
+   Retake
+  </button>
+
+  <button id="postBtn">
+   📍 Post Snap
+  </button>
+
  </div>
+
 </div>
 
 <!-- UPLOAD -->
 <div id="uploadBox">
- <div id="uploadTitle">📤 Uploading Snap</div>
- <div id="uploadText">Please wait...</div>
- <div id="uploadTrack"><div id="uploadBar"></div></div>
- <div id="uploadPercent">0%</div>
+
+ <div id="uploadTitle">
+  📤 Uploading Snap
+ </div>
+
+ <div id="uploadText">
+  Please wait...
+ </div>
+
+ <div id="uploadTrack">
+  <div id="uploadBar"></div>
+ </div>
+
+ <div id="uploadPercent">
+  0%
+ </div>
+
 </div>
 
 <!-- VIEWER -->
 <div id="galleryModal" class="modal">
 
  <div id="galleryTop">
-  <span id="galleryCounter">1 / 1</span>
-  <button id="closeGalleryBtn">✕</button>
+
+  <span id="galleryCounter">
+   1 / 1
+  </span>
+
+  <button id="closeGalleryBtn">
+   ✕
+  </button>
+
  </div>
 
  <div id="galleryImageBox">
 
-  <img id="galleryImage" style="display:none">
-  <video id="galleryVideo" style="display:none" controls playsinline></video>
+  <img
+   id="galleryImage"
+   style="display:none"
+  >
 
-  <div id="galleryDetails"></div>
+  <video
+   id="galleryVideo"
+   style="display:none"
+   controls
+   playsinline
+  ></video>
+
+  <div id="galleryDetails">
+
+   <div id="likeUsers"></div>
+
+  </div>
 
   <div id="socialBox">
+
    <button id="likeBtn" class="socialBtn">
     ❤️ <span id="likeCount">0</span>
    </button>
@@ -565,50 +859,102 @@ button{cursor:pointer}
    <button id="viewBtn" class="socialBtn">
     👁️ <span id="viewCount">0</span>
    </button>
+
   </div>
 
   <div id="commentsList"></div>
 
   <div id="commentBox">
-   <textarea id="commentInput" maxlength="2000"
-    placeholder="Write a comment..."></textarea>
+
+   <textarea
+    id="commentInput"
+    maxlength="2000"
+    placeholder="Write a comment..."
+   ></textarea>
 
    <div id="commentActions">
-    <button id="cancelCommentBtn">Cancel</button>
-    <button id="sendCommentBtn">Send</button>
+
+    <button id="cancelCommentBtn">
+     Cancel
+    </button>
+
+    <button id="sendCommentBtn">
+     Send
+    </button>
+
    </div>
+
   </div>
 
  </div>
+
 </div>
 
 <!-- INCOMING CALL -->
 <div id="callOverlay">
+
  <div id="callBox">
-  <div id="callAvatar">📞</div>
-  <div id="callerText">Incoming call...</div>
+
+  <div id="callAvatar">
+   📞
+  </div>
+
+  <div id="callerText">
+   Incoming call...
+  </div>
 
   <div class="callActions">
-   <button id="rejectCallBtn">Reject</button>
-   <button id="acceptCallBtn">Accept</button>
+
+   <button id="rejectCallBtn">
+    Reject
+   </button>
+
+   <button id="acceptCallBtn">
+    Accept
+   </button>
+
   </div>
+
  </div>
+
 </div>
 
 <!-- ACTIVE CALL -->
 <div id="activeCall">
 
- <video id="remoteVideo" autoplay playsinline></video>
- <video id="localVideo" autoplay playsinline muted></video>
+ <video
+  id="remoteVideo"
+  autoplay
+  playsinline
+ ></video>
+
+ <video
+  id="localVideo"
+  autoplay
+  playsinline
+  muted
+ ></video>
 
  <div id="callTopBar">
-  <div id="callStatus">Connecting...</div>
+  <div id="callStatus">
+   Connecting...
+  </div>
  </div>
 
  <div id="callControls">
-  <button id="muteCallBtn" class="callControl">🎙️</button>
-  <button id="cameraCallBtn" class="callControl">📹</button>
-  <button id="endCallBtn" class="callControl">📞</button>
+
+  <button id="muteCallBtn" class="callControl">
+   🎙️
+  </button>
+
+  <button id="cameraCallBtn" class="callControl">
+   📹
+  </button>
+
+  <button id="endCallBtn" class="callControl">
+   📞
+  </button>
+
  </div>
 
 </div>
@@ -640,7 +986,7 @@ window.supabase.createClient(
    SOCKET.IO
 ========================================================= */
 
-const socket = io({
+const socket=io({
  transports:["websocket","polling"]
 });
 
@@ -652,7 +998,7 @@ let currentUser=null;
 let currentProfile=null;
 let authMode="register";
 
-let map;
+let map=null;
 
 let cameraStream=null;
 let currentFacing="environment";
@@ -673,7 +1019,6 @@ let capturedType=null;
 
 let capturedLatitude=null;
 let capturedLongitude=null;
-let capturedDescription="";
 
 let selectedQuality=480;
 let userLocationMarker=null;
@@ -685,6 +1030,7 @@ let currentGallerySnap=null;
 let isPostingSnap=false;
 
 let myRoom=null;
+
 let currentCallPeerId=null;
 let incomingCallerId=null;
 let incomingCallerRoom=null;
@@ -692,6 +1038,7 @@ let incomingCallerRoom=null;
 let peerConnection=null;
 let localCallStream=null;
 let remoteCallStream=null;
+
 let callMuted=false;
 let callCameraOff=false;
 
@@ -699,21 +1046,34 @@ let callCameraOff=false;
    ELEMENTS
 ========================================================= */
 
-const cameraModal=document.getElementById("cameraModal");
-const previewModal=document.getElementById("previewModal");
-const galleryModal=document.getElementById("galleryModal");
-const cameraVideo=document.getElementById("cameraVideo");
-const cameraCanvas=document.getElementById("cameraCanvas");
+const cameraModal=
+ document.getElementById("cameraModal");
+
+const previewModal=
+ document.getElementById("previewModal");
+
+const galleryModal=
+ document.getElementById("galleryModal");
+
+const cameraVideo=
+ document.getElementById("cameraVideo");
+
+const cameraCanvas=
+ document.getElementById("cameraCanvas");
 
 /* =========================================================
    STATUS
 ========================================================= */
 
 function showStatus(msg,ms=2500){
+
  const el=document.getElementById("status");
+
  el.textContent=msg;
  el.style.display="block";
+
  clearTimeout(showStatus.timer);
+
  showStatus.timer=setTimeout(()=>{
   el.style.display="none";
  },ms);
@@ -723,8 +1083,12 @@ function showStatus(msg,ms=2500){
    MAP
 ========================================================= */
 
-map=L.map("map",{zoomControl:true})
- .setView([20.5937,78.9629],5);
+map=L.map("map",{
+ zoomControl:true
+}).setView(
+ [20.5937,78.9629],
+ 5
+);
 
 L.tileLayer(
  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -739,16 +1103,20 @@ L.tileLayer(
 ========================================================= */
 
 function distanceMeters(a,b){
+
  const R=6371000;
+
  const p1=a.lat*Math.PI/180;
  const p2=b.lat*Math.PI/180;
+
  const dp=(b.lat-a.lat)*Math.PI/180;
  const dl=(b.lng-a.lng)*Math.PI/180;
 
  const x=
- Math.sin(dp/2)**2+
- Math.cos(p1)*Math.cos(p2)*
- Math.sin(dl/2)**2;
+  Math.sin(dp/2)**2+
+  Math.cos(p1)*
+  Math.cos(p2)*
+  Math.sin(dl/2)**2;
 
  return 2*R*Math.atan2(
   Math.sqrt(x),
@@ -761,13 +1129,17 @@ function distanceMeters(a,b){
 ========================================================= */
 
 function makeGhostIcon(count){
+
  return L.divIcon({
+
   className:"",
+
   html:
    `<div class="markerGhost">
-     👻
-     <span>${count}</span>
+      👻
+      <span>${count}</span>
     </div>`,
+
   iconSize:[40,40],
   iconAnchor:[20,20]
  });
@@ -776,7 +1148,9 @@ function makeGhostIcon(count){
 function renderSnaps(rows){
 
  Object.values(markerGroups).forEach(marker=>{
-  map.removeLayer(marker);
+  try{
+   map.removeLayer(marker);
+  }catch(e){}
  });
 
  markerGroups={};
@@ -788,21 +1162,32 @@ function renderSnaps(rows){
   const lat=Number(row.latitude);
   const lng=Number(row.longitude);
 
-  if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
+  if(
+   !Number.isFinite(lat)||
+   !Number.isFinite(lng)
+  )return;
 
   let group=groups.find(g=>
    distanceMeters(
-    {lat:g.latitude,lng:g.longitude},
-    {lat,lng}
+    {
+     lat:g.latitude,
+     lng:g.longitude
+    },
+    {
+     lat,
+     lng
+    }
    )<50
   );
 
   if(!group){
+
    group={
     latitude:lat,
     longitude:lng,
     items:[]
    };
+
    groups.push(group);
   }
 
@@ -812,8 +1197,15 @@ function renderSnaps(rows){
  groups.forEach((group,index)=>{
 
   const marker=L.marker(
-   [group.latitude,group.longitude],
-   {icon:makeGhostIcon(group.items.length)}
+   [
+    group.latitude,
+    group.longitude
+   ],
+   {
+    icon:makeGhostIcon(
+     group.items.length
+    )
+   }
   ).addTo(map);
 
   marker.on("click",()=>{
@@ -831,13 +1223,23 @@ function renderSnaps(rows){
 async function loadSnaps(){
 
  const {data,error}=await supabaseClient
- .from("snaps")
- .select("*")
- .order("created_at",{ascending:false});
+  .from("snaps")
+  .select("*")
+  .order("created_at",{
+   ascending:false
+  });
 
  if(error){
-  console.error("LOAD SNAPS:",error);
-  showStatus("Snaps load nahi ho paaye.");
+
+  console.error(
+   "LOAD SNAPS:",
+   error
+  );
+
+  showStatus(
+   "Snaps load nahi ho paaye."
+  );
+
   return;
  }
 
@@ -850,12 +1252,15 @@ async function loadSnaps(){
 
 async function searchPlace(){
 
- const q=document.getElementById("searchInput")
+ const q=
+  document.getElementById("searchInput")
   .value.trim();
 
  if(!q)return;
 
- showStatus("Location search ho rahi hai...");
+ showStatus(
+  "Location search ho rahi hai..."
+ );
 
  try{
 
@@ -864,31 +1269,209 @@ async function searchPlace(){
    "?format=jsonv2&limit=8&q="+
    encodeURIComponent(q+", India");
 
-  const response=await fetch(url);
-  const data=await response.json();
+  const response=
+   await fetch(url);
+
+  const data=
+   await response.json();
 
   if(!data.length){
-   showStatus("Location nahi mili.");
+
+   showStatus(
+    "Location nahi mili."
+   );
+
    return;
   }
 
   map.setView(
-   [Number(data[0].lat),Number(data[0].lon)],
+   [
+    Number(data[0].lat),
+    Number(data[0].lon)
+   ],
    15
   );
 
  }catch(error){
+
   console.error(error);
-  showStatus("Search failed.");
+
+  showStatus(
+   "Search failed."
+  );
  }
 }
 
-document.getElementById("searchBtn").onclick=searchPlace;
+document.getElementById(
+ "searchBtn"
+).onclick=searchPlace;
 
-document.getElementById("searchInput")
-.addEventListener("keydown",e=>{
- if(e.key==="Enter")searchPlace();
-});
+document.getElementById(
+ "searchInput"
+).addEventListener(
+ "keydown",
+ e=>{
+  if(e.key==="Enter")
+   searchPlace();
+ }
+);
+
+/* =========================================================
+   PERMANENT CALL ROOM
+========================================================= */
+
+function generateRoomId(){
+
+ const chars=
+  "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+ let result="";
+
+ for(let i=0;i<6;i++){
+
+  result+=chars[
+   Math.floor(
+    Math.random()*chars.length
+   )
+  ];
+ }
+
+ return result;
+}
+
+async function createMyRoom(){
+
+ if(!currentUser)
+  return null;
+
+ if(myRoom){
+
+  document.getElementById(
+   "myCallId"
+  ).textContent=myRoom;
+
+  document.getElementById(
+   "callPanel"
+  ).style.display="block";
+
+  return myRoom;
+ }
+
+ /* First try existing permanent ID */
+
+ const {data,error}=await supabaseClient
+  .from("profiles")
+  .select("call_room_id")
+  .eq("id",currentUser.id)
+  .maybeSingle();
+
+ if(error){
+
+  console.error(
+   "CALL ROOM LOAD:",
+   error
+  );
+ }
+
+ if(data?.call_room_id){
+
+  myRoom=data.call_room_id;
+
+  document.getElementById(
+   "myCallId"
+  ).textContent=myRoom;
+
+  document.getElementById(
+   "callPanel"
+  ).style.display="block";
+
+  return myRoom;
+ }
+
+ /*
+   No ID exists.
+   Generate and save permanently.
+   Retry if rare unique collision happens.
+ */
+
+ for(let attempt=0;attempt<5;attempt++){
+
+  const newRoom=generateRoomId();
+
+  const {data:updateData,error:updateError}=
+   await supabaseClient
+    .from("profiles")
+    .update({
+     call_room_id:newRoom
+    })
+    .eq("id",currentUser.id)
+    .select("call_room_id")
+    .maybeSingle();
+
+  if(!updateError&&updateData?.call_room_id){
+
+   myRoom=updateData.call_room_id;
+
+   document.getElementById(
+    "myCallId"
+   ).textContent=myRoom;
+
+   document.getElementById(
+    "callPanel"
+   ).style.display="block";
+
+   console.log(
+    "Permanent Call ID:",
+    myRoom
+   );
+
+   return myRoom;
+  }
+
+  console.error(
+   "CALL ROOM CREATE:",
+   updateError
+  );
+ }
+
+ showStatus(
+  "Permanent Call ID create nahi hua.",
+  5000
+ );
+
+ return null;
+}
+
+async function joinOwnCallRoom(){
+
+ if(!currentUser)
+  return null;
+
+ const room=
+  await createMyRoom();
+
+ if(!room)return null;
+
+ socket.emit(
+  "join-room",
+  room
+ );
+
+ document.getElementById(
+  "myCallId"
+ ).textContent=room;
+
+ document.getElementById(
+  "callPanel"
+ ).style.display="block";
+
+ console.log(
+  "Joined permanent call room:",
+  room
+ );
+
+ return room;
+}
 
 /* =========================================================
    AUTH
@@ -896,19 +1479,37 @@ document.getElementById("searchInput")
 
 async function loadAuth(){
 
- const {data}=await supabaseClient.auth.getSession();
+ const {data}=await supabaseClient
+  .auth
+  .getSession();
 
- currentUser=data.session?.user||null;
+ currentUser=
+  data.session?.user||null;
 
  if(currentUser){
+
   await loadProfile();
 
-  document.getElementById("accountBtn").textContent=
-   currentProfile?.display_name||"Account";
+  document.getElementById(
+   "accountBtn"
+  ).textContent=
+   currentProfile?.display_name||
+   "Account";
+
+  await createMyRoom();
+  await joinOwnCallRoom();
 
   await loadNotifications();
+
  }else{
-  document.getElementById("accountBtn").textContent="Login";
+
+  document.getElementById(
+   "accountBtn"
+  ).textContent="Login";
+
+  document.getElementById(
+   "callPanel"
+  ).style.display="none";
  }
 }
 
@@ -916,14 +1517,20 @@ async function loadProfile(){
 
  if(!currentUser)return;
 
- const {data,error}=await supabaseClient
- .from("profiles")
- .select("*")
- .eq("id",currentUser.id)
- .maybeSingle();
+ const {data,error}=
+  await supabaseClient
+   .from("profiles")
+   .select("*")
+   .eq("id",currentUser.id)
+   .maybeSingle();
 
  if(error){
-  console.error("PROFILE:",error);
+
+  console.error(
+   "PROFILE:",
+   error
+  );
+
   return;
  }
 
@@ -938,59 +1545,108 @@ function openAuth(mode="register"){
 
  authMode=mode;
 
- document.getElementById("authModal")
- .style.display="flex";
+ document.getElementById(
+  "authModal"
+ ).style.display="flex";
 
- const name=document.getElementById("authName");
- const title=document.getElementById("authTitle");
- const main=document.getElementById("authMainBtn");
- const sw=document.getElementById("authSwitch");
+ const name=
+  document.getElementById("authName");
+
+ const title=
+  document.getElementById("authTitle");
+
+ const main=
+  document.getElementById("authMainBtn");
+
+ const sw=
+  document.getElementById("authSwitch");
 
  if(mode==="register"){
 
   title.textContent="Register";
   name.style.display="block";
   main.textContent="Register";
-  sw.textContent="Already have an account? Login";
+  sw.textContent=
+   "Already have an account? Login";
 
  }else{
 
   title.textContent="Login";
   name.style.display="none";
   main.textContent="Login";
-  sw.textContent="Create new account";
+  sw.textContent=
+   "Create new account";
  }
 }
 
-document.getElementById("accountBtn").onclick=async()=>{
+document.getElementById(
+ "accountBtn"
+).onclick=async()=>{
 
  if(currentUser){
 
-  if(confirm("Logout karna hai?")){
-   await supabaseClient.auth.signOut();
-  }
+  /*
+   If logged in, account button toggles
+   permanent call panel instead of prompt.
+  */
+
+  const panel=
+   document.getElementById("callPanel");
+
+  panel.style.display=
+   panel.style.display==="block"
+    ?"none"
+    :"block";
 
  }else{
+
   openAuth("register");
  }
 };
 
-document.getElementById("authClose").onclick=()=>{
- document.getElementById("authModal").style.display="none";
+document.getElementById(
+ "authClose"
+).onclick=()=>{
+
+ document.getElementById(
+  "authModal"
+ ).style.display="none";
 };
 
-document.getElementById("authSwitch").onclick=()=>{
- openAuth(authMode==="register"?"login":"register");
+document.getElementById(
+ "authSwitch"
+).onclick=()=>{
+
+ openAuth(
+  authMode==="register"
+   ?"login"
+   :"register"
+ );
 };
 
 async function submitAuth(){
 
- const name=document.getElementById("authName").value.trim();
- const email=document.getElementById("authEmail").value.trim();
- const password=document.getElementById("authPassword").value;
+ const name=
+  document.getElementById(
+   "authName"
+  ).value.trim();
+
+ const email=
+  document.getElementById(
+   "authEmail"
+  ).value.trim();
+
+ const password=
+  document.getElementById(
+   "authPassword"
+  ).value;
 
  if(!email||!password){
-  showStatus("Email aur password bharna zaroori hai.");
+
+  showStatus(
+   "Email aur password bharna zaroori hai."
+  );
+
   return;
  }
 
@@ -999,43 +1655,69 @@ async function submitAuth(){
   if(authMode==="register"){
 
    if(!name){
-    showStatus("Display name bharna zaroori hai.");
+
+    showStatus(
+     "Display name bharna zaroori hai."
+    );
+
     return;
    }
 
-   const {data,error}=await supabaseClient.auth.signUp({
-    email,
-    password
-   });
+   const {data,error}=
+    await supabaseClient.auth
+     .signUp({
+      email,
+      password
+     });
 
    if(error)throw error;
 
    if(!data.user){
-    showStatus("Registration complete. Email verification check karo.");
+
+    showStatus(
+     "Registration complete. Email verification check karo.",
+     5000
+    );
+
     return;
    }
 
-   const {error:profileError}=await supabaseClient
-    .from("profiles")
-    .upsert({
-     id:data.user.id,
-     display_name:name
-    });
+   /*
+    Create profile first.
+    call_room_id is intentionally generated
+    after profile exists.
+   */
 
-   if(profileError)throw profileError;
+   const {error:profileError}=
+    await supabaseClient
+     .from("profiles")
+     .upsert({
+      id:data.user.id,
+      display_name:name
+     });
+
+   if(profileError)
+    throw profileError;
 
    currentUser=data.user;
+
    await loadProfile();
 
-   showStatus("✅ Registration successful!");
+   await createMyRoom();
+   await joinOwnCallRoom();
+
+   showStatus(
+    "✅ Registration successful!"
+   );
 
   }else{
 
-   const {data,error}=await supabaseClient.auth
-    .signInWithPassword({
-     email,
-     password
-    });
+   const {data,error}=
+    await supabaseClient.auth
+     .signInWithPassword({
+      email,
+      password
+     });
 
    if(error)throw error;
 
@@ -1043,52 +1725,93 @@ async function submitAuth(){
 
    await loadProfile();
 
-   showStatus("✅ Login successful!");
+   await createMyRoom();
+   await joinOwnCallRoom();
+
+   showStatus(
+    "✅ Login successful!"
+   );
   }
 
-  document.getElementById("authModal").style.display="none";
+  document.getElementById(
+   "authModal"
+  ).style.display="none";
 
-  document.getElementById("authName").value="";
-  document.getElementById("authEmail").value="";
-  document.getElementById("authPassword").value="";
+  document.getElementById(
+   "authName"
+  ).value="";
 
-  document.getElementById("accountBtn").textContent=
-   currentProfile?.display_name||"Account";
+  document.getElementById(
+   "authEmail"
+  ).value="";
+
+  document.getElementById(
+   "authPassword"
+  ).value="";
+
+  document.getElementById(
+   "accountBtn"
+  ).textContent=
+   currentProfile?.display_name||
+   "Account";
 
   await loadNotifications();
 
  }catch(error){
 
-  console.error("AUTH:",error);
+  console.error(
+   "AUTH:",
+   error
+  );
 
   showStatus(
-   error.message||"Authentication failed.",
-   5000
+   error.message||
+   "Authentication failed.",
+   6000
   );
  }
 }
 
-document.getElementById("authMainBtn").onclick=submitAuth;
+document.getElementById(
+ "authMainBtn"
+).onclick=submitAuth;
 
-supabaseClient.auth.onAuthStateChange(async(event,session)=>{
+supabaseClient.auth.onAuthStateChange(
+ async(event,session)=>{
 
- currentUser=session?.user||null;
+  currentUser=
+   session?.user||null;
 
- if(currentUser){
+  if(currentUser){
 
-  await loadProfile();
+   await loadProfile();
 
-  document.getElementById("accountBtn").textContent=
-   currentProfile?.display_name||"Account";
+   document.getElementById(
+    "accountBtn"
+   ).textContent=
+    currentProfile?.display_name||
+    "Account";
 
-  await loadNotifications();
+   await createMyRoom();
+   await joinOwnCallRoom();
 
- }else{
+   await loadNotifications();
 
-  currentProfile=null;
-  document.getElementById("accountBtn").textContent="Login";
+  }else{
+
+   currentProfile=null;
+   myRoom=null;
+
+   document.getElementById(
+    "accountBtn"
+   ).textContent="Login";
+
+   document.getElementById(
+    "callPanel"
+   ).style.display="none";
+  }
  }
-});
+);
 
 /* =========================================================
    NOTIFICATIONS
@@ -1098,80 +1821,214 @@ async function loadNotifications(){
 
  if(!currentUser){
 
-  document.getElementById("notificationCount")
-   .style.display="none";
+  document.getElementById(
+   "notificationCount"
+  ).style.display="none";
 
   return;
  }
 
- const {data,error}=await supabaseClient
-  .from("notifications")
-  .select("*")
-  .eq("recipient_id",currentUser.id)
-  .order("created_at",{ascending:false})
-  .limit(50);
+ const {data,error}=
+  await supabaseClient
+   .from("notifications")
+   .select("*")
+   .eq(
+    "recipient_id",
+    currentUser.id
+   )
+   .order(
+    "created_at",
+    {ascending:false}
+   )
+   .limit(50);
 
  if(error){
-  console.error("NOTIFICATIONS:",error);
+
+  console.error(
+   "NOTIFICATIONS:",
+   error
+  );
+
   return;
  }
 
- const unread=(data||[]).filter(n=>!n.is_read).length;
+ const unread=
+  (data||[])
+   .filter(n=>!n.is_read)
+   .length;
 
- const count=document.getElementById("notificationCount");
+ const count=
+  document.getElementById(
+   "notificationCount"
+  );
 
  if(unread){
-  count.textContent=unread>99?"99+":unread;
+
+  count.textContent=
+   unread>99?"99+":unread;
+
   count.style.display="block";
+
  }else{
+
   count.style.display="none";
  }
 
- const list=document.getElementById("notificationList");
+ const list=
+  document.getElementById(
+   "notificationList"
+  );
 
  if(!data?.length){
+
   list.innerHTML=
-   `<div class="notificationItem">No notifications yet.</div>`;
+   `<div class="notificationItem">
+      No notifications yet.
+    </div>`;
+
   return;
  }
 
- list.innerHTML=data.map(n=>`
-  <div class="notificationItem ${n.is_read?"":"unread"}">
-   ${escapeHtml(n.message)}
-   <div class="notificationTime">
-    ${new Date(n.created_at).toLocaleString()}
+ list.innerHTML=
+  data.map(n=>`
+
+   <div
+    class="notificationItem
+    ${n.is_read?"":"unread"}
+    ${n.snap_id?"clickable":""}"
+    data-notification-id="${escapeHtml(n.id||"")}"
+    data-snap-id="${escapeHtml(n.snap_id||"")}"
+    data-comment-id="${escapeHtml(n.comment_id||"")}"
+   >
+
+    <div>
+     ${escapeHtml(
+      n.message||"New notification"
+     )}
+    </div>
+
+    <div class="notificationTime">
+     ${
+      n.created_at
+       ?new Date(
+         n.created_at
+        ).toLocaleString()
+       :""
+     }
+    </div>
+
    </div>
-  </div>
- `).join("");
+
+  `).join("");
+
+ /*
+  Each notification is individually clickable.
+  It opens the related post.
+ */
+
+ list.querySelectorAll(
+  ".notificationItem"
+ ).forEach(item=>{
+
+  item.onclick=async()=>{
+
+   const notificationId=
+    item.dataset.notificationId;
+
+   const snapId=
+    Number(item.dataset.snapId);
+
+   if(notificationId){
+
+    const {error}=
+     await supabaseClient
+      .from("notifications")
+      .update({
+       is_read:true
+      })
+      .eq(
+       "id",
+       notificationId
+      )
+      .eq(
+       "recipient_id",
+       currentUser.id
+      );
+
+    if(error)
+     console.error(
+      "MARK NOTIFICATION:",
+      error
+     );
+   }
+
+   if(!snapId){
+
+    await loadNotifications();
+    return;
+   }
+
+   const {data:snap,error}=
+    await supabaseClient
+     .from("snaps")
+     .select("*")
+     .eq("id",snapId)
+     .maybeSingle();
+
+   if(error||!snap){
+
+    showStatus(
+     "Post nahi mila."
+    );
+
+    await loadNotifications();
+
+    return;
+   }
+
+   document.getElementById(
+    "notificationPanel"
+   ).style.display="none";
+
+   await openGallery([snap]);
+
+   if(item.dataset.commentId){
+
+    document.getElementById(
+     "commentsList"
+    ).style.display="block";
+
+    await loadComments(snap.id);
+   }
+
+   await loadNotifications();
+  };
+ });
 }
 
-document.getElementById("notificationBtn").onclick=async()=>{
+document.getElementById(
+ "notificationBtn"
+).onclick=async()=>{
 
  if(!currentUser){
+
   openAuth("login");
   return;
  }
 
- const panel=document.getElementById("notificationPanel");
+ const panel=
+  document.getElementById(
+   "notificationPanel"
+  );
 
  panel.style.display=
-  panel.style.display==="block"?"none":"block";
+  panel.style.display==="block"
+   ?"none"
+   :"block";
 
- if(panel.style.display==="block"){
+ if(panel.style.display==="block")
   await loadNotifications();
- }
 };
-
-async function markNotificationsRead(){
-
- if(!currentUser)return;
-
- await supabaseClient
-  .from("notifications")
-  .update({is_read:true})
-  .eq("recipient_id",currentUser.id)
-  .eq("is_read",false);
-}
 
 /* =========================================================
    ESCAPE
@@ -1193,59 +2050,86 @@ function escapeHtml(value){
 
 function getFreshPosition(){
 
- return new Promise((resolve,reject)=>{
+ return new Promise(
+  (resolve,reject)=>{
 
-  navigator.geolocation.getCurrentPosition(
-   resolve,
-   reject,
-   {
-    enableHighAccuracy:true,
-    timeout:15000,
-    maximumAge:0
-   }
-  );
- });
+   navigator.geolocation.getCurrentPosition(
+    resolve,
+    reject,
+    {
+     enableHighAccuracy:true,
+     timeout:15000,
+     maximumAge:0
+    }
+   );
+  }
+ );
 }
 
 async function openCameraFromLocation(){
 
  if(!currentUser){
+
   openAuth("login");
   return;
  }
 
  if(!navigator.geolocation){
-  showStatus("Location support nahi hai.");
+
+  showStatus(
+   "Location support nahi hai."
+  );
+
   return;
  }
 
- showStatus("Live location mil rahi hai...");
+ showStatus(
+  "Live location mil rahi hai..."
+ );
 
  try{
 
-  const pos=await getFreshPosition();
+  const pos=
+   await getFreshPosition();
 
-  capturedLatitude=pos.coords.latitude;
-  capturedLongitude=pos.coords.longitude;
+  capturedLatitude=
+   pos.coords.latitude;
 
-  if(userLocationMarker)
-   map.removeLayer(userLocationMarker);
+  capturedLongitude=
+   pos.coords.longitude;
 
-  userLocationMarker=L.circleMarker(
-   [capturedLatitude,capturedLongitude],
-   {radius:8}
-  ).addTo(map);
+  if(userLocationMarker){
+
+   map.removeLayer(
+    userLocationMarker
+   );
+  }
+
+  userLocationMarker=
+   L.circleMarker(
+    [
+     capturedLatitude,
+     capturedLongitude
+    ],
+    {
+     radius:8
+    }
+   ).addTo(map);
 
   map.setView(
-   [capturedLatitude,capturedLongitude],
+   [
+    capturedLatitude,
+    capturedLongitude
+   ],
    17
   );
 
-  openCamera();
+  await openCamera();
 
  }catch(error){
 
   console.error(error);
+
   showStatus(
    "Location permission allow karo.",
    3500
@@ -1253,22 +2137,33 @@ async function openCameraFromLocation(){
  }
 }
 
-document.getElementById("locBtn").onclick=openCameraFromLocation;
+document.getElementById(
+ "locBtn"
+).onclick=
+ openCameraFromLocation;
 
 async function lockCaptureLocation(){
 
  try{
 
-  const pos=await getFreshPosition();
+  const pos=
+   await getFreshPosition();
 
-  capturedLatitude=pos.coords.latitude;
-  capturedLongitude=pos.coords.longitude;
+  capturedLatitude=
+   pos.coords.latitude;
+
+  capturedLongitude=
+   pos.coords.longitude;
 
   return true;
 
  }catch(error){
 
-  showStatus("Live location required hai.",3000);
+  showStatus(
+   "Live location required hai.",
+   3000
+  );
+
   return false;
  }
 }
@@ -1280,16 +2175,36 @@ async function lockCaptureLocation(){
 function filterToCss(filter){
 
  switch(filter){
-  case "vintage":return "sepia(.7) contrast(1.1) saturate(.8)";
-  case "bw":return "grayscale(1)";
-  case "warm":return "sepia(.25) saturate(1.35)";
-  case "cool":return "saturate(.9) hue-rotate(15deg)";
-  case "glow":return "brightness(1.1) saturate(1.2)";
-  case "night":return "brightness(.65) contrast(1.25) saturate(1.2)";
-  case "pop":return "saturate(1.8) contrast(1.15)";
-  case "dream":return "brightness(1.08) contrast(.9) saturate(1.2)";
-  case "sunset":return "sepia(.25) saturate(1.5) hue-rotate(-10deg)";
-  default:return "none";
+
+  case "vintage":
+   return "sepia(.7) contrast(1.1) saturate(.8)";
+
+  case "bw":
+   return "grayscale(1)";
+
+  case "warm":
+   return "sepia(.25) saturate(1.35)";
+
+  case "cool":
+   return "saturate(.9) hue-rotate(15deg)";
+
+  case "glow":
+   return "brightness(1.1) saturate(1.2)";
+
+  case "night":
+   return "brightness(.65) contrast(1.25) saturate(1.2)";
+
+  case "pop":
+   return "saturate(1.8) contrast(1.15)";
+
+  case "dream":
+   return "brightness(1.08) contrast(.9) saturate(1.2)";
+
+  case "sunset":
+   return "sepia(.25) saturate(1.5) hue-rotate(-10deg)";
+
+  default:
+   return "none";
  }
 }
 
@@ -1300,15 +2215,25 @@ function updateMirrorPreview(){
   mirrorEnabled
  );
 
- document.getElementById("mirrorBtn")
-  .classList.toggle("active",mirrorEnabled);
+ document.getElementById(
+  "mirrorBtn"
+ ).classList.toggle(
+  "active",
+  mirrorEnabled
+ );
 
- document.getElementById("mirrorBtn").textContent=
-  mirrorEnabled?"🪞 Mirror ON":"🪞 Mirror";
+ document.getElementById(
+  "mirrorBtn"
+ ).textContent=
+  mirrorEnabled
+   ?"🪞 Mirror ON"
+   :"🪞 Mirror";
 }
 
 function updateLiveFilter(){
- cameraVideo.style.filter=filterToCss(currentFilter);
+
+ cameraVideo.style.filter=
+  filterToCss(currentFilter);
 }
 
 async function openCamera(){
@@ -1317,26 +2242,40 @@ async function openCamera(){
 
  try{
 
-  cameraStream=await navigator.mediaDevices.getUserMedia({
-   video:{
-    facingMode:{ideal:currentFacing},
-    width:{ideal:1920},
-    height:{ideal:1080}
-   },
-   audio:false
-  });
+  cameraStream=
+   await navigator.mediaDevices
+    .getUserMedia({
+     video:{
+      facingMode:{
+       ideal:currentFacing
+      },
+      width:{
+       ideal:1920
+      },
+      height:{
+       ideal:1080
+      }
+     },
+     audio:false
+    });
 
-  cameraVideo.srcObject=cameraStream;
+  cameraVideo.srcObject=
+   cameraStream;
 
-  cameraModal.style.display="flex";
+  cameraModal.style.display=
+   "flex";
 
   updateMirrorPreview();
   updateLiveFilter();
+
   await applyHardwareZoom();
 
  }catch(error){
 
-  console.error("CAMERA:",error);
+  console.error(
+   "CAMERA:",
+   error
+  );
 
   showStatus(
    "Camera permission nahi mili.",
@@ -1349,7 +2288,12 @@ function stopCameraStream(){
 
  if(cameraStream){
 
-  cameraStream.getTracks().forEach(track=>track.stop());
+  cameraStream
+   .getTracks()
+   .forEach(track=>{
+    track.stop();
+   });
+
   cameraStream=null;
  }
 
@@ -1358,21 +2302,31 @@ function stopCameraStream(){
 
 function closeCamera(){
 
- if(recorder&&recorder.state==="recording"){
+ if(
+  recorder&&
+  recorder.state==="recording"
+ ){
   stopRecording();
  }
 
  stopCameraStream();
 
- cameraModal.style.display="none";
+ cameraModal.style.display=
+  "none";
 }
 
-document.getElementById("closeCameraBtn").onclick=closeCamera;
+document.getElementById(
+ "closeCameraBtn"
+).onclick=closeCamera;
 
-document.getElementById("switchCameraBtn").onclick=async()=>{
+document.getElementById(
+ "switchCameraBtn"
+).onclick=async()=>{
 
  currentFacing=
-  currentFacing==="environment"?"user":"environment";
+  currentFacing==="environment"
+   ?"user"
+   :"environment";
 
  await openCamera();
 };
@@ -1383,33 +2337,55 @@ document.getElementById("switchCameraBtn").onclick=async()=>{
 
 async function applyHardwareZoom(){
 
- const track=cameraStream?.getVideoTracks?.()[0];
+ const track=
+  cameraStream
+   ?.getVideoTracks?.()[0];
 
  if(!track)return;
 
- const caps=track.getCapabilities?track.getCapabilities():{};
+ const caps=
+  track.getCapabilities
+   ?track.getCapabilities()
+   :{};
 
  if(caps.zoom){
 
   const z=Math.max(
    caps.zoom.min,
-   Math.min(caps.zoom.max,currentZoom)
+   Math.min(
+    caps.zoom.max,
+    currentZoom
+   )
   );
 
   try{
+
    await track.applyConstraints({
-    advanced:[{zoom:z}]
+    advanced:[
+     {
+      zoom:z
+     }
+    ]
    });
+
   }catch(e){}
  }
 }
 
-document.getElementById("zoomRange").oninput=async function(){
+document.getElementById(
+ "zoomRange"
+).oninput=async function(){
 
- currentZoom=Number(this.value);
+ currentZoom=
+  Number(this.value);
 
- document.getElementById("zoomValue").textContent=
-  currentZoom.toFixed(1).replace(".0","")+"×";
+ document.getElementById(
+  "zoomValue"
+ ).textContent=
+  currentZoom
+   .toFixed(1)
+   .replace(".0","")+
+   "×";
 
  await applyHardwareZoom();
 };
@@ -1418,24 +2394,34 @@ document.getElementById("zoomRange").oninput=async function(){
    FILTERS
 ========================================================= */
 
-document.querySelectorAll(".filterBtn").forEach(btn=>{
+document.querySelectorAll(
+ ".filterBtn"
+).forEach(btn=>{
 
  btn.onclick=()=>{
 
-  document.querySelectorAll(".filterBtn")
-   .forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(
+   ".filterBtn"
+  ).forEach(b=>
+   b.classList.remove("active")
+  );
 
   btn.classList.add("active");
 
-  currentFilter=btn.dataset.filter;
+  currentFilter=
+   btn.dataset.filter;
 
   updateLiveFilter();
  };
 });
 
-document.getElementById("mirrorBtn").onclick=()=>{
+document.getElementById(
+ "mirrorBtn"
+).onclick=()=>{
 
- mirrorEnabled=!mirrorEnabled;
+ mirrorEnabled=
+  !mirrorEnabled;
+
  updateMirrorPreview();
 };
 
@@ -1448,53 +2434,103 @@ function drawVideoToCanvas(w,h){
  cameraCanvas.width=w;
  cameraCanvas.height=h;
 
- const ctx=cameraCanvas.getContext("2d");
+ const ctx=
+  cameraCanvas.getContext("2d");
 
  ctx.save();
 
- ctx.filter=filterToCss(currentFilter);
+ ctx.filter=
+  filterToCss(currentFilter);
 
  if(mirrorEnabled){
+
   ctx.translate(w,0);
   ctx.scale(-1,1);
  }
 
- ctx.drawImage(cameraVideo,0,0,w,h);
+ ctx.drawImage(
+  cameraVideo,
+  0,
+  0,
+  w,
+  h
+ );
 
  ctx.restore();
 }
 
 async function capturePhoto(){
 
- if(!cameraStream||!cameraVideo.videoWidth){
-  showStatus("Camera ready nahi hai.");
+ if(
+  !cameraStream||
+  !cameraVideo.videoWidth
+ ){
+
+  showStatus(
+   "Camera ready nahi hai."
+  );
+
   return;
  }
 
- if(!(await lockCaptureLocation()))return;
+ if(
+  !(await lockCaptureLocation())
+ )return;
 
  drawVideoToCanvas(
   cameraVideo.videoWidth,
   cameraVideo.videoHeight
  );
 
- capturedImageData=cameraCanvas.toDataURL("image/jpeg",.88);
- capturedBlob=dataURLToBlob(capturedImageData);
+ capturedImageData=
+  cameraCanvas.toDataURL(
+   "image/jpeg",
+   .88
+  );
+
+ capturedBlob=
+  dataURLToBlob(
+   capturedImageData
+  );
+
  capturedType="image";
  capturedVideoUrl=null;
 
- document.getElementById("previewImage").src=capturedImageData;
- document.getElementById("previewImage").style.display="block";
- document.getElementById("previewVideo").style.display="none";
+ document.getElementById(
+  "previewImage"
+ ).src=
+  capturedImageData;
 
- document.getElementById("qualityBox").style.display="none";
+ document.getElementById(
+  "previewImage"
+ ).style.display=
+  "block";
 
- document.getElementById("previewInfo").textContent=
-  "Photo • "+cameraVideo.videoWidth+"×"+cameraVideo.videoHeight;
+ document.getElementById(
+  "previewVideo"
+ ).style.display=
+  "none";
+
+ document.getElementById(
+  "qualityBox"
+ ).style.display=
+  "none";
+
+ document.getElementById(
+  "previewInfo"
+ ).textContent=
+  "Photo • "+
+  cameraVideo.videoWidth+
+  "×"+
+  cameraVideo.videoHeight;
 
  stopCameraStream();
- cameraModal.style.display="none";
- previewModal.style.display="flex";
+
+ cameraModal.style.display=
+  "none";
+
+ previewModal.style.display=
+  "flex";
 }
 
 /* =========================================================
@@ -1509,66 +2545,108 @@ function chooseMime(){
   "video/webm"
  ];
 
- return types.find(t=>MediaRecorder.isTypeSupported(t))||"";
+ return types.find(
+  t=>MediaRecorder.isTypeSupported(t)
+ )||"";
 }
 
 async function startRecording(){
 
  if(!cameraStream)return;
 
- if(!(await lockCaptureLocation()))return;
+ if(
+  !(await lockCaptureLocation())
+ )return;
 
  const mime=chooseMime();
 
  if(!mime){
-  showStatus("Video recording supported nahi hai.");
+
+  showStatus(
+   "Video recording supported nahi hai."
+  );
+
   return;
  }
 
  recordedChunks=[];
 
- recorder=new MediaRecorder(
-  cameraStream,
-  {mimeType:mime}
- );
+ recorder=
+  new MediaRecorder(
+   cameraStream,
+   {
+    mimeType:mime
+   }
+  );
 
- recordingStartedAt=Date.now();
+ recordingStartedAt=
+  Date.now();
 
  recorder.ondataavailable=e=>{
-  if(e.data&&e.data.size)
-   recordedChunks.push(e.data);
+
+  if(
+   e.data&&
+   e.data.size
+  ){
+   recordedChunks.push(
+    e.data
+   );
+  }
  };
 
  recorder.onstop=()=>{
 
-  capturedBlob=new Blob(
-   recordedChunks,
-   {type:mime}
-  );
+  capturedBlob=
+   new Blob(
+    recordedChunks,
+    {
+     type:mime
+    }
+   );
 
   capturedType="video";
 
   capturedVideoUrl=
-   URL.createObjectURL(capturedBlob);
+   URL.createObjectURL(
+    capturedBlob
+   );
 
-  document.getElementById("previewImage")
-   .style.display="none";
+  document.getElementById(
+   "previewImage"
+  ).style.display=
+   "none";
 
-  const video=document.getElementById("previewVideo");
+  const video=
+   document.getElementById(
+    "previewVideo"
+   );
 
-  video.style.display="block";
-  video.src=capturedVideoUrl;
+  video.style.display=
+   "block";
 
-  document.getElementById("previewInfo").textContent=
-   "Video • "+formatMB(capturedBlob.size);
+  video.src=
+   capturedVideoUrl;
 
-  document.getElementById("qualityBox")
-   .style.display="flex";
+  document.getElementById(
+   "previewInfo"
+  ).textContent=
+   "Video • "+
+   formatMB(
+    capturedBlob.size
+   );
+
+  document.getElementById(
+   "qualityBox"
+  ).style.display=
+   "flex";
 
   stopCameraStream();
 
-  cameraModal.style.display="none";
-  previewModal.style.display="flex";
+  cameraModal.style.display=
+   "none";
+
+  previewModal.style.display=
+   "flex";
 
   updateRecordUI(false);
  };
@@ -1577,67 +2655,113 @@ async function startRecording(){
 
  updateRecordUI(true);
 
- recordingTimer=setInterval(
-  updateRecordTimer,
-  250
- );
+ recordingTimer=
+  setInterval(
+   updateRecordTimer,
+   250
+  );
 }
 
 function stopRecording(){
 
- if(recorder&&recorder.state==="recording")
+ if(
+  recorder&&
+  recorder.state==="recording"
+ ){
   recorder.stop();
+ }
 
- clearInterval(recordingTimer);
+ clearInterval(
+  recordingTimer
+ );
+
  recordingTimer=null;
 }
 
 function updateRecordUI(on){
 
- const btn=document.getElementById("captureBtn");
- const timer=document.getElementById("recordTimer");
+ const btn=
+  document.getElementById(
+   "captureBtn"
+  );
 
- btn.classList.toggle("recording",on);
- timer.style.display=on?"block":"none";
+ const timer=
+  document.getElementById(
+   "recordTimer"
+  );
+
+ btn.classList.toggle(
+  "recording",
+  on
+ );
+
+ timer.style.display=
+  on?"block":"none";
 }
 
 function updateRecordTimer(){
 
- const seconds=Math.floor(
-  (Date.now()-recordingStartedAt)/1000
- );
+ const seconds=
+  Math.floor(
+   (Date.now()-
+    recordingStartedAt)/1000
+  );
 
- document.getElementById("recordTimer").textContent=
+ document.getElementById(
+  "recordTimer"
+ ).textContent=
   formatDuration(seconds);
 }
 
-document.getElementById("captureBtn").onclick=()=>{
+document.getElementById(
+ "captureBtn"
+).onclick=()=>{
 
  if(currentMode==="photo"){
+
   capturePhoto();
+
  }else{
 
-  if(recorder&&recorder.state==="recording")
+  if(
+   recorder&&
+   recorder.state==="recording"
+  ){
    stopRecording();
-  else
+  }else{
    startRecording();
+  }
  }
 };
 
-document.getElementById("photoModeBtn").onclick=()=>{
+document.getElementById(
+ "photoModeBtn"
+).onclick=()=>{
+
  currentMode="photo";
- document.getElementById("photoModeBtn")
-  .classList.add("active");
- document.getElementById("videoModeBtn")
-  .classList.remove("active");
+
+ document.getElementById(
+  "photoModeBtn"
+ ).classList.add("active");
+
+ document.getElementById(
+  "videoModeBtn"
+ ).classList.remove("active");
 };
 
-document.getElementById("videoModeBtn").onclick=()=>{
+document.getElementById(
+ "videoModeBtn"
+).onclick=()=>{
+
  currentMode="video";
- document.getElementById("videoModeBtn")
-  .classList.add("active");
- document.getElementById("photoModeBtn")
-  .classList.remove("active");
+
+ document.getElementById(
+  "videoModeBtn"
+ ).classList.add("active");
+
+ document.getElementById(
+  "photoModeBtn"
+ ).classList.remove("active");
 };
 
 /* =========================================================
@@ -1645,47 +2769,88 @@ document.getElementById("videoModeBtn").onclick=()=>{
 ========================================================= */
 
 function formatMB(bytes){
- return (bytes/1024/1024).toFixed(2)+" MB";
+
+ return (
+  bytes/1024/1024
+ ).toFixed(2)+" MB";
 }
 
 function formatDuration(sec){
 
- sec=Math.max(0,Math.floor(sec));
+ sec=Math.max(
+  0,
+  Math.floor(sec)
+ );
 
- return String(Math.floor(sec/60)).padStart(2,"0")+
+ return String(
+  Math.floor(sec/60)
+ ).padStart(2,"0")+
  ":"+
- String(sec%60).padStart(2,"0");
+ String(
+  sec%60
+ ).padStart(2,"0");
 }
 
 function dataURLToBlob(dataURL){
 
- const parts=dataURL.split(",");
- const mime=parts[0].match(/:(.*?);/)[1];
- const binary=atob(parts[1]);
- const arr=new Uint8Array(binary.length);
+ const parts=
+  dataURL.split(",");
 
- for(let i=0;i<binary.length;i++)
-  arr[i]=binary.charCodeAt(i);
+ const mime=
+  parts[0].match(
+   /:(.*?);/
+  )[1];
 
- return new Blob([arr],{type:mime});
+ const binary=
+  atob(parts[1]);
+
+ const arr=
+  new Uint8Array(
+   binary.length
+  );
+
+ for(
+  let i=0;
+  i<binary.length;
+  i++
+ ){
+  arr[i]=
+   binary.charCodeAt(i);
+ }
+
+ return new Blob(
+  [arr],
+  {
+   type:mime
+  }
+ );
 }
 
 /* =========================================================
    RETAKE
 ========================================================= */
 
-document.getElementById("cancelPreviewBtn").onclick=()=>{
+document.getElementById(
+ "cancelPreviewBtn"
+).onclick=()=>{
 
- if(capturedVideoUrl)
-  URL.revokeObjectURL(capturedVideoUrl);
+ if(capturedVideoUrl){
+
+  URL.revokeObjectURL(
+   capturedVideoUrl
+  );
+ }
 
  capturedVideoUrl=null;
  capturedBlob=null;
  capturedImageData=null;
 
- document.getElementById("descriptionInput").value="";
+ document.getElementById(
+  "descriptionInput"
+ ).value="";
 
- previewModal.style.display="none";
+ previewModal.style.display=
+  "none";
 
  openCamera();
 };
@@ -1694,64 +2859,111 @@ document.getElementById("cancelPreviewBtn").onclick=()=>{
    UPLOAD
 ========================================================= */
 
-function setUploadProgress(percent,text){
+function setUploadProgress(
+ percent,
+ text
+){
 
- document.getElementById("uploadBar")
-  .style.width=percent+"%";
+ document.getElementById(
+  "uploadBar"
+ ).style.width=
+  percent+"%";
 
- document.getElementById("uploadPercent")
-  .textContent=Math.round(percent)+"%";
+ document.getElementById(
+  "uploadPercent"
+ ).textContent=
+  Math.round(percent)+"%";
 
- document.getElementById("uploadText")
-  .textContent=text;
+ document.getElementById(
+  "uploadText"
+ ).textContent=
+  text;
 }
 
-async function uploadFile(path,blob,accessToken){
+async function uploadFile(
+ path,
+ blob,
+ accessToken
+){
 
  const url=
   SUPABASE_URL+
   "/storage/v1/object/past-snaps/"+
   encodeURIComponent(path);
 
- const xhr=new XMLHttpRequest();
+ const xhr=
+  new XMLHttpRequest();
 
- return new Promise((resolve,reject)=>{
+ return new Promise(
+  (resolve,reject)=>{
 
-  xhr.open("POST",url,true);
+   xhr.open(
+    "POST",
+    url,
+    true
+   );
 
-  xhr.setRequestHeader("apikey",SUPABASE_KEY);
-  xhr.setRequestHeader(
-   "Authorization",
-   "Bearer "+accessToken
-  );
-  xhr.setRequestHeader("Content-Type",blob.type);
-  xhr.setRequestHeader("x-upsert","false");
+   xhr.setRequestHeader(
+    "apikey",
+    SUPABASE_KEY
+   );
 
-  xhr.upload.onprogress=e=>{
+   xhr.setRequestHeader(
+    "Authorization",
+    "Bearer "+
+    accessToken
+   );
 
-   if(e.lengthComputable){
+   xhr.setRequestHeader(
+    "Content-Type",
+    blob.type
+   );
 
-    setUploadProgress(
-     e.loaded/e.total*100,
-     "Uploading..."
+   xhr.setRequestHeader(
+    "x-upsert",
+    "false"
+   );
+
+   xhr.upload.onprogress=e=>{
+
+    if(e.lengthComputable){
+
+     setUploadProgress(
+      e.loaded/e.total*100,
+      "Uploading..."
+     );
+    }
+   };
+
+   xhr.onload=()=>{
+
+    if(
+     xhr.status>=200&&
+     xhr.status<300
+    ){
+     resolve();
+    }else{
+     reject(
+      new Error(
+       xhr.responseText||
+       "Upload failed"
+      )
+     );
+    }
+   };
+
+   xhr.onerror=()=>{
+
+    reject(
+     new Error(
+      "Network error"
+     )
     );
-   }
-  };
+   };
 
-  xhr.onload=()=>{
-
-   if(xhr.status>=200&&xhr.status<300)
-    resolve();
-   else
-    reject(new Error(xhr.responseText||"Upload failed"));
-  };
-
-  xhr.onerror=()=>{
-   reject(new Error("Network error"));
-  };
-
-  xhr.send(blob);
- });
+   xhr.send(blob);
+  }
+ );
 }
 
 /* =========================================================
@@ -1763,42 +2975,66 @@ async function postSnap(){
  if(isPostingSnap)return;
 
  if(!currentUser){
+
   openAuth("login");
   return;
  }
 
  if(!capturedBlob){
-  showStatus("Pehle capture karo.");
+
+  showStatus(
+   "Pehle capture karo."
+  );
+
   return;
  }
 
- if(capturedLatitude===null||capturedLongitude===null){
-  showStatus("Capture location nahi mili.");
+ if(
+  capturedLatitude===null||
+  capturedLongitude===null
+ ){
+
+  showStatus(
+   "Capture location nahi mili."
+  );
+
   return;
  }
 
  let pos;
 
  try{
-  pos=await getFreshPosition();
+
+  pos=
+   await getFreshPosition();
+
  }catch(e){
-  showStatus("Live location required hai.",3000);
+
+  showStatus(
+   "Live location required hai.",
+   3000
+  );
+
   return;
  }
 
- const currentLat=pos.coords.latitude;
- const currentLng=pos.coords.longitude;
+ const currentLat=
+  pos.coords.latitude;
 
- const distance=distanceMeters(
-  {
-   lat:capturedLatitude,
-   lng:capturedLongitude
-  },
-  {
-   lat:currentLat,
-   lng:currentLng
-  }
- );
+ const currentLng=
+  pos.coords.longitude;
+
+ const distance=
+  distanceMeters(
+   {
+    lat:capturedLatitude,
+    lng:capturedLongitude
+   },
+   {
+    lat:currentLat,
+    lng:currentLng
+   }
+  );
 
  if(distance>50){
 
@@ -1812,40 +3048,63 @@ async function postSnap(){
 
  isPostingSnap=true;
 
- const btn=document.getElementById("postBtn");
+ const btn=
+  document.getElementById(
+   "postBtn"
+  );
 
  btn.disabled=true;
- btn.textContent="Uploading...";
+ btn.textContent=
+  "Uploading...";
 
- const {data:sessionData}=await supabaseClient
-  .auth
-  .getSession();
+ const {
+  data:sessionData
+ }=
+  await supabaseClient.auth
+   .getSession();
 
- const accessToken=sessionData?.session?.access_token;
+ const accessToken=
+  sessionData?.session
+   ?.access_token;
 
  if(!accessToken){
 
   isPostingSnap=false;
+
   btn.disabled=false;
-  btn.textContent="📍 Post Snap";
+  btn.textContent=
+   "📍 Post Snap";
 
   openAuth("login");
+
   return;
  }
 
- document.getElementById("uploadBox")
-  .style.display="block";
+ document.getElementById(
+  "uploadBox"
+ ).style.display=
+  "block";
+
+ setUploadProgress(
+  0,
+  "Preparing upload..."
+ );
 
  try{
 
-  const extension=capturedType==="video"?"webm":"jpg";
+  const extension=
+   capturedType==="video"
+    ?"webm"
+    :"jpg";
 
   const path=
    currentUser.id+
    "/snap_"+
    Date.now()+
    "_"+
-   Math.random().toString(36).slice(2,9)+
+   Math.random()
+    .toString(36)
+    .slice(2,9)+
    "."+
    extension;
 
@@ -1861,30 +3120,48 @@ async function postSnap(){
    path;
 
   const description=
-   document.getElementById("descriptionInput")
-   .value.trim();
+   document.getElementById(
+    "descriptionInput"
+   ).value.trim();
 
-  const {data:newSnap,error}=await supabaseClient
-   .from("snaps")
-   .insert({
-    latitude:capturedLatitude,
-    longitude:capturedLongitude,
-    image_url:publicUrl,
-    media_type:capturedType,
-    user_id:currentUser.id,
-    description:description||null
-   })
-   .select()
-   .single();
+  const {
+   data:newSnap,
+   error
+  }=
+   await supabaseClient
+    .from("snaps")
+    .insert({
+     latitude:
+      capturedLatitude,
+     longitude:
+      capturedLongitude,
+     image_url:
+      publicUrl,
+     media_type:
+      capturedType,
+     user_id:
+      currentUser.id,
+     description:
+      description||null
+    })
+    .select()
+    .single();
 
-  if(error)throw error;
+  if(error)
+   throw error;
 
-  console.log("NEW SNAP:",newSnap);
+  console.log(
+   "NEW SNAP:",
+   newSnap
+  );
 
-  document.getElementById("uploadBox")
-   .style.display="none";
+  document.getElementById(
+   "uploadBox"
+  ).style.display=
+   "none";
 
-  previewModal.style.display="none";
+  previewModal.style.display=
+   "none";
 
   showStatus(
    "✅ Snap posted successfully!",
@@ -1896,10 +3173,16 @@ async function postSnap(){
   capturedLatitude=null;
   capturedLongitude=null;
 
-  document.getElementById("descriptionInput").value="";
+  document.getElementById(
+   "descriptionInput"
+  ).value="";
 
   if(capturedVideoUrl){
-   URL.revokeObjectURL(capturedVideoUrl);
+
+   URL.revokeObjectURL(
+    capturedVideoUrl
+   );
+
    capturedVideoUrl=null;
   }
 
@@ -1907,40 +3190,64 @@ async function postSnap(){
 
  }catch(error){
 
-  console.error("POST ERROR:",error);
+  console.error(
+   "POST ERROR:",
+   error
+  );
 
-  document.getElementById("uploadBox")
-   .style.display="none";
+  document.getElementById(
+   "uploadBox"
+  ).style.display=
+   "none";
 
   showStatus(
-   "Post failed: "+(error.message||"Unknown error"),
+   "Post failed: "+
+   (
+    error.message||
+    "Unknown error"
+   ),
    6000
   );
 
  }finally{
 
   isPostingSnap=false;
+
   btn.disabled=false;
-  btn.textContent="📍 Post Snap";
+
+  btn.textContent=
+   "📍 Post Snap";
  }
 }
 
-document.getElementById("postBtn").onclick=postSnap;
+document.getElementById(
+ "postBtn"
+).onclick=postSnap;
 
 /* =========================================================
    QUALITY
 ========================================================= */
 
-document.querySelectorAll(".qualityBtn").forEach(btn=>{
+document.querySelectorAll(
+ ".qualityBtn"
+).forEach(btn=>{
 
  btn.onclick=()=>{
 
-  document.querySelectorAll(".qualityBtn")
-   .forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(
+   ".qualityBtn"
+  ).forEach(b=>
+   b.classList.remove(
+    "active"
+   )
+  );
 
   btn.classList.add("active");
 
-  selectedQuality=Number(btn.dataset.quality);
+  selectedQuality=
+   Number(
+    btn.dataset.quality
+   );
  };
 });
 
@@ -1950,49 +3257,78 @@ document.querySelectorAll(".qualityBtn").forEach(btn=>{
 
 async function openGallery(items){
 
- galleryItems=items||[];
+ galleryItems=
+  items||[];
+
  galleryIndex=0;
 
- if(!galleryItems.length)return;
+ if(!galleryItems.length)
+  return;
 
- galleryModal.style.display="flex";
+ galleryModal.style.display=
+  "flex";
 
  await renderGalleryItem();
 }
 
 async function renderGalleryItem(){
 
- const item=galleryItems[galleryIndex];
+ const item=
+  galleryItems[
+   galleryIndex
+  ];
 
  currentGallerySnap=item;
 
- document.getElementById("galleryCounter")
-  .textContent=
-  (galleryIndex+1)+" / "+galleryItems.length;
+ document.getElementById(
+  "galleryCounter"
+ ).textContent=
+  (galleryIndex+1)+
+  " / "+
+  galleryItems.length;
 
- const img=document.getElementById("galleryImage");
- const video=document.getElementById("galleryVideo");
+ const img=
+  document.getElementById(
+   "galleryImage"
+  );
+
+ const video=
+  document.getElementById(
+   "galleryVideo"
+  );
 
  img.style.display="none";
+
  video.style.display="none";
+
  video.pause();
 
- if(item.media_type==="video"){
+ if(
+  item.media_type==="video"
+ ){
 
-  video.src=item.image_url;
-  video.style.display="block";
+  video.src=
+   item.image_url;
+
+  video.style.display=
+   "block";
 
  }else{
 
-  img.src=item.image_url;
-  img.style.display="block";
+  img.src=
+   item.image_url;
+
+  img.style.display=
+   "block";
  }
 
- await loadPostDetails(item);
+ await loadPostDetails(
+  item
+ );
 }
 
 /* =========================================================
-   USER DETAILS + SOCIAL
+   POST DETAILS
 ========================================================= */
 
 async function loadPostDetails(item){
@@ -2001,14 +3337,24 @@ async function loadPostDetails(item){
 
  if(item.user_id){
 
-  const {data,error}=await supabaseClient
-   .from("profiles")
-   .select("display_name")
-   .eq("id",item.user_id)
-   .maybeSingle();
+  const {
+   data,
+   error
+  }=
+   await supabaseClient
+    .from("profiles")
+    .select("display_name")
+    .eq(
+     "id",
+     item.user_id
+    )
+    .maybeSingle();
 
   if(error)
-   console.error("POST PROFILE:",error);
+   console.error(
+    "POST PROFILE:",
+    error
+   );
 
   profile=data;
  }
@@ -2017,72 +3363,228 @@ async function loadPostDetails(item){
  let comments=0;
  let views=0;
 
- const likeResult=await supabaseClient
-  .from("snap_likes")
-  .select("*",{count:"exact",head:true})
-  .eq("snap_id",item.id);
+ const likeResult=
+  await supabaseClient
+   .from("snap_likes")
+   .select(
+    "*",
+    {
+     count:"exact",
+     head:true
+    }
+   )
+   .eq(
+    "snap_id",
+    item.id
+   );
 
- const commentResult=await supabaseClient
-  .from("snap_comments")
-  .select("*",{count:"exact",head:true})
-  .eq("snap_id",item.id);
+ const commentResult=
+  await supabaseClient
+   .from("snap_comments")
+   .select(
+    "*",
+    {
+     count:"exact",
+     head:true
+    }
+   )
+   .eq(
+    "snap_id",
+    item.id
+   );
 
- const viewResult=await supabaseClient
-  .from("snap_views")
-  .select("*",{count:"exact",head:true})
-  .eq("snap_id",item.id);
+ const viewResult=
+  await supabaseClient
+   .from("snap_views")
+   .select(
+    "*",
+    {
+     count:"exact",
+     head:true
+    }
+   )
+   .eq(
+    "snap_id",
+    item.id
+   );
 
  if(likeResult.error)
-  console.error("LIKE COUNT:",likeResult.error);
+  console.error(
+   "LIKE COUNT:",
+   likeResult.error
+  );
 
  if(commentResult.error)
-  console.error("COMMENT COUNT:",commentResult.error);
+  console.error(
+   "COMMENT COUNT:",
+   commentResult.error
+  );
 
  if(viewResult.error)
-  console.error("VIEW COUNT:",viewResult.error);
+  console.error(
+   "VIEW COUNT:",
+   viewResult.error
+  );
 
- likes=likeResult.count||0;
- comments=commentResult.count||0;
- views=viewResult.count||0;
+ likes=
+  likeResult.count||0;
+
+ comments=
+  commentResult.count||0;
+
+ views=
+  viewResult.count||0;
+
+ /* ================= LIKE USERS ================= */
+
+ let likeUsers=[];
+
+ const likeUsersResult=
+  await supabaseClient
+   .from("snap_likes")
+   .select("user_id")
+   .eq(
+    "snap_id",
+    item.id
+   );
+
+ if(likeUsersResult.error){
+
+  console.error(
+   "LIKE USERS:",
+   likeUsersResult.error
+  );
+
+ }else{
+
+  const ids=[
+   ...new Set(
+    (likeUsersResult.data||[])
+     .map(x=>x.user_id)
+     .filter(Boolean)
+   )
+  ];
+
+  if(ids.length){
+
+   const {
+    data,
+    error
+   }=
+    await supabaseClient
+     .from("profiles")
+     .select(
+      "id,display_name"
+     )
+     .in(
+      "id",
+      ids
+     );
+
+   if(error)
+    console.error(
+     "LIKE USER PROFILES:",
+     error
+    );
+
+   likeUsers=
+    data||[];
+  }
+ }
+
+ /* ================= CURRENT USER LIKE ================= */
 
  let liked=false;
 
  if(currentUser){
 
-  const {data,error}=await supabaseClient
-   .from("snap_likes")
-   .select("id")
-   .eq("snap_id",item.id)
-   .eq("user_id",currentUser.id)
-   .maybeSingle();
+  const {
+   data,
+   error
+  }=
+   await supabaseClient
+    .from("snap_likes")
+    .select("id")
+    .eq(
+     "snap_id",
+     item.id
+    )
+    .eq(
+     "user_id",
+     currentUser.id
+    )
+    .maybeSingle();
 
   if(error)
-   console.error("LIKE CHECK:",error);
+   console.error(
+    "LIKE CHECK:",
+    error
+   );
 
   liked=!!data;
  }
 
- const date=item.created_at
-  ?new Date(item.created_at).toLocaleDateString()
-  :"";
+ const date=
+  item.created_at
+   ?new Date(
+    item.created_at
+   ).toLocaleDateString()
+   :"";
 
- const time=item.created_at
-  ?new Date(item.created_at).toLocaleTimeString([],{
-    hour:"2-digit",
-    minute:"2-digit"
-   })
-  :"";
+ const time=
+  item.created_at
+   ?new Date(
+    item.created_at
+   ).toLocaleTimeString(
+    [],
+    {
+     hour:"2-digit",
+     minute:"2-digit"
+    }
+   )
+   :"";
 
  const location=
-  Number(item.latitude).toFixed(5)+
+  Number(item.latitude)
+   .toFixed(5)+
   ", "+
-  Number(item.longitude).toFixed(5);
+  Number(item.longitude)
+   .toFixed(5);
 
- document.getElementById("galleryDetails").innerHTML=`
+ const likeText=
+  likeUsers.length
+   ?`
+    ❤️ Liked by:
+    ${likeUsers
+      .slice(0,8)
+      .map(p=>
+       escapeHtml(
+        p.display_name||
+        "User"
+       )
+      )
+      .join(", ")
+    }
+    ${
+     likeUsers.length>8
+      ?" + "+
+       (likeUsers.length-8)+
+       " more"
+      :""
+    }
+   `
+   :"";
+
+ document.getElementById(
+  "galleryDetails"
+ ).innerHTML=`
 
   <div>
    <b>👤 Posted by:</b>
-   ${escapeHtml(profile?.display_name||"User")}
+   ${escapeHtml(
+    profile?.display_name||
+    "User"
+   )}
   </div>
 
   <div>
@@ -2091,35 +3593,70 @@ async function loadPostDetails(item){
   </div>
 
   <div>
-   <b>📅 Date:</b> ${date}
+   <b>📅 Date:</b>
+   ${date}
    &nbsp;
-   <b>🕐 Time:</b> ${time}
+   <b>🕐 Time:</b>
+   ${time}
   </div>
 
   ${
    item.description
-   ?`
-    <div>
-     <b>📝 Description:</b>
-     ${escapeHtml(item.description)}
-    </div>
-   `
-   :""
+    ?`
+     <div>
+      <b>📝 Description:</b>
+      ${escapeHtml(
+       item.description
+      )}
+     </div>
+    `
+    :""
   }
+
+  <div id="likeUsers">
+   ${likeText}
+  </div>
  `;
 
- document.getElementById("likeCount").textContent=likes;
- document.getElementById("commentCount").textContent=comments;
- document.getElementById("viewCount").textContent=views;
+ document.getElementById(
+  "likeCount"
+ ).textContent=
+  likes;
 
- document.getElementById("likeBtn")
-  .classList.toggle("liked",liked);
+ document.getElementById(
+  "commentCount"
+ ).textContent=
+  comments;
 
- document.getElementById("commentsList")
-  .style.display="none";
+ document.getElementById(
+  "viewCount"
+ ).textContent=
+  views;
 
- document.getElementById("commentBox")
-  .style.display="none";
+ document.getElementById(
+  "likeBtn"
+ ).classList.toggle(
+  "liked",
+  liked
+ );
+
+ document.getElementById(
+  "commentsList"
+ ).style.display=
+  "none";
+
+ document.getElementById(
+  "commentBox"
+ ).style.display=
+  "none";
+
+ document.getElementById(
+  "commentInput"
+ ).value="";
+
+ delete document.getElementById(
+  "commentInput"
+ ).dataset.parentId;
 
  await addViewOnce(item);
 }
@@ -2130,219 +3667,574 @@ async function loadPostDetails(item){
 
 async function addViewOnce(item){
 
- if(!currentUser)return;
-
- const {error}=await supabaseClient
-  .from("snap_views")
-  .insert({
-   snap_id:item.id,
-   user_id:currentUser.id
-  });
-
- if(error){
+ if(!currentUser)
   return;
- }
 
- const {count}=await supabaseClient
-  .from("snap_views")
-  .select("*",{count:"exact",head:true})
-  .eq("snap_id",item.id);
+ /*
+  Don't block the viewer if a view
+  already exists / RLS prevents duplicate.
+ */
 
- document.getElementById("viewCount").textContent=count||0;
+ const {error}=
+  await supabaseClient
+   .from("snap_views")
+   .insert({
+    snap_id:item.id,
+    user_id:currentUser.id
+   });
+
+ if(error)
+  return;
+
+ const {count}=
+  await supabaseClient
+   .from("snap_views")
+   .select(
+    "*",
+    {
+     count:"exact",
+     head:true
+    }
+   )
+   .eq(
+    "snap_id",
+    item.id
+   );
+
+ document.getElementById(
+  "viewCount"
+ ).textContent=
+  count||0;
 }
 
 /* =========================================================
    LIKE
 ========================================================= */
 
-document.getElementById("likeBtn").onclick=async()=>{
+document.getElementById(
+ "likeBtn"
+).onclick=async()=>{
 
  if(!currentUser){
+
   openAuth("login");
   return;
  }
 
- if(!currentGallerySnap)return;
+ if(!currentGallerySnap)
+  return;
 
- const snapId=currentGallerySnap.id;
+ const snapId=
+  currentGallerySnap.id;
 
- const {data:existing,error:checkError}=await supabaseClient
-  .from("snap_likes")
-  .select("id")
-  .eq("snap_id",snapId)
-  .eq("user_id",currentUser.id)
-  .maybeSingle();
+ const {
+  data:existing,
+  error:checkError
+ }=
+  await supabaseClient
+   .from("snap_likes")
+   .select("id")
+   .eq(
+    "snap_id",
+    snapId
+   )
+   .eq(
+    "user_id",
+    currentUser.id
+   )
+   .maybeSingle();
 
  if(checkError){
-  console.error("LIKE CHECK:",checkError);
-  showStatus("Like check failed.");
+
+  console.error(
+   "LIKE CHECK:",
+   checkError
+  );
+
+  showStatus(
+   "Like check failed."
+  );
+
   return;
  }
 
  if(existing){
 
-  const {error}=await supabaseClient
-   .from("snap_likes")
-   .delete()
-   .eq("id",existing.id);
+  const {error}=
+   await supabaseClient
+    .from("snap_likes")
+    .delete()
+    .eq(
+     "id",
+     existing.id
+    );
 
   if(error){
-   console.error("UNLIKE:",error);
-   showStatus("Like remove nahi hua.");
+
+   console.error(
+    "UNLIKE:",
+    error
+   );
+
+   showStatus(
+    "Like remove nahi hua."
+   );
+
    return;
   }
 
  }else{
 
-  const {error}=await supabaseClient
-   .from("snap_likes")
-   .insert({
-    snap_id:snapId,
-    user_id:currentUser.id
-   });
+  const {error}=
+   await supabaseClient
+    .from("snap_likes")
+    .insert({
+     snap_id:snapId,
+     user_id:currentUser.id
+    });
 
   if(error){
-   console.error("LIKE:",error);
-   showStatus("Like nahi hua.");
+
+   console.error(
+    "LIKE:",
+    error
+   );
+
+   showStatus(
+    "Like nahi hua."
+   );
+
    return;
   }
  }
 
- await loadPostDetails(currentGallerySnap);
+ await loadPostDetails(
+  currentGallerySnap
+ );
 };
 
 /* =========================================================
    COMMENTS
 ========================================================= */
 
-document.getElementById("commentBtn").onclick=async()=>{
+/*
+  Anyone can VIEW comments.
+  Login is required only for posting/replying.
+ */
 
- if(!currentUser){
-  openAuth("login");
+document.getElementById(
+ "commentBtn"
+).onclick=async()=>{
+
+ if(!currentGallerySnap)
   return;
- }
 
- if(!currentGallerySnap)return;
+ const list=
+  document.getElementById(
+   "commentsList"
+  );
 
- const box=document.getElementById("commentBox");
- const list=document.getElementById("commentsList");
+ const box=
+  document.getElementById(
+   "commentBox"
+  );
 
- box.style.display=
-  box.style.display==="block"?"none":"block";
+ const opening=
+  list.style.display!=="block";
 
- if(box.style.display==="block"){
-  await loadComments(currentGallerySnap.id);
+ if(opening){
+
+  list.style.display=
+   "block";
+
+  await loadComments(
+   currentGallerySnap.id
+  );
+
+  if(currentUser){
+
+   box.style.display=
+    "block";
+
+  }else{
+
+   box.style.display=
+    "none";
+
+   showStatus(
+    "Comment karne ke liye login karo.",
+    2500
+   );
+  }
+
  }else{
-  list.style.display="none";
+
+  list.style.display=
+   "none";
+
+  box.style.display=
+   "none";
  }
 };
 
 async function loadComments(snapId){
 
- const {data,error}=await supabaseClient
-  .from("snap_comments")
-  .select("*")
-  .eq("snap_id",snapId)
-  .order("created_at",{ascending:true});
+ const {
+  data,
+  error
+ }=
+  await supabaseClient
+   .from("snap_comments")
+   .select("*")
+   .eq(
+    "snap_id",
+    snapId
+   )
+   .order(
+    "created_at",
+    {
+     ascending:true
+    }
+   );
 
  if(error){
-  console.error("COMMENTS:",error);
-  showStatus("Comments load nahi hue.");
+
+  console.error(
+   "COMMENTS:",
+   error
+  );
+
+  showStatus(
+   "Comments load nahi hue: "+
+   (
+    error.message||
+    "database error"
+   ),
+   5000
+  );
+
   return;
  }
 
- const list=document.getElementById("commentsList");
+ const list=
+  document.getElementById(
+   "commentsList"
+  );
 
- list.style.display="block";
+ list.style.display=
+  "block";
 
  if(!data?.length){
-  list.innerHTML="<div>No comments yet.</div>";
+
+  list.innerHTML=
+   `<div style="color:#aaa;padding:8px">
+      No comments yet.
+    </div>`;
+
   return;
  }
 
  const userIds=[
-  ...new Set(data.map(x=>x.user_id))
+  ...new Set(
+   data
+    .map(x=>x.user_id)
+    .filter(Boolean)
+  )
  ];
 
  let profiles=[];
 
  if(userIds.length){
 
-  const result=await supabaseClient
-   .from("profiles")
-   .select("id,display_name")
-   .in("id",userIds);
+  const result=
+   await supabaseClient
+    .from("profiles")
+    .select(
+     "id,display_name"
+    )
+    .in(
+     "id",
+     userIds
+    );
 
   if(result.error)
-   console.error("COMMENT PROFILES:",result.error);
+   console.error(
+    "COMMENT PROFILES:",
+    result.error
+   );
 
-  profiles=result.data||[];
+  profiles=
+   result.data||[];
  }
 
  const names={};
 
  profiles.forEach(p=>{
-  names[p.id]=p.display_name;
+  names[p.id]=
+   p.display_name;
  });
 
- list.innerHTML=data.map(c=>`
+ /*
+  Recursive nested rendering.
+ */
 
-  <div class="commentRow">
+ function renderComment(
+  comment,
+  depth=0
+ ){
 
-   <div class="commentUser">
-    ${escapeHtml(names[c.user_id]||"User")}
+  const children=
+   data.filter(
+    x=>
+     String(
+      x.parent_comment_id||""
+     )===
+     String(comment.id)
+   );
+
+  const username=
+   names[comment.user_id]||
+   "User";
+
+  return `
+
+   <div
+    class="commentRow"
+    style="
+     margin-left:
+      ${Math.min(depth,4)*15}px
+    "
+   >
+
+    ${
+     depth>0
+      ?`
+       <div class="replyLabel">
+        ↳ Reply
+       </div>
+      `
+      :""
+    }
+
+    <div class="commentUser">
+     ${escapeHtml(username)}
+    </div>
+
+    <div class="commentText">
+     ${escapeHtml(
+      comment.comment_text
+     )}
+    </div>
+
+    <div class="commentTime">
+     ${
+      comment.created_at
+       ?new Date(
+        comment.created_at
+       ).toLocaleString()
+       :""
+     }
+    </div>
+
+    ${
+     currentUser
+      ?`
+       <div class="commentActions">
+        <button
+         class="replyBtn"
+         data-reply-id="${escapeHtml(comment.id)}"
+         data-reply-name="${escapeHtml(username)}"
+        >
+         ↩ Reply
+        </button>
+       </div>
+      `
+      :""
+    }
+
+    ${
+     children.length
+      ?children
+       .map(child=>
+        renderComment(
+         child,
+         depth+1
+        )
+       )
+       .join("")
+      :""
+    }
+
    </div>
+  `;
+ }
 
-   <div>
-    ${escapeHtml(c.comment_text)}
-   </div>
+ const roots=
+  data.filter(
+   c=>!c.parent_comment_id
+  );
 
-   <div class="commentTime">
-    ${new Date(c.created_at).toLocaleString()}
-   </div>
+ /*
+  If malformed/orphaned reply exists,
+  don't hide it.
+ */
 
-  </div>
+ const rootHtml=
+  roots
+   .map(c=>renderComment(c))
+   .join("");
 
- `).join("");
+ const rootIds=
+  new Set(
+   roots.map(
+    c=>String(c.id)
+   )
+  );
+
+ const orphanHtml=
+  data
+   .filter(
+    c=>
+     c.parent_comment_id&&
+     !rootIds.has(
+      String(c.parent_comment_id)
+     )
+   )
+   .map(c=>renderComment(c))
+   .join("");
+
+ list.innerHTML=
+  rootHtml+
+  orphanHtml;
+
+ list.querySelectorAll(
+  ".replyBtn"
+ ).forEach(btn=>{
+
+  btn.onclick=()=>{
+
+   if(!currentUser){
+
+    openAuth("login");
+    return;
+   }
+
+   const parentId=
+    btn.dataset.replyId;
+
+   const name=
+    btn.dataset.replyName;
+
+   const input=
+    document.getElementById(
+     "commentInput"
+    );
+
+   input.value=
+    "@"+name+" ";
+
+   input.dataset.parentId=
+    parentId;
+
+   document.getElementById(
+    "commentBox"
+   ).style.display=
+    "block";
+
+   input.focus();
+
+   showStatus(
+    "Reply likho aur Send dabao.",
+    2500
+   );
+  };
+ });
 }
 
-document.getElementById("sendCommentBtn").onclick=async()=>{
+/* =========================================================
+   SEND COMMENT / REPLY
+========================================================= */
+
+document.getElementById(
+ "sendCommentBtn"
+).onclick=async()=>{
 
  if(!currentUser){
+
   openAuth("login");
   return;
  }
 
- if(!currentGallerySnap)return;
+ if(!currentGallerySnap)
+  return;
 
- const input=document.getElementById("commentInput");
- const text=input.value.trim();
+ const input=
+  document.getElementById(
+   "commentInput"
+  );
+
+ const text=
+  input.value.trim();
 
  if(!text){
-  showStatus("Comment likho.");
+
+  showStatus(
+   "Comment likho."
+  );
+
   return;
  }
 
- if(text.split(/\s+/).length>250){
-  showStatus("Comment maximum 250 words ka hai.");
+ if(
+  text.split(/\s+/).length>250
+ ){
+
+  showStatus(
+   "Comment maximum 250 words ka hai."
+  );
+
   return;
  }
 
- const {error}=await supabaseClient
-  .from("snap_comments")
-  .insert({
-   snap_id:currentGallerySnap.id,
-   user_id:currentUser.id,
-   comment_text:text
-  });
+ const parentId=
+  input.dataset.parentId||
+  null;
+
+ const insertData={
+  snap_id:
+   currentGallerySnap.id,
+  user_id:
+   currentUser.id,
+  comment_text:
+   text
+ };
+
+ if(parentId){
+
+  insertData.parent_comment_id=
+   parentId;
+ }
+
+ const {error}=
+  await supabaseClient
+   .from("snap_comments")
+   .insert(
+    insertData
+   );
 
  if(error){
 
-  console.error("COMMENT INSERT:",error);
+  console.error(
+   "COMMENT INSERT:",
+   error
+  );
 
   showStatus(
    "Comment post nahi hua: "+
-   (error.message||"database error"),
+   (
+    error.message||
+    "database error"
+   ),
    5000
   );
 
@@ -2351,17 +4243,60 @@ document.getElementById("sendCommentBtn").onclick=async()=>{
 
  input.value="";
 
- await loadComments(currentGallerySnap.id);
- await loadPostDetails(currentGallerySnap);
+ delete input.dataset.parentId;
+
+ await loadComments(
+  currentGallerySnap.id
+ );
+
+ await loadPostDetails(
+  currentGallerySnap
+ );
+
+ /*
+  loadPostDetails hides comments.
+  Open them again after refresh.
+ */
+
+ document.getElementById(
+  "commentsList"
+ ).style.display=
+  "block";
+
+ document.getElementById(
+  "commentBox"
+ ).style.display=
+  "block";
+
+ showStatus(
+  parentId
+   ?"↩️ Reply posted!"
+   :"💬 Comment posted!"
+ );
 };
 
-document.getElementById("cancelCommentBtn").onclick=()=>{
+document.getElementById(
+ "cancelCommentBtn"
+).onclick=()=>{
 
- document.getElementById("commentBox")
-  .style.display="none";
+ const input=
+  document.getElementById(
+   "commentInput"
+  );
 
- document.getElementById("commentsList")
-  .style.display="none";
+ input.value="";
+
+ delete input.dataset.parentId;
+
+ document.getElementById(
+  "commentBox"
+ ).style.display=
+  "none";
+
+ document.getElementById(
+  "commentsList"
+ ).style.display=
+  "none";
 };
 
 /* =========================================================
@@ -2370,46 +4305,80 @@ document.getElementById("cancelCommentBtn").onclick=()=>{
 
 let touchStartX=0;
 
-const galleryBox=document.getElementById("galleryImageBox");
+const galleryBox=
+ document.getElementById(
+  "galleryImageBox"
+ );
 
-galleryBox.addEventListener("touchstart",e=>{
- touchStartX=e.changedTouches[0].clientX;
-},{passive:true});
-
-galleryBox.addEventListener("touchend",async e=>{
-
- const dx=e.changedTouches[0].clientX-touchStartX;
-
- if(Math.abs(dx)<50)return;
-
- if(dx<0){
-
-  galleryIndex=
-   (galleryIndex+1)%galleryItems.length;
-
- }else{
-
-  galleryIndex=
-   (galleryIndex-1+galleryItems.length)%
-   galleryItems.length;
+galleryBox.addEventListener(
+ "touchstart",
+ e=>{
+  touchStartX=
+   e.changedTouches[0].clientX;
+ },
+ {
+  passive:true
  }
+);
 
- await renderGalleryItem();
+galleryBox.addEventListener(
+ "touchend",
+ async e=>{
 
-},{passive:true});
+  const dx=
+   e.changedTouches[0].clientX-
+   touchStartX;
+
+  if(Math.abs(dx)<50)
+   return;
+
+  if(dx<0){
+
+   galleryIndex=
+    (galleryIndex+1)%
+    galleryItems.length;
+
+  }else{
+
+   galleryIndex=
+    (galleryIndex-1+
+     galleryItems.length)%
+    galleryItems.length;
+  }
+
+  await renderGalleryItem();
+
+ },
+ {
+  passive:true
+ }
+);
 
 /* =========================================================
    CLOSE VIEWER
 ========================================================= */
 
-document.getElementById("closeGalleryBtn").onclick=()=>{
+document.getElementById(
+ "closeGalleryBtn"
+).onclick=()=>{
 
- document.getElementById("galleryVideo").pause();
+ document.getElementById(
+  "galleryVideo"
+ ).pause();
 
- document.getElementById("commentsList").style.display="none";
- document.getElementById("commentBox").style.display="none";
+ document.getElementById(
+  "commentsList"
+ ).style.display=
+  "none";
 
- galleryModal.style.display="none";
+ document.getElementById(
+  "commentBox"
+ ).style.display=
+  "none";
+
+ galleryModal.style.display=
+  "none";
+
  currentGallerySnap=null;
 };
 
@@ -2417,291 +4386,552 @@ document.getElementById("closeGalleryBtn").onclick=()=>{
    SOCKET ROOM
 ========================================================= */
 
-function createMyRoom(){
+socket.on(
+ "connect",
+ async()=>{
 
- if(myRoom)return myRoom;
+  console.log(
+   "Socket connected:",
+   socket.id
+  );
 
- const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  if(currentUser){
 
- let result="";
-
- for(let i=0;i<6;i++){
-  result+=chars[Math.floor(Math.random()*chars.length)];
+   await joinOwnCallRoom();
+  }
  }
+);
 
- myRoom=result;
+socket.on(
+ "room-joined",
+ data=>{
 
- return myRoom;
-}
+  console.log(
+   "ROOM JOINED:",
+   data
+  );
 
-function joinOwnCallRoom(){
+  if(data?.roomId){
 
- if(!currentUser)return;
+   myRoom=
+    data.roomId;
 
- const room=createMyRoom();
+   document.getElementById(
+    "myCallId"
+   ).textContent=
+    myRoom;
+  }
+ }
+);
 
- socket.emit("join-room",room);
+socket.on(
+ "room-full",
+ ()=>{
 
- console.log("Joined call room:",room);
-}
-
-socket.on("connect",()=>{
-
- console.log("Socket connected:",socket.id);
-
- if(currentUser)
-  joinOwnCallRoom();
-});
-
-socket.on("room-joined",data=>{
-
- console.log("ROOM JOINED:",data);
-
- if(data?.roomId)
-  myRoom=data.roomId;
-});
-
-socket.on("room-full",()=>{
- showStatus("Call room full hai.",3500);
-});
+  showStatus(
+   "Call room full hai.",
+   3500
+  );
+ }
+);
 
 /* =========================================================
-   CALL OUTGOING
+   CALL PANEL
+========================================================= */
+
+document.getElementById(
+ "copyCallIdBtn"
+).onclick=async()=>{
+
+ if(!myRoom){
+
+  showStatus(
+   "Call ID abhi ready nahi hai."
+  );
+
+  return;
+ }
+
+ try{
+
+  await navigator.clipboard.writeText(
+   myRoom
+  );
+
+  showStatus(
+   "✅ Call ID copied!"
+  );
+
+ }catch(error){
+
+  showStatus(
+   "Call ID: "+myRoom,
+   5000
+  );
+ }
+};
+
+document.getElementById(
+ "callUserBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ const input=
+  document.getElementById(
+   "targetCallId"
+  );
+
+ const room=
+  input.value
+   .trim()
+   .toUpperCase();
+
+ if(!room){
+
+  showStatus(
+   "Dusre user ka Call ID enter karo."
+  );
+
+  return;
+ }
+
+ if(room===myRoom){
+
+  showStatus(
+   "Apne hi Call ID par call nahi kar sakte."
+  );
+
+  return;
+ }
+
+ await startCallToRoom(
+  room
+ );
+};
+
+/* =========================================================
+   OUTGOING CALL
 ========================================================= */
 
 async function startCallToRoom(room){
 
  if(!currentUser){
+
   openAuth("login");
   return;
  }
 
  if(!room){
-  showStatus("Room ID nahi mila.");
+
+  showStatus(
+   "Room ID nahi mila."
+  );
+
   return;
  }
 
- joinOwnCallRoom();
+ const ownRoom=
+  await joinOwnCallRoom();
 
- showStatus("Calling "+room+"...",4000);
+ if(!ownRoom){
 
- socket.emit("call-user",{
-  targetRoom:String(room).trim().toUpperCase(),
-  callerRoom:myRoom
- });
-}
+  showStatus(
+   "Apna Call ID ready nahi hai.",
+   4000
+  );
 
-socket.on("call-ringing",data=>{
+  return;
+ }
 
- showStatus(
-  "📞 Calling room "+(data?.roomId||"")+"...",
-  5000
- );
-});
-
-socket.on("call-unavailable",data=>{
+ room=
+  String(room)
+   .trim()
+   .toUpperCase();
 
  showStatus(
-  "Room "+(data?.roomId||"")+" available nahi hai.",
+  "Calling "+room+"...",
   4000
  );
-});
+
+ socket.emit(
+  "call-user",
+  {
+   targetRoom:room,
+   callerRoom:ownRoom
+  }
+ );
+
+ /*
+  Don't start camera until receiver accepts.
+ */
+}
+
+socket.on(
+ "call-ringing",
+ data=>{
+
+  showStatus(
+   "📞 Calling room "+
+   (data?.roomId||"")+
+   "...",
+   5000
+  );
+ }
+);
+
+socket.on(
+ "call-unavailable",
+ data=>{
+
+  showStatus(
+   "Room "+
+   (data?.roomId||"")+
+   " available nahi hai.",
+   4000
+  );
+ }
+);
 
 /* =========================================================
    INCOMING CALL
 ========================================================= */
 
-socket.on("incoming-call",data=>{
+socket.on(
+ "incoming-call",
+ data=>{
 
- incomingCallerId=data.callerId;
- incomingCallerRoom=data.callerRoom||data.targetRoom||"";
+  incomingCallerId=
+   data.callerId;
 
- document.getElementById("callerText").textContent=
-  incomingCallerRoom
-   ?"📞 Room "+incomingCallerRoom+" is calling you"
-   :"📞 Incoming call...";
+  incomingCallerRoom=
+   data.callerRoom||
+   data.targetRoom||
+   "";
 
- document.getElementById("callOverlay")
-  .style.display="flex";
-});
+  document.getElementById(
+   "callerText"
+  ).textContent=
+   incomingCallerRoom
+    ?"📞 Room "+
+     incomingCallerRoom+
+     " is calling you"
+    :"📞 Incoming call...";
+
+  document.getElementById(
+   "callOverlay"
+  ).style.display=
+   "flex";
+ }
+);
 
 /* =========================================================
-   ACCEPT / REJECT
+   ACCEPT CALL
 ========================================================= */
 
-document.getElementById("acceptCallBtn").onclick=async()=>{
+document.getElementById(
+ "acceptCallBtn"
+).onclick=async()=>{
 
- if(!incomingCallerId)return;
+ if(!incomingCallerId)
+  return;
 
- const caller=incomingCallerId;
+ const caller=
+  incomingCallerId;
 
- document.getElementById("callOverlay")
-  .style.display="none";
+ document.getElementById(
+  "callOverlay"
+ ).style.display=
+  "none";
 
- currentCallPeerId=caller;
+ currentCallPeerId=
+  caller;
 
- socket.emit("accept-call",{
-  callerId:caller
- });
+ socket.emit(
+  "accept-call",
+  {
+   callerId:caller
+  }
+ );
 
- await openActiveCall(true,caller);
-
- incomingCallerId=null;
-};
-
-document.getElementById("rejectCallBtn").onclick=()=>{
-
- if(incomingCallerId){
-
-  socket.emit("reject-call",{
-   callerId:incomingCallerId
-  });
- }
-
- document.getElementById("callOverlay")
-  .style.display="none";
+ await openActiveCall(
+  true,
+  caller
+ );
 
  incomingCallerId=null;
  incomingCallerRoom=null;
 };
 
-socket.on("call-accepted",async(data)=>{
+/* =========================================================
+   REJECT CALL
+========================================================= */
 
- const peerId=data?.accepterId;
+document.getElementById(
+ "rejectCallBtn"
+).onclick=()=>{
 
- if(!peerId)return;
+ if(incomingCallerId){
 
- currentCallPeerId=peerId;
+  socket.emit(
+   "reject-call",
+   {
+    callerId:
+     incomingCallerId
+   }
+  );
+ }
 
- await openActiveCall(false,peerId);
-});
+ document.getElementById(
+  "callOverlay"
+ ).style.display=
+  "none";
 
-socket.on("call-rejected",()=>{
+ incomingCallerId=null;
+ incomingCallerRoom=null;
+};
 
- showStatus("Call rejected.",3500);
+/* =========================================================
+   CALL ACCEPTED
+========================================================= */
 
- cleanupCall();
-});
+socket.on(
+ "call-accepted",
+ async data=>{
 
-socket.on("call-ended",()=>{
+  const peerId=
+   data?.accepterId;
 
- showStatus("Call ended.",3000);
+  if(!peerId)
+   return;
 
- cleanupCall();
-});
+  currentCallPeerId=
+   peerId;
+
+  await openActiveCall(
+   false,
+   peerId
+  );
+ }
+);
+
+socket.on(
+ "call-rejected",
+ ()=>{
+
+  showStatus(
+   "Call rejected.",
+   3500
+  );
+
+  cleanupCall();
+ }
+);
+
+socket.on(
+ "call-ended",
+ ()=>{
+
+  showStatus(
+   "Call ended.",
+   3000
+  );
+
+  cleanupCall();
+ }
+);
 
 /* =========================================================
    WEBRTC
 ========================================================= */
 
-async function openActiveCall(isReceiver,peerId){
+async function openActiveCall(
+ isReceiver,
+ peerId
+){
 
  try{
 
-  currentCallPeerId=peerId;
+  currentCallPeerId=
+   peerId;
 
   localCallStream=
-   await navigator.mediaDevices.getUserMedia({
-    video:true,
-    audio:true
-   });
+   await navigator.mediaDevices
+    .getUserMedia({
+     video:true,
+     audio:true
+    });
 
-  document.getElementById("localVideo")
-   .srcObject=localCallStream;
+  document.getElementById(
+   "localVideo"
+  ).srcObject=
+   localCallStream;
 
   remoteCallStream=
    new MediaStream();
 
-  document.getElementById("remoteVideo")
-   .srcObject=remoteCallStream;
+  document.getElementById(
+   "remoteVideo"
+  ).srcObject=
+   remoteCallStream;
 
-  document.getElementById("activeCall")
-   .style.display="block";
+  document.getElementById(
+   "activeCall"
+  ).style.display=
+   "block";
 
-  document.getElementById("callStatus")
-   .textContent="Connecting...";
+  document.getElementById(
+   "callStatus"
+  ).textContent=
+   "Connecting...";
 
   peerConnection=
    new RTCPeerConnection({
+
     iceServers:[
      {
-      urls:"stun:stun.l.google.com:19302"
+      urls:
+       "stun:stun.l.google.com:19302"
      },
      {
-      urls:"stun:stun1.l.google.com:19302"
+      urls:
+       "stun:stun1.l.google.com:19302"
      }
     ]
    });
 
-  localCallStream.getTracks().forEach(track=>{
-   peerConnection.addTrack(
-    track,
-    localCallStream
-   );
-  });
+  localCallStream
+   .getTracks()
+   .forEach(track=>{
+
+    peerConnection.addTrack(
+     track,
+     localCallStream
+    );
+   });
 
   peerConnection.ontrack=e=>{
 
-   e.streams[0].getTracks().forEach(track=>{
-    remoteCallStream.addTrack(track);
-   });
+   const stream=
+    e.streams?.[0];
 
-   document.getElementById("callStatus")
-    .textContent="Connected";
-  };
+   if(stream){
 
-  peerConnection.onicecandidate=e=>{
+    stream
+     .getTracks()
+     .forEach(track=>{
 
-   if(e.candidate){
+      if(
+       !remoteCallStream
+        .getTracks()
+        .some(
+         t=>t.id===track.id
+        )
+      ){
 
-    socket.emit("webrtc-signal",{
-     targetId:peerId,
-     signal:{
-      type:"ice-candidate",
-      candidate:e.candidate
-     }
-    });
-   }
-  };
-
-  peerConnection.onconnectionstatechange=()=>{
-
-   const state=peerConnection.connectionState;
-
-   console.log("WebRTC:",state);
-
-   if(state==="connected"){
-    document.getElementById("callStatus")
-     .textContent="Connected";
+       remoteCallStream
+        .addTrack(track);
+      }
+     });
    }
 
-   if(
-    state==="failed"||
-    state==="disconnected"||
-    state==="closed"
-   ){
-    cleanupCall();
-   }
+   document.getElementById(
+    "callStatus"
+   ).textContent=
+    "Connected";
   };
+
+  peerConnection.onicecandidate=
+   e=>{
+
+    if(e.candidate){
+
+     socket.emit(
+      "webrtc-signal",
+      {
+       targetId:peerId,
+       signal:{
+        type:
+         "ice-candidate",
+        candidate:
+         e.candidate
+       }
+      }
+     );
+    }
+   };
+
+  peerConnection.onconnectionstatechange=
+   ()=>{
+
+    if(!peerConnection)
+     return;
+
+    const state=
+     peerConnection
+      .connectionState;
+
+    console.log(
+     "WebRTC:",
+     state
+    );
+
+    if(state==="connected"){
+
+     document.getElementById(
+      "callStatus"
+     ).textContent=
+      "Connected";
+    }
+
+    if(
+     state==="failed"||
+     state==="disconnected"||
+     state==="closed"
+    ){
+
+     cleanupCall();
+    }
+   };
+
+  /*
+   Caller creates offer.
+   Receiver waits for offer.
+  */
 
   if(!isReceiver){
 
-   const offer=await peerConnection.createOffer();
+   const offer=
+    await peerConnection
+     .createOffer();
 
-   await peerConnection.setLocalDescription(offer);
+   await peerConnection
+    .setLocalDescription(
+     offer
+    );
 
-   socket.emit("webrtc-signal",{
-    targetId:peerId,
-    signal:{
-     type:"offer",
-     sdp:offer
+   socket.emit(
+    "webrtc-signal",
+    {
+     targetId:peerId,
+     signal:{
+      type:"offer",
+      sdp:offer
+     }
     }
-   });
+   );
   }
 
  }catch(error){
 
-  console.error("CALL MEDIA:",error);
+  console.error(
+   "CALL MEDIA:",
+   error
+  );
 
   showStatus(
    "Camera/mic permission required hai.",
@@ -2713,111 +4943,177 @@ async function openActiveCall(isReceiver,peerId){
 }
 
 /* =========================================================
-   WEBRTC SIGNAL RECEIVE
+   WEBRTC SIGNAL
 ========================================================= */
 
-socket.on("webrtc-signal",async(data)=>{
+socket.on(
+ "webrtc-signal",
+ async data=>{
 
- const signal=data?.signal;
- const senderId=data?.senderId;
+  const signal=
+   data?.signal;
 
- if(!signal||!senderId)return;
+  const senderId=
+   data?.senderId;
 
- try{
+  if(
+   !signal||
+   !senderId
+  )return;
 
-  if(!peerConnection){
+  try{
 
-   currentCallPeerId=senderId;
+   /*
+    If receiver accepted the call,
+    peerConnection already exists.
+   */
 
-   await openActiveCall(true,senderId);
-  }
+   if(!peerConnection){
 
-  if(signal.type==="offer"){
+    currentCallPeerId=
+     senderId;
 
-   await peerConnection.setRemoteDescription(
-    new RTCSessionDescription(signal.sdp)
-   );
-
-   const answer=
-    await peerConnection.createAnswer();
-
-   await peerConnection.setLocalDescription(answer);
-
-   socket.emit("webrtc-signal",{
-    targetId:senderId,
-    signal:{
-     type:"answer",
-     sdp:answer
-    }
-   });
-
-  }else if(signal.type==="answer"){
-
-   await peerConnection.setRemoteDescription(
-    new RTCSessionDescription(signal.sdp)
-   );
-
-  }else if(signal.type==="ice-candidate"){
-
-   if(signal.candidate){
-
-    await peerConnection.addIceCandidate(
-     new RTCIceCandidate(signal.candidate)
+    await openActiveCall(
+     true,
+     senderId
     );
    }
+
+   if(signal.type==="offer"){
+
+    await peerConnection
+     .setRemoteDescription(
+      new RTCSessionDescription(
+       signal.sdp
+      )
+     );
+
+    const answer=
+     await peerConnection
+      .createAnswer();
+
+    await peerConnection
+     .setLocalDescription(
+      answer
+     );
+
+    socket.emit(
+     "webrtc-signal",
+     {
+      targetId:senderId,
+      signal:{
+       type:"answer",
+       sdp:answer
+      }
+     }
+    );
+
+   }else if(
+    signal.type==="answer"
+   ){
+
+    await peerConnection
+     .setRemoteDescription(
+      new RTCSessionDescription(
+       signal.sdp
+      )
+     );
+
+   }else if(
+    signal.type==="ice-candidate"
+   ){
+
+    if(signal.candidate){
+
+     await peerConnection
+      .addIceCandidate(
+       new RTCIceCandidate(
+        signal.candidate
+       )
+      );
+    }
+   }
+
+  }catch(error){
+
+   console.error(
+    "WEBRTC SIGNAL:",
+    error
+   );
   }
-
- }catch(error){
-
-  console.error("WEBRTC SIGNAL:",error);
- }
-});
+ });
 
 /* =========================================================
    CALL CONTROLS
 ========================================================= */
 
-document.getElementById("muteCallBtn").onclick=()=>{
+document.getElementById(
+ "muteCallBtn"
+).onclick=()=>{
 
- if(!localCallStream)return;
+ if(!localCallStream)
+  return;
 
- const audio=localCallStream.getAudioTracks()[0];
+ const audio=
+  localCallStream
+   .getAudioTracks()[0];
 
  if(!audio)return;
 
- audio.enabled=!audio.enabled;
+ audio.enabled=
+  !audio.enabled;
 
- callMuted=!audio.enabled;
+ callMuted=
+  !audio.enabled;
 
- document.getElementById("muteCallBtn")
-  .textContent=
-  callMuted?"🔇":"🎙️";
+ document.getElementById(
+  "muteCallBtn"
+ ).textContent=
+  callMuted
+   ?"🔇"
+   :"🎙️";
 };
 
-document.getElementById("cameraCallBtn").onclick=()=>{
+document.getElementById(
+ "cameraCallBtn"
+).onclick=()=>{
 
- if(!localCallStream)return;
+ if(!localCallStream)
+  return;
 
- const video=localCallStream.getVideoTracks()[0];
+ const video=
+  localCallStream
+   .getVideoTracks()[0];
 
  if(!video)return;
 
- video.enabled=!video.enabled;
+ video.enabled=
+  !video.enabled;
 
- callCameraOff=!video.enabled;
+ callCameraOff=
+  !video.enabled;
 
- document.getElementById("cameraCallBtn")
-  .textContent=
-  callCameraOff?"🚫":"📹";
+ document.getElementById(
+  "cameraCallBtn"
+ ).textContent=
+  callCameraOff
+   ?"🚫"
+   :"📹";
 };
 
-document.getElementById("endCallBtn").onclick=()=>{
+document.getElementById(
+ "endCallBtn"
+).onclick=()=>{
 
  if(currentCallPeerId){
 
-  socket.emit("end-call",{
-   targetId:currentCallPeerId
-  });
+  socket.emit(
+   "end-call",
+   {
+    targetId:
+     currentCallPeerId
+   }
+  );
  }
 
  cleanupCall();
@@ -2836,111 +5132,119 @@ function cleanupCall(){
 
  if(localCallStream){
 
-  localCallStream.getTracks()
-   .forEach(track=>track.stop());
+  localCallStream
+   .getTracks()
+   .forEach(track=>{
+    track.stop();
+   });
 
   localCallStream=null;
  }
 
  remoteCallStream=null;
 
- document.getElementById("localVideo").srcObject=null;
- document.getElementById("remoteVideo").srcObject=null;
+ document.getElementById(
+  "localVideo"
+ ).srcObject=null;
 
- document.getElementById("activeCall")
-  .style.display="none";
+ document.getElementById(
+  "remoteVideo"
+ ).srcObject=null;
 
- document.getElementById("callOverlay")
-  .style.display="none";
+ document.getElementById(
+  "activeCall"
+ ).style.display=
+  "none";
+
+ document.getElementById(
+  "callOverlay"
+ ).style.display=
+  "none";
 
  currentCallPeerId=null;
+
  callMuted=false;
  callCameraOff=false;
 
- document.getElementById("muteCallBtn")
-  .textContent="🎙️";
+ document.getElementById(
+  "muteCallBtn"
+ ).textContent=
+  "🎙️";
 
- document.getElementById("cameraCallBtn")
-  .textContent="📹";
+ document.getElementById(
+  "cameraCallBtn"
+ ).textContent=
+  "📹";
 }
-
-/* =========================================================
-   SIMPLE ROOM INPUT FOR CALL
-   =========================================================
-   The call server expects a room ID. This keeps the map clean:
-   user can use browser prompt when they want to call.
-========================================================= */
-
-window.startPastSnapCall=async function(){
-
- if(!currentUser){
-  openAuth("login");
-  return;
- }
-
- const room=prompt(
-  "Jis user ko call karna hai uska Room ID enter karo:"
- );
-
- if(!room)return;
-
- await startCallToRoom(room);
-};
-
-/* =========================================================
-   OPTIONAL ACCOUNT LONG PRESS / CALL ACCESS
-   ========================================================= */
-
-document.getElementById("accountBtn")
- .addEventListener("contextmenu",e=>{
-
-  e.preventDefault();
-
-  if(currentUser)
-   window.startPastSnapCall();
- });
 
 /* =========================================================
    BROWSER BACK
 ========================================================= */
 
-window.addEventListener("popstate",()=>{
+window.addEventListener(
+ "popstate",
+ ()=>{
 
- if(cameraModal.style.display==="flex"){
-  stopCameraStream();
-  cameraModal.style.display="none";
- }
+  if(
+   cameraModal.style.display==="flex"
+  ){
 
- if(previewModal.style.display==="flex"){
-  previewModal.style.display="none";
- }
+   stopCameraStream();
 
- if(galleryModal.style.display==="flex"){
-  document.getElementById("galleryVideo").pause();
-  galleryModal.style.display="none";
- }
+   cameraModal.style.display=
+    "none";
+  }
 
- if(
-  document.getElementById("activeCall")
-   .style.display==="block"
- ){
-  cleanupCall();
+  if(
+   previewModal.style.display==="flex"
+  ){
+
+   previewModal.style.display=
+    "none";
+  }
+
+  if(
+   galleryModal.style.display==="flex"
+  ){
+
+   document.getElementById(
+    "galleryVideo"
+   ).pause();
+
+   galleryModal.style.display=
+    "none";
+  }
+
+  if(
+   document.getElementById(
+    "activeCall"
+   ).style.display==="block"
+  ){
+
+   cleanupCall();
+  }
  }
-});
+);
 
 /* =========================================================
    SOCKET ERROR
 ========================================================= */
 
-socket.on("connect_error",error=>{
+socket.on(
+ "connect_error",
+ error=>{
 
- console.error("SOCKET CONNECT ERROR:",error);
+  console.error(
+   "SOCKET CONNECT ERROR:",
+   error
+  );
 
- showStatus(
-  "Call server connection failed.",
-  4000
- );
-});
+  showStatus(
+   "Call server connection failed.",
+   4000
+  );
+ }
+);
 
 /* =========================================================
    START
@@ -2949,30 +5253,18 @@ socket.on("connect_error",error=>{
 (async()=>{
 
  await loadAuth();
+
  await loadSnaps();
 
- if(currentUser)
-  joinOwnCallRoom();
+ if(currentUser){
+
+  await createMyRoom();
+
+  await joinOwnCallRoom();
+ }
 
 })();
 </script>
 
 </body>
 </html>
-
-Ab 3 kaam karo
-
-1. GitHub → "public/index.html" → purana poora code delete → upar wala code paste → Commit changes.
-
-2. Render ko deploy hone do. Build command/start command wahi rehne do:
-
-npm install
-npm start
-
-3. Deploy ke baad pehle Register/Login → ek snap post → doosre account se snap open → Like/Comment test karna.
-
-Call test ke liye current code me Account button par long-press/right-click se Room ID prompt khulta hai. Calling user ka room ID target user ka hona chahiye.
-
-Ek important limitation: tumhare existing old snaps jinke "user_id" "NULL" hain, unmein original poster ka naam database se recover nahi ho sakta. Naye snaps me "user_id" properly save hoga aur display name dikhega.
-
-Post karne ke baad agar comment me exact Supabase error aaye, screenshot bhejna—usse RLS/policy issue hua to wahi fix karenge.
