@@ -142,6 +142,11 @@ textarea.field{height:80px;padding-top:10px;resize:none}
 .cameraModes button.active,.filterRow button.active{color:var(--green);border-color:var(--green)}
 
 #previewMedia,#viewerMedia{max-width:100%;max-height:52vh;display:block;margin:auto;border-radius:9px}
+.previewFrame{width:min(92vw,320px);height:min(70vh,560px);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:#020402;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#previewImage,#previewVideo{width:100%;height:100%;object-fit:contain;background:#000}
+#zoomControl{display:flex;align-items:center;gap:8px;width:min(92vw,420px)}
+#zoomRange{flex:1;accent-color:var(--green)}
+#zoomValue{min-width:45px;text-align:center;color:var(--green);font-weight:900}
 #viewerModal{background:#000f}
 .viewerCard{width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center}
 .viewerTop{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:2}
@@ -165,17 +170,32 @@ textarea.field{height:80px;padding-top:10px;resize:none}
 .accept{background:#0b410b!important}.reject{background:#410b0b!important;border-color:#ff4545!important;color:#ff8b8b!important}
 
 #callModal{z-index:4900;background:#000}
-.callCard{width:100%;height:100%;position:relative;background:#000}
-#remoteVideo{width:100%;height:100%;object-fit:cover;background:#050805}
-#localVideo{position:absolute;right:12px;top:12px;width:115px;height:155px;object-fit:cover;border:1px solid var(--green);border-radius:10px;background:#000;z-index:2}
-.callControls{position:absolute;left:0;right:0;bottom:25px;display:flex;justify-content:center;gap:12px;z-index:3}
-.callControls button{width:52px;height:52px;border-radius:50%;border:1px solid var(--green);background:#071007e8;color:var(--green)}
+.callCard{width:100%;height:100%;position:relative;background:#000;overflow:hidden}
+#callGrid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:5px;padding:48px 5px 92px;overflow:auto;background:#000}
+.callTile{position:relative;min-height:0;background:#050805;border:1px solid #174817;border-radius:7px;overflow:hidden;aspect-ratio:4/16;display:flex;align-items:center;justify-content:center}
+.callTile video{width:100%;height:100%;object-fit:cover;background:#000}
+.callTile .tileName{position:absolute;left:5px;bottom:5px;padding:3px 6px;border:1px solid #1d6b1d;background:#020702d9;color:var(--green);font-size:9px;z-index:2}
+.callTile .tileStatus{position:absolute;right:5px;top:5px;color:var(--green);font-size:9px;z-index:2}
+.callLocalTile{position:absolute;right:10px;top:48px;width:76px;height:118px;z-index:8;border:1px solid var(--green);border-radius:7px;overflow:hidden;background:#000}
+.callLocalTile video{width:100%;height:100%;object-fit:cover}
+.callLocalTile .tileName{position:absolute;bottom:3px;left:3px;color:var(--green);font-size:8px}
+.callHeader{position:absolute;top:0;left:0;right:0;height:44px;z-index:9;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:#020702e8;border-bottom:1px solid var(--line)}
+.callHeaderTitle{color:var(--green);font-weight:900;font-size:11px}
+#callMemberCount{color:#8fd68f;font-size:10px}
+.callControls{position:absolute;left:0;right:0;bottom:0;height:82px;display:flex;justify-content:center;align-items:center;gap:10px;z-index:10;background:linear-gradient(transparent,#020702f5 35%)}
+.callControls button{width:48px;height:48px;border-radius:50%;border:1px solid var(--green);background:#071007e8;color:var(--green)}
 .callControls .end{background:#4a0909;color:#ff7777;border-color:#ff4545}
-
-#chatBox{position:absolute;left:10px;right:10px;bottom:90px;z-index:5;background:#061006ed;border:1px solid var(--line);border-radius:12px;padding:9px;display:none}
-#chatMessages{height:130px;overflow:auto;margin-bottom:7px}
-.chatMsg{padding:5px 7px;margin:3px 0;border-radius:7px;background:#0b170b;font-size:11px}
+#addFriendCallBtn{border-color:#8aff6b}
+#chatBox{position:absolute;left:8px;right:8px;bottom:78px;z-index:20;background:#061006f5;border:1px solid var(--line);border-radius:12px;padding:9px;display:none;max-height:55vh}
+#chatMessages{height:170px;overflow:auto;margin-bottom:7px}
+.chatMsg{padding:6px 8px;margin:4px 0;border-radius:7px;background:#0b170b;font-size:11px}
 .chatMine{text-align:right;color:var(--green)}
+.chatMedia{max-width:180px;max-height:180px;border:1px solid var(--line);border-radius:7px;margin-top:4px}
+#callChatFile{display:none}
+#uploadProgress{margin-top:10px;border:1px solid var(--line);border-radius:10px;background:#020702;padding:10px;display:none}
+#uploadProgressBar{height:8px;background:#0b240b;border:1px solid #194619;border-radius:8px;overflow:hidden}
+#uploadProgressFill{height:100%;width:0;background:var(--green);box-shadow:0 0 12px #39ff14;transition:width .12s}
+#uploadProgressText{margin-top:7px;color:var(--green);font-size:10px;line-height:1.5;white-space:pre-wrap}
 
 .hidden{display:none!important}
 .spin{animation:spin 1s linear infinite}
@@ -200,19 +220,33 @@ textarea.field{height:80px;padding-top:10px;resize:none}
 
   <div id="bottomNav">
     <button class="navBtn active" id="mapNav"><span class="navIcon">🗺️</span><span>MAP</span></button>
-    <button class="navBtn" id="exploreNav"><span class="navIcon">👻</span><span>EXPLORE</span></button>
+    <button class="navBtn" id="chatNav"><span class="navIcon">💬</span><span>CHAT</span></button>
     <button class="navBtn cameraNav" id="cameraNav"><span class="navIcon">📸</span><span>SNAP</span></button>
-    <button class="navBtn" id="roomNav"><span class="navIcon">📞</span><span>CALL</span></button>
+    <button class="navBtn" id="joinNav"><span class="navIcon">🛡️</span><span>JOIN ROOM</span></button>
+    <button class="navBtn" id="myRoomNav"><span class="navIcon">🆔</span><span>MY ROOM ID</span></button>
     <button class="navBtn" id="accountNav"><span class="navIcon">👤</span><span>ACCOUNT</span></button>
   </div>
 
   <div id="roomPanel" class="panel hidden">
-    <div class="panelHeader"><div class="panelTitle">📞 MY ROOM ID</div><button class="closeX" data-close="roomPanel">×</button></div>
-    <div class="muted">Permanent Call ID — generated once for this account.</div>
+    <div class="panelHeader"><div class="panelTitle">🆔 MY PERMANENT ROOM ID</div><button class="closeX" data-close="roomPanel">×</button></div>
+    <div class="muted">Ye ID account ke saath permanently linked hai. Refresh se nahi badlega.</div>
     <div id="myRoomCode" class="roomCode">LOGIN REQUIRED</div>
     <div class="row"><button class="secondary" id="copyRoomBtn">COPY ID</button><button class="secondary" id="shareRoomBtn">SHARE</button></div>
-    <input class="field" id="targetRoomInput" placeholder="Enter target Call ID">
-    <button class="primary" id="callUserBtn">CALL USER</button>
+  </div>
+
+  <div id="joinPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">🛡️ JOIN ROOM / CALL</div><button class="closeX" data-close="joinPanel">×</button></div>
+    <div class="muted">Kisi user ka permanent Room ID dalo. User online hua to incoming call jayega.</div>
+    <input class="field" id="targetRoomInput" placeholder="Enter target Room ID" autocomplete="off">
+    <button class="primary" id="callUserBtn">📞 CALL USER</button>
+  </div>
+
+  <div id="chatPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">💬 ROOM CHAT</div><button class="closeX" data-close="chatPanel">×</button></div>
+    <div class="muted">Room ID se message bhejo. Receiver ko notification milega.</div>
+    <input class="field" id="chatTargetRoom" placeholder="Target Room ID" autocomplete="off">
+    <div id="roomChatMessages" style="max-height:240px;overflow:auto;margin:6px 0"></div>
+    <div class="row"><input class="field" id="roomChatInput" placeholder="Message" style="margin:0"><button class="primary" id="sendRoomChatBtn">SEND</button></div>
   </div>
 
   <div id="notificationPanel" class="panel hidden">
@@ -253,6 +287,10 @@ textarea.field{height:80px;padding-top:10px;resize:none}
           <button data-filter="warm">WARM</button>
         </div>
         <div id="recordTimer"></div>
+        <div id="zoomControl">
+          <span id="zoomValue">1×</span>
+          <input id="zoomRange" type="range" min="0.5" max="20" step="0.1" value="1">
+        </div>
         <div class="cameraControls">
           <button class="camRound" id="zoomOut">−</button>
           <button id="captureBtn"></button>
@@ -264,10 +302,13 @@ textarea.field{height:80px;padding-top:10px;resize:none}
 
   <div id="previewModal" class="modal hidden">
     <div class="modalCard">
-      <div class="panelHeader"><div class="modalTitle">PREVIEW</div><button class="closeX" id="previewClose">×</button></div>
-      <img id="previewImage" class="hidden" alt="">
-      <video id="previewVideo" class="hidden" controls playsinline></video>
+      <div class="panelHeader"><div class="modalTitle">SNAP PREVIEW · 4:16</div><button class="closeX" id="previewClose">×</button></div>
+      <div class="previewFrame"><img id="previewImage" class="hidden" alt=""><video id="previewVideo" class="hidden" controls playsinline></video></div>
       <textarea class="field" id="descriptionInput" placeholder="Description"></textarea>
+      <div id="uploadProgress">
+        <div id="uploadProgressBar"><div id="uploadProgressFill"></div></div>
+        <div id="uploadProgressText">UPLOAD READY</div>
+      </div>
       <div class="row">
         <button class="secondary" id="retakeBtn">RETAKE</button>
         <button class="primary" id="postBtn">POST SNAP</button>
@@ -318,19 +359,41 @@ textarea.field{height:80px;padding-top:10px;resize:none}
 
   <div id="callModal" class="hidden">
     <div class="callCard">
-      <video id="remoteVideo" autoplay playsinline></video>
-      <video id="localVideo" autoplay playsinline muted></video>
-      <div style="position:absolute;top:15px;left:15px;color:var(--green);z-index:3">● SECURE CALL</div>
+      <div class="callHeader">
+        <div class="callHeaderTitle">● CCTV // SECURE GROUP CALL</div>
+        <div id="callMemberCount">0/6 USERS</div>
+      </div>
+      <div id="callGrid"></div>
+      <div class="callLocalTile">
+        <video id="localVideo" autoplay playsinline muted></video>
+        <div class="tileName">YOU</div>
+      </div>
       <div class="callControls">
         <button id="muteCallBtn">🎙</button>
         <button id="cameraCallBtn">📷</button>
         <button id="chatCallBtn">💬</button>
+        <button id="addFriendCallBtn">👥+</button>
         <button class="end" id="endCallBtn">☎</button>
       </div>
       <div id="chatBox">
+        <div style="color:var(--green);font-size:11px;margin-bottom:5px">CALL CHAT // TEXT + MEDIA</div>
         <div id="chatMessages"></div>
-        <div class="row"><input class="field" id="chatInput" placeholder="Message" style="margin:0"><button class="primary" id="sendChatBtn">SEND</button></div>
+        <div class="row">
+          <button class="secondary" id="callChatFileBtn" style="flex:0 0 48px">＋</button>
+          <input type="file" id="callChatFile" accept="image/*,video/*">
+          <input class="field" id="chatInput" placeholder="Message" style="margin:0">
+          <button class="primary" id="sendChatBtn">SEND</button>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <div id="addFriendModal" class="hidden">
+    <div class="modalCard">
+      <div class="panelHeader"><div class="modalTitle">👥 ADD FRIEND TO CALL</div><button class="closeX" data-close="addFriendModal">×</button></div>
+      <div class="muted">Friend ka permanent Room ID dalo. Maximum 6 users.</div>
+      <input class="field" id="callFriendRoomInput" placeholder="FRIEND ROOM ID" autocomplete="off">
+      <button class="primary" id="inviteFriendBtn">📞 INVITE FRIEND</button>
     </div>
   </div>
 </div>
@@ -349,20 +412,22 @@ const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 /* ================= SOCKET ================= */
 const socket=io({transports:["websocket","polling"]});
+socket.on("connect",async()=>{if(currentUser)await ensureRoom()});
 
 /* ================= STATE ================= */
 let currentUser=null,currentProfile=null,authMode="login";
 let map=null,userMarker=null,userCircle=null;
 let markerGroups=[];
-let cameraStream=null,currentFacing="environment",mirror=false,currentFilter="none";
+let cameraStream=null,currentFacing="environment",mirror=false,currentFilter="none",cameraTrack=null,zoomMin=0.5,zoomMax=20,currentZoom=1;
 let capturedBlob=null,capturedType=null,capturedLatitude=null,capturedLongitude=null;
 let mediaRecorder=null,recordedChunks=[],recording=false;
 let galleryItems=[],galleryIndex=0,currentGallerySnap=null;
 let myRoom=null;
-let incomingCallerId=null,incomingCallerRoom=null;
-let peerConnection=null,currentCallPeerId=null,localCallStream=null;
-let muted=false,cameraOff=false;
+let incomingCallerId=null,incomingCallerRoom=null,incomingCallerName="USER";
+let localCallStream=null,callRoom=null,callActive=false;
+let muted=false,cameraOff=false,callPeers=new Map();
 let replyingTo=null;
+let roomPromise=null;
 const peers={};
 
 /* ================= HELPERS ================= */
@@ -371,6 +436,8 @@ function show(el){el.classList.remove("hidden")}
 function hide(el){el.classList.add("hidden")}
 function status(t){$("status").textContent=t}
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function formatBytes(bytes){const n=Number(bytes)||0;if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";if(n<1073741824)return (n/1048576).toFixed(2)+" MB";return (n/1073741824).toFixed(2)+" GB";}
+
 function beep(freq=650,dur=.045){
  try{
   const C=window.AudioContext||window.webkitAudioContext;
@@ -460,24 +527,33 @@ async function loadProfile(){
  if(!currentUser){currentProfile=null;return}
  const {data}=await supabaseClient.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
  currentProfile=data||{id:currentUser.id,display_name:currentUser.email?.split("@")[0]||"User"};
- if(!currentProfile.call_room_id)await ensureRoom();
+ await ensureRoom();
  $("accountNav").querySelector("span:last-child").textContent=(currentProfile.display_name||"ACCOUNT").slice(0,10);
  await loadNotifications();
 }
 async function ensureRoom(){
- if(!currentUser)return;
- const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
- const make=()=>Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
- let room=currentProfile?.call_room_id;
- if(!room){
-  room=make();
-  const {error}=await supabaseClient.from("profiles").update({call_room_id:room}).eq("id",currentUser.id);
-  if(error){console.error(error);return}
-  currentProfile.call_room_id=room;
- }
- myRoom=room;
- $("myRoomCode").textContent=room;
- socket.emit("join-room",room);
+ if(!currentUser)return null;
+ if(roomPromise)return roomPromise;
+ roomPromise=(async()=>{
+  const key="cyberRoom:"+currentUser.id;
+  let room=currentProfile?.call_room_id||localStorage.getItem(key);
+  if(!room){
+   const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+   room=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
+  }
+  room=String(room).toUpperCase();
+  if(currentProfile?.call_room_id!==room){
+   const {data,error}=await supabaseClient.from("profiles").upsert({id:currentUser.id,display_name:currentProfile?.display_name||currentUser.email?.split("@")[0]||"User",call_room_id:room},{onConflict:"id"}).select("*").maybeSingle();
+   if(error)console.error("Room save:",error);
+   if(data)currentProfile=data;
+  }
+  localStorage.setItem(key,room);
+  myRoom=room;
+  $("myRoomCode").textContent=room;
+  if(socket.connected)socket.emit("join-room",{room});
+  return room;
+ })().finally(()=>roomPromise=null);
+ return roomPromise;
 }
 async function authSubmit(){
  const email=$("authEmail").value.trim(),pass=$("authPassword").value,name=$("authName").value.trim();
@@ -489,7 +565,9 @@ async function authSubmit(){
   const {data,error}=await supabaseClient.auth.signUp({email,password:pass});
   if(error)return alert(error.message);
   if(data.user){
-   await supabaseClient.from("profiles").upsert({id:data.user.id,display_name:name||email.split("@")[0]});
+   const newRoom=Array.from({length:6},()=>"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random()*32)]).join("");
+   await supabaseClient.from("profiles").upsert({id:data.user.id,display_name:name||email.split("@")[0],call_room_id:newRoom},{onConflict:"id"});
+   localStorage.setItem("cyberRoom:"+data.user.id,newRoom);
   }
   alert("Account created. Email verification may be required.");
  }
@@ -497,7 +575,7 @@ async function authSubmit(){
 }
 async function logout(){
  await supabaseClient.auth.signOut();
- currentUser=null;currentProfile=null;myRoom=null;
+ currentUser=null;currentProfile=null;myRoom=null;roomPromise=null;
  $("myRoomCode").textContent="LOGIN REQUIRED";
  $("accountNav").querySelector("span:last-child").textContent="ACCOUNT";
  status("LOGGED OUT");
@@ -521,7 +599,7 @@ async function loadNotifications(){
  $("notificationCount").style.display=unread?"flex":"none";
  $("notificationCount").textContent=unread>9?"9+":unread||"";
  $("notificationList").innerHTML=(data||[]).map(n=>`
-  <div class="notice ${n.is_read?"":"unread"}" data-notice="${esc(n.id)}" data-snap="${esc(n.snap_id||"")}">
+  <div class="notice ${n.is_read?"":"unread"}" data-notice="${esc(n.id)}" data-snap="${esc(n.snap_id||"")}" data-chatroom="${esc(n.notification_type==="chat"?(n.message||"").match(/Room ([A-Z0-9]+)/)?.[1]||"":"")}">
    <div>${esc(n.message||n.notification_type||"Notification")}</div>
    <small>${new Date(n.created_at).toLocaleString()}</small>
   </div>`).join("")||'<div class="muted">No notifications.</div>';
@@ -532,6 +610,11 @@ $("notificationList").onclick=async e=>{
  if(n.dataset.snap){
   const {data}=await supabaseClient.from("snaps").select("*").eq("id",n.dataset.snap).maybeSingle();
   if(data)openGallery([data]);
+ }
+ if(n.dataset.chatroom){
+  $("chatTargetRoom").value=n.dataset.chatroom;
+  show($("chatPanel"));
+  setActiveNav("chatNav");
  }
  await loadNotifications();
 };
@@ -566,14 +649,37 @@ async function startCamera(){
    audio:true
   });
   $("cameraVideo").srcObject=cameraStream;
+  setupRealZoom();
   show($("cameraModal"));
  }catch(e){alert("Camera permission required: "+e.message)}
 }
 function stopCamera(){
- if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}
+ if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;cameraTrack=null}
+}
+function setupRealZoom(){
+ const range=$("zoomRange"),value=$("zoomValue");
+ cameraTrack=cameraStream?.getVideoTracks?.()[0]||null;
+ const caps=cameraTrack?.getCapabilities?.()||{};
+ zoomMin=Number.isFinite(caps.zoom)?caps.zoom.min:0.5;
+ zoomMax=Number.isFinite(caps.zoom)?caps.zoom.max:20;
+ zoomMin=Math.max(0.5,zoomMin);zoomMax=Math.min(20,zoomMax);
+ if(zoomMax<zoomMin){zoomMin=1;zoomMax=1}
+ currentZoom=Math.min(Math.max(currentZoom,zoomMin),zoomMax);
+ range.min=zoomMin;range.max=zoomMax;range.step=0.1;range.value=currentZoom;
+ value.textContent=currentZoom.toFixed(1).replace(".0","")+"×";
+ range.disabled=zoomMax<=zoomMin;
+}
+async function applyRealZoom(v){
+ currentZoom=Number(v);
+ $("zoomValue").textContent=currentZoom.toFixed(1).replace(".0","")+"×";
+ if(!cameraTrack?.applyConstraints)return;
+ try{await cameraTrack.applyConstraints({advanced:[{zoom:currentZoom}]})}catch(e){status("REAL ZOOM UNSUPPORTED ON THIS CAMERA")}
 }
 $("cameraClose").onclick=()=>{stopCamera();hide($("cameraModal"));status("CAMERA CLOSED")}
 $("switchCamera").onclick=async()=>{currentFacing=currentFacing==="environment"?"user":"environment";await startCamera()}
+$("zoomRange").oninput=e=>applyRealZoom(e.target.value);
+$("zoomOut").onclick=()=>applyRealZoom(Math.max(zoomMin,currentZoom-0.5));
+$("zoomIn").onclick=()=>applyRealZoom(Math.min(zoomMax,currentZoom+0.5));
 $("mirrorBtn").onclick=()=>{mirror=!mirror;$("cameraVideo").style.transform=mirror?"scaleX(-1)":"none"}
 document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{
  currentFilter=b.dataset.filter;
@@ -605,10 +711,15 @@ $("captureBtn").onclick=async()=>{
   try{
    const p=await getFreshPosition();capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
    const v=$("cameraVideo"),c=document.createElement("canvas");
-   c.width=v.videoWidth||1280;c.height=v.videoHeight||720;
+   const sw=v.videoWidth||1280,sh=v.videoHeight||720;
+   const targetRatio=4/16;
+   let cw=sw,ch=Math.round(sw/targetRatio);
+   if(ch>sh){ch=sh;cw=Math.round(sh*targetRatio)}
+   c.width=cw;c.height=ch;
+   const sx=Math.max(0,(sw-cw)/2),sy=Math.max(0,(sh-ch)/2);
    const x=c.getContext("2d");
    if(mirror){x.translate(c.width,0);x.scale(-1,1)}
-   x.filter=v.style.filter||"none";x.drawImage(v,0,0,c.width,c.height);
+   x.filter=v.style.filter||"none";x.drawImage(v,sx,sy,cw,ch,0,0,cw,ch);
    const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.9));
    capturedBlob=blob;capturedType="image";
    $("previewImage").src=URL.createObjectURL(blob);show($("previewImage"));hide($("previewVideo"));show($("previewModal"));stopCamera();hide($("cameraModal"));
@@ -631,25 +742,35 @@ async function postSnap(){
   const path=`${currentUser.id}/${Date.now()}.${ext}`;
   const {data:{session}}=await supabaseClient.auth.getSession();
   const token=session?.access_token||SUPABASE_KEY;
-  const xhr=await uploadStorage(path,capturedBlob,token);
+  const started=performance.now();
+  show($("uploadProgress"));$("uploadProgressFill").style.width="0%";
+  $("uploadProgressText").textContent=`UPLOAD:// PAST-SNAPS\nSIZE: ${formatBytes(capturedBlob.size)}\nDURATION: 00:00\nPROGRESS: 0%`;
+  const xhr=await uploadStorage(path,capturedBlob,token,(loaded,total)=>{
+   const pct=Math.round((loaded/total)*100),sec=Math.max(0,(performance.now()-started)/1000);
+   const duration=`${String(Math.floor(sec/60)).padStart(2,"0")}:${String(Math.floor(sec%60)).padStart(2,"0")}`;
+   $("uploadProgressFill").style.width=pct+"%";
+   $("uploadProgressText").textContent=`UPLOAD:// PAST-SNAPS\nSIZE: ${formatBytes(loaded)} / ${formatBytes(total)}\nDURATION: ${duration}\nPROGRESS: ${pct}%\n${"█".repeat(Math.max(1,Math.floor(pct/5))).padEnd(20,"░")}`;
+   if(pct%10===0)beep(300+pct*4,.012);
+  });
   const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/past-snaps/${path}`;
   const {error}=await supabaseClient.from("snaps").insert({
    latitude:capturedLatitude,longitude:capturedLongitude,image_url:publicUrl,
    media_type:capturedType,user_id:currentUser.id,description:$("descriptionInput").value.trim()||null
   });
   if(error)throw error;
-  hide($("previewModal"));$("descriptionInput").value="";
+  hide($("previewModal"));$("descriptionInput").value="";hide($("uploadProgress"));
   capturedBlob=null;status("SNAP POSTED");await loadSnaps();
  }catch(e){console.error(e);alert("Post failed: "+e.message)}
  finally{$("postBtn").disabled=false}
 }
-function uploadStorage(path,blob,token){
+function uploadStorage(path,blob,token,progressCb=null){
  return new Promise((resolve,reject)=>{
   const xhr=new XMLHttpRequest();
   xhr.open("POST",`${SUPABASE_URL}/storage/v1/object/past-snaps/${encodeURIComponent(path)}`);
   xhr.setRequestHeader("Authorization","Bearer "+token);
   xhr.setRequestHeader("apikey",SUPABASE_KEY);
   xhr.setRequestHeader("Content-Type",blob.type||"application/octet-stream");
+  xhr.upload.onprogress=e=>{if(e.lengthComputable&&progressCb)progressCb(e.loaded,e.total)};
   xhr.onload=()=>xhr.status>=200&&xhr.status<300?resolve(xhr.responseText):reject(new Error("Storage "+xhr.status+" "+xhr.responseText));
   xhr.onerror=()=>reject(new Error("Storage network error"));
   xhr.send(blob);
@@ -737,125 +858,68 @@ let touchX=0;
 $("viewerModal").addEventListener("touchstart",e=>touchX=e.changedTouches[0].clientX);
 $("viewerModal").addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>70){if(dx<0)$("nextSnap").click();else $("prevSnap").click()}});
 
-/* ================= CALLING ================= */
-function openRoomPanel(){
- if(!currentUser)return openAuth();
- ensureRoom();show($("roomPanel"));
-}
-$("copyRoomBtn").onclick=async()=>{
- if(!myRoom)return;
- await navigator.clipboard?.writeText(myRoom);status("ROOM ID COPIED");
-};
-$("shareRoomBtn").onclick=async()=>{
- if(!myRoom)return;
- try{await navigator.share({title:"My Call ID",text:myRoom})}catch(e){}
-};
-$("callUserBtn").onclick=()=>{
- if(!currentUser)return openAuth();
- const room=$("targetRoomInput").value.trim().toUpperCase();
- if(!room)return;
- socket.emit("call-user",{targetRoom:room});
- status("CALLING "+room+"...");
-};
+/* ================= CALLING + ROOM CHAT ================= */
+function openRoomPanel(){if(!currentUser)return openAuth();ensureRoom();show($("roomPanel"))}
+function openJoinPanel(){if(!currentUser)return openAuth();show($("joinPanel"))}
+$("copyRoomBtn").onclick=async()=>{if(!myRoom)return;await navigator.clipboard?.writeText(myRoom);status("ROOM ID COPIED")};
+$("shareRoomBtn").onclick=async()=>{if(!myRoom)return;try{await navigator.share({title:"My Room ID",text:myRoom})}catch(e){}};
+$("callUserBtn").onclick=()=>{if(!currentUser)return openAuth();const room=$("targetRoomInput").value.trim().toUpperCase();if(!room)return;socket.emit("call-user",{targetRoom:room});status("CALLING "+room+"...")};
+async function notifyRoomMessage(targetRoom,message){const {data:recipient}=await supabaseClient.from("profiles").select("id").eq("call_room_id",targetRoom).maybeSingle();if(!recipient||recipient.id===currentUser?.id)return;const senderName=currentProfile?.display_name||"User";await supabaseClient.from("notifications").insert({recipient_id:recipient.id,actor_id:currentUser.id,notification_type:"chat",message:`Room ${targetRoom}: ${senderName} sent a message — ${message}`})}
+function addRoomChat(msg,mine=false,from="",mediaUrl="",type="text"){const x=document.createElement("div");x.className="chatMsg "+(mine?"chatMine":"");if(mediaUrl){const m=type==="video"?document.createElement("video"):document.createElement("img");m.src=mediaUrl;m.className="chatMedia";if(type==="video"){m.controls=true;m.playsInline=true}x.appendChild(m);const l=document.createElement("div");l.textContent=(from?from+" · ":"")+type.toUpperCase();x.appendChild(l)}else x.textContent=(from?from+": ":"")+msg;$("roomChatMessages").appendChild(x);$("roomChatMessages").scrollTop=$("roomChatMessages").scrollHeight}
+$("sendRoomChatBtn").onclick=async()=>{if(!currentUser)return openAuth();const room=$("chatTargetRoom").value.trim().toUpperCase(),msg=$("roomChatInput").value.trim();if(!room||!msg)return;socket.emit("room-chat",{targetRoom:room,message:msg,type:"text"});addRoomChat(msg,true,"You");await notifyRoomMessage(room,msg);$("roomChatInput").value="";status("MESSAGE SENT")};
+$("roomChatInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("sendRoomChatBtn").click()});
+socket.on("room-chat",d=>{addRoomChat(d.message,false,d.fromName||"User",d.mediaUrl||"",d.type||"text");show($("chatPanel"));setActiveNav("chatNav");loadNotifications();try{if(Notification.permission==="granted")new Notification("Cyber Map Viewer",{body:(d.fromName||"User")+": "+(d.message||"MEDIA")})}catch(e){}});
 
-socket.on("room-joined",d=>{myRoom=d.room||myRoom});
-socket.on("room-full",()=>status("ROOM FULL"));
+function ensureCallTile(peerId,name="USER"){let tile=$("callTile-"+peerId);if(tile)return tile;tile=document.createElement("div");tile.className="callTile";tile.id="callTile-"+peerId;const v=document.createElement("video");v.id="callVideo-"+peerId;v.autoplay=true;v.playsInline=true;const n=document.createElement("div");n.className="tileName";n.textContent=name;const st=document.createElement("div");st.className="tileStatus";st.textContent="● LIVE";tile.append(v,n,st);$("callGrid").appendChild(tile);return tile}
+function removeCallTile(peerId){$("callTile-"+peerId)?.remove()}
+function updateCallCount(){$("callMemberCount").textContent=`${1+callPeers.size}/6 USERS`}
+async function ensureLocalCallMedia(){if(localCallStream)return localCallStream;localCallStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});$("localVideo").srcObject=localCallStream;return localCallStream}
+function resetCallUI(){$("callGrid").innerHTML="";callPeers.clear();updateCallCount();$("chatMessages").innerHTML=""}
+async function createCallPeer(peerId,isOfferer,name="USER"){if(!peerId||peerId===socket.id)return;if(callPeers.has(peerId))return callPeers.get(peerId).pc;await ensureLocalCallMedia();const pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]});const entry={pc,name};callPeers.set(peerId,entry);ensureCallTile(peerId,name);updateCallCount();localCallStream.getTracks().forEach(t=>pc.addTrack(t,localCallStream));pc.ontrack=e=>{const v=$("callVideo-"+peerId);if(v)v.srcObject=e.streams[0]};pc.onicecandidate=e=>{if(e.candidate)socket.emit("webrtc-signal",{targetId:peerId,signal:{candidate:e.candidate}})};pc.onconnectionstatechange=()=>{if(["failed","closed","disconnected"].includes(pc.connectionState))removeCallPeer(peerId)};if(isOfferer){const offer=await pc.createOffer();await pc.setLocalDescription(offer);socket.emit("webrtc-signal",{targetId:peerId,signal:{offer}})}return pc}
+async function removeCallPeer(peerId){const e=callPeers.get(peerId);if(e){try{e.pc.close()}catch(_){}callPeers.delete(peerId)}removeCallTile(peerId);updateCallCount()}
+async function handleRoomUsers(users){if(!callActive||!Array.isArray(users))return;await ensureLocalCallMedia();for(const u of users){const id=typeof u==="string"?u:u.socketId;const name=typeof u==="string"?"USER":(u.displayName||"USER");if(id&&id!==socket.id&&!callPeers.has(id)&&socket.id<id)await createCallPeer(id,true,name)}}
+function openCallUI(){show($("callModal"));$("chatBox").style.display="none";beep(880,.08);beep(1200,.06)}
+async function beginCallRoom(room){callRoom=room;callActive=true;resetCallUI();await ensureLocalCallMedia();openCallUI();socket.emit("join-room",{room,displayName:currentProfile?.display_name||"USER"})}
+async function leaveCallRoom(){if(callRoom)socket.emit("leave-room");for(const id of [...callPeers.keys()])await removeCallPeer(id);if(localCallStream){localCallStream.getTracks().forEach(t=>t.stop());localCallStream=null}$("localVideo").srcObject=null;callRoom=null;callActive=false;hide($("callModal"));if(currentUser)setTimeout(()=>ensureRoom(),150)}
+async function endCall(send=true){if(send&&callRoom)socket.emit("end-group-call",{room:callRoom});await leaveCallRoom();status("CALL ENDED")}
+
+socket.on("room-joined",async d=>{if(d.room===myRoom&&!callActive){status("ROOM ONLINE: "+d.room);return}if(callActive&&d.room===callRoom){await handleRoomUsers(d.users||[]);updateCallCount()}});
+socket.on("room-users",async d=>{if(callActive&&d.room===callRoom)await handleRoomUsers(d.users||[])});
+socket.on("peer-joined",async d=>{if(callActive&&callRoom&&d.peerId&&socket.id<d.peerId)await createCallPeer(d.peerId,true,d.displayName||"USER")});
+socket.on("peer-left",async d=>{if(callActive)await removeCallPeer(d.peerId)});
+socket.on("room-full",d=>status("CALL ROOM FULL · MAX "+(d.max||6)));
 socket.on("call-ringing",d=>status("RINGING "+(d.targetRoom||"")+"..."));
 socket.on("call-unavailable",()=>status("USER OFFLINE"));
-socket.on("incoming-call",d=>{
- incomingCallerId=d.callerId;incomingCallerRoom=d.callerRoom||"";
- $("incomingCaller").textContent=incomingCallerRoom||"INCOMING";
- show($("incomingModal"));
-});
-$("acceptCallBtn").onclick=async()=>{
- hide($("incomingModal"));
- socket.emit("accept-call",{callerId:incomingCallerId});
- await createPeer(incomingCallerId,false);
- openCallUI();
-};
-$("rejectCallBtn").onclick=()=>{
- socket.emit("reject-call",{callerId:incomingCallerId});hide($("incomingModal"));
-};
-socket.on("call-accepted",async d=>{
- currentCallPeerId=d.acceptedBy;
- await createPeer(currentCallPeerId,true);
- openCallUI();
-});
-socket.on("call-rejected",()=>{status("CALL REJECTED")});
-socket.on("call-ended",()=>endCall(false));
+socket.on("invite-unavailable",()=>status("FRIEND OFFLINE"));
+socket.on("call-room-full",()=>status("CALL FULL · MAX 6"));
+socket.on("incoming-call",d=>{incomingCallerId=d.callerId;incomingCallerRoom=d.callerRoom||"";incomingCallerName=d.callerName||"USER";$("incomingCaller").textContent=(incomingCallerRoom?incomingCallerRoom+" · ":"")+incomingCallerName;show($("incomingModal"));beep(1000,.12);setTimeout(()=>beep(1000,.12),180)});
+$("acceptCallBtn").onclick=async()=>{hide($("incomingModal"));socket.emit("accept-call",{callerId:incomingCallerId});await beginCallRoom(incomingCallerRoom)};
+$("rejectCallBtn").onclick=()=>{socket.emit("reject-call",{callerId:incomingCallerId});hide($("incomingModal"))};
+socket.on("call-accepted",async d=>{status("CALL ACCEPTED");if(!callActive){callActive=true;callRoom=d.callRoom||myRoom;resetCallUI();await ensureLocalCallMedia();openCallUI();socket.emit("join-room",{room:callRoom,displayName:currentProfile?.display_name||"USER"})}});
+socket.on("call-rejected",()=>status("CALL REJECTED"));socket.on("call-ended",()=>endCall(false));socket.on("group-call-ended",()=>endCall(false));
+socket.on("webrtc-signal",async d=>{if(!callActive)return;const s=d.signal||{};let entry=callPeers.get(d.senderId);if(s.offer&&!entry){const pc=await createCallPeer(d.senderId,false,d.senderName||"USER");entry=callPeers.get(d.senderId);await pc.setRemoteDescription(new RTCSessionDescription(s.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);socket.emit("webrtc-signal",{targetId:d.senderId,signal:{answer}});return}if(!entry)return;try{if(s.answer)await entry.pc.setRemoteDescription(new RTCSessionDescription(s.answer));if(s.candidate)await entry.pc.addIceCandidate(new RTCIceCandidate(s.candidate))}catch(e){console.warn("WebRTC signal:",e)}});
 
-async function createPeer(peerId,isCaller){
- currentCallPeerId=peerId;
- peerConnection=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
- localCallStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
- localCallStream.getTracks().forEach(t=>peerConnection.addTrack(t,localCallStream));
- $("localVideo").srcObject=localCallStream;
- peerConnection.ontrack=e=>{$("remoteVideo").srcObject=e.streams[0]};
- peerConnection.onicecandidate=e=>{if(e.candidate)socket.emit("webrtc-signal",{targetId:peerId,signal:{candidate:e.candidate}})};
- if(isCaller){
-  const offer=await peerConnection.createOffer();
-  await peerConnection.setLocalDescription(offer);
-  socket.emit("webrtc-signal",{targetId:peerId,signal:{offer}});
- }
-}
-socket.on("webrtc-signal",async d=>{
- if(!peerConnection)await createPeer(d.senderId,false);
- const s=d.signal;
- if(s.offer){
-  await peerConnection.setRemoteDescription(new RTCSessionDescription(s.offer));
-  const answer=await peerConnection.createAnswer();
-  await peerConnection.setLocalDescription(answer);
-  socket.emit("webrtc-signal",{targetId:d.senderId,signal:{answer}});
- }else if(s.answer){
-  await peerConnection.setRemoteDescription(new RTCSessionDescription(s.answer));
- }else if(s.candidate){
-  try{await peerConnection.addIceCandidate(new RTCIceCandidate(s.candidate))}catch(e){}
- }
-});
-function openCallUI(){show($("callModal"));$("chatBox").style.display="none"}
-async function endCall(send=true){
- if(send&&currentCallPeerId)socket.emit("end-call",{targetId:currentCallPeerId});
- if(peerConnection){peerConnection.close();peerConnection=null}
- if(localCallStream){localCallStream.getTracks().forEach(t=>t.stop());localCallStream=null}
- $("localVideo").srcObject=null;$("remoteVideo").srcObject=null;
- currentCallPeerId=null;hide($("callModal"));status("CALL ENDED");
-}
-$("endCallBtn").onclick=()=>endCall(true);
-$("muteCallBtn").onclick=()=>{
- if(!localCallStream)return;
- muted=!muted;localCallStream.getAudioTracks().forEach(t=>t.enabled=!muted);
- $("muteCallBtn").textContent=muted?"🔇":"🎙";
-};
-$("cameraCallBtn").onclick=()=>{
- if(!localCallStream)return;
- cameraOff=!cameraOff;localCallStream.getVideoTracks().forEach(t=>t.enabled=!cameraOff);
- $("cameraCallBtn").textContent=cameraOff?"🚫":"📷";
-};
+function addChat(msg,mine=false,from="",mediaUrl="",type="text"){const x=document.createElement("div");x.className="chatMsg "+(mine?"chatMine":"");if(mediaUrl){const m=type==="video"?document.createElement("video"):document.createElement("img");m.src=mediaUrl;m.className="chatMedia";if(type==="video"){m.controls=true;m.playsInline=true}x.appendChild(m);const l=document.createElement("div");l.textContent=(from||"USER")+" · "+type.toUpperCase();x.appendChild(l)}else x.textContent=(from?from+": ":"")+msg;$("chatMessages").appendChild(x);$("chatMessages").scrollTop=$("chatMessages").scrollHeight}
 $("chatCallBtn").onclick=()=>{$("chatBox").style.display=$("chatBox").style.display==="none"?"block":"none"};
-$("sendChatBtn").onclick=()=>{
- const msg=$("chatInput").value.trim();if(!msg||!currentCallPeerId)return;
- socket.emit("chat-message",{targetId:currentCallPeerId,message:msg});
- addChat(msg,true);$("chatInput").value="";
-};
-socket.on("chat-message",d=>addChat(d.message,false));
-function addChat(msg,mine){
- const x=document.createElement("div");x.className="chatMsg "+(mine?"chatMine":"");x.textContent=msg;
- $("chatMessages").appendChild(x);$("chatMessages").scrollTop=$("chatMessages").scrollHeight;
-}
+$("sendChatBtn").onclick=()=>{const msg=$("chatInput").value.trim();if(!msg||!callRoom)return;socket.emit("call-room-message",{room:callRoom,message:msg,type:"text"});addChat(msg,true,"YOU");$("chatInput").value=""};
+$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("sendChatBtn").click()});socket.on("call-room-message",d=>addChat(d.message,false,d.fromName||"USER",d.mediaUrl||"",d.type||"text"));
+$("callChatFileBtn").onclick=()=>$("callChatFile").click();
+$("callChatFile").onchange=async e=>{const file=e.target.files?.[0];if(!file||!callRoom||!currentUser)return;if(file.size>50*1024*1024){alert("Media max 50 MB.");e.target.value="";return}try{status("UPLOADING CHAT MEDIA...");const {data:{session}}=await supabaseClient.auth.getSession();const token=session?.access_token||SUPABASE_KEY;const type=file.type.startsWith("video/")?"video":"image";const ext=(file.name.split(".").pop()||"bin").replace(/[^a-z0-9]/gi,"");const path=`${currentUser.id}/chat/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;const url=`${SUPABASE_URL}/storage/v1/object/public/past-snaps/${path}`;await uploadStorage(path,file,token,(loaded,total)=>status(`CHAT UPLOAD ${Math.round(loaded/total*100)}% · ${formatBytes(loaded)}/${formatBytes(total)}`));socket.emit("call-room-message",{room:callRoom,message:file.name,type,mediaUrl:url});addChat(file.name,true,"YOU",url,type);status("MEDIA SENT")}catch(err){alert("Media send failed: "+err.message)}finally{e.target.value=""}};
+$("addFriendCallBtn").onclick=()=>{if(!callActive)return;$("callFriendRoomInput").value="";show($("addFriendModal"))};
+$("inviteFriendBtn").onclick=()=>{const room=$("callFriendRoomInput").value.trim().toUpperCase();if(!room)return;socket.emit("call-user",{targetRoom:room});hide($("addFriendModal"));status("FRIEND INVITE SENT "+room)};
+$("endCallBtn").onclick=()=>endCall(true);
+$("muteCallBtn").onclick=()=>{if(!localCallStream)return;muted=!muted;localCallStream.getAudioTracks().forEach(t=>t.enabled=!muted);$("muteCallBtn").textContent=muted?"🔇":"🎙"};
+$("cameraCallBtn").onclick=()=>{if(!localCallStream)return;cameraOff=!cameraOff;localCallStream.getVideoTracks().forEach(t=>t.enabled=!cameraOff);$("cameraCallBtn").textContent=cameraOff?"🚫":"📷"};
 
 /* ================= UI NAV ================= */
-function closePanels(){hide($("roomPanel"));hide($("notificationPanel"))}
-$("mapNav").onclick=()=>{closePanels();setActiveNav("mapNav");map.invalidateSize();status("MAP ONLINE")}
-$("exploreNav").onclick=async()=>{closePanels();setActiveNav("exploreNav");await loadSnaps();status("EXPLORE: NEARBY SNAP CLUSTERS")}
-$("cameraNav").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()}
-$("roomNav").onclick=()=>{setActiveNav("roomNav");openRoomPanel()}
-$("accountNav").onclick=()=>{
- setActiveNav("accountNav");
- if(currentUser){
-  if(confirm(`Logged in as ${currentProfile?.display_name||currentUser.email}.\nLogout?`))logout();
- }else openAuth();
-};
-$("notificationBtn").onclick=()=>{hide($("roomPanel"));show($("notificationPanel"));loadNotifications()}
+function closePanels(){hide($("roomPanel"));hide($("joinPanel"));hide($("chatPanel"));hide($("notificationPanel"))}
+$("mapNav").onclick=()=>{closePanels();setActiveNav("mapNav");map.invalidateSize();status("MAP ONLINE")};
+$("chatNav").onclick=()=>{closePanels();setActiveNav("chatNav");show($("chatPanel"));if(currentUser)loadNotifications();};
+$("cameraNav").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
+$("joinNav").onclick=()=>{setActiveNav("joinNav");openJoinPanel()};
+$("myRoomNav").onclick=()=>{setActiveNav("myRoomNav");openRoomPanel()};
+$("accountNav").onclick=()=>{setActiveNav("accountNav");if(currentUser){if(confirm(`Logged in as ${currentProfile?.display_name||currentUser.email}.\nLogout?`))logout()}else openAuth()};
+$("notificationBtn").onclick=()=>{closePanels();show($("notificationPanel"));loadNotifications()};
 $("searchBtn").onclick=searchLocation;
 $("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocation()});
 $("locBtn").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
