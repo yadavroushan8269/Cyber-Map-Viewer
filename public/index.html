@@ -321,6 +321,10 @@ body.modal-open {
 }
 </style>
 
+<style id="hacker-snap-marker">
+#locBtn{position:fixed;right:14px;bottom:82px;z-index:1200;border:1px solid rgba(0,255,100,.65);background:rgba(0,12,8,.94);color:#35ff77;border-radius:10px;padding:9px 11px;display:flex;gap:7px;align-items:center;font-family:monospace;box-shadow:0 0 12px rgba(0,255,90,.25)}
+#locBtn span{font-size:22px}.hackerSnap{width:46px;height:46px;border:2px solid #ff203f;border-radius:50%;position:relative;background:rgba(255,0,40,.08);box-shadow:0 0 7px #ff203f,0 0 18px rgba(255,0,40,.5);animation:hackPulse 1.15s infinite}.hackerSnap:before,.hackerSnap:after{content:"";position:absolute;inset:7px;border:1px dashed rgba(255,50,70,.85);border-radius:50%;animation:hackSpin 2s linear infinite}.hackerSnap:after{inset:-7px;border-style:solid;border-color:transparent #ff203f transparent #ff203f;opacity:.7}.hackerSnap i{position:absolute;left:50%;top:50%;width:5px;height:5px;background:#ff3048;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 8px #ff3048}@keyframes hackPulse{50%{transform:scale(1.13);opacity:.52}}@keyframes hackSpin{to{transform:rotate(360deg)}}
+</style>
 </head>
 
 <body>
@@ -336,15 +340,12 @@ body.modal-open {
 
   <div id="status">SYSTEM ONLINE</div>
 
-  <button id="locBtn" title="My Location">⌖</button>
+  <button id="locBtn" title="My Location"><span>⌖</span><b>MY LOCATION</b></button>
 
   <div id="bottomNav">
-    <button class="navBtn active" id="mapNav"><span class="navIcon">🗺️</span><span>MAP</span></button>
     <button class="navBtn" id="chatNav"><span class="navIcon">💬</span><span>CHAT</span></button>
-    <button class="navBtn cameraNav" id="cameraNav"><span class="navIcon">📸</span><span>SNAP</span></button>
     <button class="navBtn" id="joinNav"><span class="navIcon">🛡️</span><span>JOIN ROOM</span></button>
-    <button class="navBtn" id="myRoomNav"><span class="navIcon">🆔</span><span>MY ROOM ID</span></button>
-    <button class="navBtn" id="accountNav"><span class="navIcon">👤</span><span>ACCOUNT</span></button>
+    <button class="navBtn" id="myRoomNav"><span class="navIcon">🆔</span><span>MY ROOM</span></button>
   </div>
 
   <div id="roomPanel" class="panel hidden">
@@ -607,7 +608,7 @@ function renderGroups(groups){
  markerGroups.forEach(m=>map.removeLayer(m));
  markerGroups=[];
  groups.forEach(g=>{
-   const icon=L.divIcon({className:"",html:`<div class="markerGhost">${g.items.length} 👻</div>`,iconSize:[50,50],iconAnchor:[25,25]});
+   const icon=L.divIcon({className:"",html:`<div class="hackerSnap"><i></i></div>`,iconSize:[50,50],iconAnchor:[25,25]});
    const m=L.marker([g.lat,g.lng],{icon}).addTo(map);
    m.on("click",()=>openGallery(g.items));
    markerGroups.push(m);
@@ -648,8 +649,7 @@ async function loadProfile(){
  const {data}=await supabaseClient.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
  currentProfile=data||{id:currentUser.id,display_name:currentUser.email?.split("@")[0]||"User"};
  await ensureRoom();
- $("accountNav").querySelector("span:last-child").textContent=(currentProfile.display_name||"ACCOUNT").slice(0,10);
- await loadNotifications();
+  await loadNotifications();
 }
 async function ensureRoom(){
  if(!currentUser)return null;
@@ -697,8 +697,7 @@ async function logout(){
  await supabaseClient.auth.signOut();
  currentUser=null;currentProfile=null;myRoom=null;roomPromise=null;
  $("myRoomCode").textContent="LOGIN REQUIRED";
- $("accountNav").querySelector("span:last-child").textContent="ACCOUNT";
- status("LOGGED OUT");
+  status("LOGGED OUT");
 }
 async function initAuth(){
  const {data:{session}}=await supabaseClient.auth.getSession();
@@ -1033,16 +1032,13 @@ $("cameraCallBtn").onclick=()=>{if(!localCallStream)return;cameraOff=!cameraOff;
 
 /* ================= UI NAV ================= */
 function closePanels(){hide($("roomPanel"));hide($("joinPanel"));hide($("chatPanel"));hide($("notificationPanel"))}
-$("mapNav").onclick=()=>{closePanels();setActiveNav("mapNav");map.invalidateSize();status("MAP ONLINE")};
 $("chatNav").onclick=()=>{closePanels();setActiveNav("chatNav");show($("chatPanel"));if(currentUser)loadNotifications();};
-$("cameraNav").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
 $("joinNav").onclick=()=>{setActiveNav("joinNav");openJoinPanel()};
 $("myRoomNav").onclick=()=>{setActiveNav("myRoomNav");openRoomPanel()};
-$("accountNav").onclick=()=>{setActiveNav("accountNav");if(currentUser){if(confirm(`Logged in as ${currentProfile?.display_name||currentUser.email}.\nLogout?`))logout()}else openAuth()};
 $("notificationBtn").onclick=()=>{closePanels();show($("notificationPanel"));loadNotifications()};
 $("searchBtn").onclick=searchLocation;
 $("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocation()});
-$("locBtn").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
+$("locBtn").onclick=()=>{openCameraFromLocation()};
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hide($(b.dataset.close)));
 $("authClose").onclick=()=>hide($("authModal"));
 $("authSubmit").onclick=authSubmit;
