@@ -1,1624 +1,1559 @@
 /* =========================================================
-   PASTSNAP — CYBER / HACKER THEME
-========================================================= */
+   PASTSNAP — CYBER MAP UI
+   Map tiles remain fully visible.
+   ========================================================= */
+
+:root {
+  --bg: #020403;
+  --panel: rgba(3, 10, 6, 0.96);
+  --panel-2: rgba(6, 15, 9, 0.97);
+
+  --green: #00ff66;
+  --green-soft: #59ff99;
+  --green-dark: #008f3c;
+
+  --text: #d9ffe7;
+  --muted: #6fa886;
+  --danger: #ff3b3b;
+  --yellow: #ffe66d;
+
+  --border: rgba(0, 255, 102, 0.55);
+  --glow: 0 0 10px rgba(0, 255, 102, 0.35);
+
+  --radius: 12px;
+  --topbar-height: 64px;
+  --bottom-height: 68px;
+}
 
 * {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-:root {
-  --bg: #020604;
-  --panel: rgba(2, 10, 6, 0.94);
-  --panel2: rgba(4, 18, 10, 0.96);
-
-  --green: #00ff66;
-  --green2: #00cc55;
-  --green3: #7dffad;
-
-  --darkGreen: #003d1b;
-  --line: rgba(0, 255, 102, 0.32);
-
-  --danger: #ff3b3b;
-  --warning: #ffe600;
-
-  --shadow:
-    0 0 8px rgba(0,255,102,.45),
-    0 0 25px rgba(0,255,102,.15);
-
-  --font: "Courier New", monospace;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html,
 body {
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
+
   background: var(--bg);
-  color: var(--green);
-  font-family: var(--font);
+  color: var(--text);
+
+  font-family:
+    "Courier New",
+    "Roboto Mono",
+    monospace;
+
+  overflow: hidden;
 }
 
-/* =========================================================
-   GLOBAL
-========================================================= */
-
-button,
-input,
-textarea {
-  font-family: var(--font);
-}
-
-button {
-  color: var(--green);
-  background: rgba(0, 15, 7, .9);
-  border: 1px solid var(--green);
-  cursor: pointer;
-  transition:
-    .18s ease,
-    box-shadow .18s ease,
-    transform .18s ease;
-}
-
-button:hover {
-  background: rgba(0, 255, 102, .12);
-  box-shadow: var(--shadow);
-  text-shadow: 0 0 8px var(--green);
-}
-
-button:active {
-  transform: scale(.96);
-}
-
-input,
-textarea {
-  width: 100%;
-  background: rgba(0, 8, 4, .92);
-  color: var(--green);
-  border: 1px solid var(--line);
-  outline: none;
-  padding: 12px 13px;
-  border-radius: 4px;
-  caret-color: var(--green);
-  box-shadow: inset 0 0 12px rgba(0,255,102,.05);
-}
-
-input::placeholder,
-textarea::placeholder {
-  color: rgba(0,255,102,.42);
-}
-
-input:focus,
-textarea:focus {
-  border-color: var(--green);
-  box-shadow:
-    0 0 10px rgba(0,255,102,.22),
-    inset 0 0 10px rgba(0,255,102,.06);
-}
-
-textarea {
-  resize: none;
+body {
+  position: relative;
 }
 
 /* =========================================================
    CYBER BACKGROUND
-========================================================= */
+   ========================================================= */
 
-#cyberGrid {
+body::before {
+  content: "";
   position: fixed;
   inset: 0;
-  z-index: 9990;
-  pointer-events: none;
-  opacity: .08;
 
-  background-image:
+  pointer-events: none;
+  z-index: 9998;
+
+  background:
     linear-gradient(
-      rgba(0,255,102,.3) 1px,
+      rgba(0, 255, 102, 0.018) 1px,
       transparent 1px
     ),
     linear-gradient(
       90deg,
-      rgba(0,255,102,.3) 1px,
+      rgba(0, 255, 102, 0.018) 1px,
       transparent 1px
     );
 
   background-size: 35px 35px;
+
+  opacity: 0.35;
 }
 
-#scanlines {
+body::after {
+  content: "";
+
   position: fixed;
   inset: 0;
-  z-index: 9991;
+
   pointer-events: none;
+  z-index: 9999;
 
   background:
     repeating-linear-gradient(
       to bottom,
-      rgba(0,255,102,.035) 0px,
-      rgba(0,255,102,.035) 1px,
-      transparent 2px,
+      rgba(255, 255, 255, 0.012) 0,
+      rgba(255, 255, 255, 0.012) 1px,
+      transparent 1px,
       transparent 4px
     );
-}
 
-#crtOverlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9992;
-  pointer-events: none;
-
-  box-shadow:
-    inset 0 0 100px rgba(0,0,0,.9),
-    inset 0 0 20px rgba(0,255,102,.08);
+  opacity: 0.18;
 }
 
 /* =========================================================
-   TOP BAR
-========================================================= */
+   COMMON
+   ========================================================= */
 
-#topBar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-
-  height: 64px;
-
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  padding: 8px 12px;
-
-  background:
-    linear-gradient(
-      180deg,
-      rgba(1,12,7,.98),
-      rgba(1,8,5,.93)
-    );
-
-  border-bottom: 1px solid var(--green);
-
-  box-shadow:
-    0 0 20px rgba(0,255,102,.12);
+button,
+input,
+textarea {
+  font: inherit;
 }
 
-#brand {
-  min-width: 150px;
-
-  font-size: 18px;
-  font-weight: bold;
-  letter-spacing: 2px;
-
-  text-shadow:
-    0 0 5px var(--green),
-    0 0 15px rgba(0,255,102,.5);
+button {
+  cursor: pointer;
 }
-
-#brand .brandIcon {
-  margin-right: 5px;
-}
-
-.green {
-  color: var(--green);
-}
-
-#searchBox {
-  display: flex;
-  gap: 6px;
-  flex: 1;
-  max-width: 600px;
-}
-
-#searchInput {
-  height: 42px;
-}
-
-#searchBtn {
-  min-width: 90px;
-  padding: 0 12px;
-  font-weight: bold;
-}
-
-#topActions {
-  display: flex;
-  gap: 6px;
-  margin-left: auto;
-}
-
-.cyberBtn {
-  height: 42px;
-  padding: 0 12px;
-  white-space: nowrap;
-  font-size: 12px;
-  font-weight: bold;
-  letter-spacing: .5px;
-}
-
-/* =========================================================
-   STATUS BAR
-========================================================= */
-
-#statusBar {
-  position: fixed;
-
-  top: 72px;
-  left: 12px;
-
-  z-index: 900;
-
-  display: flex;
-  align-items: center;
-  gap: 7px;
-
-  padding: 6px 10px;
-
-  font-size: 11px;
-
-  background: rgba(0,8,4,.82);
-  border: 1px solid rgba(0,255,102,.25);
-}
-
-.statusDot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-
-  background: var(--green);
-
-  box-shadow:
-    0 0 6px var(--green),
-    0 0 14px var(--green);
-
-  animation: blink 1.3s infinite;
-}
-
-@keyframes blink {
-  50% {
-    opacity: .25;
-  }
-}
-
-/* =========================================================
-   MAP
-========================================================= */
-
-#mapContainer {
-  position: fixed;
-  inset: 0;
-
-  z-index: 1;
-
-  background: #020604;
-}
-
-#map {
-  position: absolute;
-  inset: 0;
-
-  background: #020604;
-
-  filter:
-    brightness(.66)
-    contrast(1.35)
-    saturate(.45)
-    hue-rotate(65deg);
-}
-
-/* Leaflet */
-
-.leaflet-container {
-  background: #020604 !important;
-  font-family: var(--font);
-}
-
-.leaflet-control {
-  filter: none !important;
-}
-
-.leaflet-control-zoom a {
-  color: var(--green) !important;
-  background: rgba(0,10,5,.94) !important;
-  border-color: var(--green) !important;
-}
-
-.leaflet-control-attribution {
-  background: rgba(0,5,3,.8) !important;
-  color: rgba(0,255,102,.55) !important;
-}
-
-.leaflet-control-attribution a {
-  color: var(--green) !important;
-}
-
-/* =========================================================
-   MAP CONTROLS
-========================================================= */
-
-.mapControl {
-  position: absolute;
-
-  right: 14px;
-
-  z-index: 600;
-
-  width: 44px;
-  height: 44px;
-
-  border-radius: 4px;
-
-  font-size: 18px;
-
-  background: rgba(0,10,5,.94);
-
-  box-shadow:
-    0 0 10px rgba(0,255,102,.18);
-}
-
-#compassBtn {
-  bottom: 155px;
-}
-
-#myLocationBtn {
-  bottom: 103px;
-}
-
-#mapModeBtn {
-  bottom: 51px;
-}
-
-/* =========================================================
-   MAP INFO
-========================================================= */
-
-#mapInfo {
-  position: fixed;
-
-  left: 12px;
-  bottom: 68px;
-
-  z-index: 700;
-
-  display: flex;
-  gap: 8px;
-
-  padding: 8px 10px;
-
-  background: rgba(0,8,4,.9);
-  border: 1px solid rgba(0,255,102,.35);
-
-  font-size: 10px;
-}
-
-#mapInfo > div {
-  display: flex;
-  gap: 5px;
-}
-
-.terminalLabel {
-  color: rgba(0,255,102,.5);
-}
-
-/* =========================================================
-   PANELS
-========================================================= */
-
-.panel,
-.sidePanel,
-.authBox,
-.incomingCallBox,
-#activeCallBox {
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(1,15,8,.98),
-      rgba(0,7,4,.97)
-    );
-
-  border: 1px solid var(--green);
-
-  box-shadow:
-    0 0 20px rgba(0,255,102,.18),
-    inset 0 0 30px rgba(0,255,102,.025);
-
-  color: var(--green);
-}
-
-.panel {
-  position: fixed;
-
-  z-index: 3000;
-
-  top: 50%;
-  left: 50%;
-
-  width: min(94vw, 600px);
-  max-height: 90vh;
-
-  transform: translate(-50%, -50%);
-
-  padding: 14px;
-
-  overflow: auto;
-}
-
-.panelHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  min-height: 38px;
-
-  margin-bottom: 12px;
-
-  padding-bottom: 9px;
-
-  border-bottom: 1px solid rgba(0,255,102,.28);
-
-  font-size: 13px;
-  font-weight: bold;
-  letter-spacing: 1px;
-}
-
-.panelIcon {
-  margin-right: 6px;
-}
-
-.closeBtn {
-  width: 32px;
-  height: 32px;
-
-  border-color: rgba(0,255,102,.5);
-
-  font-size: 16px;
-}
-
-/* =========================================================
-   HIDDEN
-========================================================= */
 
 .hidden {
   display: none !important;
 }
 
 /* =========================================================
-   BUTTON TYPES
-========================================================= */
+   TOP BAR
+   ========================================================= */
 
-.primaryBtn,
-.secondaryBtn,
-.dangerBtn,
-.acceptBtn,
-.rejectBtn {
+#topBar,
+.top-bar {
+  position: fixed;
 
-  min-height: 42px;
+  top: 0;
+  left: 0;
+  right: 0;
 
-  padding: 10px 15px;
+  height: var(--topbar-height);
 
-  font-weight: bold;
-  letter-spacing: .5px;
+  z-index: 3000;
 
-  border-radius: 3px;
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 8px 10px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 10, 5, 0.98),
+      rgba(1, 6, 3, 0.92)
+    );
+
+  border-bottom: 1px solid var(--border);
+
+  box-shadow:
+    0 0 15px rgba(0, 255, 102, 0.12);
 }
 
-.primaryBtn {
-  color: #001b0b;
-  background: var(--green);
+#brand,
+.brand {
+  color: var(--green);
+
+  font-weight: 900;
+
+  letter-spacing: 1px;
+
+  white-space: nowrap;
+
+  text-shadow:
+    0 0 7px rgba(0, 255, 102, 0.65);
+}
+
+#searchInput {
+  min-width: 80px;
+  flex: 1;
+}
+
+#searchInput,
+input,
+textarea {
+  color: var(--text);
+
+  background: rgba(0, 15, 7, 0.92);
+
+  border: 1px solid rgba(0, 255, 102, 0.35);
+
+  border-radius: 8px;
+
+  outline: none;
+
+  padding: 10px 11px;
+
+  box-shadow:
+    inset 0 0 8px rgba(0, 255, 102, 0.04);
+}
+
+input:focus,
+textarea:focus {
   border-color: var(--green);
 
   box-shadow:
-    0 0 12px rgba(0,255,102,.35);
+    0 0 8px rgba(0, 255, 102, 0.2),
+    inset 0 0 8px rgba(0, 255, 102, 0.05);
 }
 
-.primaryBtn:hover {
-  color: #001b0b;
-  background: #61ff99;
+input::placeholder,
+textarea::placeholder {
+  color: #48705a;
 }
 
-.secondaryBtn {
-  background: rgba(0,255,102,.06);
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+button {
+  color: var(--green);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 30, 14, 0.96),
+      rgba(0, 12, 6, 0.96)
+    );
+
+  border: 1px solid var(--border);
+
+  border-radius: 8px;
+
+  padding: 9px 11px;
+
+  transition:
+    transform 0.12s ease,
+    background 0.12s ease,
+    box-shadow 0.12s ease,
+    border-color 0.12s ease;
+
+  box-shadow: var(--glow);
 }
 
-.dangerBtn {
-  color: var(--danger);
-  border-color: var(--danger);
-  background: rgba(255,0,0,.05);
+button:hover {
+  border-color: var(--green);
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 50, 22, 0.98),
+      rgba(0, 20, 9, 0.98)
+    );
+
+  box-shadow:
+    0 0 12px rgba(0, 255, 102, 0.4);
 }
 
-.acceptBtn {
-  color: #001b0b;
-  background: var(--green);
+button:active {
+  transform: scale(0.96);
 }
 
-.rejectBtn {
-  color: #fff;
-  border-color: var(--danger);
-  background: rgba(255,0,0,.12);
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.textBtn {
-  border: none;
-  background: transparent;
-  padding: 10px;
+/* =========================================================
+   STATUS BAR
+   ========================================================= */
+
+#statusBar,
+.status-bar {
+  position: fixed;
+
+  top: var(--topbar-height);
+
+  left: 0;
+  right: 0;
+
+  height: 34px;
+
+  z-index: 2500;
+
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 0 12px;
+
+  background: rgba(0, 8, 4, 0.88);
+
+  border-bottom: 1px solid rgba(0, 255, 102, 0.18);
+
+  color: var(--muted);
 
   font-size: 11px;
 }
 
-.textBtn:hover {
-  background: transparent;
-  box-shadow: none;
+#status {
+  color: var(--green-soft);
+
+  white-space: nowrap;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#gpsStatus {
+  margin-left: auto;
+
+  white-space: nowrap;
+}
+
+#snapCount {
+  white-space: nowrap;
 }
 
 /* =========================================================
-   CAMERA
-========================================================= */
+   MAP
+   ========================================================= */
 
-#cameraStage {
-  position: relative;
+#map {
+  position: fixed;
 
-  width: 100%;
+  top: calc(var(--topbar-height) + 34px);
+  left: 0;
+  right: 0;
+  bottom: 0;
 
-  aspect-ratio: 4 / 3;
+  z-index: 1;
+
+  background: #d8e5e8;
 
   overflow: hidden;
-
-  background: #000;
-
-  border: 1px solid rgba(0,255,102,.45);
 }
 
-#cameraVideo {
+/*
+ IMPORTANT:
+ Do NOT apply filter: brightness(0), invert(), grayscale()
+ to #map or .leaflet-tile.
+*/
+
+#map .leaflet-container {
   width: 100%;
   height: 100%;
 
-  object-fit: cover;
+  background: #d8e5e8;
+
+  font-family:
+    "Courier New",
+    monospace;
 }
 
-#cameraOverlay {
+/* Keep real map tiles visible */
+#map .leaflet-tile {
+  opacity: 1 !important;
+
+  visibility: visible !important;
+
+  filter: none !important;
+
+  mix-blend-mode: normal !important;
+}
+
+/* Map labels should remain readable */
+#map .leaflet-tile-pane {
+  opacity: 1 !important;
+
+  filter: none !important;
+}
+
+/* =========================================================
+   OPTIONAL CYBER MAP VIGNETTE
+   Very light — does NOT hide the map.
+   ========================================================= */
+
+#map::after {
+  content: "";
+
   position: absolute;
+
   inset: 0;
 
+  z-index: 400;
+
   pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      transparent 55%,
+      rgba(0, 20, 10, 0.12) 100%
+    );
+
+  box-shadow:
+    inset 0 0 80px rgba(0, 255, 102, 0.05);
+
+  mix-blend-mode: multiply;
+
+  opacity: 0.35;
 }
 
-.cameraCorner {
-  position: absolute;
+/* =========================================================
+   LEAFLET CONTROLS
+   ========================================================= */
 
-  width: 35px;
-  height: 35px;
-
-  border-color: var(--green);
-  border-style: solid;
-
-  filter: drop-shadow(0 0 5px var(--green));
+.leaflet-control-zoom {
+  border: 0 !important;
 }
 
-.cameraCorner.topLeft {
-  top: 10px;
-  left: 10px;
-  border-width: 2px 0 0 2px;
+.leaflet-control-zoom a {
+  width: 38px !important;
+  height: 38px !important;
+
+  line-height: 36px !important;
+
+  color: var(--green) !important;
+
+  background: rgba(0, 12, 6, 0.9) !important;
+
+  border: 1px solid var(--border) !important;
+
+  box-shadow: 0 0 8px rgba(0, 255, 102, 0.25);
+
+  backdrop-filter: blur(5px);
 }
 
-.cameraCorner.topRight {
-  top: 10px;
-  right: 10px;
-  border-width: 2px 2px 0 0;
+.leaflet-control-zoom a:hover {
+  color: #ffffff !important;
+
+  background: rgba(0, 35, 15, 0.95) !important;
 }
 
-.cameraCorner.bottomLeft {
-  bottom: 10px;
-  left: 10px;
-  border-width: 0 0 2px 2px;
+.leaflet-control-attribution {
+  color: #1d5735 !important;
+
+  background: rgba(0, 8, 4, 0.7) !important;
+
+  font-size: 9px !important;
 }
 
-.cameraCorner.bottomRight {
-  bottom: 10px;
-  right: 10px;
-  border-width: 0 2px 2px 0;
+.leaflet-control-attribution a {
+  color: #348f58 !important;
 }
 
-#gpsLockIndicator {
-  position: absolute;
+/* =========================================================
+   CUSTOM MAP BUTTONS
+   ========================================================= */
 
-  top: 15px;
-  left: 50%;
+#mapControls {
+  position: fixed;
 
-  transform: translateX(-50%);
+  right: 12px;
 
-  padding: 5px 9px;
+  bottom: 82px;
 
-  background: rgba(0,0,0,.65);
+  z-index: 1500;
 
-  border: 1px solid rgba(0,255,102,.35);
-
-  font-size: 10px;
-}
-
-#cameraControls {
   display: flex;
-  justify-content: center;
-  align-items: center;
 
-  gap: 30px;
+  flex-direction: column;
 
-  padding: 15px 5px;
+  gap: 10px;
 }
 
-.cameraControl {
-  width: 45px;
-  height: 45px;
+#mapControls button,
+.map-control {
+  width: 48px;
+  height: 48px;
+
+  padding: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  font-size: 19px;
+
+  background: rgba(0, 15, 7, 0.9);
+
+  backdrop-filter: blur(8px);
+
+  border: 1px solid var(--green);
+
+  box-shadow:
+    0 0 12px rgba(0, 255, 102, 0.25);
+}
+
+#compassBtn,
+#myLocationBtn,
+#mapModeBtn {
+  position: fixed;
+
+  right: 14px;
+
+  z-index: 1200;
+}
+
+#compassBtn {
+  bottom: 190px;
+}
+
+#myLocationBtn {
+  bottom: 132px;
+}
+
+#mapModeBtn {
+  bottom: 74px;
+}
+
+/* =========================================================
+   GHOST MARKER
+   ========================================================= */
+
+.ghost-marker {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 48px;
+  min-height: 48px;
+
+  padding: 7px 10px;
 
   border-radius: 50%;
 
-  font-size: 17px;
+  color: #001a0a;
+
+  background: var(--green);
+
+  border: 2px solid #b7ffd0;
+
+  font-weight: 900;
+
+  box-shadow:
+    0 0 10px rgba(0, 255, 102, 0.8),
+    0 0 25px rgba(0, 255, 102, 0.35);
+
+  text-shadow: none;
 }
 
-.captureBtn {
+/* =========================================================
+   GPS MARKER
+   ========================================================= */
+
+.gps-marker {
+  width: 18px;
+  height: 18px;
+
+  border-radius: 50%;
+
+  background: #00ff66;
+
+  border: 3px solid white;
+
+  box-shadow:
+    0 0 8px #00ff66,
+    0 0 20px rgba(0, 255, 102, 0.7);
+}
+
+/* =========================================================
+   PANELS
+   ========================================================= */
+
+.panel,
+.modal,
+.overlay-panel {
+  position: fixed;
+
+  z-index: 5000;
+
+  color: var(--text);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(2, 15, 7, 0.98),
+      rgba(0, 6, 3, 0.98)
+    );
+
+  border: 1px solid var(--border);
+
+  border-radius: var(--radius);
+
+  box-shadow:
+    0 0 20px rgba(0, 255, 102, 0.18),
+    inset 0 0 20px rgba(0, 255, 102, 0.025);
+
+  backdrop-filter: blur(12px);
+}
+
+.panel {
+  padding: 16px;
+}
+
+/* =========================================================
+   CALL PANEL
+   ========================================================= */
+
+#callPanel {
+  top: 76px;
+
+  right: 12px;
+
+  width: min(390px, calc(100vw - 24px));
+
+  max-height: calc(100vh - 100px);
+
+  overflow-y: auto;
+}
+
+#myCallId {
+  margin: 10px 0;
+
+  padding: 12px;
+
+  color: var(--green);
+
+  background: #000;
+
+  border: 1px dashed var(--green);
+
+  border-radius: 8px;
+
+  font-size: 20px;
+
+  font-weight: 900;
+
+  text-align: center;
+
+  letter-spacing: 3px;
+
+  word-break: break-all;
+}
+
+#targetCallId {
+  width: 100%;
+
+  margin: 8px 0;
+}
+
+#callHint {
+  color: var(--muted);
+
+  font-size: 11px;
+
+  margin-top: 8px;
+}
+
+/* =========================================================
+   CAMERA PANEL
+   ========================================================= */
+
+#cameraPanel {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 6000;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  background: #000;
+
+  padding: 12px;
+}
+
+#cameraVideo {
+  width: min(100%, 720px);
+
+  max-height: 72vh;
+
+  object-fit: cover;
+
+  background: #000;
+
+  border: 1px solid var(--green);
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 0 25px rgba(0, 255, 102, 0.2);
+}
+
+#gpsLockIndicator {
+  margin: 8px;
+
+  color: var(--green);
+
+  font-size: 12px;
+
+  text-align: center;
+}
+
+#cameraControls,
+.camera-controls {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  margin-top: 12px;
+}
+
+#captureBtn {
   width: 68px;
   height: 68px;
 
   border-radius: 50%;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border: 3px solid var(--green);
-
-  box-shadow:
-    0 0 10px rgba(0,255,102,.5),
-    inset 0 0 15px rgba(0,255,102,.12);
-}
-
-.captureBtn span {
-  width: 48px;
-  height: 48px;
-
-  border-radius: 50%;
+  color: #001a0a;
 
   background: var(--green);
 
+  border: 4px solid #b9ffd0;
+
   box-shadow:
-    0 0 12px var(--green);
+    0 0 20px rgba(0, 255, 102, 0.7);
 }
 
-#cameraMode {
-  display: flex;
-  justify-content: center;
-
-  gap: 5px;
-
-  margin-bottom: 4px;
+#captureBtn:active {
+  transform: scale(0.9);
 }
 
-.modeBtn {
-  padding: 8px 20px;
+#recordBtn {
+  border-color: #ff3b3b;
 
-  font-size: 11px;
+  color: #ff6262;
 }
 
-.modeBtn.active {
+#stopRecordBtn {
+  color: white;
+
+  background: #5c0808;
+
+  border-color: #ff3b3b;
+}
+
+#switchCameraBtn {
+  min-width: 48px;
+}
+
+/* =========================================================
+   CAMERA MODE BUTTONS
+   ========================================================= */
+
+#photoModeBtn.active,
+#videoModeBtn.active {
+  color: #001a0a;
+
   background: var(--green);
-  color: #001b0b;
+
+  border-color: #baffd0;
 }
 
 /* =========================================================
    PREVIEW
-========================================================= */
+   ========================================================= */
 
-#previewMedia {
-  width: 100%;
-  max-height: 55vh;
+#previewPanel {
+  position: fixed;
 
-  overflow: hidden;
+  inset: 0;
 
-  border: 1px solid rgba(0,255,102,.3);
+  z-index: 6100;
 
-  margin-bottom: 10px;
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 16px;
+
+  background: rgba(0, 0, 0, 0.97);
 }
 
-#previewMedia img,
-#previewMedia video {
-  display: block;
+#previewMedia {
+  width: min(100%, 720px);
 
-  width: 100%;
-  max-height: 55vh;
+  max-height: 60vh;
 
   object-fit: contain;
 
-  background: #000;
-}
-
-#previewGps {
-  margin-bottom: 10px;
-
-  padding: 8px;
-
-  font-size: 10px;
-
-  border: 1px solid rgba(0,255,102,.2);
-}
-
-#previewActions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-
-  gap: 8px;
-
-  margin-top: 10px;
-}
-
-/* =========================================================
-   CALL PANEL
-========================================================= */
-
-#callPanel {
-  position: fixed;
-
-  top: 72px;
-  right: 12px;
-
-  z-index: 2500;
-
-  width: min(94vw, 360px);
-
-  padding: 15px;
-
-  display: none;
-
-  background:
-    linear-gradient(
-      145deg,
-      rgba(1,16,8,.98),
-      rgba(0,7,4,.98)
-    );
-
   border: 1px solid var(--green);
 
-  box-shadow:
-    0 0 25px rgba(0,255,102,.2);
+  border-radius: 10px;
 }
 
-.callPanelTitle {
-  font-size: 10px;
-  color: rgba(0,255,102,.55);
+#previewCoordinates {
+  width: min(720px, 100%);
 
-  margin-bottom: 7px;
+  margin: 10px 0;
+
+  color: var(--muted);
+
+  font-size: 11px;
 }
 
-.myCallIdRow {
-  display: flex;
-  gap: 7px;
-  align-items: center;
+#descriptionInput {
+  width: min(720px, 100%);
+
+  min-height: 80px;
+
+  resize: vertical;
 }
 
-#myCallId {
-  flex: 1;
-
-  padding: 12px;
-
-  font-size: 21px;
-  font-weight: bold;
-
-  letter-spacing: 4px;
-
-  text-align: center;
-
-  border: 1px solid var(--green);
-
-  background: #000b05;
-
-  text-shadow:
-    0 0 8px var(--green);
-}
-
-.myCallIdRow .secondaryBtn {
-  min-width: 70px;
-}
-
-.terminalDivider {
-  margin: 12px 0;
-
-  overflow: hidden;
-
-  color: rgba(0,255,102,.22);
-}
-
-#targetCallId {
-  margin: 7px 0 10px;
-
-  text-align: center;
-
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-.callBtn {
-  width: 100%;
-}
-
-#callHint {
-  margin-top: 10px;
-
-  color: rgba(0,255,102,.5);
-
-  font-size: 9px;
-  line-height: 1.5;
-
-  text-align: center;
+#previewPanel button {
+  margin: 5px;
 }
 
 /* =========================================================
    INCOMING CALL
-========================================================= */
+   ========================================================= */
 
-.callOverlay {
+#incomingCallOverlay {
   position: fixed;
+
   inset: 0;
 
   z-index: 9000;
 
   display: flex;
+
   align-items: center;
+
   justify-content: center;
 
-  background:
-    radial-gradient(
-      circle,
-      rgba(0,255,102,.08),
-      rgba(0,0,0,.96)
-    );
+  padding: 20px;
 
-  backdrop-filter: blur(7px);
+  background: rgba(0, 0, 0, 0.88);
 }
 
-.incomingCallBox {
-  width: min(90vw, 390px);
+.incoming-call-box {
+  width: min(420px, 100%);
 
-  padding: 30px 20px;
+  padding: 28px 20px;
 
   text-align: center;
-}
 
-.callPulse {
-  width: 75px;
-  height: 75px;
+  background:
+    linear-gradient(
+      145deg,
+      #031b0b,
+      #000603
+    );
 
-  margin: 0 auto 18px;
+  border: 1px solid var(--green);
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 50%;
-
-  border: 2px solid var(--green);
-
-  font-size: 30px;
+  border-radius: 16px;
 
   box-shadow:
-    0 0 10px var(--green),
-    0 0 40px rgba(0,255,102,.25);
-
-  animation: callPulse 1s infinite;
+    0 0 40px rgba(0, 255, 102, 0.3);
 }
 
-@keyframes callPulse {
-  50% {
-    transform: scale(1.08);
-    box-shadow:
-      0 0 20px var(--green),
-      0 0 60px rgba(0,255,102,.3);
-  }
-}
+#incomingCallerText {
+  color: var(--green);
 
-.incomingTitle {
-  font-size: 19px;
+  font-size: 18px;
+
   font-weight: bold;
 
-  letter-spacing: 2px;
-
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
-.incomingCaller {
-  font-size: 14px;
-  margin-bottom: 6px;
+#incomingCallerRoom {
+  color: var(--muted);
+
+  margin-bottom: 20px;
 }
 
-.incomingRoom {
-  color: rgba(0,255,102,.55);
-  font-size: 10px;
+#acceptCallBtn {
+  color: #001a0a;
+
+  background: var(--green);
+
+  border-color: #baffd0;
 }
 
-.incomingActions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+#rejectCallBtn {
+  color: #ff6b6b;
 
-  gap: 10px;
+  border-color: #ff3b3b;
 
-  margin-top: 25px;
+  background: rgba(70, 0, 0, 0.45);
 }
 
 /* =========================================================
    ACTIVE CALL
-========================================================= */
+   ========================================================= */
 
 #activeCallOverlay {
-  background: #000;
-}
+  position: fixed;
 
-#activeCallBox {
-  position: relative;
-
-  width: 100vw;
-  height: 100vh;
-
-  overflow: hidden;
-
-  background: #000;
-}
-
-#remoteVideoContainer {
-  position: absolute;
   inset: 0;
+
+  z-index: 9100;
 
   background: #000;
 }
 
 #remoteVideo {
+  position: absolute;
+
+  inset: 0;
+
   width: 100%;
   height: 100%;
 
-  object-fit: contain;
+  object-fit: cover;
+
+  background: #000;
+}
+
+#localVideo {
+  position: absolute;
+
+  right: 14px;
+  top: 14px;
+
+  width: 110px;
+  height: 155px;
+
+  object-fit: cover;
+
+  background: #000;
+
+  border: 1px solid var(--green);
+
+  border-radius: 10px;
+
+  z-index: 2;
 }
 
 #remoteCallStatus {
   position: absolute;
 
-  top: 18px;
-  left: 50%;
+  top: 16px;
+  left: 16px;
 
-  transform: translateX(-50%);
+  z-index: 3;
 
-  padding: 6px 12px;
+  padding: 8px 10px;
 
-  background: rgba(0,0,0,.65);
+  color: var(--green);
 
-  border: 1px solid rgba(0,255,102,.3);
+  background: rgba(0, 0, 0, 0.65);
 
-  font-size: 10px;
+  border: 1px solid rgba(0, 255, 102, 0.4);
+
+  border-radius: 8px;
 }
 
-#localVideoContainer {
+#activeCallOverlay .call-controls {
   position: absolute;
 
-  top: 20px;
-  right: 20px;
+  left: 0;
+  right: 0;
+  bottom: 24px;
 
-  width: 120px;
-  aspect-ratio: 3 / 4;
-
-  overflow: hidden;
-
-  border: 1px solid var(--green);
-
-  box-shadow:
-    0 0 12px rgba(0,255,102,.25);
-}
-
-#localVideo {
-  width: 100%;
-  height: 100%;
-
-  object-fit: cover;
-}
-
-#callControls {
-  position: absolute;
-
-  left: 50%;
-  bottom: 35px;
-
-  transform: translateX(-50%);
+  z-index: 4;
 
   display: flex;
 
-  gap: 18px;
+  justify-content: center;
+
+  gap: 12px;
 }
 
-.callControlBtn {
-  width: 55px;
-  height: 55px;
+#cameraBtn,
+#micBtn {
+  min-width: 52px;
+  min-height: 52px;
+
+  border-radius: 50%;
+}
+
+#endBtn {
+  min-width: 58px;
+  min-height: 58px;
 
   border-radius: 50%;
 
-  font-size: 19px;
+  color: white;
 
-  background: rgba(0,15,8,.9);
-}
+  background: #750000;
 
-.endCallBtn {
-  color: #fff;
-
-  background: rgba(150,0,0,.8);
-
-  border-color: var(--danger);
-}
-
-/* =========================================================
-   NOTIFICATION / SIDE PANELS
-========================================================= */
-
-.sidePanel {
-  position: fixed;
-
-  top: 64px;
-  right: 0;
-  bottom: 0;
-
-  z-index: 4000;
-
-  width: min(92vw, 390px);
-
-  padding: 15px;
-
-  overflow-y: auto;
-
-  border-top: 0;
-  border-right: 0;
-  border-bottom: 0;
+  border-color: #ff3333;
 
   box-shadow:
-    -10px 0 35px rgba(0,255,102,.12);
-}
-
-.emptyState {
-  padding: 30px 10px;
-
-  text-align: center;
-
-  color: rgba(0,255,102,.4);
-
-  font-size: 11px;
-}
-
-#notificationList {
-  display: flex;
-  flex-direction: column;
-
-  gap: 7px;
-}
-
-.notificationItem {
-  padding: 10px;
-
-  border: 1px solid rgba(0,255,102,.2);
-
-  background: rgba(0,255,102,.025);
-
-  font-size: 11px;
-}
-
-/* =========================================================
-   AUTH
-========================================================= */
-
-.modalOverlay {
-  position: fixed;
-  inset: 0;
-
-  z-index: 8000;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: rgba(0,0,0,.82);
-
-  backdrop-filter: blur(5px);
-}
-
-.authBox {
-  position: relative;
-
-  width: min(92vw, 390px);
-
-  padding: 25px 20px;
-}
-
-.modalClose {
-  position: absolute;
-
-  top: 10px;
-  right: 10px;
-}
-
-.authLogo {
-  margin-bottom: 18px;
-
-  text-align: center;
-
-  font-size: 22px;
-  font-weight: bold;
-
-  letter-spacing: 3px;
-
-  text-shadow:
-    0 0 10px var(--green);
-}
-
-.authLogo span {
-  color: var(--green);
-}
-
-.authTitle {
-  margin-bottom: 15px;
-
-  text-align: center;
-
-  font-size: 15px;
-  letter-spacing: 2px;
-}
-
-#loginForm,
-#registerForm {
-  display: flex;
-  flex-direction: column;
-
-  gap: 9px;
-}
-
-#authMessage {
-  min-height: 20px;
-
-  margin-top: 10px;
-
-  text-align: center;
-
-  font-size: 10px;
+    0 0 15px rgba(255, 0, 0, 0.35);
 }
 
 /* =========================================================
    VIEWER
-========================================================= */
+   ========================================================= */
 
-.viewerOverlay {
+#viewer {
   position: fixed;
+
   inset: 0;
 
   z-index: 7000;
 
   display: flex;
-  align-items: center;
-  justify-content: center;
 
-  background: rgba(0,0,0,.97);
+  flex-direction: column;
 
-  color: var(--green);
-}
-
-.viewerClose {
-  position: absolute;
-
-  top: 15px;
-  right: 15px;
-
-  z-index: 20;
-
-  width: 40px;
-  height: 40px;
-
-  font-size: 19px;
-}
-
-.viewerCounter {
-  position: absolute;
-
-  top: 20px;
-  left: 50%;
-
-  transform: translateX(-50%);
-
-  z-index: 20;
-
-  font-size: 11px;
-
-  background: rgba(0,0,0,.6);
-
-  padding: 6px 10px;
-
-  border: 1px solid rgba(0,255,102,.25);
+  background: #000;
 }
 
 #viewerContent {
-  position: absolute;
+  flex: 1;
 
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 250px;
+  min-height: 0;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  touch-action: pan-y;
+  position: relative;
 }
 
 #viewerMedia {
   width: 100%;
   height: 100%;
 
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-#viewerMedia img,
-#viewerMedia video {
-  max-width: 100%;
-  max-height: 100%;
-
   object-fit: contain;
+
+  background: #000;
 }
 
-.viewerArrow {
+#viewerCloseBtn {
   position: absolute;
 
-  top: 45%;
+  top: 14px;
+  right: 14px;
 
-  z-index: 20;
+  z-index: 5;
 
-  width: 42px;
-  height: 65px;
+  width: 44px;
+  height: 44px;
 
-  font-size: 35px;
-
-  background: rgba(0,0,0,.55);
+  border-radius: 50%;
 }
 
-.viewerPrev {
-  left: 8px;
+#viewerCounter {
+  position: absolute;
+
+  top: 16px;
+  left: 16px;
+
+  z-index: 5;
+
+  color: var(--green);
+
+  background: rgba(0, 0, 0, 0.7);
+
+  border: 1px solid rgba(0, 255, 102, 0.4);
+
+  padding: 7px 10px;
+
+  border-radius: 8px;
 }
 
-.viewerNext {
-  right: 8px;
+#viewerPrevBtn,
+#viewerNextBtn {
+  position: absolute;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  z-index: 5;
+
+  width: 45px;
+  height: 60px;
+
+  font-size: 25px;
+}
+
+#viewerPrevBtn {
+  left: 10px;
+}
+
+#viewerNextBtn {
+  right: 10px;
 }
 
 #viewerDetails {
-  position: absolute;
-
-  left: 0;
-  right: 0;
-  bottom: 0;
-
-  height: 250px;
-
-  padding: 15px;
+  max-height: 42vh;
 
   overflow-y: auto;
+
+  padding: 16px;
 
   background:
     linear-gradient(
       180deg,
-      rgba(0,0,0,.3),
-      rgba(1,12,7,.98)
+      rgba(0, 12, 6, 0.98),
+      rgba(0, 4, 2, 0.99)
     );
 
-  border-top: 1px solid rgba(0,255,102,.25);
+  border-top: 1px solid var(--border);
 }
 
-.viewerName {
-  font-size: 15px;
+#viewerDisplayName {
+  color: var(--green);
+
+  font-size: 18px;
+
   font-weight: bold;
 }
 
-.viewerLocation {
-  margin-top: 3px;
+#viewerLocation,
+#viewerDescription,
+#viewerDate,
+#viewerTime,
+#viewerViews {
+  margin-top: 7px;
 
-  font-size: 10px;
+  color: var(--muted);
 
-  color: rgba(0,255,102,.5);
+  font-size: 12px;
 }
 
-.viewerDescription {
-  margin: 10px 0;
-
-  font-size: 11px;
-
-  line-height: 1.5;
-}
-
-.viewerMeta {
-  display: flex;
-  flex-wrap: wrap;
-
-  gap: 12px;
-
-  color: rgba(0,255,102,.55);
-
-  font-size: 9px;
-}
-
-.viewerSocial {
-  display: flex;
-
-  gap: 8px;
-
+#likeBtn,
+#commentBtn {
   margin-top: 10px;
 }
 
-.socialBtn {
-  padding: 8px 12px;
-
-  font-size: 11px;
+#likeCount,
+#commentCount {
+  color: var(--green);
 }
 
+/* =========================================================
+   LIKED USERS
+   ========================================================= */
+
 #likedUsers {
-  margin-top: 6px;
+  margin-top: 10px;
 
-  font-size: 9px;
+  color: #7fd99e;
 
-  color: rgba(0,255,102,.5);
+  font-size: 11px;
 }
 
 /* =========================================================
    COMMENTS
-========================================================= */
+   ========================================================= */
 
 #commentsSection {
-  margin-top: 12px;
+  margin-top: 15px;
 
-  border-top: 1px solid rgba(0,255,102,.18);
+  padding-top: 12px;
 
-  padding-top: 10px;
-}
-
-.commentsTitle {
-  margin-bottom: 8px;
-
-  font-size: 11px;
-  font-weight: bold;
+  border-top: 1px solid rgba(0, 255, 102, 0.2);
 }
 
 #commentsList {
-  display: flex;
-  flex-direction: column;
-
-  gap: 7px;
-
-  max-height: 180px;
+  max-height: 220px;
 
   overflow-y: auto;
+
+  margin-bottom: 10px;
 }
 
-.commentItem {
-  padding: 8px;
+.comment {
+  margin: 8px 0;
 
-  background: rgba(0,255,102,.025);
+  padding: 9px;
 
-  border-left: 2px solid rgba(0,255,102,.3);
+  background: rgba(0, 25, 12, 0.7);
 
-  font-size: 10px;
+  border-left: 2px solid var(--green);
+
+  border-radius: 6px;
 }
 
-.commentAuthor {
+.comment-author {
+  color: var(--green);
+
+  font-size: 11px;
+
   font-weight: bold;
-
-  margin-bottom: 3px;
 }
 
-.commentText {
-  color: rgba(0,255,102,.72);
+.comment-text {
+  margin-top: 4px;
+
+  color: var(--text);
+
+  font-size: 12px;
 }
 
-.commentReply {
-  margin-top: 5px;
-
-  padding-left: 12px;
-
-  color: rgba(0,255,102,.5);
-
-  font-size: 9px;
-}
-
-#commentComposer {
-  display: flex;
-
-  gap: 6px;
-
-  margin-top: 8px;
+.reply {
+  margin-left: 20px;
 }
 
 #commentInput {
-  min-height: 42px;
-  max-height: 80px;
+  width: calc(100% - 85px);
 }
 
 #sendCommentBtn {
-  min-width: 70px;
+  width: 75px;
+
+  margin-left: 5px;
 }
 
 /* =========================================================
    CLUSTER PANEL
-========================================================= */
+   ========================================================= */
+
+#clusterPanel {
+  left: 50%;
+
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: min(460px, calc(100vw - 24px));
+
+  max-height: 75vh;
+
+  overflow-y: auto;
+
+  padding: 16px;
+}
 
 #clusterTitle {
-  padding: 10px;
+  color: var(--green);
 
-  margin-bottom: 10px;
-
-  border: 1px solid rgba(0,255,102,.2);
-
-  text-align: center;
-
-  font-size: 13px;
+  margin-bottom: 12px;
 }
 
 #clusterSnapList {
   display: flex;
+
   flex-direction: column;
 
-  gap: 7px;
+  gap: 8px;
 }
 
-.clusterSnapItem {
-  padding: 10px;
-
-  border: 1px solid rgba(0,255,102,.2);
-
-  cursor: pointer;
-}
-
-.clusterSnapItem:hover {
-  background: rgba(0,255,102,.07);
-}
-
-/* =========================================================
-   PROFILE
-========================================================= */
-
-.profileInfo {
-  padding: 12px;
-
-  border: 1px solid rgba(0,255,102,.2);
-
-  margin-bottom: 10px;
-}
-
-.profileName {
-  font-size: 15px;
-  font-weight: bold;
-}
-
-.profileEmail {
-  margin-top: 5px;
-
-  color: rgba(0,255,102,.5);
-
-  font-size: 10px;
-}
-
-.profileCallId {
-  padding: 12px;
-
-  margin-bottom: 10px;
-
-  border: 1px solid rgba(0,255,102,.2);
-
+.cluster-snap {
   display: flex;
-  justify-content: space-between;
 
-  font-size: 10px;
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 8px;
+
+  background: rgba(0, 25, 12, 0.8);
+
+  border: 1px solid rgba(0, 255, 102, 0.2);
+
+  border-radius: 8px;
 }
 
-.profileCallId strong {
-  letter-spacing: 2px;
+.cluster-snap img,
+.cluster-snap video {
+  width: 65px;
+  height: 65px;
+
+  object-fit: cover;
+
+  border-radius: 6px;
 }
 
 /* =========================================================
-   CHAT
-========================================================= */
+   NOTIFICATIONS
+   ========================================================= */
 
-.chatMessages {
-  height: calc(100vh - 155px);
+#notificationPanel {
+  position: fixed;
+
+  top: 72px;
+  right: 10px;
+
+  width: min(390px, calc(100vw - 20px));
+
+  max-height: 70vh;
+
+  z-index: 5200;
 
   overflow-y: auto;
 
-  display: flex;
-  flex-direction: column;
-
-  gap: 7px;
-
-  padding: 5px;
+  padding: 12px;
 }
 
-.chatSystem {
-  color: rgba(0,255,102,.4);
+.notification-item {
+  padding: 11px;
+
+  margin-bottom: 7px;
+
+  background: rgba(0, 25, 12, 0.8);
+
+  border: 1px solid rgba(0, 255, 102, 0.2);
+
+  border-radius: 8px;
+
+  color: var(--text);
+
+  font-size: 12px;
+}
+
+.notification-item:hover {
+  border-color: var(--green);
+
+  background: rgba(0, 45, 20, 0.9);
+}
+
+#notificationCount {
+  display: inline-flex;
+
+  min-width: 17px;
+  height: 17px;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0 4px;
+
+  border-radius: 50%;
+
+  color: #001a0a;
+
+  background: var(--green);
 
   font-size: 9px;
+
+  font-weight: 900;
+}
+
+/* =========================================================
+   AUTH MODAL
+   ========================================================= */
+
+#authModal {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 8000;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 18px;
+
+  background: rgba(0, 0, 0, 0.88);
+}
+
+.auth-box {
+  width: min(410px, 100%);
+
+  padding: 22px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #03170a,
+      #000603
+    );
+
+  border: 1px solid var(--green);
+
+  border-radius: 14px;
+
+  box-shadow:
+    0 0 35px rgba(0, 255, 102, 0.25);
+}
+
+#authTitle {
+  color: var(--green);
+
+  text-align: center;
+
+  margin-bottom: 18px;
+}
+
+#loginForm,
+#registerForm {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+#authMessage {
+  margin-top: 10px;
+
+  color: #ff7575;
+
+  font-size: 12px;
 
   text-align: center;
 }
 
-.chatMessage {
-  max-width: 85%;
+/* =========================================================
+   PROFILE
+   ========================================================= */
 
-  padding: 8px 10px;
+#profilePanel {
+  position: fixed;
 
-  border: 1px solid rgba(0,255,102,.25);
+  top: 76px;
+  right: 12px;
 
-  font-size: 10px;
+  width: min(380px, calc(100vw - 24px));
+
+  z-index: 5100;
+
+  padding: 18px;
 }
 
-.chatMessage.mine {
-  align-self: flex-end;
+#profileName {
+  color: var(--green);
 
-  background: rgba(0,255,102,.08);
+  font-size: 20px;
+
+  font-weight: bold;
 }
 
-.chatMessage.other {
-  align-self: flex-start;
+#profileEmail,
+#profileCallRoom {
+  color: var(--muted);
+
+  margin-top: 8px;
+
+  font-size: 12px;
+
+  word-break: break-all;
 }
 
-.chatComposer {
-  position: absolute;
+/* =========================================================
+   CHAT
+   ========================================================= */
 
-  left: 15px;
-  right: 15px;
-  bottom: 15px;
+#chatPanel {
+  position: fixed;
+
+  right: 12px;
+  bottom: 80px;
+
+  width: min(390px, calc(100vw - 24px));
+
+  height: min(550px, calc(100vh - 110px));
+
+  z-index: 5300;
 
   display: flex;
 
-  gap: 6px;
+  flex-direction: column;
+
+  padding: 12px;
 }
 
-.chatComposer input {
+#chatMessages {
   flex: 1;
+
+  overflow-y: auto;
+
+  min-height: 0;
+
+  padding: 8px;
+}
+
+.chat-message {
+  max-width: 85%;
+
+  margin: 7px 0;
+
+  padding: 8px 10px;
+
+  border: 1px solid rgba(0, 255, 102, 0.2);
+
+  border-radius: 9px;
+
+  background: rgba(0, 25, 12, 0.8);
+
+  font-size: 12px;
+}
+
+.chat-message.mine {
+  margin-left: auto;
+
+  color: #001a0a;
+
+  background: var(--green);
+
+  border-color: var(--green);
+}
+
+#chatInput {
+  width: calc(100% - 72px);
+}
+
+#sendChatBtn {
+  width: 65px;
+
+  margin-left: 5px;
 }
 
 /* =========================================================
    LOADING
-========================================================= */
+   ========================================================= */
 
-.loadingOverlay {
+#loadingOverlay {
   position: fixed;
+
   inset: 0;
 
   z-index: 10000;
 
   display: flex;
+
   align-items: center;
   justify-content: center;
 
-  background: rgba(0,0,0,.85);
+  flex-direction: column;
 
-  backdrop-filter: blur(3px);
+  background: #000;
+
+  color: var(--green);
+
+  font-size: 14px;
 }
 
-.loaderBox {
-  text-align: center;
+.loading-spinner {
+  width: 42px;
+  height: 42px;
 
-  padding: 25px;
+  border: 3px solid rgba(0, 255, 102, 0.2);
 
-  border: 1px solid var(--green);
+  border-top-color: var(--green);
 
-  background: #010805;
+  border-radius: 50%;
 
-  box-shadow: var(--shadow);
-}
+  animation: spin 0.8s linear infinite;
 
-.loaderSymbol {
-  font-size: 38px;
-
-  margin-bottom: 10px;
-
-  animation: spin 1.3s linear infinite;
+  margin-bottom: 14px;
 }
 
 @keyframes spin {
@@ -1627,170 +1562,127 @@ textarea {
   }
 }
 
-#loadingText {
-  font-size: 11px;
-
-  letter-spacing: 1px;
-}
-
 /* =========================================================
    TERMINAL CONSOLE
-========================================================= */
+   ========================================================= */
 
 #terminalConsole {
   position: fixed;
 
   left: 12px;
-  bottom: 68px;
+  bottom: 78px;
 
-  z-index: 650;
+  width: min(420px, calc(100vw - 24px));
 
-  width: 270px;
-  max-height: 110px;
+  max-height: 150px;
+
+  z-index: 1400;
+
+  padding: 10px;
 
   overflow: hidden;
 
-  background: rgba(0,5,3,.88);
+  color: #55ff91;
 
-  border: 1px solid rgba(0,255,102,.25);
+  background: rgba(0, 5, 2, 0.8);
 
-  font-size: 8px;
+  border: 1px solid rgba(0, 255, 102, 0.22);
+
+  border-radius: 8px;
+
+  font-size: 9px;
 
   pointer-events: none;
+
+  opacity: 0.65;
 }
 
-.terminalHeader {
-  display: flex;
-  justify-content: space-between;
+#terminalTime {
+  color: var(--green);
 
-  padding: 5px 7px;
-
-  border-bottom: 1px solid rgba(0,255,102,.18);
-
-  color: rgba(0,255,102,.65);
+  margin-right: 6px;
 }
 
 #terminalOutput {
-  padding: 6px 7px;
-
-  line-height: 1.55;
-
-  color: rgba(0,255,102,.5);
+  white-space: pre-wrap;
 }
 
 /* =========================================================
    BOTTOM NAV
-========================================================= */
+   ========================================================= */
 
-#bottomNav {
+#bottomNav,
+.bottom-nav {
   position: fixed;
 
   left: 0;
   right: 0;
   bottom: 0;
 
-  height: 58px;
+  height: var(--bottom-height);
 
-  z-index: 2000;
-
-  display: none;
-
-  grid-template-columns: repeat(5, 1fr);
-
-  background: rgba(0,8,4,.96);
-
-  border-top: 1px solid var(--green);
-
-  box-shadow:
-    0 -5px 20px rgba(0,255,102,.1);
-}
-
-.bottomNavBtn {
-  border: 0;
-  border-right: 1px solid rgba(0,255,102,.12);
-
-  background: transparent;
+  z-index: 4000;
 
   display: flex;
+
+  align-items: center;
+  justify-content: space-around;
+
+  padding: 7px 8px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 10, 5, 0.88),
+      rgba(0, 4, 2, 0.98)
+    );
+
+  border-top: 1px solid var(--border);
+
+  backdrop-filter: blur(10px);
+}
+
+#bottomNav button,
+.bottom-nav button {
+  min-width: 56px;
+  height: 48px;
+
+  padding: 5px;
+
+  border-radius: 9px;
+
+  display: flex;
+
   flex-direction: column;
+
   align-items: center;
   justify-content: center;
 
   gap: 2px;
 
-  font-size: 16px;
+  font-size: 10px;
+
+  box-shadow: none;
 }
 
-.bottomNavBtn span {
-  font-size: 8px;
+#bottomNav button span,
+.bottom-nav button span {
+  font-size: 9px;
 }
 
-.bottomNavBtn.active {
-  background: rgba(0,255,102,.08);
+/*
+ If strict requirement is:
+ ONLY My Location opens camera,
+ hide the old bottom SNAP button.
+*/
 
-  text-shadow:
-    0 0 8px var(--green);
-}
-
-/* =========================================================
-   GHOST MARKERS
-========================================================= */
-
-.ghostMarker {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  width: 44px;
-  height: 44px;
-
-  border-radius: 50%;
-
-  background:
-    radial-gradient(
-      circle,
-      rgba(0,255,102,.2),
-      rgba(0,20,10,.95)
-    );
-
-  border: 1px solid var(--green);
-
-  color: var(--green);
-
-  font-family: var(--font);
-  font-size: 11px;
-  font-weight: bold;
-
-  box-shadow:
-    0 0 8px rgba(0,255,102,.7),
-    0 0 25px rgba(0,255,102,.2);
-
-  text-shadow:
-    0 0 6px var(--green);
-}
-
-/* =========================================================
-   GPS MARKER
-========================================================= */
-
-.gpsMarker {
-  width: 18px;
-  height: 18px;
-
-  border-radius: 50%;
-
-  background: var(--green);
-
-  border: 2px solid #001b0b;
-
-  box-shadow:
-    0 0 8px var(--green),
-    0 0 20px rgba(0,255,102,.7);
+#bottomCameraBtn {
+  display: none !important;
 }
 
 /* =========================================================
    SCROLLBARS
-========================================================= */
+   ========================================================= */
 
 ::-webkit-scrollbar {
   width: 5px;
@@ -1798,11 +1690,13 @@ textarea {
 }
 
 ::-webkit-scrollbar-track {
-  background: #020604;
+  background: #000603;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #005c29;
+  background: #075d2a;
+
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -1811,264 +1705,266 @@ textarea {
 
 /* =========================================================
    MOBILE
-========================================================= */
+   ========================================================= */
 
-@media (max-width: 800px) {
+@media (max-width: 700px) {
 
-  #topBar {
-    height: 58px;
-
-    padding: 6px 8px;
-
-    gap: 6px;
+  :root {
+    --topbar-height: 58px;
+    --bottom-height: 64px;
   }
 
-  #brand {
-    min-width: auto;
+  #topBar,
+  .top-bar {
+    padding: 7px;
 
-    font-size: 14px;
-
-    letter-spacing: 1px;
+    gap: 5px;
   }
 
-  #searchBox {
-    max-width: none;
+  #brand,
+  .brand {
+    font-size: 12px;
   }
 
   #searchInput {
-    height: 38px;
-    font-size: 10px;
+    width: 80px;
+
+    font-size: 11px;
+
+    padding: 8px;
   }
 
-  #searchBtn {
-    display: none;
+  #topBar button,
+  .top-bar button {
+    padding: 8px;
+
+    font-size: 11px;
   }
 
-  #topActions {
-    gap: 4px;
-  }
-
-  .cyberBtn {
-    height: 38px;
+  #statusBar,
+  .status-bar {
+    height: 30px;
 
     padding: 0 8px;
 
-    font-size: 0;
+    font-size: 9px;
   }
 
-  .cyberBtn:first-child {
-    font-size: 17px;
-    width: 38px;
-  }
-
-  #myRoomBtn {
-    font-size: 0;
-    width: 38px;
-  }
-
-  #myRoomBtn::first-letter {
-    font-size: 17px;
-  }
-
-  #accountBtn {
-    font-size: 16px;
-    width: 38px;
-  }
-
-  #statusBar {
-    top: 64px;
-    left: 8px;
-  }
-
-  #mapInfo {
-    left: 8px;
-    bottom: 64px;
-
-    max-width: calc(100vw - 16px);
-
-    overflow-x: auto;
+  #map {
+    top: calc(var(--topbar-height) + 30px);
   }
 
   #terminalConsole {
     display: none;
   }
 
-  #bottomNav {
-    display: grid;
+  #map::after {
+    opacity: 0.22;
   }
 
-  .mapControl {
-    right: 8px;
+  #cameraVideo {
+    max-height: 68vh;
   }
 
-  #compassBtn {
-    bottom: 190px;
-  }
+  #localVideo {
+    width: 92px;
+    height: 130px;
 
-  #myLocationBtn {
-    bottom: 137px;
-  }
-
-  #mapModeBtn {
-    bottom: 84px;
-  }
-
-  #cameraPanel,
-  #previewPanel {
-    width: 100vw;
-    max-height: 100vh;
-
-    top: 0;
-    left: 0;
-
-    transform: none;
-
-    height: 100vh;
-
-    padding: 10px;
-
-    border: 0;
-    border-top: 1px solid var(--green);
-  }
-
-  #cameraStage {
-    height: calc(100vh - 190px);
-    aspect-ratio: auto;
-  }
-
-  #previewMedia {
-    max-height: 58vh;
-  }
-
-  #callPanel {
-    top: 60px;
-    right: 7px;
-    left: 7px;
-
-    width: auto;
-  }
-
-  .sidePanel {
-    top: 58px;
-
-    width: 100vw;
-  }
-
-  #viewerContent {
-    bottom: 270px;
+    right: 10px;
+    top: 10px;
   }
 
   #viewerDetails {
-    height: 270px;
+    max-height: 38vh;
+
+    padding: 12px;
   }
 
-  #localVideoContainer {
-    top: 65px;
-    right: 10px;
-
-    width: 95px;
+  #viewerPrevBtn,
+  #viewerNextBtn {
+    width: 40px;
   }
 
-  #callControls {
-    bottom: 75px;
+  #callPanel,
+  #profilePanel,
+  #notificationPanel {
+    top: 64px;
+
+    right: 8px;
+
+    width: calc(100vw - 16px);
   }
 
-  .callControlBtn {
-    width: 50px;
-    height: 50px;
+  #chatPanel {
+    left: 8px;
+    right: 8px;
+
+    bottom: 70px;
+
+    width: auto;
+
+    height: calc(100vh - 90px);
   }
 
-  .incomingCallBox {
-    width: 92vw;
+  #clusterPanel {
+    width: calc(100vw - 20px);
   }
 
-  #chatPanel .chatMessages {
-    height: calc(100vh - 145px);
+  #mapControls {
+    right: 8px;
+
+    bottom: 72px;
   }
 
+  #compassBtn {
+    bottom: 188px;
+  }
+
+  #myLocationBtn {
+    bottom: 130px;
+  }
+
+  #mapModeBtn {
+    bottom: 72px;
+  }
 }
 
 /* =========================================================
-   SMALL PHONES
-========================================================= */
+   VERY SMALL PHONES
+   ========================================================= */
 
-@media (max-width: 430px) {
+@media (max-width: 390px) {
 
-  #brand {
+  #brand,
+  .brand {
     display: none;
   }
 
-  #searchBox {
-    flex: 1;
+  #searchInput {
+    min-width: 70px;
   }
 
-  #topActions {
-    margin-left: 0;
+  #topBar button {
+    padding: 7px 6px;
   }
 
-  #mapInfo {
-    font-size: 8px;
-  }
+  #bottomNav button,
+  .bottom-nav button {
+    min-width: 48px;
 
-  .mapControl {
-    width: 40px;
-    height: 40px;
+    font-size: 9px;
   }
-
-  .captureBtn {
-    width: 62px;
-    height: 62px;
-  }
-
-  .captureBtn span {
-    width: 43px;
-    height: 43px;
-  }
-
 }
 
 /* =========================================================
-   CYBER GLITCH EFFECT
-========================================================= */
+   DESKTOP
+   ========================================================= */
 
-@keyframes cyberFlicker {
+@media (min-width: 701px) {
 
+  #bottomNav,
+  .bottom-nav {
+    height: 58px;
+  }
+
+  #bottomNav button,
+  .bottom-nav button {
+    flex-direction: row;
+
+    min-width: 90px;
+
+    gap: 6px;
+  }
+
+  #map {
+    bottom: 58px;
+  }
+}
+
+/* =========================================================
+   ACCESSIBILITY
+   ========================================================= */
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--green);
+
+  outline-offset: 2px;
+}
+
+/* =========================================================
+   ANIMATIONS
+   ========================================================= */
+
+@keyframes neonPulse {
   0%,
   100% {
-    opacity: 1;
-  }
-
-  48% {
-    opacity: 1;
-  }
-
-  49% {
-    opacity: .82;
+    box-shadow:
+      0 0 6px rgba(0, 255, 102, 0.2);
   }
 
   50% {
-    opacity: 1;
+    box-shadow:
+      0 0 18px rgba(0, 255, 102, 0.5);
   }
 }
 
-#brand,
-.panelHeader,
-.authLogo {
-  animation: cyberFlicker 5s infinite;
+.neon-pulse {
+  animation: neonPulse 2s infinite;
 }
 
 /* =========================================================
-   ACCESSIBILITY / REDUCED MOTION
-========================================================= */
+   ERROR / SUCCESS
+   ========================================================= */
 
-@media (prefers-reduced-motion: reduce) {
+.error {
+  color: #ff6868 !important;
 
-  *,
-  *::before,
-  *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
-  }
+  border-color: #ff3b3b !important;
+}
 
+.success {
+  color: var(--green) !important;
+
+  border-color: var(--green) !important;
+}
+
+.warning {
+  color: var(--yellow) !important;
+}
+
+/* =========================================================
+   IMPORTANT MAP OVERRIDES
+   ========================================================= */
+
+/*
+ These rules intentionally override any previous CSS
+ that may have made the entire map black.
+*/
+
+#map,
+#map .leaflet-container,
+#map .leaflet-pane,
+#map .leaflet-map-pane,
+#map .leaflet-tile-pane,
+#map .leaflet-overlay-pane,
+#map .leaflet-marker-pane,
+#map .leaflet-shadow-pane,
+#map .leaflet-popup-pane {
+  filter: none !important;
+}
+
+#map .leaflet-tile-container {
+  filter: none !important;
+
+  opacity: 1 !important;
+}
+
+#map img.leaflet-tile {
+  filter: none !important;
+
+  opacity: 1 !important;
+
+  visibility: visible !important;
 }
