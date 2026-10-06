@@ -58,32 +58,46 @@ button{cursor:pointer}
  border-radius:20px;padding:7px 13px;font-size:11px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 
-#locBtn{display:none}
-#myInfoPanel .infoGrid{display:grid;gap:10px;margin-top:12px}
-.infoItem{border:1px solid #163516;background:#030803;padding:11px;border-radius:10px}
-.infoLabel{font-size:9px;color:#5d895d;letter-spacing:1px}
-.infoValue{margin-top:4px;color:var(--green);font-size:13px;word-break:break-word}
-.infoActions{display:flex;gap:9px;margin-top:14px}
-.infoActions button{flex:1}
+#locBtn{display:none!important;
+ position:absolute;z-index:1000;right:15px;bottom:94px;width:54px;height:54px;border-radius:50%;
+ border:1px solid var(--green);background:#061006f2;color:var(--green);font-size:23px;
+ box-shadow:0 0 18px #39ff1440;
+}
 
 #bottomNav{
  position:absolute;left:0;right:0;bottom:0;height:78px;z-index:1100;
  display:flex;align-items:stretch;justify-content:space-around;
  background:rgba(3,8,3,.97);border-top:1px solid var(--line);
- box-shadow:0 -8px 25px #000;padding:0 3px env(safe-area-inset-bottom);
+ box-shadow:0 -8px 25px #000;
+ padding-bottom:env(safe-area-inset-bottom);
 }
 .navBtn{
- flex:1;min-width:0;border:0;background:transparent;color:#6d966d;display:flex;flex-direction:column;
- align-items:center;justify-content:center;gap:3px;font-size:9px;max-width:none;
+ flex:1;border:0;background:transparent;color:#6d966d;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:3px;font-size:10px;max-width:110px;
 }
-.navBtn .navIcon{font-size:21px;line-height:23px}
+.navBtn .navIcon{font-size:23px;line-height:24px}
 .navBtn.active{color:var(--green);text-shadow:0 0 10px #39ff1460}
-.navBtn.locationNav{
- margin:-18px 2px 6px;width:66px;max-width:66px;flex:0 0 66px;height:66px;
- border:1px solid var(--green);border-radius:50%;background:#071207;color:var(--green);
- box-shadow:0 0 20px #39ff1455, inset 0 0 16px #39ff1418;
+.navBtn.cameraNav{
+ margin:-16px 8px 7px;width:62px;max-width:62px;flex:0 0 62px;height:62px;
+ border:1px solid var(--green);border-radius:50%;background:#071207;
+ box-shadow:0 0 20px #39ff1440;
 }
-.navBtn.locationNav .navIcon{font-size:27px}
+#bottomNav .navBtn{max-width:none}
+#bottomNav .plusNav{margin:-16px 8px 7px;width:62px;max-width:62px;flex:0 0 62px;height:62px;border:1px solid var(--green);border-radius:50%;background:#071207;box-shadow:0 0 20px #39ff1440}
+#bottomNav .plusNav .navIcon{font-size:34px;line-height:32px}
+.infoGrid{display:grid;gap:10px;margin-top:12px}
+.infoItem{border:1px solid #163516;background:#030803;padding:11px;border-radius:10px}
+.infoLabel{font-size:9px;color:#5d895d;letter-spacing:1px}
+.infoValue{margin-top:4px;color:var(--green);font-size:13px;word-break:break-word}
+.qrBox{width:220px;height:220px;margin:12px auto;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.qrBox:empty{display:none}
+.scanRoomBtn{width:100%;margin-top:5px}
+.savedRooms{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.savedRoom{border:1px solid var(--line);background:#071007;color:var(--green);border-radius:7px;padding:7px 9px;font-size:10px}
+#qrScannerModal,#callRecordModal{position:absolute;inset:0;z-index:6000;background:#000c;display:flex;align-items:center;justify-content:center;padding:12px}
+.qrScannerVideo{width:100%;max-height:65vh;background:#000;border:1px solid var(--green);border-radius:10px;object-fit:cover}
+.recordText{white-space:pre-wrap;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--green);line-height:1.6}
+#adminBtn{padding:0 9px;font-size:10px}
 
 .markerGhost{
  width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;
@@ -203,130 +217,6 @@ textarea.field{height:80px;padding-top:10px;resize:none}
 .spin{animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
-
-<style id="cyber-map-overrides">
-/* ===== CYBER MAP ===== */
-#map,
-.leaflet-container {
-  background: #06140b !important;
-  filter: saturate(1.65) hue-rotate(58deg) brightness(.72) contrast(1.12);
-}
-#map::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 500;
-  pointer-events: none;
-  background:
-    linear-gradient(rgba(0,255,80,.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,255,80,.055) 1px, transparent 1px),
-    radial-gradient(circle at center, transparent 35%, rgba(0,0,0,.22) 100%);
-  background-size: 32px 32px, 32px 32px, 100% 100%;
-  mix-blend-mode: screen;
-}
-.leaflet-control,
-.leaflet-control a {
-  border-color: rgba(0,0,0,.55) !important;
-}
-
-/* ===== LOCATION TEXT ===== */
-.location-text,
-.snap-location,
-.location,
-.place-name,
-#locationText {
-  color: #22a9ff !important;
-  text-shadow: 0 0 5px rgba(0,110,255,.45);
-  border-color: rgba(0,0,0,.55) !important;
-}
-
-/* ===== SNAP LOCATION: FADED DARK-RED BLINK ===== */
-.snap-pulse-marker {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: rgba(95,0,0,.72);
-  border: 1px solid rgba(0,0,0,.72);
-  box-shadow:
-    0 0 0 3px rgba(90,0,0,.18),
-    0 0 10px rgba(150,0,0,.30);
-  animation: snapRedPulse 1.65s ease-in-out infinite;
-}
-@keyframes snapRedPulse {
-  0%,100% {
-    opacity: .42;
-    transform: scale(.78);
-    box-shadow:
-      0 0 0 3px rgba(90,0,0,.10),
-      0 0 7px rgba(150,0,0,.18);
-  }
-  50% {
-    opacity: .92;
-    transform: scale(1.15);
-    box-shadow:
-      0 0 0 7px rgba(100,0,0,.10),
-      0 0 18px rgba(160,0,0,.40);
-  }
-}
-
-/* ===== REQUESTED BOTTOM BAR ===== */
-#bottomNav,
-.bottom-nav {
-  display: grid !important;
-  grid-template-columns: 1fr 1fr 1.15fr 1fr 1fr !important;
-  align-items: end;
-  gap: 6px;
-}
-#bottomNav .snap-nav,
-.bottom-nav .snap-nav {
-  transform: translateY(-5px);
-  min-height: 58px;
-  border-radius: 50% !important;
-}
-#bottomNav .nav-btn,
-.bottom-nav .nav-btn {
-  border: 1px solid rgba(0,0,0,.65) !important;
-}
-@media (max-width: 520px) {
-  #bottomNav .nav-btn span,
-  .bottom-nav .nav-btn span {
-    font-size: 9px;
-  }
-}
-
-/* ===== CAMERA BACK/RETURN SAFETY ===== */
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden !important;
-}
-body.camera-open,
-body.viewer-open,
-body.modal-open {
-  overflow: hidden !important;
-}
-#cameraModal, .camera-modal {
-  max-width: 100vw !important;
-  box-sizing: border-box;
-}
-#cameraModal video, .camera-modal video,
-#cameraModal canvas, .camera-modal canvas {
-  max-width: 100% !important;
-}
-</style>
-
-
-<style id="snap-marker-visual-override">
-.leaflet-marker-icon.snap-marker,
-.leaflet-marker-icon.snap-marker-green {
-  filter: hue-rotate(300deg) saturate(1.7) brightness(.62);
-}
-</style>
-
-<style id="hacker-snap-marker">
-#locBtn{position:fixed;right:14px;bottom:82px;z-index:1200;border:1px solid rgba(0,255,100,.65);background:rgba(0,12,8,.94);color:#35ff77;border-radius:10px;padding:9px 11px;display:flex;gap:7px;align-items:center;font-family:monospace;box-shadow:0 0 12px rgba(0,255,90,.25)}
-#locBtn span{font-size:22px}.hackerSnap{width:46px;height:46px;border:2px solid #ff203f;border-radius:50%;position:relative;background:rgba(255,0,40,.08);box-shadow:0 0 7px #ff203f,0 0 18px rgba(255,0,40,.5);animation:hackPulse 1.15s infinite}.hackerSnap:before,.hackerSnap:after{content:"";position:absolute;inset:7px;border:1px dashed rgba(255,50,70,.85);border-radius:50%;animation:hackSpin 2s linear infinite}.hackerSnap:after{inset:-7px;border-style:solid;border-color:transparent #ff203f transparent #ff203f;opacity:.7}.hackerSnap i{position:absolute;left:50%;top:50%;width:5px;height:5px;background:#ff3048;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 8px #ff3048}@keyframes hackPulse{50%{transform:scale(1.13);opacity:.52}}@keyframes hackSpin{to{transform:rotate(360deg)}}
-</style>
 </head>
 
 <body>
@@ -337,37 +227,27 @@ body.modal-open {
   <div id="topBar">
     <input id="searchInput" placeholder="🔍 Search location">
     <button class="topBtn" id="searchBtn">SEARCH</button>
+    <button class="topBtn" id="adminBtn">ADMIN</button>
     <button class="iconBtn" id="notificationBtn">🔔<span id="notificationCount"></span></button>
   </div>
 
   <div id="status">SYSTEM ONLINE</div>
 
-  <div id="bottomNav">
-    <button class="navBtn" id="chatNav"><span class="navIcon">💬</span><span>CHAT</span></button>
-    <button class="navBtn" id="myRoomNav"><span class="navIcon">🆔</span><span>MY ROOM ID</span></button>
-    <button class="navBtn" id="myInfoNav"><span class="navIcon">👤</span><span>MY INFO</span></button>
-    <button class="navBtn locationNav" id="myLocationNav"><span class="navIcon">⌖</span><span>MY LOCATION</span></button>
-    <button class="navBtn" id="joinNav"><span class="navIcon">🛡️</span><span>JOIN ROOM</span></button>
-  </div>
+  <button id="locBtn" title="My Location">⌖</button>
 
-  <div id="myInfoPanel" class="panel hidden">
-    <div class="panelHeader"><div class="panelTitle">👤 MY INFO</div><button class="closeX" data-close="myInfoPanel">×</button></div>
-    <div class="muted">Login account ki details aur permanent room information.</div>
-    <div class="infoGrid">
-      <div class="infoItem"><div class="infoLabel">DISPLAY NAME</div><div class="infoValue" id="myInfoName">NOT LOGGED IN</div></div>
-      <div class="infoItem"><div class="infoLabel">REGISTERED / LOGIN EMAIL</div><div class="infoValue" id="myInfoEmail">NOT LOGGED IN</div></div>
-      <div class="infoItem"><div class="infoLabel">PERMANENT ROOM ID</div><div class="infoValue" id="myInfoRoom">LOGIN REQUIRED</div></div>
-    </div>
-    <div class="infoActions">
-      <button class="secondary" id="myInfoCancelBtn">CANCEL</button>
-      <button class="danger" id="myInfoLogoutBtn">LOGOUT</button>
-    </div>
+  <div id="bottomNav">
+    <button class="navBtn active" id="chatNav"><span class="navIcon">💬</span><span>CHAT</span></button>
+    <button class="navBtn" id="joinNav"><span class="navIcon">🛡️</span><span>JOIN ROOM</span></button>
+    <button class="navBtn plusNav" id="cameraNav"><span class="navIcon">＋</span><span>SNAPS</span></button>
+    <button class="navBtn" id="myRoomNav"><span class="navIcon">🆔</span><span>MY ROOM ID</span></button>
+    <button class="navBtn" id="youNav"><span class="navIcon">👤</span><span>YOU</span></button>
   </div>
 
   <div id="roomPanel" class="panel hidden">
     <div class="panelHeader"><div class="panelTitle">🆔 MY PERMANENT ROOM ID</div><button class="closeX" data-close="roomPanel">×</button></div>
     <div class="muted">Ye ID account ke saath permanently linked hai. Refresh se nahi badlega.</div>
     <div id="myRoomCode" class="roomCode">LOGIN REQUIRED</div>
+    <div id="myRoomQr" class="qrBox"></div>
     <div class="row"><button class="secondary" id="copyRoomBtn">COPY ID</button><button class="secondary" id="shareRoomBtn">SHARE</button></div>
   </div>
 
@@ -376,11 +256,13 @@ body.modal-open {
     <div class="muted">Kisi user ka permanent Room ID dalo. User online hua to incoming call jayega.</div>
     <input class="field" id="targetRoomInput" placeholder="Enter target Room ID" autocomplete="off">
     <button class="primary" id="callUserBtn">📞 CALL USER</button>
+    <button class="secondary scanRoomBtn" id="scanRoomBtn">▣ SCAN QR</button>
+    <div id="savedRoomsList" class="savedRooms"></div>
   </div>
 
   <div id="chatPanel" class="panel hidden">
-    <div class="panelHeader"><div class="panelTitle">💬 ROOM CHAT</div><button class="closeX" data-close="chatPanel">×</button></div>
-    <div class="muted">Room ID se message bhejo. Receiver ko notification milega.</div>
+    <div class="panelHeader"><div class="panelTitle">💬 CHAT BY ROOM ID</div><button class="closeX" data-close="chatPanel">×</button></div>
+    <div class="muted">Room ID dalo aur direct chat karo. Saved Room IDs neeche milenge.</div>
     <input class="field" id="chatTargetRoom" placeholder="Target Room ID" autocomplete="off">
     <div id="roomChatMessages" style="max-height:240px;overflow:auto;margin:6px 0"></div>
     <div class="row"><input class="field" id="roomChatInput" placeholder="Message" style="margin:0"><button class="primary" id="sendRoomChatBtn">SEND</button></div>
@@ -389,6 +271,45 @@ body.modal-open {
   <div id="notificationPanel" class="panel hidden">
     <div class="panelHeader"><div class="panelTitle">🔔 NOTIFICATIONS</div><button class="closeX" data-close="notificationPanel">×</button></div>
     <div id="notificationList"></div>
+  </div>
+
+  <div id="youPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">👤 YOU</div><button class="closeX" data-close="youPanel">×</button></div>
+    <div class="infoGrid">
+      <div class="infoItem"><div class="infoLabel">DISPLAY NAME</div><div class="infoValue" id="youName">NOT LOGGED IN</div></div>
+      <div class="infoItem"><div class="infoLabel">EMAIL</div><div class="infoValue" id="youEmail">NOT LOGGED IN</div></div>
+      <div class="infoItem"><div class="infoLabel">PERMANENT ROOM ID</div><div class="infoValue" id="youRoom">LOGIN REQUIRED</div></div>
+      <div class="infoItem"><div class="infoLabel">LOCATION</div><div class="infoValue" id="youLocation">LOCATION NOT LOADED</div></div>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="secondary" id="youCancelBtn">CANCEL</button><button class="primary" id="youLogoutBtn">LOGOUT</button></div>
+  </div>
+
+  <div id="adminPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">⚡ ADMIN</div><button class="closeX" data-close="adminPanel">×</button></div>
+    <div class="infoGrid">
+      <div class="infoItem"><div class="infoLabel">NAME</div><div class="infoValue">ROUSHAN YADAV</div></div>
+      <div class="infoItem"><div class="infoLabel">CONTACT</div><div class="infoValue">+91 91535 76962</div></div>
+      <div class="infoItem"><div class="infoLabel">NOTE</div><div class="infoValue">Website banwane ke liye WhatsApp pe message kre</div></div>
+      <div class="infoItem"><div class="infoLabel">MY ROOM ID</div><div class="infoValue" id="adminRoomId">LOADING...</div></div>
+    </div>
+    <button class="primary" id="adminWhatsAppBtn">WHATSAPP ADMIN</button>
+  </div>
+
+  <div id="qrScannerModal" class="hidden">
+    <div class="modalCard">
+      <div class="panelHeader"><div class="modalTitle">▣ SCAN ROOM QR</div><button class="closeX" id="scanClose">×</button></div>
+      <video id="qrScannerVideo" autoplay playsinline muted class="qrScannerVideo"></video>
+      <div id="scanStatus" class="muted" style="margin-top:8px">QR SCAN READY</div>
+    </div>
+  </div>
+
+  <div id="callRecordModal" class="hidden">
+    <div class="modalCard">
+      <div class="modalTitle">▣ CALLING RECORD</div>
+      <div id="callRecordText" class="recordText">CALL ENDED</div>
+      <div class="row" style="margin-top:12px"><button class="primary" id="shareCallRecordBtn">SHARE</button><button class="secondary" id="shareWhatsAppBtn">WHATSAPP</button></div>
+      <div class="row" style="margin-top:8px"><button class="secondary" id="shareFacebookBtn">FACEBOOK</button><button class="secondary" id="shareInstagramBtn">INSTAGRAM</button><button class="secondary" id="closeCallRecordBtn">CLOSE</button></div>
+    </div>
   </div>
 
   <div id="authModal" class="hidden">
@@ -537,6 +458,7 @@ body.modal-open {
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
@@ -561,7 +483,7 @@ let mediaRecorder=null,recordedChunks=[],recording=false;
 let galleryItems=[],galleryIndex=0,currentGallerySnap=null;
 let myRoom=null;
 let incomingCallerId=null,incomingCallerRoom=null,incomingCallerName="USER";
-let localCallStream=null,callRoom=null,callActive=false;
+let localCallStream=null,callRoom=null,callActive=false,callStartedAt=0,lastCallRecord="";
 let muted=false,cameraOff=false,callPeers=new Map();
 let replyingTo=null;
 let roomPromise=null;
@@ -624,7 +546,7 @@ function renderGroups(groups){
  markerGroups.forEach(m=>map.removeLayer(m));
  markerGroups=[];
  groups.forEach(g=>{
-   const icon=L.divIcon({className:"",html:`<div class="hackerSnap"><i></i></div>`,iconSize:[50,50],iconAnchor:[25,25]});
+   const icon=L.divIcon({className:"",html:`<div class="markerGhost">${g.items.length} 👻</div>`,iconSize:[50,50],iconAnchor:[25,25]});
    const m=L.marker([g.lat,g.lng],{icon}).addTo(map);
    m.on("click",()=>openGallery(g.items));
    markerGroups.push(m);
@@ -637,28 +559,6 @@ async function loadSnaps(){
  renderGroups(groupSnaps(data||[]));
  status(`${data?.length||0} SNAP(S) ONLINE`);
 }
-
-function openMyInfoPanel(){
- closePanels();
- if(!currentUser){
-   $("myInfoName").textContent="NOT LOGGED IN";
-   $("myInfoEmail").textContent="NOT LOGGED IN";
-   $("myInfoRoom").textContent="LOGIN REQUIRED";
-   show($("myInfoPanel"));
-   return;
- }
- $("myInfoName").textContent=currentProfile?.display_name||currentUser.user_metadata?.display_name||"User";
- $("myInfoEmail").textContent=currentUser.email||"—";
- $("myInfoRoom").textContent=myRoom||currentProfile?.call_room_id||"LOADING...";
- show($("myInfoPanel"));
-}
-$("myInfoCancelBtn").onclick=()=>hide($("myInfoPanel"));
-$("myInfoLogoutBtn").onclick=async()=>{
- if(!currentUser){hide($("myInfoPanel"));return}
- if(!confirm("Logout karna hai?"))return;
- hide($("myInfoPanel"));
- await logout();
-};
 
 /* ================= SEARCH ================= */
 async function searchLocation(){
@@ -686,11 +586,11 @@ async function loadProfile(){
  if(!currentUser){currentProfile=null;return}
  const {data}=await supabaseClient.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
  currentProfile=data||{id:currentUser.id,display_name:currentUser.email?.split("@")[0]||"User"};
- $("myInfoName").textContent=currentProfile.display_name||"User";
- $("myInfoEmail").textContent=currentUser.email||"—";
  await ensureRoom();
- $("myInfoRoom").textContent=myRoom||currentProfile.call_room_id||"LOADING...";
-  await loadNotifications();
+ $("youName").textContent=currentProfile.display_name||"User";
+ $("youEmail").textContent=currentUser.email||"—";
+ $("youRoom").textContent=myRoom||currentProfile.call_room_id||"LOADING...";
+ await loadNotifications();
 }
 async function ensureRoom(){
  if(!currentUser)return null;
@@ -711,7 +611,8 @@ async function ensureRoom(){
   localStorage.setItem(key,room);
   myRoom=room;
   $("myRoomCode").textContent=room;
-  $("myInfoRoom").textContent=room;
+  $("youRoom").textContent=room;
+  renderMyRoomQR(room);
   if(socket.connected)socket.emit("join-room",{room});
   return room;
  })().finally(()=>roomPromise=null);
@@ -739,10 +640,12 @@ async function logout(){
  await supabaseClient.auth.signOut();
  currentUser=null;currentProfile=null;myRoom=null;roomPromise=null;
  $("myRoomCode").textContent="LOGIN REQUIRED";
- $("myInfoName").textContent="NOT LOGGED IN";
- $("myInfoEmail").textContent="NOT LOGGED IN";
- $("myInfoRoom").textContent="LOGIN REQUIRED";
-  status("LOGGED OUT");
+ $("youName").textContent="NOT LOGGED IN";
+ $("youEmail").textContent="NOT LOGGED IN";
+ $("youRoom").textContent="LOGIN REQUIRED";
+ $("youLocation").textContent="LOCATION NOT LOADED";
+ $("myRoomQr").innerHTML="";
+ status("LOGGED OUT");
 }
 async function initAuth(){
  const {data:{session}}=await supabaseClient.auth.getSession();
@@ -839,7 +742,7 @@ async function applyRealZoom(v){
  if(!cameraTrack?.applyConstraints)return;
  try{await cameraTrack.applyConstraints({advanced:[{zoom:currentZoom}]})}catch(e){status("REAL ZOOM UNSUPPORTED ON THIS CAMERA")}
 }
-$("cameraClose").onclick=()=>{stopCamera();hide($("cameraModal"));status("CAMERA CLOSED")}
+$("cameraClose").onclick=()=>{stopCamera();hide($("cameraModal"));hide($("previewModal"));document.body.style.overflow="hidden";map.invalidateSize();setActiveNav("cameraNav");status("CAMERA CLOSED")}
 $("switchCamera").onclick=async()=>{currentFacing=currentFacing==="environment"?"user":"environment";await startCamera()}
 $("zoomRange").oninput=e=>applyRealZoom(e.target.value);
 $("zoomOut").onclick=()=>applyRealZoom(Math.max(zoomMin,currentZoom-0.5));
@@ -942,8 +845,27 @@ function uploadStorage(path,blob,token,progressCb=null){
 }
 
 /* ================= VIEWER ================= */
+let viewerHistory=false;
 function openGallery(items){
- galleryItems=items||[];galleryIndex=0;show($("viewerModal"));renderGallery();
+ galleryItems=items||[];
+ galleryIndex=0;
+ show($("viewerModal"));
+ renderGallery();
+ if(!viewerHistory){
+   viewerHistory=true;
+   const base=location.pathname+location.search;
+   history.pushState({cyberViewer:true},"",base+"#snap-view");
+ }
+}
+function closeViewer(fromPop=false){
+ hide($("viewerModal"));
+ if(viewerHistory&&!fromPop){
+   viewerHistory=false;
+   history.back();
+ }else{
+   viewerHistory=false;
+ }
+ setTimeout(()=>{try{map?.invalidateSize()}catch(e){}},80);
 }
 async function renderGallery(){
  if(!galleryItems.length)return;
@@ -1015,7 +937,7 @@ $("sendCommentBtn").onclick=async()=>{
  $("commentInput").value="";replyingTo=null;await loadComments(currentGallerySnap);
 };
 $("commentFocusBtn").onclick=()=>$("commentInput").focus();
-$("closeViewer").onclick=()=>hide($("viewerModal"));
+$("closeViewer").onclick=()=>closeViewer();
 $("prevSnap").onclick=()=>{if(galleryIndex>0){galleryIndex--;renderGallery()}}
 $("nextSnap").onclick=()=>{if(galleryIndex<galleryItems.length-1){galleryIndex++;renderGallery()}};
 let touchX=0;
@@ -1023,14 +945,39 @@ $("viewerModal").addEventListener("touchstart",e=>touchX=e.changedTouches[0].cli
 $("viewerModal").addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>70){if(dx<0)$("nextSnap").click();else $("prevSnap").click()}});
 
 /* ================= CALLING + ROOM CHAT ================= */
-function openRoomPanel(){if(!currentUser)return openAuth();ensureRoom();show($("roomPanel"))}
-function openJoinPanel(){if(!currentUser)return openAuth();show($("joinPanel"))}
+function openRoomPanel(){if(!currentUser)return openAuth();closePanels();ensureRoom();show($("roomPanel"))}
+function openJoinPanel(){if(!currentUser)return openAuth();closePanels();renderSavedRooms();show($("joinPanel"))}
+function openChatPanel(){if(!currentUser)return openAuth();closePanels();renderSavedRooms();show($("chatPanel"));}
+function renderMyRoomQR(room){const box=$("myRoomQr");if(!box)return;box.innerHTML="";if(!room||room==="LOGIN REQUIRED")return;try{new QRCode(box,{text:location.origin+location.pathname+"?room="+encodeURIComponent(room),width:200,height:200,colorDark:"#071007",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M})}catch(e){box.textContent="QR UNAVAILABLE"}}
+function getSavedRooms(){try{return JSON.parse(localStorage.getItem("cyberSavedRooms")||"[]")}catch(e){return[]}}
+function saveRoomId(room){room=String(room||"").trim().toUpperCase();if(!room)return;let a=getSavedRooms().filter(x=>x!==room);a.unshift(room);a=a.slice(0,20);localStorage.setItem("cyberSavedRooms",JSON.stringify(a));renderSavedRooms()}
+function renderSavedRooms(){const box=$("savedRoomsList");if(!box)return;const a=getSavedRooms();box.innerHTML=a.length?'<div class="muted" style="width:100%">SAVED ROOM IDs</div>':'';a.forEach(room=>{const b=document.createElement("button");b.className="savedRoom";b.textContent=room;b.onclick=()=>{$("targetRoomInput").value=room;$("chatTargetRoom").value=room;openChatPanel()};box.appendChild(b)})}
 $("copyRoomBtn").onclick=async()=>{if(!myRoom)return;await navigator.clipboard?.writeText(myRoom);status("ROOM ID COPIED")};
 $("shareRoomBtn").onclick=async()=>{if(!myRoom)return;try{await navigator.share({title:"My Room ID",text:myRoom})}catch(e){}};
-$("callUserBtn").onclick=()=>{if(!currentUser)return openAuth();const room=$("targetRoomInput").value.trim().toUpperCase();if(!room)return;socket.emit("call-user",{targetRoom:room});status("CALLING "+room+"...")};
+$("callUserBtn").onclick=()=>{
+ if(!currentUser)return openAuth();
+ const room=$("targetRoomInput").value.trim().toUpperCase();
+ if(!room)return alert("Room ID dalo.");
+ const saved=getSavedRooms();
+ if(!saved.includes(room)&&confirm("Is Room ID ko save karna hai?"))saveRoomId(room);
+ socket.emit("call-user",{targetRoom:room});
+ status("CALLING "+room+"...");
+};
 async function notifyRoomMessage(targetRoom,message){const {data:recipient}=await supabaseClient.from("profiles").select("id").eq("call_room_id",targetRoom).maybeSingle();if(!recipient||recipient.id===currentUser?.id)return;const senderName=currentProfile?.display_name||"User";await supabaseClient.from("notifications").insert({recipient_id:recipient.id,actor_id:currentUser.id,notification_type:"chat",message:`Room ${targetRoom}: ${senderName} sent a message — ${message}`})}
 function addRoomChat(msg,mine=false,from="",mediaUrl="",type="text"){const x=document.createElement("div");x.className="chatMsg "+(mine?"chatMine":"");if(mediaUrl){const m=type==="video"?document.createElement("video"):document.createElement("img");m.src=mediaUrl;m.className="chatMedia";if(type==="video"){m.controls=true;m.playsInline=true}x.appendChild(m);const l=document.createElement("div");l.textContent=(from?from+" · ":"")+type.toUpperCase();x.appendChild(l)}else x.textContent=(from?from+": ":"")+msg;$("roomChatMessages").appendChild(x);$("roomChatMessages").scrollTop=$("roomChatMessages").scrollHeight}
-$("sendRoomChatBtn").onclick=async()=>{if(!currentUser)return openAuth();const room=$("chatTargetRoom").value.trim().toUpperCase(),msg=$("roomChatInput").value.trim();if(!room||!msg)return;socket.emit("room-chat",{targetRoom:room,message:msg,type:"text"});addRoomChat(msg,true,"You");await notifyRoomMessage(room,msg);$("roomChatInput").value="";status("MESSAGE SENT")};
+$("sendRoomChatBtn").onclick=async()=>{
+ if(!currentUser)return openAuth();
+ const room=$("chatTargetRoom").value.trim().toUpperCase();
+ const msg=$("roomChatInput").value.trim();
+ if(!room||!msg)return;
+ const saved=getSavedRooms();
+ if(!saved.includes(room)&&confirm("Is Room ID ko save karna hai?"))saveRoomId(room);
+ socket.emit("room-chat",{targetRoom:room,message:msg,type:"text"});
+ addRoomChat(msg,true,"You");
+ await notifyRoomMessage(room,msg);
+ $("roomChatInput").value="";
+ status("MESSAGE SENT");
+};
 $("roomChatInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("sendRoomChatBtn").click()});
 socket.on("room-chat",d=>{addRoomChat(d.message,false,d.fromName||"User",d.mediaUrl||"",d.type||"text");show($("chatPanel"));setActiveNav("chatNav");loadNotifications();try{if(Notification.permission==="granted")new Notification("Cyber Map Viewer",{body:(d.fromName||"User")+": "+(d.message||"MEDIA")})}catch(e){}});
 
@@ -1041,11 +988,12 @@ async function ensureLocalCallMedia(){if(localCallStream)return localCallStream;
 function resetCallUI(){$("callGrid").innerHTML="";callPeers.clear();updateCallCount();$("chatMessages").innerHTML=""}
 async function createCallPeer(peerId,isOfferer,name="USER"){if(!peerId||peerId===socket.id)return;if(callPeers.has(peerId))return callPeers.get(peerId).pc;await ensureLocalCallMedia();const pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]});const entry={pc,name};callPeers.set(peerId,entry);ensureCallTile(peerId,name);updateCallCount();localCallStream.getTracks().forEach(t=>pc.addTrack(t,localCallStream));pc.ontrack=e=>{const v=$("callVideo-"+peerId);if(v)v.srcObject=e.streams[0]};pc.onicecandidate=e=>{if(e.candidate)socket.emit("webrtc-signal",{targetId:peerId,signal:{candidate:e.candidate}})};pc.onconnectionstatechange=()=>{if(["failed","closed","disconnected"].includes(pc.connectionState))removeCallPeer(peerId)};if(isOfferer){const offer=await pc.createOffer();await pc.setLocalDescription(offer);socket.emit("webrtc-signal",{targetId:peerId,signal:{offer}})}return pc}
 async function removeCallPeer(peerId){const e=callPeers.get(peerId);if(e){try{e.pc.close()}catch(_){}callPeers.delete(peerId)}removeCallTile(peerId);updateCallCount()}
-async function handleRoomUsers(users){if(!callActive||!Array.isArray(users))return;await ensureLocalCallMedia();for(const u of users){const id=typeof u==="string"?u:u.socketId;const name=typeof u==="string"?"USER":(u.displayName||"USER");if(id&&id!==socket.id&&!callPeers.has(id)&&socket.id<id)await createCallPeer(id,true,name)}}
-function openCallUI(){show($("callModal"));$("chatBox").style.display="none";beep(880,.08);beep(1200,.06)}
-async function beginCallRoom(room){callRoom=room;callActive=true;resetCallUI();await ensureLocalCallMedia();openCallUI();socket.emit("join-room",{room,displayName:currentProfile?.display_name||"USER"})}
+async function handleRoomUsers(users){if(!callActive||!Array.isArray(users))return;await ensureLocalCallMedia();for(const u of users){const id=typeof u==="string"?u:u.peerId;const name=typeof u==="string"?"USER":(u.displayName||"USER");if(id&&id!==socket.id&&!callPeers.has(id)&&socket.id<id)await createCallPeer(id,true,name)}}
+function openCallUI(){show($("callModal"));$("chatBox").style.display="none";if(!callStartedAt)callStartedAt=Date.now();beep(880,.08);beep(1200,.06)}
+async function beginCallRoom(room){callRoom=room;callActive=true;callStartedAt=Date.now();resetCallUI();await ensureLocalCallMedia();openCallUI();socket.emit("join-room",{room,displayName:currentProfile?.display_name||"USER"})}
+async function shareCallRecord(){if(!lastCallRecord)return;$("callRecordText").textContent=lastCallRecord;show($("callRecordModal"));}
 async function leaveCallRoom(){if(callRoom)socket.emit("leave-room");for(const id of [...callPeers.keys()])await removeCallPeer(id);if(localCallStream){localCallStream.getTracks().forEach(t=>t.stop());localCallStream=null}$("localVideo").srcObject=null;callRoom=null;callActive=false;hide($("callModal"));if(currentUser)setTimeout(()=>ensureRoom(),150)}
-async function endCall(send=true){if(send&&callRoom)socket.emit("end-group-call",{room:callRoom});await leaveCallRoom();status("CALL ENDED")}
+async function endCall(send=true){const roomAtEnd=callRoom;const started=callStartedAt||Date.now();if(send&&roomAtEnd)socket.emit("end-group-call",{room:roomAtEnd});const sec=Math.max(0,Math.round((Date.now()-started)/1000));const mm=String(Math.floor(sec/60)).padStart(2,"0"),ss=String(sec%60).padStart(2,"0");lastCallRecord=`CYBER MAP VIEWER // CALLING RECORD\nROOM: ${roomAtEnd||"—"}\nDURATION: ${mm}:${ss}\nDATE: ${new Date().toLocaleString()}\nSTATUS: CALL ENDED`;callStartedAt=0;await leaveCallRoom();status("CALL ENDED");setTimeout(shareCallRecord,120)}
 
 socket.on("room-joined",async d=>{if(d.room===myRoom&&!callActive){status("ROOM ONLINE: "+d.room);return}if(callActive&&d.room===callRoom){await handleRoomUsers(d.users||[]);updateCallCount()}});
 socket.on("room-users",async d=>{if(callActive&&d.room===callRoom)await handleRoomUsers(d.users||[])});
@@ -1057,7 +1005,12 @@ socket.on("call-unavailable",()=>status("USER OFFLINE"));
 socket.on("invite-unavailable",()=>status("FRIEND OFFLINE"));
 socket.on("call-room-full",()=>status("CALL FULL · MAX 6"));
 socket.on("incoming-call",d=>{incomingCallerId=d.callerId;incomingCallerRoom=d.callerRoom||"";incomingCallerName=d.callerName||"USER";$("incomingCaller").textContent=(incomingCallerRoom?incomingCallerRoom+" · ":"")+incomingCallerName;show($("incomingModal"));beep(1000,.12);setTimeout(()=>beep(1000,.12),180)});
-$("acceptCallBtn").onclick=async()=>{hide($("incomingModal"));socket.emit("accept-call",{callerId:incomingCallerId});await beginCallRoom(incomingCallerRoom)};
+$("acceptCallBtn").onclick=async()=>{
+ hide($("incomingModal"));
+ if(incomingCallerRoom&&!getSavedRooms().includes(incomingCallerRoom)&&confirm("Is Room ID ko save karna hai?"))saveRoomId(incomingCallerRoom);
+ socket.emit("accept-call",{callerId:incomingCallerId,callRoom:incomingCallerRoom});
+ await beginCallRoom(incomingCallerRoom);
+};
 $("rejectCallBtn").onclick=()=>{socket.emit("reject-call",{callerId:incomingCallerId});hide($("incomingModal"))};
 socket.on("call-accepted",async d=>{status("CALL ACCEPTED");if(!callActive){callActive=true;callRoom=d.callRoom||myRoom;resetCallUI();await ensureLocalCallMedia();openCallUI();socket.emit("join-room",{room:callRoom,displayName:currentProfile?.display_name||"USER"})}});
 socket.on("call-rejected",()=>status("CALL REJECTED"));socket.on("call-ended",()=>endCall(false));socket.on("group-call-ended",()=>endCall(false));
@@ -1074,97 +1027,92 @@ $("inviteFriendBtn").onclick=()=>{const room=$("callFriendRoomInput").value.trim
 $("endCallBtn").onclick=()=>endCall(true);
 $("muteCallBtn").onclick=()=>{if(!localCallStream)return;muted=!muted;localCallStream.getAudioTracks().forEach(t=>t.enabled=!muted);$("muteCallBtn").textContent=muted?"🔇":"🎙"};
 $("cameraCallBtn").onclick=()=>{if(!localCallStream)return;cameraOff=!cameraOff;localCallStream.getVideoTracks().forEach(t=>t.enabled=!cameraOff);$("cameraCallBtn").textContent=cameraOff?"🚫":"📷"};
+$("shareCallRecordBtn").onclick=async()=>{
+ if(!lastCallRecord)return;
+ try{
+   if(navigator.share){await navigator.share({title:"Cyber Map Viewer Calling Record",text:lastCallRecord})}
+   else{await navigator.clipboard?.writeText(lastCallRecord);status("CALL RECORD COPIED")}
+ }catch(e){}
+};
+$("shareWhatsAppBtn").onclick=async()=>{if(!lastCallRecord)return;await navigator.clipboard?.writeText(lastCallRecord);window.open("https://wa.me/?text="+encodeURIComponent(lastCallRecord),"_blank")};
+$("shareFacebookBtn").onclick=async()=>{if(!lastCallRecord)return;await navigator.clipboard?.writeText(lastCallRecord);window.open("https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(location.href),"_blank")};
+$("shareInstagramBtn").onclick=async()=>{if(!lastCallRecord)return;await navigator.clipboard?.writeText(lastCallRecord);status("CALL RECORD COPIED · OPEN INSTAGRAM TO SHARE")};
+$("closeCallRecordBtn").onclick=()=>hide($("callRecordModal"));
+
+/* ================= BACK BUTTON SAFETY ================= */
+window.addEventListener("popstate",()=>{
+ if(viewerHistory){
+   viewerHistory=false;
+   hide($("viewerModal"));
+   status("MAP ONLINE");
+   setTimeout(()=>{try{map?.invalidateSize()}catch(e){}},80);
+   return;
+ }
+});
+
+
+/* ================= YOU / ADMIN / QR ================= */
+async function openYouPanel(){
+ if(!currentUser)return openAuth();
+ closePanels();
+ $("youName").textContent=currentProfile?.display_name||"User";
+ $("youEmail").textContent=currentUser.email||"—";
+ $("youRoom").textContent=myRoom||currentProfile?.call_room_id||"LOADING...";
+ $("youLocation").textContent="LOADING GPS...";
+ show($("youPanel"));
+ try{const p=await getFreshPosition();$("youLocation").textContent=`${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`}catch(e){$("youLocation").textContent="GPS UNAVAILABLE"}
+}
+async function openAdminPanel(){
+ closePanels();show($("adminPanel"));
+ const {data}=await supabaseClient.from("profiles").select("display_name,call_room_id").eq("display_name","ROUSHAN YADAV").maybeSingle();
+ $("adminRoomId").textContent=data?.call_room_id||"ADMIN ROOM ID NOT FOUND";
+}
+$("youCancelBtn").onclick=()=>hide($("youPanel"));
+$("youLogoutBtn").onclick=async()=>{if(confirm("Logout karna hai?"))await logout()};
+$("adminBtn").onclick=openAdminPanel;
+$("adminWhatsAppBtn").onclick=()=>{window.open("https://wa.me/919153576962","_blank")};
+let qrStream=null,qrScanning=false;
+async function startQrScanner(){
+ show($("qrScannerModal"));
+ if(!("BarcodeDetector" in window)){ $("scanStatus").textContent="QR auto-scan supported nahi hai. Room ID manually enter karo.";return }
+ try{
+  const detector=new BarcodeDetector({formats:["qr_code"]});
+  qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
+  $("qrScannerVideo").srcObject=qrStream;qrScanning=true;$("scanStatus").textContent="SCANNING...";
+  const loop=async()=>{if(!qrScanning)return;try{const codes=await detector.detect($("qrScannerVideo"));if(codes?.[0]?.rawValue){const raw=codes[0].rawValue;let room=raw;try{const u=new URL(raw);room=u.searchParams.get("room")||raw}catch(e){}room=String(room).trim().toUpperCase();if(room){$("targetRoomInput").value=room;stopQrScanner();status("ROOM QR SCANNED");return}}}catch(e){}requestAnimationFrame(loop)};loop();
+ }catch(e){$("scanStatus").textContent="CAMERA SCAN FAILED: "+e.message}
+}
+function stopQrScanner(){qrScanning=false;if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null}$("qrScannerVideo").srcObject=null;hide($("qrScannerModal"))}
+$("scanRoomBtn").onclick=startQrScanner;$("scanClose").onclick=stopQrScanner;
 
 /* ================= UI NAV ================= */
-function closePanels(){hide($("roomPanel"));hide($("myInfoPanel"));hide($("joinPanel"));hide($("chatPanel"));hide($("notificationPanel"))}
-$("chatNav").onclick=()=>{closePanels();setActiveNav("chatNav");show($("chatPanel"));if(currentUser)loadNotifications();};
-$("myRoomNav").onclick=()=>{setActiveNav("myRoomNav");openRoomPanel()};
-$("myInfoNav").onclick=()=>{setActiveNav("myInfoNav");openMyInfoPanel()};
-$("myLocationNav").onclick=()=>{openCameraFromLocation()};
+function closePanels(){hide($("roomPanel"));hide($("joinPanel"));hide($("chatPanel"));hide($("notificationPanel"));hide($("youPanel"));hide($("adminPanel"))}
+$("chatNav").onclick=()=>{setActiveNav("chatNav");openChatPanel();};
+$("cameraNav").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
 $("joinNav").onclick=()=>{setActiveNav("joinNav");openJoinPanel()};
+$("myRoomNav").onclick=()=>{setActiveNav("myRoomNav");openRoomPanel()};
+$("youNav").onclick=()=>{setActiveNav("youNav");openYouPanel()};
 $("notificationBtn").onclick=()=>{closePanels();show($("notificationPanel"));loadNotifications()};
 $("searchBtn").onclick=searchLocation;
 $("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocation()});
+$("locBtn").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
 document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hide($(b.dataset.close)));
 $("authClose").onclick=()=>hide($("authModal"));
 $("authSubmit").onclick=authSubmit;
 $("authSwitch").onclick=()=>openAuth(authMode==="login"?"register":"login");
+
+/* ================= GLOBAL BACK SAFETY ================= */
+window.addEventListener("beforeunload",()=>{try{stopCamera();if(qrStream)stopQrScanner()}catch(e){}});
 
 /* ================= START ================= */
 (async()=>{
  initMap();
  await initAuth();
  await loadSnaps();
+ const roomFromUrl=new URLSearchParams(location.search).get("room");
+ if(roomFromUrl){setTimeout(()=>{if(currentUser){$("targetRoomInput").value=String(roomFromUrl).toUpperCase();openJoinPanel()}},300)}
  window.addEventListener("resize",()=>setTimeout(()=>map.invalidateSize(),150));
 })();
 </script>
-
-<script id="final-map-fixes">
-(function () {
-  function addRedSnapMarker(lat, lng, popupHtml) {
-    if (!window.L || !window.map) return null;
-    const icon = L.divIcon({
-      className: "snap-red-marker-wrap",
-      html: '<div class="snap-pulse-marker"></div>',
-      iconSize: [18, 18],
-      iconAnchor: [9, 9]
-    });
-    const marker = L.marker([lat, lng], { icon, keyboard: false });
-    if (popupHtml) marker.bindPopup(popupHtml);
-    marker.addTo(window.map);
-    return marker;
-  }
-  window.addRedSnapMarker = addRedSnapMarker;
-
-  // Prevent map taps from opening the camera.
-  document.addEventListener("click", function (e) {
-    const mapEl = document.getElementById("map");
-    if (!mapEl) return;
-    if (e.target.closest("#map") && !e.target.closest(".leaflet-marker-icon")) {
-      // Intentionally no camera action.
-    }
-  }, true);
-
-  // Back/close should restore the main site instead of leaving a broken full-screen layer.
-  function restoreSiteAfterCamera() {
-    document.documentElement.style.overflow = "";
-    document.body.style.overflow = "";
-    document.body.classList.remove("camera-open", "viewer-open", "modal-open");
-    document.querySelectorAll(
-      "#cameraModal,.camera-modal,#cameraOverlay,.camera-overlay,#cameraScreen,.camera-screen"
-    ).forEach(function (el) {
-      if (el.dataset.keepHidden !== "false") {
-        el.style.display = "none";
-        el.classList.remove("open", "active", "show");
-      }
-    });
-    if (window.map && typeof window.map.invalidateSize === "function") {
-      setTimeout(function () { window.map.invalidateSize(true); }, 80);
-      setTimeout(function () { window.map.invalidateSize(true); }, 350);
-    }
-  }
-
-  window.addEventListener("pageshow", restoreSiteAfterCamera);
-  window.addEventListener("popstate", function () {
-    restoreSiteAfterCamera();
-  });
-
-  // Keep SPA navigation state intact when camera uses browser history.
-  if (!window.__cyberMapHistoryGuard) {
-    window.__cyberMapHistoryGuard = true;
-    history.replaceState({ cyberMapHome: true }, "", location.href);
-  }
-
-  // If the existing camera close button exists, make it reliably restore the page.
-  document.addEventListener("click", function (e) {
-    const t = e.target.closest(
-      "#closeCamera,#cameraClose,.close-camera,[data-close-camera]"
-    );
-    if (!t) return;
-    setTimeout(restoreSiteAfterCamera, 0);
-  }, true);
-})();
-</script>
-
 </body>
 </html>
