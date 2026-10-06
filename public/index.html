@@ -5,8 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Past Snap</title>
 
-<link rel="stylesheet"
-href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
 *{box-sizing:border-box}
@@ -18,9 +17,7 @@ html,body{
 button,input,textarea{font:inherit}
 button{cursor:pointer}
 
-#app,#map{
- width:100%;height:100%;
-}
+#app,#map{width:100%;height:100%}
 #app{position:relative}
 #map{position:absolute;inset:0;z-index:1}
 
@@ -32,8 +29,7 @@ button{cursor:pointer}
  padding:7px;border-radius:14px
 }
 #searchInput{
- flex:1;min-width:0;
- border:0;border-radius:9px;
+ flex:1;min-width:0;border:0;border-radius:9px;
  padding:10px;outline:none
 }
 #searchBtn,#accountBtn,#notificationBtn{
@@ -43,31 +39,24 @@ button{cursor:pointer}
 }
 #notificationBtn{position:relative}
 #notificationCount{
- position:absolute;
- top:-6px;right:-5px;
- background:#e33;color:#fff;
- border-radius:10px;
- min-width:17px;
- font-size:10px;padding:2px 4px;
+ position:absolute;top:-6px;right:-5px;
+ background:#e33;color:#fff;border-radius:10px;
+ min-width:17px;font-size:10px;padding:2px 4px;
  display:none
 }
-
 #locBtn{
- position:absolute;
- z-index:1000;
+ position:absolute;z-index:1000;
  bottom:20px;left:50%;
  transform:translateX(-50%);
  border:0;border-radius:12px;
  background:#fff;color:#111;
- padding:12px 17px;
- font-weight:bold
+ padding:12px 17px;font-weight:bold
 }
-
 #status{
- position:absolute;z-index:6000;
+ position:absolute;z-index:9000;
  top:70px;left:50%;
  transform:translateX(-50%);
- background:rgba(0,0,0,.85);
+ background:rgba(0,0,0,.9);
  padding:8px 13px;border-radius:20px;
  font-size:13px;display:none;
  max-width:90%;text-align:center
@@ -75,345 +64,142 @@ button{cursor:pointer}
 
 /* AUTH */
 #authModal{
- display:none;
- position:absolute;inset:0;
- z-index:7000;
+ display:none;position:absolute;inset:0;z-index:7000;
  background:rgba(0,0,0,.82);
- align-items:center;
- justify-content:center;
- padding:20px
+ align-items:center;justify-content:center;padding:20px
 }
 #authBox{
- width:min(94%,390px);
- background:#181818;
- border-radius:20px;
- padding:22px;
+ width:min(94%,390px);background:#181818;
+ border-radius:20px;padding:22px;
  box-shadow:0 20px 70px #000
 }
 #authBox h2{margin:0 0 6px}
 #authBox p{color:#aaa;font-size:13px}
 .authInput{
- width:100%;
- margin:7px 0;
- border:1px solid #444;
- background:#222;color:#fff;
- border-radius:10px;
- padding:12px;
- outline:none
+ width:100%;margin:7px 0;border:1px solid #444;
+ background:#222;color:#fff;border-radius:10px;
+ padding:12px;outline:none
 }
 .authMainBtn{
- width:100%;border:0;
- background:#fff;color:#111;
- padding:12px;border-radius:10px;
- font-weight:bold;margin-top:8px
+ width:100%;border:0;background:#fff;color:#111;
+ padding:12px;border-radius:10px;font-weight:bold;margin-top:8px
 }
 .authSwitch{
- border:0;background:transparent;
- color:#fff;margin-top:12px;
- width:100%;padding:7px
+ border:0;background:transparent;color:#fff;
+ margin-top:12px;width:100%;padding:7px
 }
 #authClose{
- float:right;
- border:0;background:#333;color:#fff;
- width:35px;height:35px;
- border-radius:50%
+ float:right;border:0;background:#333;color:#fff;
+ width:35px;height:35px;border-radius:50%
 }
 
 /* NOTIFICATIONS */
 #notificationPanel{
- display:none;
- position:absolute;
- z-index:6500;
- top:65px;right:10px;
- width:min(94%,360px);
- max-height:70vh;
- overflow:auto;
- background:#181818;
- border-radius:15px;
- box-shadow:0 15px 50px #000
+ display:none;position:absolute;z-index:6500;
+ top:65px;right:10px;width:min(94%,360px);
+ max-height:70vh;overflow:auto;background:#181818;
+ border-radius:15px;box-shadow:0 15px 50px #000
 }
 #notificationHeader{
- padding:13px;
- font-weight:bold;
- border-bottom:1px solid #333
+ padding:13px;font-weight:bold;border-bottom:1px solid #333
 }
 .notificationItem{
- padding:12px;
- border-bottom:1px solid #333;
- font-size:13px
+ padding:12px;border-bottom:1px solid #333;font-size:13px
 }
-.notificationItem.unread{
- background:#222
-}
-.notificationTime{
- color:#888;font-size:11px;margin-top:4px
+.notificationItem.unread{background:#222}
+.notificationTime{color:#888;font-size:11px;margin-top:4px}
+
+/* MODALS */
+.modal{
+ display:none;position:absolute;inset:0;z-index:3000;
+ background:#000;flex-direction:column
 }
 
-/* CAMERA/PREVIEW */
-.modal{
- display:none;
- position:absolute;inset:0;
- z-index:3000;
- background:#000;
- flex-direction:column
-}
+/* CAMERA */
 #cameraVideo{
- width:100%;height:100%;
- object-fit:cover;
- background:#000
+ width:100%;height:100%;object-fit:cover;background:#000
 }
-#cameraVideo.mirror-preview{
- transform:scaleX(-1)
-}
+#cameraVideo.mirror-preview{transform:scaleX(-1)}
 #cameraTop{
- position:absolute;top:10px;
- left:0;right:0;
- display:flex;
- justify-content:space-between;
+ position:absolute;top:10px;left:0;right:0;
+ display:flex;justify-content:space-between;
  padding:10px;z-index:10
 }
 #cameraTop button{
- border:0;background:rgba(0,0,0,.65);
- color:#fff;border-radius:50%;
- width:46px;height:46px;font-size:20px
+ border:0;background:rgba(0,0,0,.65);color:#fff;
+ border-radius:50%;width:46px;height:46px;font-size:20px
 }
 #cameraCanvas{display:none}
-
 #modeBar{
- position:absolute;bottom:152px;
- left:50%;transform:translateX(-50%);
- z-index:10;
- display:flex;
- background:rgba(0,0,0,.65);
+ position:absolute;bottom:152px;left:50%;
+ transform:translateX(-50%);z-index:10;
+ display:flex;background:rgba(0,0,0,.65);
  border-radius:20px;padding:4px
 }
 #modeBar button{
- border:0;background:transparent;
- color:#aaa;padding:8px 14px;
- border-radius:17px;font-weight:bold
+ border:0;background:transparent;color:#aaa;
+ padding:8px 14px;border-radius:17px;font-weight:bold
 }
-#modeBar button.active{
- background:#fff;color:#111
-}
-
+#modeBar button.active{background:#fff;color:#111}
 #zoomBox{
  position:absolute;right:8px;top:50%;
- transform:translateY(-50%);
- z-index:10;
- background:rgba(0,0,0,.6);
- border-radius:18px;
- padding:8px 5px;
- display:flex;flex-direction:column;
+ transform:translateY(-50%);z-index:10;
+ background:rgba(0,0,0,.6);border-radius:18px;
+ padding:8px 5px;display:flex;flex-direction:column;
  align-items:center;gap:5px
 }
 #zoomRange{
- writing-mode:vertical-lr;
- direction:rtl;
+ writing-mode:vertical-lr;direction:rtl;
  width:30px;height:170px
 }
 #zoomValue{font-size:12px;font-weight:bold}
-
 #filterBar{
- position:absolute;
- bottom:91px;left:0;right:0;
- z-index:10;
- display:flex;gap:7px;
- overflow-x:auto;
- padding:7px 10px;
- scrollbar-width:none
+ position:absolute;bottom:91px;left:0;right:0;z-index:10;
+ display:flex;gap:7px;overflow-x:auto;
+ padding:7px 10px;scrollbar-width:none
 }
 #filterBar::-webkit-scrollbar{display:none}
 .filterBtn{
- flex:0 0 auto;border:0;
- background:rgba(0,0,0,.62);
- color:#fff;padding:8px 12px;
- border-radius:17px;font-size:12px
+ flex:0 0 auto;border:0;background:rgba(0,0,0,.62);
+ color:#fff;padding:8px 12px;border-radius:17px;font-size:12px
 }
-.filterBtn.active{
- background:#fff;color:#111
-}
-
+.filterBtn.active{background:#fff;color:#111}
 #cameraBottom{
- position:absolute;
- bottom:15px;left:0;right:0;
- z-index:10;
- display:flex;
- justify-content:center;
- align-items:center;
- gap:28px
+ position:absolute;bottom:15px;left:0;right:0;z-index:10;
+ display:flex;justify-content:center;align-items:center;gap:28px
 }
 #mirrorBtn{
- border:0;
- background:rgba(0,0,0,.65);
- color:#fff;border-radius:20px;
- padding:10px 14px
+ border:0;background:rgba(0,0,0,.65);color:#fff;
+ border-radius:20px;padding:10px 14px
 }
-#mirrorBtn.active{
- background:#fff;color:#111
-}
+#mirrorBtn.active{background:#fff;color:#111}
 #captureBtn{
- width:70px;height:70px;
- border-radius:50%;
- border:6px solid #fff;
- background:#fff
+ width:70px;height:70px;border-radius:50%;
+ border:6px solid #fff;background:#fff
 }
-#captureBtn.recording{
- background:#e33;
- border-radius:18px
-}
+#captureBtn.recording{background:#e33;border-radius:18px}
 #recordTimer{
- position:absolute;bottom:83px;
- left:50%;transform:translateX(-50%);
- z-index:11;background:rgba(0,0,0,.7);
- padding:6px 12px;border-radius:16px;
- display:none;font-weight:bold
+ position:absolute;bottom:83px;left:50%;
+ transform:translateX(-50%);z-index:11;
+ background:rgba(0,0,0,.7);padding:6px 12px;
+ border-radius:16px;display:none;font-weight:bold
 }
 
 /* PREVIEW */
 #previewModal{background:#111}
 #previewMediaBox{
- flex:1;display:flex;
- align-items:center;
- justify-content:center;
- min-height:0
+ flex:1;display:flex;align-items:center;
+ justify-content:center;min-height:0
 }
 #previewImage,#previewVideo{
- max-width:100%;max-height:100%;
- object-fit:contain
+ max-width:100%;max-height:100%;object-fit:contain
 }
 #previewInfo{
- padding:10px;
- text-align:center;
- font-size:13px;
- background:#181818
+ padding:10px;text-align:center;font-size:13px;background:#181818
 }
-#previewBottom{
- display:flex;gap:10px;padding:12px
-}
-#previewBottom button{
- flex:1;border:0;
- border-radius:12px;
- padding:13px;
- font-weight:bold
-}
-#cancelPreviewBtn{
- background:#333;color:#fff
-}
-#postBtn{
- background:#fff;color:#111
-}
-#postBtn:disabled{opacity:.5}
-
-#qualityBox{
- display:flex;gap:6px;
- justify-content:center;
- padding:8px;background:#181818
-}
-.qualityBtn{
- border:0;background:#333;
- color:#fff;border-radius:9px;
- padding:7px 12px
-}
-.qualityBtn.active{
- background:#fff;color:#111
-}
-
-/* UPLOAD */
-#uploadBox{
- display:none;
- position:absolute;z-index:8000;
- left:50%;top:50%;
- transform:translate(-50%,-50%);
- width:min(90%,360px);
- background:#181818;
- border-radius:16px;
- padding:20px;
- box-shadow:0 10px 50px #000
-}
-#uploadTitle{font-weight:bold;font-size:18px}
-#uploadText{margin-top:8px;color:#aaa;font-size:13px}
-#uploadTrack{
- height:10px;background:#333;
- border-radius:10px;overflow:hidden;
- margin-top:18px
-}
-#uploadBar{
- height:100%;width:0;background:#fff
-}
-#uploadPercent{
- text-align:center;margin-top:8px;font-weight:bold
-}
-
-/* VIEWER */
-#galleryTop{
- display:flex;
- justify-content:space-between;
- align-items:center;padding:12px
-}
-#galleryImageBox{
- flex:1;position:relative;
- display:flex;
- align-items:center;
- justify-content:center;
- min-height:0;
- touch-action:pan-y
-}
-#galleryImage,#galleryVideo{
- max-width:100%;
- max-height:100%;
- object-fit:contain
-}
-#galleryDetails{
- position:absolute;
- z-index:5;
- left:10px;right:10px;
- bottom:10px;
- background:rgba(0,0,0,.78);
- padding:11px;
- border-radius:13px;
- font-size:12px;
- line-height:1.55
-}
-#closeGalleryBtn{
- border:0;background:#333;
- color:#fff;border-radius:50%;
- width:42px;height:42px;
- font-size:20px
-}
-
-/* SOCIAL */
-#socialBox{
- position:absolute;
- z-index:8;
- right:12px;
- bottom:95px;
- display:flex;
- flex-direction:column;
- gap:9px
-}
-.socialBtn{
- border:0;
- background:rgba(0,0,0,.72);
- color:#fff;
- border-radius:20px;
- padding:8px 10px;
- font-size:13px
-}
-.socialBtn.liked{
- background:#e53935
-}
-#commentBox{
- display:none;
- position:absolute;
- z-index:20;
- left:10px;right:10px;
- bottom:10px;
- background:#181818;
- border-radius:15px;
- padding:10px
-}
-#commentInput{
- width:100%;
+#descriptionInput{
+ width:calc(100% - 20px);
+ margin:8px 10px;
  min-height:55px;
  resize:none;
  border:1px solid #444;
@@ -422,61 +208,215 @@ button{cursor:pointer}
  padding:9px;
  outline:none
 }
-#commentActions{
- display:flex;gap:7px;margin-top:7px
+#previewBottom{display:flex;gap:10px;padding:12px}
+#previewBottom button{
+ flex:1;border:0;border-radius:12px;
+ padding:13px;font-weight:bold
 }
-#commentActions button{
- flex:1;border:0;
- padding:9px;border-radius:9px
+#cancelPreviewBtn{background:#333;color:#fff}
+#postBtn{background:#fff;color:#111}
+#postBtn:disabled{opacity:.5}
+#qualityBox{
+ display:flex;gap:6px;justify-content:center;
+ padding:8px;background:#181818
 }
-#sendCommentBtn{
- background:#fff;color:#111
+.qualityBtn{
+ border:0;background:#333;color:#fff;
+ border-radius:9px;padding:7px 12px
 }
-#cancelCommentBtn{
- background:#333;color:#fff
-}
+.qualityBtn.active{background:#fff;color:#111}
 
+/* UPLOAD */
+#uploadBox{
+ display:none;position:absolute;z-index:8000;
+ left:50%;top:50%;transform:translate(-50%,-50%);
+ width:min(90%,360px);background:#181818;
+ border-radius:16px;padding:20px;box-shadow:0 10px 50px #000
+}
+#uploadTitle{font-weight:bold;font-size:18px}
+#uploadText{margin-top:8px;color:#aaa;font-size:13px}
+#uploadTrack{
+ height:10px;background:#333;border-radius:10px;
+ overflow:hidden;margin-top:18px
+}
+#uploadBar{height:100%;width:0;background:#fff}
+#uploadPercent{text-align:center;margin-top:8px;font-weight:bold}
+
+/* VIEWER */
+#galleryTop{
+ display:flex;justify-content:space-between;
+ align-items:center;padding:12px
+}
+#galleryImageBox{
+ flex:1;position:relative;display:flex;
+ align-items:center;justify-content:center;
+ min-height:0;touch-action:pan-y
+}
+#galleryImage,#galleryVideo{
+ max-width:100%;max-height:100%;object-fit:contain
+}
+#galleryDetails{
+ position:absolute;z-index:5;left:10px;right:10px;bottom:10px;
+ background:rgba(0,0,0,.78);padding:11px;
+ border-radius:13px;font-size:12px;line-height:1.55;
+ max-height:32%;overflow:auto
+}
+#closeGalleryBtn{
+ border:0;background:#333;color:#fff;border-radius:50%;
+ width:42px;height:42px;font-size:20px
+}
+#socialBox{
+ position:absolute;z-index:8;right:12px;bottom:95px;
+ display:flex;flex-direction:column;gap:9px
+}
+.socialBtn{
+ border:0;background:rgba(0,0,0,.72);color:#fff;
+ border-radius:20px;padding:8px 10px;font-size:13px
+}
+.socialBtn.liked{background:#e53935}
+#commentBox{
+ display:none;position:absolute;z-index:20;
+ left:10px;right:10px;bottom:10px;
+ background:#181818;border-radius:15px;padding:10px
+}
+#commentInput{
+ width:100%;min-height:55px;resize:none;
+ border:1px solid #444;background:#222;color:#fff;
+ border-radius:9px;padding:9px;outline:none
+}
+#commentActions{display:flex;gap:7px;margin-top:7px}
+#commentActions button{
+ flex:1;border:0;padding:9px;border-radius:9px
+}
+#sendCommentBtn{background:#fff;color:#111}
+#cancelCommentBtn{background:#333;color:#fff}
 #commentsList{
- position:absolute;
- z-index:15;
- left:10px;right:10px;
- bottom:72px;
- max-height:35%;
- overflow:auto;
- display:none;
- background:rgba(20,20,20,.94);
- border-radius:13px;
- padding:10px
+ position:absolute;z-index:15;left:10px;right:10px;bottom:72px;
+ max-height:35%;overflow:auto;display:none;
+ background:rgba(20,20,20,.94);border-radius:13px;padding:10px
 }
 .commentRow{
- padding:7px 2px;
- border-bottom:1px solid #333;
- font-size:12px
+ padding:7px 2px;border-bottom:1px solid #333;font-size:12px
 }
 .commentUser{font-weight:bold}
 .commentTime{font-size:10px;color:#888}
 
-/* GHOST */
-.markerGhost{
- width:40px;height:40px;
+/* CALL */
+#callOverlay{
+ display:none;
+ position:absolute;inset:0;
+ z-index:10000;
+ background:rgba(0,0,0,.94);
+ align-items:center;
+ justify-content:center;
+ text-align:center;
+ padding:25px
+}
+#callBox{
+ width:min(92%,380px);
+ background:#181818;
+ border-radius:22px;
+ padding:25px;
+ box-shadow:0 20px 80px #000
+}
+#callAvatar{
+ width:75px;height:75px;
+ margin:auto;
  border-radius:50%;
- background:#fff;color:#111;
+ background:#333;
  display:flex;
  align-items:center;
  justify-content:center;
- font-size:20px;
- border:3px solid #111;
- position:relative
+ font-size:35px
+}
+#callerText{
+ margin:15px 0 20px;
+ font-size:18px;
+ font-weight:bold
+}
+.callActions{
+ display:flex;
+ gap:10px
+}
+.callActions button{
+ flex:1;
+ border:0;
+ border-radius:12px;
+ padding:13px;
+ font-weight:bold
+}
+#acceptCallBtn{background:#2eaf5d;color:#fff}
+#rejectCallBtn{background:#d83a3a;color:#fff}
+
+#activeCall{
+ display:none;
+ position:absolute;
+ inset:0;
+ z-index:9500;
+ background:#000
+}
+#remoteVideo{
+ width:100%;height:100%;
+ object-fit:cover;
+ background:#111
+}
+#localVideo{
+ position:absolute;
+ z-index:3;
+ right:12px;
+ top:65px;
+ width:105px;
+ height:145px;
+ object-fit:cover;
+ border-radius:12px;
+ border:2px solid #fff;
+ background:#222
+}
+#callTopBar{
+ position:absolute;
+ top:10px;left:10px;right:10px;
+ z-index:5;
+ display:flex;
+ justify-content:space-between
+}
+#callStatus{
+ background:rgba(0,0,0,.7);
+ padding:9px 13px;
+ border-radius:18px;
+ font-size:13px
+}
+#callControls{
+ position:absolute;
+ bottom:25px;
+ left:0;right:0;
+ z-index:5;
+ display:flex;
+ justify-content:center;
+ gap:12px
+}
+.callControl{
+ width:52px;height:52px;
+ border:0;
+ border-radius:50%;
+ background:rgba(255,255,255,.18);
+ color:#fff;
+ font-size:20px
+}
+#endCallBtn{
+ background:#d83a3a
+}
+
+/* GHOST */
+.markerGhost{
+ width:40px;height:40px;border-radius:50%;
+ background:#fff;color:#111;display:flex;
+ align-items:center;justify-content:center;font-size:20px;
+ border:3px solid #111;position:relative
 }
 .markerGhost span{
- position:absolute;
- right:-8px;top:-8px;
- background:#111;color:#fff;
- border-radius:10px;
- min-width:18px;
- text-align:center;
- font-size:10px;
- padding:2px
+ position:absolute;right:-8px;top:-8px;
+ background:#111;color:#fff;border-radius:10px;
+ min-width:18px;text-align:center;font-size:10px;padding:2px
 }
 .leaflet-control-attribution{font-size:9px}
 </style>
@@ -504,58 +444,29 @@ button{cursor:pointer}
 <!-- AUTH -->
 <div id="authModal">
  <div id="authBox">
-
   <button id="authClose">✕</button>
-
   <h2 id="authTitle">Register</h2>
-  <p id="authSubtitle">
-   Register to post and interact with snaps.
-  </p>
+  <p id="authSubtitle">Register to post and interact with snaps.</p>
 
-  <input id="authName"
-   class="authInput"
-   placeholder="Display Name">
+  <input id="authName" class="authInput" placeholder="Display Name">
+  <input id="authEmail" class="authInput" type="email" placeholder="Email">
+  <input id="authPassword" class="authInput" type="password" placeholder="Password">
 
-  <input id="authEmail"
-   class="authInput"
-   type="email"
-   placeholder="Email">
-
-  <input id="authPassword"
-   class="authInput"
-   type="password"
-   placeholder="Password">
-
-  <button id="authMainBtn"
-   class="authMainBtn">
-   Register
-  </button>
-
-  <button id="authSwitch"
-   class="authSwitch">
-   Already have an account? Login
-  </button>
-
+  <button id="authMainBtn" class="authMainBtn">Register</button>
+  <button id="authSwitch" class="authSwitch">Already have an account? Login</button>
  </div>
 </div>
 
 <!-- NOTIFICATIONS -->
 <div id="notificationPanel">
-
- <div id="notificationHeader">
-  Notifications
- </div>
-
+ <div id="notificationHeader">Notifications</div>
  <div id="notificationList"></div>
-
 </div>
 
 <!-- CAMERA -->
 <div id="cameraModal" class="modal">
 
- <video id="cameraVideo"
-  autoplay playsinline muted></video>
-
+ <video id="cameraVideo" autoplay playsinline muted></video>
  <canvas id="cameraCanvas"></canvas>
 
  <div id="cameraTop">
@@ -565,205 +476,139 @@ button{cursor:pointer}
 
  <div id="zoomBox">
   <div id="zoomValue">1×</div>
-  <input id="zoomRange"
-   type="range"
-   min="0.5"
-   max="20"
-   step="0.1"
-   value="1">
+  <input id="zoomRange" type="range" min="0.5" max="20" step="0.1" value="1">
  </div>
 
  <div id="modeBar">
-  <button id="photoModeBtn"
-   class="active">
-   📷 Photo
-  </button>
-  <button id="videoModeBtn">
-   🎥 Video
-  </button>
+  <button id="photoModeBtn" class="active">📷 Photo</button>
+  <button id="videoModeBtn">🎥 Video</button>
  </div>
 
  <div id="filterBar">
-
-  <button class="filterBtn active"
-   data-filter="none">Normal</button>
-
-  <button class="filterBtn"
-   data-filter="vintage">Vintage</button>
-
-  <button class="filterBtn"
-   data-filter="bw">B&W</button>
-
-  <button class="filterBtn"
-   data-filter="warm">Warm</button>
-
-  <button class="filterBtn"
-   data-filter="cool">Cool</button>
-
-  <button class="filterBtn"
-   data-filter="glow">Glow</button>
-
-  <button class="filterBtn"
-   data-filter="night">Night</button>
-
-  <button class="filterBtn"
-   data-filter="pop">Color Pop</button>
-
-  <button class="filterBtn"
-   data-filter="dream">Dream</button>
-
-  <button class="filterBtn"
-   data-filter="sunset">Sunset</button>
-
+  <button class="filterBtn active" data-filter="none">Normal</button>
+  <button class="filterBtn" data-filter="vintage">Vintage</button>
+  <button class="filterBtn" data-filter="bw">B&W</button>
+  <button class="filterBtn" data-filter="warm">Warm</button>
+  <button class="filterBtn" data-filter="cool">Cool</button>
+  <button class="filterBtn" data-filter="glow">Glow</button>
+  <button class="filterBtn" data-filter="night">Night</button>
+  <button class="filterBtn" data-filter="pop">Color Pop</button>
+  <button class="filterBtn" data-filter="dream">Dream</button>
+  <button class="filterBtn" data-filter="sunset">Sunset</button>
  </div>
 
  <div id="recordTimer">00:00</div>
 
  <div id="cameraBottom">
-
-  <button id="mirrorBtn">
-   🪞 Mirror
-  </button>
-
+  <button id="mirrorBtn">🪞 Mirror</button>
   <button id="captureBtn"></button>
-
  </div>
-
 </div>
 
 <!-- PREVIEW -->
 <div id="previewModal" class="modal">
 
  <div id="previewMediaBox">
-
-  <img id="previewImage"
-   style="display:none">
-
-  <video id="previewVideo"
-   style="display:none"
-   controls playsinline></video>
-
+  <img id="previewImage" style="display:none">
+  <video id="previewVideo" style="display:none" controls playsinline></video>
  </div>
 
  <div id="qualityBox">
-
-  <button class="qualityBtn active"
-   data-quality="480">480p</button>
-
-  <button class="qualityBtn"
-   data-quality="720">720p</button>
-
-  <button class="qualityBtn"
-   data-quality="1080">1080p</button>
-
+  <button class="qualityBtn active" data-quality="480">480p</button>
+  <button class="qualityBtn" data-quality="720">720p</button>
+  <button class="qualityBtn" data-quality="1080">1080p</button>
  </div>
 
- <div id="previewInfo">
-  Ready
- </div>
+ <textarea id="descriptionInput" maxlength="2000"
+  placeholder="Description likho (optional)..."></textarea>
+
+ <div id="previewInfo">Ready</div>
 
  <div id="previewBottom">
-
-  <button id="cancelPreviewBtn">
-   Retake
-  </button>
-
-  <button id="postBtn">
-   📍 Post Snap
-  </button>
-
+  <button id="cancelPreviewBtn">Retake</button>
+  <button id="postBtn">📍 Post Snap</button>
  </div>
-
 </div>
 
 <!-- UPLOAD -->
 <div id="uploadBox">
-
- <div id="uploadTitle">
-  📤 Uploading Snap
- </div>
-
- <div id="uploadText">
-  Please wait...
- </div>
-
- <div id="uploadTrack">
-  <div id="uploadBar"></div>
- </div>
-
- <div id="uploadPercent">
-  0%
- </div>
-
+ <div id="uploadTitle">📤 Uploading Snap</div>
+ <div id="uploadText">Please wait...</div>
+ <div id="uploadTrack"><div id="uploadBar"></div></div>
+ <div id="uploadPercent">0%</div>
 </div>
 
 <!-- VIEWER -->
 <div id="galleryModal" class="modal">
 
  <div id="galleryTop">
-
-  <span id="galleryCounter">
-   1 / 1
-  </span>
-
-  <button id="closeGalleryBtn">
-   ✕
-  </button>
-
+  <span id="galleryCounter">1 / 1</span>
+  <button id="closeGalleryBtn">✕</button>
  </div>
 
  <div id="galleryImageBox">
 
-  <img id="galleryImage"
-   style="display:none">
-
-  <video id="galleryVideo"
-   style="display:none"
-   controls playsinline></video>
+  <img id="galleryImage" style="display:none">
+  <video id="galleryVideo" style="display:none" controls playsinline></video>
 
   <div id="galleryDetails"></div>
 
   <div id="socialBox">
-
-   <button id="likeBtn"
-    class="socialBtn">
+   <button id="likeBtn" class="socialBtn">
     ❤️ <span id="likeCount">0</span>
    </button>
 
-   <button id="commentBtn"
-    class="socialBtn">
+   <button id="commentBtn" class="socialBtn">
     💬 <span id="commentCount">0</span>
    </button>
 
-   <button id="viewBtn"
-    class="socialBtn">
+   <button id="viewBtn" class="socialBtn">
     👁️ <span id="viewCount">0</span>
    </button>
-
   </div>
 
   <div id="commentsList"></div>
 
   <div id="commentBox">
-
-   <textarea id="commentInput"
-    maxlength="2000"
+   <textarea id="commentInput" maxlength="2000"
     placeholder="Write a comment..."></textarea>
 
    <div id="commentActions">
-
-    <button id="cancelCommentBtn">
-     Cancel
-    </button>
-
-    <button id="sendCommentBtn">
-     Send
-    </button>
-
+    <button id="cancelCommentBtn">Cancel</button>
+    <button id="sendCommentBtn">Send</button>
    </div>
-
   </div>
 
+ </div>
+</div>
+
+<!-- INCOMING CALL -->
+<div id="callOverlay">
+ <div id="callBox">
+  <div id="callAvatar">📞</div>
+  <div id="callerText">Incoming call...</div>
+
+  <div class="callActions">
+   <button id="rejectCallBtn">Reject</button>
+   <button id="acceptCallBtn">Accept</button>
+  </div>
+ </div>
+</div>
+
+<!-- ACTIVE CALL -->
+<div id="activeCall">
+
+ <video id="remoteVideo" autoplay playsinline></video>
+ <video id="localVideo" autoplay playsinline muted></video>
+
+ <div id="callTopBar">
+  <div id="callStatus">Connecting...</div>
+ </div>
+
+ <div id="callControls">
+  <button id="muteCallBtn" class="callControl">🎙️</button>
+  <button id="cameraCallBtn" class="callControl">📹</button>
+  <button id="endCallBtn" class="callControl">📞</button>
  </div>
 
 </div>
@@ -772,9 +617,9 @@ button{cursor:pointer}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 <script>
-
 /* =========================================================
    SUPABASE
 ========================================================= */
@@ -791,191 +636,146 @@ window.supabase.createClient(
  SUPABASE_KEY
 );
 
+/* =========================================================
+   SOCKET.IO
+========================================================= */
+
+const socket = io({
+ transports:["websocket","polling"]
+});
 
 /* =========================================================
    GLOBALS
 ========================================================= */
 
-let currentUser = null;
-let currentProfile = null;
-
-let authMode = "register";
+let currentUser=null;
+let currentProfile=null;
+let authMode="register";
 
 let map;
 
-let cameraStream = null;
-let currentFacing = "environment";
-let mirrorEnabled = false;
-let currentFilter = "none";
-let currentMode = "photo";
-let currentZoom = 1;
+let cameraStream=null;
+let currentFacing="environment";
+let mirrorEnabled=false;
+let currentFilter="none";
+let currentMode="photo";
+let currentZoom=1;
 
-let recorder = null;
-let recordedChunks = [];
-let recordingStartedAt = 0;
-let recordingTimer = null;
+let recorder=null;
+let recordedChunks=[];
+let recordingStartedAt=0;
+let recordingTimer=null;
 
-let capturedBlob = null;
-let capturedImageData = null;
-let capturedVideoUrl = null;
-let capturedType = null;
+let capturedBlob=null;
+let capturedImageData=null;
+let capturedVideoUrl=null;
+let capturedType=null;
 
-let selectedQuality = 480;
+let capturedLatitude=null;
+let capturedLongitude=null;
+let capturedDescription="";
 
-let capturedLatitude = null;
-let capturedLongitude = null;
+let selectedQuality=480;
+let userLocationMarker=null;
 
-let userLocationMarker = null;
+let galleryItems=[];
+let galleryIndex=0;
+let markerGroups={};
+let currentGallerySnap=null;
+let isPostingSnap=false;
 
-let galleryItems = [];
-let galleryIndex = 0;
+let myRoom=null;
+let currentCallPeerId=null;
+let incomingCallerId=null;
+let incomingCallerRoom=null;
 
-let markerGroups = {};
-
-let currentGallerySnap = null;
-
-let isPostingSnap = false;
-
+let peerConnection=null;
+let localCallStream=null;
+let remoteCallStream=null;
+let callMuted=false;
+let callCameraOff=false;
 
 /* =========================================================
    ELEMENTS
 ========================================================= */
 
-const cameraModal =
-document.getElementById("cameraModal");
-
-const previewModal =
-document.getElementById("previewModal");
-
-const galleryModal =
-document.getElementById("galleryModal");
-
-const cameraVideo =
-document.getElementById("cameraVideo");
-
-const cameraCanvas =
-document.getElementById("cameraCanvas");
-
+const cameraModal=document.getElementById("cameraModal");
+const previewModal=document.getElementById("previewModal");
+const galleryModal=document.getElementById("galleryModal");
+const cameraVideo=document.getElementById("cameraVideo");
+const cameraCanvas=document.getElementById("cameraCanvas");
 
 /* =========================================================
    STATUS
 ========================================================= */
 
 function showStatus(msg,ms=2500){
-
- const el =
- document.getElementById("status");
-
- el.textContent = msg;
- el.style.display = "block";
-
+ const el=document.getElementById("status");
+ el.textContent=msg;
+ el.style.display="block";
  clearTimeout(showStatus.timer);
-
- showStatus.timer =
- setTimeout(()=>{
-  el.style.display = "none";
+ showStatus.timer=setTimeout(()=>{
+  el.style.display="none";
  },ms);
-
 }
-
 
 /* =========================================================
    MAP
 ========================================================= */
 
-map =
-L.map("map",{
- zoomControl:true
-})
-.setView(
- [20.5937,78.9629],
- 5
-);
+map=L.map("map",{zoomControl:true})
+ .setView([20.5937,78.9629],5);
 
 L.tileLayer(
  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
  {
   maxZoom:20,
-  attribution:
-  "© OpenStreetMap contributors"
+  attribution:"© OpenStreetMap contributors"
  }
-)
-.addTo(map);
-
-
-/* =========================================================
-   IMPORTANT
-   NO MAP CLICK CAMERA
-========================================================= */
-
+).addTo(map);
 
 /* =========================================================
    DISTANCE
 ========================================================= */
 
 function distanceMeters(a,b){
-
  const R=6371000;
+ const p1=a.lat*Math.PI/180;
+ const p2=b.lat*Math.PI/180;
+ const dp=(b.lat-a.lat)*Math.PI/180;
+ const dl=(b.lng-a.lng)*Math.PI/180;
 
- const p1 =
- a.lat*Math.PI/180;
-
- const p2 =
- b.lat*Math.PI/180;
-
- const dp =
- (b.lat-a.lat)*Math.PI/180;
-
- const dl =
- (b.lng-a.lng)*Math.PI/180;
-
- const x =
+ const x=
  Math.sin(dp/2)**2+
- Math.cos(p1)*
- Math.cos(p2)*
+ Math.cos(p1)*Math.cos(p2)*
  Math.sin(dl/2)**2;
 
- return 2*R*
- Math.atan2(
+ return 2*R*Math.atan2(
   Math.sqrt(x),
   Math.sqrt(1-x)
  );
-
 }
 
-
 /* =========================================================
-   GHOST MARKER
+   GHOST MARKERS
 ========================================================= */
 
 function makeGhostIcon(count){
-
  return L.divIcon({
-
   className:"",
-
   html:
-  `<div class="markerGhost">
-    👻
-    <span>${count}</span>
-   </div>`,
-
+   `<div class="markerGhost">
+     👻
+     <span>${count}</span>
+    </div>`,
   iconSize:[40,40],
   iconAnchor:[20,20]
-
  });
-
 }
-
-
-/* =========================================================
-   CLUSTER
-========================================================= */
 
 function renderSnaps(rows){
 
- Object.values(markerGroups)
- .forEach(marker=>{
+ Object.values(markerGroups).forEach(marker=>{
   map.removeLayer(marker);
  });
 
@@ -983,79 +783,46 @@ function renderSnaps(rows){
 
  const groups=[];
 
- rows.forEach(row=>{
+ (rows||[]).forEach(row=>{
 
-  const lat =
-  Number(row.latitude);
+  const lat=Number(row.latitude);
+  const lng=Number(row.longitude);
 
-  const lng =
-  Number(row.longitude);
+  if(!Number.isFinite(lat)||!Number.isFinite(lng))return;
 
-  let group =
-  groups.find(g=>
+  let group=groups.find(g=>
    distanceMeters(
-    {
-     lat:g.latitude,
-     lng:g.longitude
-    },
-    {
-     lat:lat,
-     lng:lng
-    }
-   ) < 50
+    {lat:g.latitude,lng:g.longitude},
+    {lat,lng}
+   )<50
   );
 
   if(!group){
-
    group={
     latitude:lat,
     longitude:lng,
     items:[]
    };
-
    groups.push(group);
-
   }
 
   group.items.push(row);
-
  });
-
 
  groups.forEach((group,index)=>{
 
-  const marker =
-  L.marker(
-   [
-    group.latitude,
-    group.longitude
-   ],
-   {
-    icon:
-    makeGhostIcon(
-     group.items.length
-    )
-   }
-  )
-  .addTo(map);
+  const marker=L.marker(
+   [group.latitude,group.longitude],
+   {icon:makeGhostIcon(group.items.length)}
+  ).addTo(map);
 
-
-  marker.on(
-   "click",
-   ()=>{
-    openGallery(
-     group.items
-    );
-   }
-  );
-
+  marker.on("click",()=>{
+   openGallery(group.items);
+  });
 
   markerGroups[index]=marker;
-
  });
-
 }
-
 
 /* =========================================================
    LOAD SNAPS
@@ -1063,37 +830,19 @@ function renderSnaps(rows){
 
 async function loadSnaps(){
 
- const {data,error} =
- await supabaseClient
+ const {data,error}=await supabaseClient
  .from("snaps")
  .select("*")
- .order(
-  "created_at",
-  {
-   ascending:false
-  }
- );
-
+ .order("created_at",{ascending:false});
 
  if(error){
-
-  console.error(error);
-
-  showStatus(
-   "Snaps load nahi ho paaye."
-  );
-
+  console.error("LOAD SNAPS:",error);
+  showStatus("Snaps load nahi ho paaye.");
   return;
-
  }
 
-
- renderSnaps(
-  data || []
- );
-
+ renderSnaps(data||[]);
 }
-
 
 /* =========================================================
    SEARCH
@@ -1101,79 +850,45 @@ async function loadSnaps(){
 
 async function searchPlace(){
 
- const q =
- document
- .getElementById("searchInput")
- .value
- .trim();
+ const q=document.getElementById("searchInput")
+  .value.trim();
 
  if(!q)return;
 
- showStatus(
-  "Location search ho rahi hai..."
- );
+ showStatus("Location search ho rahi hai...");
 
  try{
 
-  const url =
-  "https://nominatim.openstreetmap.org/search"+
-  "?format=jsonv2"+
-  "&limit=8"+
-  "&q="+
-  encodeURIComponent(q+", India");
+  const url=
+   "https://nominatim.openstreetmap.org/search"+
+   "?format=jsonv2&limit=8&q="+
+   encodeURIComponent(q+", India");
 
-  const response =
-  await fetch(url);
-
-  const data =
-  await response.json();
+  const response=await fetch(url);
+  const data=await response.json();
 
   if(!data.length){
-
-   showStatus(
-    "Location nahi mili."
-   );
-
+   showStatus("Location nahi mili.");
    return;
-
   }
 
-  const p=data[0];
-
   map.setView(
-   [
-    Number(p.lat),
-    Number(p.lon)
-   ],
+   [Number(data[0].lat),Number(data[0].lon)],
    15
   );
 
  }catch(error){
-
   console.error(error);
-
-  showStatus(
-   "Search failed."
-  );
-
+  showStatus("Search failed.");
  }
-
 }
 
-document
-.getElementById("searchBtn")
-.onclick=searchPlace;
+document.getElementById("searchBtn").onclick=searchPlace;
 
-document
-.getElementById("searchInput")
-.addEventListener(
- "keydown",
- e=>{
-  if(e.key==="Enter")
-   searchPlace();
- }
-);
-
+document.getElementById("searchInput")
+.addEventListener("keydown",e=>{
+ if(e.key==="Enter")searchPlace();
+});
 
 /* =========================================================
    AUTH
@@ -1181,64 +896,39 @@ document
 
 async function loadAuth(){
 
- const {
-  data
- } =
- await supabaseClient
- .auth
- .getSession();
+ const {data}=await supabaseClient.auth.getSession();
 
- currentUser =
- data.session?.user ||
- null;
+ currentUser=data.session?.user||null;
 
  if(currentUser){
-
   await loadProfile();
 
-  document
-  .getElementById("accountBtn")
-  .textContent =
-  currentProfile?.display_name ||
-  "Account";
+  document.getElementById("accountBtn").textContent=
+   currentProfile?.display_name||"Account";
 
+  await loadNotifications();
  }else{
-
-  document
-  .getElementById("accountBtn")
-  .textContent =
-  "Login";
-
+  document.getElementById("accountBtn").textContent="Login";
  }
-
 }
-
 
 async function loadProfile(){
 
  if(!currentUser)return;
 
- const {data,error} =
- await supabaseClient
+ const {data,error}=await supabaseClient
  .from("profiles")
  .select("*")
- .eq(
-  "id",
-  currentUser.id
- )
+ .eq("id",currentUser.id)
  .maybeSingle();
 
  if(error){
-
-  console.error(error);
+  console.error("PROFILE:",error);
   return;
-
  }
 
  currentProfile=data;
-
 }
-
 
 /* =========================================================
    AUTH MODAL
@@ -1248,329 +938,157 @@ function openAuth(mode="register"){
 
  authMode=mode;
 
- document
- .getElementById("authModal")
+ document.getElementById("authModal")
  .style.display="flex";
 
- const title =
- document.getElementById(
-  "authTitle"
- );
-
- const name =
- document.getElementById(
-  "authName"
- );
-
- const main =
- document.getElementById(
-  "authMainBtn"
- );
-
- const switchBtn =
- document.getElementById(
-  "authSwitch"
- );
-
+ const name=document.getElementById("authName");
+ const title=document.getElementById("authTitle");
+ const main=document.getElementById("authMainBtn");
+ const sw=document.getElementById("authSwitch");
 
  if(mode==="register"){
 
-  title.textContent =
-  "Register";
-
-  name.style.display =
-  "block";
-
-  main.textContent =
-  "Register";
-
-  switchBtn.textContent =
-  "Already have an account? Login";
+  title.textContent="Register";
+  name.style.display="block";
+  main.textContent="Register";
+  sw.textContent="Already have an account? Login";
 
  }else{
 
-  title.textContent =
-  "Login";
-
-  name.style.display =
-  "none";
-
-  main.textContent =
-  "Login";
-
-  switchBtn.textContent =
-  "Create new account";
-
+  title.textContent="Login";
+  name.style.display="none";
+  main.textContent="Login";
+  sw.textContent="Create new account";
  }
-
 }
 
-
-document
-.getElementById("accountBtn")
-.onclick=()=>{
+document.getElementById("accountBtn").onclick=async()=>{
 
  if(currentUser){
 
-  if(confirm(
-   "Logout karna hai?"
-  )){
-
-   supabaseClient
-   .auth
-   .signOut();
-
+  if(confirm("Logout karna hai?")){
+   await supabaseClient.auth.signOut();
   }
 
  }else{
-
   openAuth("register");
-
  }
-
 };
 
-
-document
-.getElementById("authClose")
-.onclick=()=>{
- document
- .getElementById("authModal")
- .style.display="none";
+document.getElementById("authClose").onclick=()=>{
+ document.getElementById("authModal").style.display="none";
 };
 
-
-document
-.getElementById("authSwitch")
-.onclick=()=>{
-
- openAuth(
-  authMode==="register"
-   ? "login"
-   : "register"
- );
-
+document.getElementById("authSwitch").onclick=()=>{
+ openAuth(authMode==="register"?"login":"register");
 };
-
 
 async function submitAuth(){
 
- const name =
- document
- .getElementById("authName")
- .value
- .trim();
+ const name=document.getElementById("authName").value.trim();
+ const email=document.getElementById("authEmail").value.trim();
+ const password=document.getElementById("authPassword").value;
 
- const email =
- document
- .getElementById("authEmail")
- .value
- .trim();
-
- const password =
- document
- .getElementById("authPassword")
- .value;
-
- if(!email || !password){
-
-  showStatus(
-   "Email aur password bharna zaroori hai."
-  );
-
+ if(!email||!password){
+  showStatus("Email aur password bharna zaroori hai.");
   return;
-
  }
-
 
  try{
 
   if(authMode==="register"){
 
    if(!name){
-
-    showStatus(
-     "Display name bharna zaroori hai."
-    );
-
+    showStatus("Display name bharna zaroori hai.");
     return;
-
    }
 
-
-   const {
-    data,
-    error
-   } =
-   await supabaseClient
-   .auth
-   .signUp({
-
+   const {data,error}=await supabaseClient.auth.signUp({
     email,
     password
-
    });
-
 
    if(error)throw error;
 
-
    if(!data.user){
-
-    showStatus(
-     "Registration complete."
-    );
-
+    showStatus("Registration complete. Email verification check karo.");
     return;
-
    }
 
+   const {error:profileError}=await supabaseClient
+    .from("profiles")
+    .upsert({
+     id:data.user.id,
+     display_name:name
+    });
 
-   const {error:profileError} =
-   await supabaseClient
-   .from("profiles")
-   .insert({
+   if(profileError)throw profileError;
 
-    id:data.user.id,
+   currentUser=data.user;
+   await loadProfile();
 
-    display_name:name
+   showStatus("✅ Registration successful!");
 
-   });
+  }else{
 
+   const {data,error}=await supabaseClient.auth
+    .signInWithPassword({
+     email,
+     password
+    });
 
-   if(profileError)
-    throw profileError;
-
+   if(error)throw error;
 
    currentUser=data.user;
 
    await loadProfile();
 
-
-   showStatus(
-    "✅ Registration successful!"
-   );
-
-
-  }else{
-
-   const {
-    data,
-    error
-   } =
-   await supabaseClient
-   .auth
-   .signInWithPassword({
-
-    email,
-    password
-
-   });
-
-
-   if(error)throw error;
-
-
-   currentUser =
-   data.user;
-
-   await loadProfile();
-
-
-   showStatus(
-    "✅ Login successful!"
-   );
-
+   showStatus("✅ Login successful!");
   }
 
+  document.getElementById("authModal").style.display="none";
 
-  document
-  .getElementById("authModal")
-  .style.display="none";
+  document.getElementById("authName").value="";
+  document.getElementById("authEmail").value="";
+  document.getElementById("authPassword").value="";
 
-
-  document
-  .getElementById("authName")
-  .value="";
-
-  document
-  .getElementById("authEmail")
-  .value="";
-
-  document
-  .getElementById("authPassword")
-  .value="";
-
-
-  document
-  .getElementById("accountBtn")
-  .textContent =
-  currentProfile?.display_name ||
-  "Account";
-
+  document.getElementById("accountBtn").textContent=
+   currentProfile?.display_name||"Account";
 
   await loadNotifications();
 
-
  }catch(error){
 
-  console.error(error);
+  console.error("AUTH:",error);
 
   showStatus(
-   error.message ||
-   "Authentication failed.",
-   4000
+   error.message||"Authentication failed.",
+   5000
   );
-
  }
-
 }
 
+document.getElementById("authMainBtn").onclick=submitAuth;
 
-document
-.getElementById("authMainBtn")
-.onclick=
-submitAuth;
+supabaseClient.auth.onAuthStateChange(async(event,session)=>{
 
+ currentUser=session?.user||null;
 
-/* =========================================================
-   AUTH STATE
-========================================================= */
+ if(currentUser){
 
-supabaseClient
-.auth
-.onAuthStateChange(
- async(event,session)=>{
+  await loadProfile();
 
-  currentUser =
-  session?.user ||
-  null;
+  document.getElementById("accountBtn").textContent=
+   currentProfile?.display_name||"Account";
 
-  if(currentUser){
+  await loadNotifications();
 
-   await loadProfile();
+ }else{
 
-   document
-   .getElementById("accountBtn")
-   .textContent =
-   currentProfile?.display_name ||
-   "Account";
-
-   await loadNotifications();
-
-  }else{
-
-   currentProfile=null;
-
-   document
-   .getElementById("accountBtn")
-   .textContent="Login";
-
-  }
-
+  currentProfile=null;
+  document.getElementById("accountBtn").textContent="Login";
  }
-);
-
+});
 
 /* =========================================================
    NOTIFICATIONS
@@ -1580,177 +1098,80 @@ async function loadNotifications(){
 
  if(!currentUser){
 
-  document
-  .getElementById(
-   "notificationCount"
-  )
-  .style.display="none";
+  document.getElementById("notificationCount")
+   .style.display="none";
 
   return;
-
  }
 
-
- const {
-  data,
-  error
- } =
- await supabaseClient
- .from("notifications")
- .select("*")
- .eq(
-  "recipient_id",
-  currentUser.id
- )
- .order(
-  "created_at",
-  {
-   ascending:false
-  }
- )
- .limit(50);
-
+ const {data,error}=await supabaseClient
+  .from("notifications")
+  .select("*")
+  .eq("recipient_id",currentUser.id)
+  .order("created_at",{ascending:false})
+  .limit(50);
 
  if(error){
-
-  console.error(error);
+  console.error("NOTIFICATIONS:",error);
   return;
-
  }
 
+ const unread=(data||[]).filter(n=>!n.is_read).length;
 
- const unread =
- data.filter(
-  n=>!n.is_read
- ).length;
-
-
- const count =
- document.getElementById(
-  "notificationCount"
- );
-
+ const count=document.getElementById("notificationCount");
 
  if(unread){
-
-  count.textContent=
-  unread>99
-   ?"99+"
-   :unread;
-
-  count.style.display=
-  "block";
-
+  count.textContent=unread>99?"99+":unread;
+  count.style.display="block";
  }else{
-
-  count.style.display=
-  "none";
-
+  count.style.display="none";
  }
 
+ const list=document.getElementById("notificationList");
 
- const list =
- document.getElementById(
-  "notificationList"
- );
-
-
- if(!data.length){
-
+ if(!data?.length){
   list.innerHTML=
-  `<div class="notificationItem">
-   No notifications yet.
-  </div>`;
-
+   `<div class="notificationItem">No notifications yet.</div>`;
   return;
-
  }
 
-
- list.innerHTML =
- data.map(n=>{
-
-  const time =
-  new Date(
-   n.created_at
-  ).toLocaleString();
-
-  return `
-  <div class="notificationItem ${
-   n.is_read
-    ?""
-    :"unread"
-  }">
-
+ list.innerHTML=data.map(n=>`
+  <div class="notificationItem ${n.is_read?"":"unread"}">
    ${escapeHtml(n.message)}
-
    <div class="notificationTime">
-    ${time}
+    ${new Date(n.created_at).toLocaleString()}
    </div>
-
-  </div>`;
-
- }).join("");
-
+  </div>
+ `).join("");
 }
 
-
-document
-.getElementById(
- "notificationBtn"
-)
-.onclick=
-async()=>{
+document.getElementById("notificationBtn").onclick=async()=>{
 
  if(!currentUser){
-
   openAuth("login");
   return;
-
  }
 
- const panel =
- document.getElementById(
-  "notificationPanel"
- );
+ const panel=document.getElementById("notificationPanel");
 
- panel.style.display =
- panel.style.display==="block"
-  ?"none"
-  :"block";
-
+ panel.style.display=
+  panel.style.display==="block"?"none":"block";
 
  if(panel.style.display==="block"){
-
-  await markNotificationsRead();
-
   await loadNotifications();
-
  }
-
 };
-
 
 async function markNotificationsRead(){
 
  if(!currentUser)return;
 
  await supabaseClient
- .from("notifications")
- .update({
-  is_read:true
- })
- .eq(
-  "recipient_id",
-  currentUser.id
- )
- .eq(
-  "is_read",
-  false
- );
-
+  .from("notifications")
+  .update({is_read:true})
+  .eq("recipient_id",currentUser.id)
+  .eq("is_read",false);
 }
-
 
 /* =========================================================
    ESCAPE
@@ -1758,164 +1179,99 @@ async function markNotificationsRead(){
 
 function escapeHtml(value){
 
- return String(
-  value ?? ""
- )
- .replaceAll("&","&amp;")
- .replaceAll("<","&lt;")
- .replaceAll(">","&gt;")
- .replaceAll('"',"&quot;")
- .replaceAll("'","&#039;");
-
+ return String(value??"")
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
 }
 
-
 /* =========================================================
-   MY LOCATION
-   ONLY THIS OPENS CAMERA
+   LOCATION
 ========================================================= */
+
+function getFreshPosition(){
+
+ return new Promise((resolve,reject)=>{
+
+  navigator.geolocation.getCurrentPosition(
+   resolve,
+   reject,
+   {
+    enableHighAccuracy:true,
+    timeout:15000,
+    maximumAge:0
+   }
+  );
+ });
+}
 
 async function openCameraFromLocation(){
 
  if(!currentUser){
-
   openAuth("login");
-
   return;
-
  }
-
 
  if(!navigator.geolocation){
-
-  showStatus(
-   "Location support nahi hai."
-  );
-
+  showStatus("Location support nahi hai.");
   return;
-
  }
 
-
- showStatus(
-  "Live location mil rahi hai..."
- );
-
+ showStatus("Live location mil rahi hai...");
 
  try{
 
-  const pos =
-  await getFreshPosition();
+  const pos=await getFreshPosition();
 
-  capturedLatitude =
-  pos.coords.latitude;
-
-  capturedLongitude =
-  pos.coords.longitude;
-
+  capturedLatitude=pos.coords.latitude;
+  capturedLongitude=pos.coords.longitude;
 
   if(userLocationMarker)
-   map.removeLayer(
-    userLocationMarker
-   );
+   map.removeLayer(userLocationMarker);
 
-
-  userLocationMarker =
-  L.circleMarker(
-   [
-    capturedLatitude,
-    capturedLongitude
-   ],
-   {
-    radius:8
-   }
-  )
-  .addTo(map);
-
+  userLocationMarker=L.circleMarker(
+   [capturedLatitude,capturedLongitude],
+   {radius:8}
+  ).addTo(map);
 
   map.setView(
-   [
-    capturedLatitude,
-    capturedLongitude
-   ],
+   [capturedLatitude,capturedLongitude],
    17
   );
 
-
-  openCameraWithHistory();
-
+  openCamera();
 
  }catch(error){
 
   console.error(error);
-
   showStatus(
    "Location permission allow karo.",
    3500
   );
-
  }
-
 }
 
-
-document
-.getElementById("locBtn")
-.onclick=
-openCameraFromLocation;
-
-
-function getFreshPosition(){
-
- return new Promise(
-  (resolve,reject)=>{
-
-   navigator
-   .geolocation
-   .getCurrentPosition(
-    resolve,
-    reject,
-    {
-     enableHighAccuracy:true,
-     timeout:15000,
-     maximumAge:0
-    }
-   );
-
-  }
- );
-
-}
-
+document.getElementById("locBtn").onclick=openCameraFromLocation;
 
 async function lockCaptureLocation(){
 
  try{
 
-  const pos =
-  await getFreshPosition();
+  const pos=await getFreshPosition();
 
-  capturedLatitude =
-  pos.coords.latitude;
-
-  capturedLongitude =
-  pos.coords.longitude;
+  capturedLatitude=pos.coords.latitude;
+  capturedLongitude=pos.coords.longitude;
 
   return true;
 
  }catch(error){
 
-  showStatus(
-   "Live location required hai.",
-   3000
-  );
-
+  showStatus("Live location required hai.",3000);
   return false;
-
  }
-
 }
-
 
 /* =========================================================
    CAMERA
@@ -1924,78 +1280,36 @@ async function lockCaptureLocation(){
 function filterToCss(filter){
 
  switch(filter){
-
-  case "vintage":
-   return "sepia(.7) contrast(1.1) saturate(.8)";
-
-  case "bw":
-   return "grayscale(1)";
-
-  case "warm":
-   return "sepia(.25) saturate(1.35)";
-
-  case "cool":
-   return "saturate(.9) hue-rotate(15deg)";
-
-  case "glow":
-   return "brightness(1.1) saturate(1.2)";
-
-  case "night":
-   return "brightness(.65) contrast(1.25) saturate(1.2)";
-
-  case "pop":
-   return "saturate(1.8) contrast(1.15)";
-
-  case "dream":
-   return "brightness(1.08) contrast(.9) saturate(1.2)";
-
-  case "sunset":
-   return "sepia(.25) saturate(1.5) hue-rotate(-10deg)";
-
-  default:
-   return "none";
-
+  case "vintage":return "sepia(.7) contrast(1.1) saturate(.8)";
+  case "bw":return "grayscale(1)";
+  case "warm":return "sepia(.25) saturate(1.35)";
+  case "cool":return "saturate(.9) hue-rotate(15deg)";
+  case "glow":return "brightness(1.1) saturate(1.2)";
+  case "night":return "brightness(.65) contrast(1.25) saturate(1.2)";
+  case "pop":return "saturate(1.8) contrast(1.15)";
+  case "dream":return "brightness(1.08) contrast(.9) saturate(1.2)";
+  case "sunset":return "sepia(.25) saturate(1.5) hue-rotate(-10deg)";
+  default:return "none";
  }
-
 }
-
 
 function updateMirrorPreview(){
 
- cameraVideo
- .classList
- .toggle(
+ cameraVideo.classList.toggle(
   "mirror-preview",
   mirrorEnabled
  );
 
- document
- .getElementById("mirrorBtn")
- .classList
- .toggle(
-  "active",
-  mirrorEnabled
- );
+ document.getElementById("mirrorBtn")
+  .classList.toggle("active",mirrorEnabled);
 
- document
- .getElementById("mirrorBtn")
- .textContent =
- mirrorEnabled
- ?"🪞 Mirror ON"
- :"🪞 Mirror";
-
+ document.getElementById("mirrorBtn").textContent=
+  mirrorEnabled?"🪞 Mirror ON":"🪞 Mirror";
 }
-
 
 function updateLiveFilter(){
-
- cameraVideo.style.filter =
- filterToCss(
-  currentFilter
- );
-
+ cameraVideo.style.filter=filterToCss(currentFilter);
 }
-
 
 async function openCamera(){
 
@@ -2003,112 +1317,65 @@ async function openCamera(){
 
  try{
 
-  cameraStream =
-  await navigator
-  .mediaDevices
-  .getUserMedia({
-
+  cameraStream=await navigator.mediaDevices.getUserMedia({
    video:{
-    facingMode:{
-     ideal:currentFacing
-    },
-    width:{
-     ideal:1920
-    },
-    height:{
-     ideal:1080
-    }
+    facingMode:{ideal:currentFacing},
+    width:{ideal:1920},
+    height:{ideal:1080}
    },
-
    audio:false
-
   });
 
+  cameraVideo.srcObject=cameraStream;
 
-  cameraVideo.srcObject =
-  cameraStream;
-
-  cameraModal.style.display =
-  "flex";
+  cameraModal.style.display="flex";
 
   updateMirrorPreview();
-
   updateLiveFilter();
-
   await applyHardwareZoom();
 
  }catch(error){
 
-  console.error(error);
+  console.error("CAMERA:",error);
 
   showStatus(
    "Camera permission nahi mili.",
-   3000
+   3500
   );
-
  }
-
 }
-
 
 function stopCameraStream(){
 
  if(cameraStream){
 
-  cameraStream
-  .getTracks()
-  .forEach(
-   track=>track.stop()
-  );
-
+  cameraStream.getTracks().forEach(track=>track.stop());
   cameraStream=null;
-
  }
 
  cameraVideo.srcObject=null;
-
 }
-
 
 function closeCamera(){
 
- if(
-  recorder &&
-  recorder.state==="recording"
- ){
-
+ if(recorder&&recorder.state==="recording"){
   stopRecording();
-
  }
 
  stopCameraStream();
 
- cameraModal.style.display =
- "none";
-
+ cameraModal.style.display="none";
 }
 
+document.getElementById("closeCameraBtn").onclick=closeCamera;
 
-document
-.getElementById("closeCameraBtn")
-.onclick=
-closeCamera;
+document.getElementById("switchCameraBtn").onclick=async()=>{
 
-
-document
-.getElementById("switchCameraBtn")
-.onclick=
-async()=>{
-
- currentFacing =
- currentFacing==="environment"
- ?"user"
- :"environment";
+ currentFacing=
+  currentFacing==="environment"?"user":"environment";
 
  await openCamera();
-
 };
-
 
 /* =========================================================
    ZOOM
@@ -2116,115 +1383,61 @@ async()=>{
 
 async function applyHardwareZoom(){
 
- const track =
- cameraStream
- ?.getVideoTracks?.()[0];
+ const track=cameraStream?.getVideoTracks?.()[0];
 
  if(!track)return;
 
- const caps =
- track.getCapabilities
- ?track.getCapabilities()
- :{};
+ const caps=track.getCapabilities?track.getCapabilities():{};
 
  if(caps.zoom){
 
-  const z =
-  Math.max(
+  const z=Math.max(
    caps.zoom.min,
-   Math.min(
-    caps.zoom.max,
-    currentZoom
-   )
+   Math.min(caps.zoom.max,currentZoom)
   );
 
   try{
-
-   await track
-   .applyConstraints({
-    advanced:[
-     {zoom:z}
-    ]
+   await track.applyConstraints({
+    advanced:[{zoom:z}]
    });
-
-   return;
-
   }catch(e){}
-
  }
-
 }
 
+document.getElementById("zoomRange").oninput=async function(){
 
-document
-.getElementById("zoomRange")
-.oninput=
-async function(){
+ currentZoom=Number(this.value);
 
- currentZoom =
- Number(this.value);
-
- document
- .getElementById("zoomValue")
- .textContent =
- currentZoom
- .toFixed(1)
- .replace(".0","")
- +"×";
+ document.getElementById("zoomValue").textContent=
+  currentZoom.toFixed(1).replace(".0","")+"×";
 
  await applyHardwareZoom();
-
 };
-
 
 /* =========================================================
    FILTERS
 ========================================================= */
 
-document
-.querySelectorAll(".filterBtn")
-.forEach(btn=>{
+document.querySelectorAll(".filterBtn").forEach(btn=>{
 
  btn.onclick=()=>{
 
-  document
-  .querySelectorAll(
-   ".filterBtn"
-  )
-  .forEach(
-   b=>b.classList.remove(
-    "active"
-   )
-  );
+  document.querySelectorAll(".filterBtn")
+   .forEach(b=>b.classList.remove("active"));
 
-  btn.classList.add(
-   "active"
-  );
+  btn.classList.add("active");
 
-  currentFilter =
-  btn.dataset.filter;
+  currentFilter=btn.dataset.filter;
 
   updateLiveFilter();
-
  };
-
 });
 
+document.getElementById("mirrorBtn").onclick=()=>{
 
-document
-.getElementById("mirrorBtn")
-.onclick=
-async()=>{
-
- mirrorEnabled =
- !mirrorEnabled;
-
+ mirrorEnabled=!mirrorEnabled;
  updateMirrorPreview();
-
- await applyHardwareZoom();
-
 };
-
 
 /* =========================================================
    PHOTO
@@ -2235,140 +1448,54 @@ function drawVideoToCanvas(w,h){
  cameraCanvas.width=w;
  cameraCanvas.height=h;
 
- const ctx =
- cameraCanvas
- .getContext("2d");
+ const ctx=cameraCanvas.getContext("2d");
 
  ctx.save();
 
- ctx.filter =
- filterToCss(
-  currentFilter
- );
+ ctx.filter=filterToCss(currentFilter);
 
  if(mirrorEnabled){
-
-  ctx.translate(
-   w,
-   0
-  );
-
-  ctx.scale(
-   -1,
-   1
-  );
-
+  ctx.translate(w,0);
+  ctx.scale(-1,1);
  }
 
- ctx.drawImage(
-  cameraVideo,
-  0,
-  0,
-  w,
-  h
- );
+ ctx.drawImage(cameraVideo,0,0,w,h);
 
  ctx.restore();
-
 }
-
 
 async function capturePhoto(){
 
- if(
-  !cameraStream ||
-  !cameraVideo.videoWidth
- ){
-
-  showStatus(
-   "Camera ready nahi hai."
-  );
-
+ if(!cameraStream||!cameraVideo.videoWidth){
+  showStatus("Camera ready nahi hai.");
   return;
-
  }
 
-
- if(
-  !(await lockCaptureLocation())
- )
- return;
-
+ if(!(await lockCaptureLocation()))return;
 
  drawVideoToCanvas(
   cameraVideo.videoWidth,
   cameraVideo.videoHeight
  );
 
-
- capturedImageData =
- cameraCanvas.toDataURL(
-  "image/jpeg",
-  .88
- );
-
-
- capturedBlob =
- dataURLToBlob(
-  capturedImageData
- );
-
-
+ capturedImageData=cameraCanvas.toDataURL("image/jpeg",.88);
+ capturedBlob=dataURLToBlob(capturedImageData);
  capturedType="image";
-
  capturedVideoUrl=null;
 
+ document.getElementById("previewImage").src=capturedImageData;
+ document.getElementById("previewImage").style.display="block";
+ document.getElementById("previewVideo").style.display="none";
 
- document
- .getElementById(
-  "previewImage"
- )
- .src =
- capturedImageData;
+ document.getElementById("qualityBox").style.display="none";
 
- document
- .getElementById(
-  "previewImage"
- )
- .style.display =
- "block";
-
- document
- .getElementById(
-  "previewVideo"
- )
- .style.display =
- "none";
-
- document
- .getElementById(
-  "qualityBox"
- )
- .style.display =
- "none";
-
-
- document
- .getElementById(
-  "previewInfo"
- )
- .textContent =
- "Photo • "+
- cameraVideo.videoWidth+
- "×"+
- cameraVideo.videoHeight;
-
+ document.getElementById("previewInfo").textContent=
+  "Photo • "+cameraVideo.videoWidth+"×"+cameraVideo.videoHeight;
 
  stopCameraStream();
-
- cameraModal.style.display=
- "none";
-
- previewModal.style.display=
- "flex";
-
+ cameraModal.style.display="none";
+ previewModal.style.display="flex";
 }
-
 
 /* =========================================================
    VIDEO
@@ -2382,540 +1509,250 @@ function chooseMime(){
   "video/webm"
  ];
 
- return types.find(
-  t=>MediaRecorder
-  .isTypeSupported(t)
- ) || "";
-
+ return types.find(t=>MediaRecorder.isTypeSupported(t))||"";
 }
-
 
 async function startRecording(){
 
  if(!cameraStream)return;
 
- if(
-  !(await lockCaptureLocation())
- )
- return;
+ if(!(await lockCaptureLocation()))return;
 
-
- const mime =
- chooseMime();
+ const mime=chooseMime();
 
  if(!mime){
-
-  showStatus(
-   "Video recording supported nahi hai."
-  );
-
+  showStatus("Video recording supported nahi hai.");
   return;
-
  }
-
 
  recordedChunks=[];
 
- recorder =
- new MediaRecorder(
+ recorder=new MediaRecorder(
   cameraStream,
-  {
-   mimeType:mime
-  }
+  {mimeType:mime}
  );
 
+ recordingStartedAt=Date.now();
 
- recordingStartedAt =
- Date.now();
-
-
- recorder.ondataavailable =
- e=>{
-
-  if(
-   e.data &&
-   e.data.size
-  ){
-
-   recordedChunks.push(
-    e.data
-   );
-
-  }
-
+ recorder.ondataavailable=e=>{
+  if(e.data&&e.data.size)
+   recordedChunks.push(e.data);
  };
-
 
  recorder.onstop=()=>{
 
-  capturedBlob =
-  new Blob(
+  capturedBlob=new Blob(
    recordedChunks,
-   {
-    type:mime
-   }
+   {type:mime}
   );
-
 
   capturedType="video";
 
-  capturedVideoUrl =
-  URL.createObjectURL(
-   capturedBlob
-  );
+  capturedVideoUrl=
+   URL.createObjectURL(capturedBlob);
 
+  document.getElementById("previewImage")
+   .style.display="none";
 
-  const video =
-  document.getElementById(
-   "previewVideo"
-  );
+  const video=document.getElementById("previewVideo");
 
+  video.style.display="block";
+  video.src=capturedVideoUrl;
 
-  document
-  .getElementById(
-   "previewImage"
-  )
-  .style.display=
-  "none";
+  document.getElementById("previewInfo").textContent=
+   "Video • "+formatMB(capturedBlob.size);
 
-
-  video.style.display=
-  "block";
-
-  video.src=
-  capturedVideoUrl;
-
-
-  document
-  .getElementById(
-   "previewInfo"
-  )
-  .textContent=
-  "Video • "+
-  formatMB(
-   capturedBlob.size
-  );
-
-
-  document
-  .getElementById(
-   "qualityBox"
-  )
-  .style.display=
-  "flex";
-
+  document.getElementById("qualityBox")
+   .style.display="flex";
 
   stopCameraStream();
 
-  cameraModal.style.display=
-  "none";
-
-  previewModal.style.display=
-  "flex";
+  cameraModal.style.display="none";
+  previewModal.style.display="flex";
 
   updateRecordUI(false);
-
  };
-
 
  recorder.start(250);
 
  updateRecordUI(true);
 
- recordingTimer =
- setInterval(
+ recordingTimer=setInterval(
   updateRecordTimer,
   250
  );
-
 }
-
 
 function stopRecording(){
 
- if(
-  recorder &&
-  recorder.state==="recording"
- ){
-
+ if(recorder&&recorder.state==="recording")
   recorder.stop();
 
- }
-
- clearInterval(
-  recordingTimer
- );
-
+ clearInterval(recordingTimer);
  recordingTimer=null;
-
 }
-
 
 function updateRecordUI(on){
 
- const btn =
- document.getElementById(
-  "captureBtn"
- );
+ const btn=document.getElementById("captureBtn");
+ const timer=document.getElementById("recordTimer");
 
- const timer =
- document.getElementById(
-  "recordTimer"
- );
-
- btn.classList.toggle(
-  "recording",
-  on
- );
-
- timer.style.display =
- on
- ?"block"
- :"none";
-
+ btn.classList.toggle("recording",on);
+ timer.style.display=on?"block":"none";
 }
-
 
 function updateRecordTimer(){
 
- const seconds =
- Math.floor(
-  (
-   Date.now()-
-   recordingStartedAt
-  )/1000
+ const seconds=Math.floor(
+  (Date.now()-recordingStartedAt)/1000
  );
 
- document
- .getElementById(
-  "recordTimer"
- )
- .textContent =
- formatDuration(
-  seconds
- );
-
+ document.getElementById("recordTimer").textContent=
+  formatDuration(seconds);
 }
 
+document.getElementById("captureBtn").onclick=()=>{
 
-document
-.getElementById(
- "captureBtn"
-)
-.onclick=()=>{
-
- if(currentMode==="photo")
+ if(currentMode==="photo"){
   capturePhoto();
- else{
+ }else{
 
-  if(
-   recorder &&
-   recorder.state==="recording"
-  )
+  if(recorder&&recorder.state==="recording")
    stopRecording();
   else
    startRecording();
-
  }
-
 };
 
+document.getElementById("photoModeBtn").onclick=()=>{
+ currentMode="photo";
+ document.getElementById("photoModeBtn")
+  .classList.add("active");
+ document.getElementById("videoModeBtn")
+  .classList.remove("active");
+};
 
-/* =========================================================
-   MODE
-========================================================= */
-
-function setMode(mode){
-
- currentMode=mode;
-
- document
- .getElementById(
-  "photoModeBtn"
- )
- .classList
- .toggle(
-  "active",
-  mode==="photo"
- );
-
- document
- .getElementById(
-  "videoModeBtn"
- )
- .classList
- .toggle(
-  "active",
-  mode==="video"
- );
-
-}
-
-
-document
-.getElementById(
- "photoModeBtn"
-)
-.onclick=
-()=>setMode("photo");
-
-
-document
-.getElementById(
- "videoModeBtn"
-)
-.onclick=
-()=>setMode("video");
-
+document.getElementById("videoModeBtn").onclick=()=>{
+ currentMode="video";
+ document.getElementById("videoModeBtn")
+  .classList.add("active");
+ document.getElementById("photoModeBtn")
+  .classList.remove("active");
+};
 
 /* =========================================================
    HELPERS
 ========================================================= */
 
 function formatMB(bytes){
-
- return (
-  bytes/
-  1024/
-  1024
- )
- .toFixed(2)
- +" MB";
-
+ return (bytes/1024/1024).toFixed(2)+" MB";
 }
-
 
 function formatDuration(sec){
 
- sec=Math.max(
-  0,
-  Math.floor(sec)
- );
+ sec=Math.max(0,Math.floor(sec));
 
- return String(
-  Math.floor(sec/60)
- )
- .padStart(2,"0")
- +":"+
- String(
-  sec%60
- )
- .padStart(2,"0");
-
+ return String(Math.floor(sec/60)).padStart(2,"0")+
+ ":"+
+ String(sec%60).padStart(2,"0");
 }
-
 
 function dataURLToBlob(dataURL){
 
- const parts =
- dataURL.split(",");
+ const parts=dataURL.split(",");
+ const mime=parts[0].match(/:(.*?);/)[1];
+ const binary=atob(parts[1]);
+ const arr=new Uint8Array(binary.length);
 
- const mime =
- parts[0]
- .match(
-  /:(.*?);/
- )[1];
+ for(let i=0;i<binary.length;i++)
+  arr[i]=binary.charCodeAt(i);
 
- const binary =
- atob(parts[1]);
-
- const arr =
- new Uint8Array(
-  binary.length
- );
-
- for(
-  let i=0;
-  i<binary.length;
-  i++
- ){
-
-  arr[i]=
-  binary.charCodeAt(i);
-
- }
-
- return new Blob(
-  [arr],
-  {
-   type:mime
-  }
- );
-
+ return new Blob([arr],{type:mime});
 }
-
 
 /* =========================================================
    RETAKE
 ========================================================= */
 
-document
-.getElementById(
- "cancelPreviewBtn"
-)
-.onclick=()=>{
+document.getElementById("cancelPreviewBtn").onclick=()=>{
 
- if(capturedVideoUrl){
-
-  URL.revokeObjectURL(
-   capturedVideoUrl
-  );
-
- }
+ if(capturedVideoUrl)
+  URL.revokeObjectURL(capturedVideoUrl);
 
  capturedVideoUrl=null;
  capturedBlob=null;
  capturedImageData=null;
 
- previewModal.style.display=
- "none";
+ document.getElementById("descriptionInput").value="";
+
+ previewModal.style.display="none";
 
  openCamera();
-
 };
-
 
 /* =========================================================
    UPLOAD
 ========================================================= */
 
-function setUploadProgress(
- percent,
- text
-){
+function setUploadProgress(percent,text){
 
- document
- .getElementById(
-  "uploadBar"
- )
- .style.width=
- percent+"%";
+ document.getElementById("uploadBar")
+  .style.width=percent+"%";
 
- document
- .getElementById(
-  "uploadPercent"
- )
- .textContent=
- Math.round(percent)+"%";
+ document.getElementById("uploadPercent")
+  .textContent=Math.round(percent)+"%";
 
- document
- .getElementById(
-  "uploadText"
- )
- .textContent=
- text;
-
+ document.getElementById("uploadText")
+  .textContent=text;
 }
 
+async function uploadFile(path,blob,accessToken){
 
-async function uploadFile(
- path,
- blob,
- accessToken
-){
+ const url=
+  SUPABASE_URL+
+  "/storage/v1/object/past-snaps/"+
+  encodeURIComponent(path);
 
- const url =
- SUPABASE_URL+
- "/storage/v1/object/past-snaps/"+
- encodeURIComponent(path);
+ const xhr=new XMLHttpRequest();
 
+ return new Promise((resolve,reject)=>{
 
- const xhr =
- new XMLHttpRequest();
+  xhr.open("POST",url,true);
 
+  xhr.setRequestHeader("apikey",SUPABASE_KEY);
+  xhr.setRequestHeader(
+   "Authorization",
+   "Bearer "+accessToken
+  );
+  xhr.setRequestHeader("Content-Type",blob.type);
+  xhr.setRequestHeader("x-upsert","false");
 
- return new Promise(
-  (resolve,reject)=>{
+  xhr.upload.onprogress=e=>{
 
-   xhr.open(
-    "POST",
-    url,
-    true
-   );
+   if(e.lengthComputable){
 
+    setUploadProgress(
+     e.loaded/e.total*100,
+     "Uploading..."
+    );
+   }
+  };
 
-   xhr.setRequestHeader(
-    "apikey",
-    SUPABASE_KEY
-   );
+  xhr.onload=()=>{
 
+   if(xhr.status>=200&&xhr.status<300)
+    resolve();
+   else
+    reject(new Error(xhr.responseText||"Upload failed"));
+  };
 
-   xhr.setRequestHeader(
-    "Authorization",
-    "Bearer "+
-    accessToken
-   );
+  xhr.onerror=()=>{
+   reject(new Error("Network error"));
+  };
 
-
-   xhr.setRequestHeader(
-    "Content-Type",
-    blob.type
-   );
-
-
-   xhr.setRequestHeader(
-    "x-upsert",
-    "false"
-   );
-
-
-   xhr.upload.onprogress=
-   e=>{
-
-    if(
-     e.lengthComputable
-    ){
-
-     setUploadProgress(
-      (
-       e.loaded/
-       e.total
-      )*100,
-      "Uploading..."
-     );
-
-    }
-
-   };
-
-
-   xhr.onload=()=>{
-
-    if(
-     xhr.status>=200 &&
-     xhr.status<300
-    ){
-
-     resolve();
-
-    }else{
-
-     reject(
-      new Error(
-       xhr.responseText
-      )
-     );
-
-    }
-
-   };
-
-
-   xhr.onerror=
-   ()=>reject(
-    new Error(
-     "Network error"
-    )
-   );
-
-
-   xhr.send(blob);
-
-  }
- );
-
+  xhr.send(blob);
+ });
 }
-
 
 /* =========================================================
    POST SNAP
@@ -2925,123 +1762,66 @@ async function postSnap(){
 
  if(isPostingSnap)return;
 
-
  if(!currentUser){
-
   openAuth("login");
-
   return;
-
  }
-
 
  if(!capturedBlob){
-
-  showStatus(
-   "Pehle capture karo."
-  );
-
+  showStatus("Pehle capture karo.");
   return;
-
  }
 
-
- if(
-  capturedLatitude===null ||
-  capturedLongitude===null
- ){
-
-  showStatus(
-   "Capture location nahi mili."
-  );
-
+ if(capturedLatitude===null||capturedLongitude===null){
+  showStatus("Capture location nahi mili.");
   return;
-
  }
-
 
  let pos;
 
-
  try{
-
-  pos =
-  await getFreshPosition();
-
+  pos=await getFreshPosition();
  }catch(e){
-
-  showStatus(
-   "Live location required hai.",
-   3000
-  );
-
+  showStatus("Live location required hai.",3000);
   return;
-
  }
 
+ const currentLat=pos.coords.latitude;
+ const currentLng=pos.coords.longitude;
 
- const currentLat =
- pos.coords.latitude;
-
- const currentLng =
- pos.coords.longitude;
-
-
- const distance =
- distanceMeters(
+ const distance=distanceMeters(
   {
-   lat:
-   capturedLatitude,
-   lng:
-   capturedLongitude
+   lat:capturedLatitude,
+   lng:capturedLongitude
   },
   {
-   lat:
-   currentLat,
-   lng:
-   currentLng
+   lat:currentLat,
+   lng:currentLng
   }
  );
-
 
  if(distance>50){
 
   showStatus(
    "❌ Post failed: capture location se 50 meter se zyada door ho.",
-   4000
+   4500
   );
 
   return;
-
  }
-
 
  isPostingSnap=true;
 
-
- const btn =
- document.getElementById(
-  "postBtn"
- );
+ const btn=document.getElementById("postBtn");
 
  btn.disabled=true;
- btn.textContent=
- "Uploading...";
+ btn.textContent="Uploading...";
 
+ const {data:sessionData}=await supabaseClient
+  .auth
+  .getSession();
 
- const {
-  data:sessionData
- } =
- await supabaseClient
- .auth
- .getSession();
-
-
- const accessToken =
- sessionData
- ?.session
- ?.access_token;
-
+ const accessToken=sessionData?.session?.access_token;
 
  if(!accessToken){
 
@@ -3050,40 +1830,24 @@ async function postSnap(){
   btn.textContent="📍 Post Snap";
 
   openAuth("login");
-
   return;
-
  }
 
-
- const uploadBox =
- document.getElementById(
-  "uploadBox"
- );
-
- uploadBox.style.display=
- "block";
-
+ document.getElementById("uploadBox")
+  .style.display="block";
 
  try{
 
-  const extension =
-  capturedType==="video"
-  ?"webm"
-  :"jpg";
+  const extension=capturedType==="video"?"webm":"jpg";
 
-
-  const path =
-  currentUser.id+
-  "/snap_"+
-  Date.now()+
-  "_"+
-  Math.random()
-  .toString(36)
-  .slice(2,9)+
-  "."+
-  extension;
-
+  const path=
+   currentUser.id+
+   "/snap_"+
+   Date.now()+
+   "_"+
+   Math.random().toString(36).slice(2,9)+
+   "."+
+   extension;
 
   await uploadFile(
    path,
@@ -3091,148 +1855,94 @@ async function postSnap(){
    accessToken
   );
 
+  const publicUrl=
+   SUPABASE_URL+
+   "/storage/v1/object/public/past-snaps/"+
+   path;
 
-  const publicUrl =
-  SUPABASE_URL+
-  "/storage/v1/object/public/past-snaps/"+
-  path;
+  const description=
+   document.getElementById("descriptionInput")
+   .value.trim();
 
+  const {data:newSnap,error}=await supabaseClient
+   .from("snaps")
+   .insert({
+    latitude:capturedLatitude,
+    longitude:capturedLongitude,
+    image_url:publicUrl,
+    media_type:capturedType,
+    user_id:currentUser.id,
+    description:description||null
+   })
+   .select()
+   .single();
 
-  const {error} =
-  await supabaseClient
-  .from("snaps")
-  .insert({
+  if(error)throw error;
 
-   latitude:
-   capturedLatitude,
+  console.log("NEW SNAP:",newSnap);
 
-   longitude:
-   capturedLongitude,
+  document.getElementById("uploadBox")
+   .style.display="none";
 
-   image_url:
-   publicUrl,
-
-   media_type:
-   capturedType,
-
-   user_id:
-   currentUser.id
-
-  });
-
-
-  if(error)
-   throw error;
-
-
-  uploadBox.style.display=
-  "none";
-
-  previewModal.style.display=
-  "none";
-
+  previewModal.style.display="none";
 
   showStatus(
    "✅ Snap posted successfully!",
    3000
   );
 
-
   capturedBlob=null;
   capturedImageData=null;
   capturedLatitude=null;
   capturedLongitude=null;
 
+  document.getElementById("descriptionInput").value="";
 
   if(capturedVideoUrl){
-
-   URL.revokeObjectURL(
-    capturedVideoUrl
-   );
-
+   URL.revokeObjectURL(capturedVideoUrl);
    capturedVideoUrl=null;
-
   }
-
 
   await loadSnaps();
 
-
  }catch(error){
 
-  console.error(error);
+  console.error("POST ERROR:",error);
 
-  uploadBox.style.display=
-  "none";
-
+  document.getElementById("uploadBox")
+   .style.display="none";
 
   showStatus(
-   "Post failed: "+
-   (
-    error.message ||
-    "Unknown error"
-   ),
-   5000
+   "Post failed: "+(error.message||"Unknown error"),
+   6000
   );
-
 
  }finally{
 
   isPostingSnap=false;
-
   btn.disabled=false;
-
-  btn.textContent=
-  "📍 Post Snap";
-
+  btn.textContent="📍 Post Snap";
  }
-
 }
 
-
-document
-.getElementById(
- "postBtn"
-)
-.onclick=
-postSnap;
-
+document.getElementById("postBtn").onclick=postSnap;
 
 /* =========================================================
    QUALITY
 ========================================================= */
 
-document
-.querySelectorAll(
- ".qualityBtn"
-)
-.forEach(btn=>{
+document.querySelectorAll(".qualityBtn").forEach(btn=>{
 
  btn.onclick=()=>{
 
-  document
-  .querySelectorAll(
-   ".qualityBtn"
-  )
-  .forEach(
-   b=>
-   b.classList
-   .remove("active")
-  );
+  document.querySelectorAll(".qualityBtn")
+   .forEach(b=>b.classList.remove("active"));
 
-  btn.classList.add(
-   "active"
-  );
+  btn.classList.add("active");
 
-  selectedQuality =
-  Number(
-   btn.dataset.quality
-  );
-
+  selectedQuality=Number(btn.dataset.quality);
  };
-
 });
-
 
 /* =========================================================
    VIEWER
@@ -3240,242 +1950,139 @@ document
 
 async function openGallery(items){
 
- galleryItems =
- items || [];
-
+ galleryItems=items||[];
  galleryIndex=0;
 
- if(!galleryItems.length)
-  return;
+ if(!galleryItems.length)return;
 
-
- galleryModal.style.display=
- "flex";
+ galleryModal.style.display="flex";
 
  await renderGalleryItem();
-
 }
-
 
 async function renderGalleryItem(){
 
- const item =
- galleryItems[
-  galleryIndex
- ];
+ const item=galleryItems[galleryIndex];
 
+ currentGallerySnap=item;
 
- currentGallerySnap =
- item;
+ document.getElementById("galleryCounter")
+  .textContent=
+  (galleryIndex+1)+" / "+galleryItems.length;
 
-
- document
- .getElementById(
-  "galleryCounter"
- )
- .textContent =
- (
-  galleryIndex+1
- )+
- " / "+
- galleryItems.length;
-
-
- const img =
- document.getElementById(
-  "galleryImage"
- );
-
- const video =
- document.getElementById(
-  "galleryVideo"
- );
-
+ const img=document.getElementById("galleryImage");
+ const video=document.getElementById("galleryVideo");
 
  img.style.display="none";
  video.style.display="none";
-
  video.pause();
 
+ if(item.media_type==="video"){
 
- if(
-  item.media_type==="video"
- ){
-
-  video.src=
-  item.image_url;
-
-  video.style.display=
-  "block";
+  video.src=item.image_url;
+  video.style.display="block";
 
  }else{
 
-  img.src=
-  item.image_url;
-
-  img.style.display=
-  "block";
-
+  img.src=item.image_url;
+  img.style.display="block";
  }
 
-
  await loadPostDetails(item);
-
 }
 
-
 /* =========================================================
-   POST INFORMATION + SOCIAL
+   USER DETAILS + SOCIAL
 ========================================================= */
 
 async function loadPostDetails(item){
 
  let profile=null;
 
-
  if(item.user_id){
 
-  const {data} =
-  await supabaseClient
-  .from("profiles")
-  .select(
-   "display_name"
-  )
-  .eq(
-   "id",
-   item.user_id
-  )
-  .maybeSingle();
+  const {data,error}=await supabaseClient
+   .from("profiles")
+   .select("display_name")
+   .eq("id",item.user_id)
+   .maybeSingle();
+
+  if(error)
+   console.error("POST PROFILE:",error);
 
   profile=data;
-
  }
 
+ let likes=0;
+ let comments=0;
+ let views=0;
 
- const {
-  count:likes
- } =
- await supabaseClient
- .from("snap_likes")
- .select(
-  "*",
-  {
-   count:"exact",
-   head:true
-  }
- )
- .eq(
-  "snap_id",
-  item.id
- );
+ const likeResult=await supabaseClient
+  .from("snap_likes")
+  .select("*",{count:"exact",head:true})
+  .eq("snap_id",item.id);
 
+ const commentResult=await supabaseClient
+  .from("snap_comments")
+  .select("*",{count:"exact",head:true})
+  .eq("snap_id",item.id);
 
- const {
-  count:comments
- } =
- await supabaseClient
- .from("snap_comments")
- .select(
-  "*",
-  {
-   count:"exact",
-   head:true
-  }
- )
- .eq(
-  "snap_id",
-  item.id
- );
+ const viewResult=await supabaseClient
+  .from("snap_views")
+  .select("*",{count:"exact",head:true})
+  .eq("snap_id",item.id);
 
+ if(likeResult.error)
+  console.error("LIKE COUNT:",likeResult.error);
 
- const {
-  count:views
- } =
- await supabaseClient
- .from("snap_views")
- .select(
-  "*",
-  {
-   count:"exact",
-   head:true
-  }
- )
- .eq(
-  "snap_id",
-  item.id
- );
+ if(commentResult.error)
+  console.error("COMMENT COUNT:",commentResult.error);
 
+ if(viewResult.error)
+  console.error("VIEW COUNT:",viewResult.error);
+
+ likes=likeResult.count||0;
+ comments=commentResult.count||0;
+ views=viewResult.count||0;
 
  let liked=false;
 
-
  if(currentUser){
 
-  const {data} =
-  await supabaseClient
-  .from("snap_likes")
-  .select("id")
-  .eq(
-   "snap_id",
-   item.id
-  )
-  .eq(
-   "user_id",
-   currentUser.id
-  )
-  .maybeSingle();
+  const {data,error}=await supabaseClient
+   .from("snap_likes")
+   .select("id")
+   .eq("snap_id",item.id)
+   .eq("user_id",currentUser.id)
+   .maybeSingle();
+
+  if(error)
+   console.error("LIKE CHECK:",error);
 
   liked=!!data;
-
  }
 
+ const date=item.created_at
+  ?new Date(item.created_at).toLocaleDateString()
+  :"";
 
- const date =
- item.created_at
- ?
- new Date(
-  item.created_at
- ).toLocaleDateString()
- :"";
+ const time=item.created_at
+  ?new Date(item.created_at).toLocaleTimeString([],{
+    hour:"2-digit",
+    minute:"2-digit"
+   })
+  :"";
 
+ const location=
+  Number(item.latitude).toFixed(5)+
+  ", "+
+  Number(item.longitude).toFixed(5);
 
- const time =
- item.created_at
- ?
- new Date(
-  item.created_at
- ).toLocaleTimeString(
-  [],
-  {
-   hour:"2-digit",
-   minute:"2-digit"
-  }
- )
- :"";
+ document.getElementById("galleryDetails").innerHTML=`
 
-
- const location =
- Number(
-  item.latitude
- ).toFixed(5)+
- ", "+
- Number(
-  item.longitude
- ).toFixed(5);
-
-
- document
- .getElementById(
-  "galleryDetails"
- )
- .innerHTML =
-
- `<div>
+  <div>
    <b>👤 Posted by:</b>
-   ${escapeHtml(
-    profile?.display_name ||
-    "User"
-   )}
+   ${escapeHtml(profile?.display_name||"User")}
   </div>
 
   <div>
@@ -3484,73 +2091,38 @@ async function loadPostDetails(item){
   </div>
 
   <div>
-   <b>📅 Date:</b>
-   ${date}
+   <b>📅 Date:</b> ${date}
    &nbsp;
-   <b>🕐 Time:</b>
-   ${time}
+   <b>🕐 Time:</b> ${time}
   </div>
 
   ${
    item.description
-   ?
-   `<div>
-    <b>📝:</b>
-    ${escapeHtml(
-     item.description
-    )}
-   </div>`
+   ?`
+    <div>
+     <b>📝 Description:</b>
+     ${escapeHtml(item.description)}
+    </div>
+   `
    :""
-  }`;
+  }
+ `;
 
+ document.getElementById("likeCount").textContent=likes;
+ document.getElementById("commentCount").textContent=comments;
+ document.getElementById("viewCount").textContent=views;
 
- document
- .getElementById(
-  "likeCount"
- )
- .textContent =
- likes || 0;
+ document.getElementById("likeBtn")
+  .classList.toggle("liked",liked);
 
+ document.getElementById("commentsList")
+  .style.display="none";
 
- document
- .getElementById(
-  "commentCount"
- )
- .textContent =
- comments || 0;
-
-
- document
- .getElementById(
-  "viewCount"
- )
- .textContent =
- views || 0;
-
-
- document
- .getElementById(
-  "likeBtn"
- )
- .classList
- .toggle(
-  "liked",
-  liked
- );
-
-
- document
- .getElementById(
-  "commentsList"
- )
- .style.display=
- "none";
-
+ document.getElementById("commentBox")
+  .style.display="none";
 
  await addViewOnce(item);
-
 }
-
 
 /* =========================================================
    VIEW
@@ -3560,622 +2132,815 @@ async function addViewOnce(item){
 
  if(!currentUser)return;
 
- const {error} =
- await supabaseClient
- .from("snap_views")
- .insert({
-
-  snap_id:
-  item.id,
-
-  user_id:
-  currentUser.id
-
- });
-
+ const {error}=await supabaseClient
+  .from("snap_views")
+  .insert({
+   snap_id:item.id,
+   user_id:currentUser.id
+  });
 
  if(error){
-
-  // Unique constraint means
-  // user already viewed it.
   return;
-
  }
 
+ const {count}=await supabaseClient
+  .from("snap_views")
+  .select("*",{count:"exact",head:true})
+  .eq("snap_id",item.id);
 
- const {
-  count
- } =
- await supabaseClient
- .from("snap_views")
- .select(
-  "*",
-  {
-   count:"exact",
-   head:true
-  }
- )
- .eq(
-  "snap_id",
-  item.id
- );
-
-
- document
- .getElementById(
-  "viewCount"
- )
- .textContent =
- count || 0;
-
+ document.getElementById("viewCount").textContent=count||0;
 }
-
 
 /* =========================================================
    LIKE
 ========================================================= */
 
-document
-.getElementById(
- "likeBtn"
-)
-.onclick=
-async()=>{
+document.getElementById("likeBtn").onclick=async()=>{
 
  if(!currentUser){
-
   openAuth("login");
   return;
-
  }
 
+ if(!currentGallerySnap)return;
 
- if(!currentGallerySnap)
+ const snapId=currentGallerySnap.id;
+
+ const {data:existing,error:checkError}=await supabaseClient
+  .from("snap_likes")
+  .select("id")
+  .eq("snap_id",snapId)
+  .eq("user_id",currentUser.id)
+  .maybeSingle();
+
+ if(checkError){
+  console.error("LIKE CHECK:",checkError);
+  showStatus("Like check failed.");
   return;
-
-
- const snapId =
- currentGallerySnap.id;
-
-
- const {
-  data:existing
- } =
- await supabaseClient
- .from("snap_likes")
- .select("id")
- .eq(
-  "snap_id",
-  snapId
- )
- .eq(
-  "user_id",
-  currentUser.id
- )
- .maybeSingle();
-
+ }
 
  if(existing){
 
-  const {error} =
-  await supabaseClient
-  .from("snap_likes")
-  .delete()
-  .eq(
-   "id",
-   existing.id
-  );
+  const {error}=await supabaseClient
+   .from("snap_likes")
+   .delete()
+   .eq("id",existing.id);
 
   if(error){
-
-   showStatus(
-    "Like remove nahi hua."
-   );
-
+   console.error("UNLIKE:",error);
+   showStatus("Like remove nahi hua.");
    return;
-
   }
 
  }else{
 
-  const {error} =
-  await supabaseClient
-  .from("snap_likes")
-  .insert({
-
-   snap_id:snapId,
-
-   user_id:
-   currentUser.id
-
-  });
-
+  const {error}=await supabaseClient
+   .from("snap_likes")
+   .insert({
+    snap_id:snapId,
+    user_id:currentUser.id
+   });
 
   if(error){
-
-   showStatus(
-    "Like nahi hua."
-   );
-
+   console.error("LIKE:",error);
+   showStatus("Like nahi hua.");
    return;
-
   }
-
  }
 
-
- await loadPostDetails(
-  currentGallerySnap
- );
-
+ await loadPostDetails(currentGallerySnap);
 };
-
 
 /* =========================================================
    COMMENTS
 ========================================================= */
 
-document
-.getElementById(
- "commentBtn"
-)
-.onclick=
-async()=>{
+document.getElementById("commentBtn").onclick=async()=>{
 
  if(!currentUser){
-
   openAuth("login");
   return;
-
  }
 
+ if(!currentGallerySnap)return;
 
- const box =
- document.getElementById(
-  "commentBox"
- );
+ const box=document.getElementById("commentBox");
+ const list=document.getElementById("commentsList");
 
- const list =
- document.getElementById(
-  "commentsList"
- );
-
-
- box.style.display =
- box.style.display==="block"
-  ?"none"
-  :"block";
-
+ box.style.display=
+  box.style.display==="block"?"none":"block";
 
  if(box.style.display==="block"){
-
-  await loadComments(
-   currentGallerySnap.id
-  );
-
+  await loadComments(currentGallerySnap.id);
+ }else{
+  list.style.display="none";
  }
-
 };
-
 
 async function loadComments(snapId){
 
- const {
-  data,
-  error
- } =
- await supabaseClient
- .from("snap_comments")
- .select("*")
- .eq(
-  "snap_id",
-  snapId
- )
- .order(
-  "created_at",
-  {
-   ascending:true
-  }
- );
-
+ const {data,error}=await supabaseClient
+  .from("snap_comments")
+  .select("*")
+  .eq("snap_id",snapId)
+  .order("created_at",{ascending:true});
 
  if(error){
-
-  console.error(error);
+  console.error("COMMENTS:",error);
+  showStatus("Comments load nahi hue.");
   return;
-
  }
 
+ const list=document.getElementById("commentsList");
 
- const list =
- document.getElementById(
-  "commentsList"
- );
+ list.style.display="block";
 
-
- list.style.display=
- "block";
-
-
- if(!data.length){
-
-  list.innerHTML=
-  "<div>No comments yet.</div>";
-
+ if(!data?.length){
+  list.innerHTML="<div>No comments yet.</div>";
   return;
-
  }
 
-
- const userIds =
- [
-  ...new Set(
-   data.map(
-    x=>x.user_id
-   )
-  )
+ const userIds=[
+  ...new Set(data.map(x=>x.user_id))
  ];
 
+ let profiles=[];
 
- const {data:profiles} =
- await supabaseClient
- .from("profiles")
- .select(
-  "id,display_name"
- )
- .in(
-  "id",
-  userIds
- );
+ if(userIds.length){
 
+  const result=await supabaseClient
+   .from("profiles")
+   .select("id,display_name")
+   .in("id",userIds);
+
+  if(result.error)
+   console.error("COMMENT PROFILES:",result.error);
+
+  profiles=result.data||[];
+ }
 
  const names={};
 
+ profiles.forEach(p=>{
+  names[p.id]=p.display_name;
+ });
 
- (profiles||[])
- .forEach(
-  p=>{
-   names[p.id]=
-   p.display_name;
-  }
- );
-
-
- list.innerHTML =
- data.map(c=>`
+ list.innerHTML=data.map(c=>`
 
   <div class="commentRow">
 
    <div class="commentUser">
-    ${escapeHtml(
-     names[c.user_id] ||
-     "User"
-    )}
+    ${escapeHtml(names[c.user_id]||"User")}
    </div>
 
    <div>
-    ${escapeHtml(
-     c.comment_text
-    )}
+    ${escapeHtml(c.comment_text)}
    </div>
 
    <div class="commentTime">
-    ${new Date(
-     c.created_at
-    ).toLocaleString()}
+    ${new Date(c.created_at).toLocaleString()}
    </div>
 
   </div>
 
  `).join("");
-
 }
 
-
-document
-.getElementById(
- "sendCommentBtn"
-)
-.onclick=
-async()=>{
+document.getElementById("sendCommentBtn").onclick=async()=>{
 
  if(!currentUser){
-
   openAuth("login");
   return;
-
  }
 
+ if(!currentGallerySnap)return;
 
- if(!currentGallerySnap)
-  return;
-
-
- const input =
- document.getElementById(
-  "commentInput"
- );
-
-
- const text =
- input.value.trim();
-
+ const input=document.getElementById("commentInput");
+ const text=input.value.trim();
 
  if(!text){
-
-  showStatus(
-   "Comment likho."
-  );
-
+  showStatus("Comment likho.");
   return;
-
  }
 
-
- if(
-  text.split(/\s+/).length >
-  250
- ){
-
-  showStatus(
-   "Comment maximum 250 words ka hai."
-  );
-
+ if(text.split(/\s+/).length>250){
+  showStatus("Comment maximum 250 words ka hai.");
   return;
-
  }
 
-
- const {error} =
- await supabaseClient
- .from("snap_comments")
- .insert({
-
-  snap_id:
-  currentGallerySnap.id,
-
-  user_id:
-  currentUser.id,
-
-  comment_text:
-  text
-
- });
-
+ const {error}=await supabaseClient
+  .from("snap_comments")
+  .insert({
+   snap_id:currentGallerySnap.id,
+   user_id:currentUser.id,
+   comment_text:text
+  });
 
  if(error){
 
-  console.error(error);
+  console.error("COMMENT INSERT:",error);
 
   showStatus(
-   "Comment post nahi hua."
+   "Comment post nahi hua: "+
+   (error.message||"database error"),
+   5000
   );
 
   return;
-
  }
-
 
  input.value="";
 
-
- await loadComments(
-  currentGallerySnap.id
- );
-
-
- await loadPostDetails(
-  currentGallerySnap
- );
-
-
+ await loadComments(currentGallerySnap.id);
+ await loadPostDetails(currentGallerySnap);
 };
 
+document.getElementById("cancelCommentBtn").onclick=()=>{
 
-document
-.getElementById(
- "cancelCommentBtn"
-)
-.onclick=()=>{
+ document.getElementById("commentBox")
+  .style.display="none";
 
- document
- .getElementById(
-  "commentBox"
- )
- .style.display=
- "none";
-
+ document.getElementById("commentsList")
+  .style.display="none";
 };
-
 
 /* =========================================================
-   VIEWER SWIPE
+   SWIPE
 ========================================================= */
 
 let touchStartX=0;
 
+const galleryBox=document.getElementById("galleryImageBox");
 
-const galleryBox =
-document.getElementById(
- "galleryImageBox"
-);
+galleryBox.addEventListener("touchstart",e=>{
+ touchStartX=e.changedTouches[0].clientX;
+},{passive:true});
 
+galleryBox.addEventListener("touchend",async e=>{
 
-galleryBox
-.addEventListener(
- "touchstart",
- e=>{
+ const dx=e.changedTouches[0].clientX-touchStartX;
 
-  touchStartX =
-  e.changedTouches[0]
-  .clientX;
+ if(Math.abs(dx)<50)return;
 
- },
- {
-  passive:true
- }
-);
+ if(dx<0){
 
+  galleryIndex=
+   (galleryIndex+1)%galleryItems.length;
 
-galleryBox
-.addEventListener(
- "touchend",
- async e=>{
+ }else{
 
-  const dx =
-  e.changedTouches[0]
-  .clientX-
-  touchStartX;
-
-
-  if(
-   Math.abs(dx)<50
-  )
-  return;
-
-
-  if(dx<0){
-
-   galleryIndex =
-   (
-    galleryIndex+1
-   )%
+  galleryIndex=
+   (galleryIndex-1+galleryItems.length)%
    galleryItems.length;
-
-  }else{
-
-   galleryIndex =
-   (
-    galleryIndex-1+
-    galleryItems.length
-   )%
-   galleryItems.length;
-
-  }
-
-
-  await renderGalleryItem();
-
- },
- {
-  passive:true
  }
-);
 
+ await renderGalleryItem();
+
+},{passive:true});
 
 /* =========================================================
    CLOSE VIEWER
 ========================================================= */
 
-document
-.getElementById(
- "closeGalleryBtn"
-)
-.onclick=()=>{
+document.getElementById("closeGalleryBtn").onclick=()=>{
 
- document
- .getElementById(
-  "galleryVideo"
- )
- .pause();
+ document.getElementById("galleryVideo").pause();
 
- document
- .getElementById(
-  "commentsList"
- )
- .style.display=
- "none";
+ document.getElementById("commentsList").style.display="none";
+ document.getElementById("commentBox").style.display="none";
 
- document
- .getElementById(
-  "commentBox"
- )
- .style.display=
- "none";
-
- galleryModal.style.display=
- "none";
-
+ galleryModal.style.display="none";
  currentGallerySnap=null;
-
 };
 
+/* =========================================================
+   SOCKET ROOM
+========================================================= */
+
+function createMyRoom(){
+
+ if(myRoom)return myRoom;
+
+ const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+ let result="";
+
+ for(let i=0;i<6;i++){
+  result+=chars[Math.floor(Math.random()*chars.length)];
+ }
+
+ myRoom=result;
+
+ return myRoom;
+}
+
+function joinOwnCallRoom(){
+
+ if(!currentUser)return;
+
+ const room=createMyRoom();
+
+ socket.emit("join-room",room);
+
+ console.log("Joined call room:",room);
+}
+
+socket.on("connect",()=>{
+
+ console.log("Socket connected:",socket.id);
+
+ if(currentUser)
+  joinOwnCallRoom();
+});
+
+socket.on("room-joined",data=>{
+
+ console.log("ROOM JOINED:",data);
+
+ if(data?.roomId)
+  myRoom=data.roomId;
+});
+
+socket.on("room-full",()=>{
+ showStatus("Call room full hai.",3500);
+});
+
+/* =========================================================
+   CALL OUTGOING
+========================================================= */
+
+async function startCallToRoom(room){
+
+ if(!currentUser){
+  openAuth("login");
+  return;
+ }
+
+ if(!room){
+  showStatus("Room ID nahi mila.");
+  return;
+ }
+
+ joinOwnCallRoom();
+
+ showStatus("Calling "+room+"...",4000);
+
+ socket.emit("call-user",{
+  targetRoom:String(room).trim().toUpperCase(),
+  callerRoom:myRoom
+ });
+}
+
+socket.on("call-ringing",data=>{
+
+ showStatus(
+  "📞 Calling room "+(data?.roomId||"")+"...",
+  5000
+ );
+});
+
+socket.on("call-unavailable",data=>{
+
+ showStatus(
+  "Room "+(data?.roomId||"")+" available nahi hai.",
+  4000
+ );
+});
+
+/* =========================================================
+   INCOMING CALL
+========================================================= */
+
+socket.on("incoming-call",data=>{
+
+ incomingCallerId=data.callerId;
+ incomingCallerRoom=data.callerRoom||data.targetRoom||"";
+
+ document.getElementById("callerText").textContent=
+  incomingCallerRoom
+   ?"📞 Room "+incomingCallerRoom+" is calling you"
+   :"📞 Incoming call...";
+
+ document.getElementById("callOverlay")
+  .style.display="flex";
+});
+
+/* =========================================================
+   ACCEPT / REJECT
+========================================================= */
+
+document.getElementById("acceptCallBtn").onclick=async()=>{
+
+ if(!incomingCallerId)return;
+
+ const caller=incomingCallerId;
+
+ document.getElementById("callOverlay")
+  .style.display="none";
+
+ currentCallPeerId=caller;
+
+ socket.emit("accept-call",{
+  callerId:caller
+ });
+
+ await openActiveCall(true,caller);
+
+ incomingCallerId=null;
+};
+
+document.getElementById("rejectCallBtn").onclick=()=>{
+
+ if(incomingCallerId){
+
+  socket.emit("reject-call",{
+   callerId:incomingCallerId
+  });
+ }
+
+ document.getElementById("callOverlay")
+  .style.display="none";
+
+ incomingCallerId=null;
+ incomingCallerRoom=null;
+};
+
+socket.on("call-accepted",async(data)=>{
+
+ const peerId=data?.accepterId;
+
+ if(!peerId)return;
+
+ currentCallPeerId=peerId;
+
+ await openActiveCall(false,peerId);
+});
+
+socket.on("call-rejected",()=>{
+
+ showStatus("Call rejected.",3500);
+
+ cleanupCall();
+});
+
+socket.on("call-ended",()=>{
+
+ showStatus("Call ended.",3000);
+
+ cleanupCall();
+});
+
+/* =========================================================
+   WEBRTC
+========================================================= */
+
+async function openActiveCall(isReceiver,peerId){
+
+ try{
+
+  currentCallPeerId=peerId;
+
+  localCallStream=
+   await navigator.mediaDevices.getUserMedia({
+    video:true,
+    audio:true
+   });
+
+  document.getElementById("localVideo")
+   .srcObject=localCallStream;
+
+  remoteCallStream=
+   new MediaStream();
+
+  document.getElementById("remoteVideo")
+   .srcObject=remoteCallStream;
+
+  document.getElementById("activeCall")
+   .style.display="block";
+
+  document.getElementById("callStatus")
+   .textContent="Connecting...";
+
+  peerConnection=
+   new RTCPeerConnection({
+    iceServers:[
+     {
+      urls:"stun:stun.l.google.com:19302"
+     },
+     {
+      urls:"stun:stun1.l.google.com:19302"
+     }
+    ]
+   });
+
+  localCallStream.getTracks().forEach(track=>{
+   peerConnection.addTrack(
+    track,
+    localCallStream
+   );
+  });
+
+  peerConnection.ontrack=e=>{
+
+   e.streams[0].getTracks().forEach(track=>{
+    remoteCallStream.addTrack(track);
+   });
+
+   document.getElementById("callStatus")
+    .textContent="Connected";
+  };
+
+  peerConnection.onicecandidate=e=>{
+
+   if(e.candidate){
+
+    socket.emit("webrtc-signal",{
+     targetId:peerId,
+     signal:{
+      type:"ice-candidate",
+      candidate:e.candidate
+     }
+    });
+   }
+  };
+
+  peerConnection.onconnectionstatechange=()=>{
+
+   const state=peerConnection.connectionState;
+
+   console.log("WebRTC:",state);
+
+   if(state==="connected"){
+    document.getElementById("callStatus")
+     .textContent="Connected";
+   }
+
+   if(
+    state==="failed"||
+    state==="disconnected"||
+    state==="closed"
+   ){
+    cleanupCall();
+   }
+  };
+
+  if(!isReceiver){
+
+   const offer=await peerConnection.createOffer();
+
+   await peerConnection.setLocalDescription(offer);
+
+   socket.emit("webrtc-signal",{
+    targetId:peerId,
+    signal:{
+     type:"offer",
+     sdp:offer
+    }
+   });
+  }
+
+ }catch(error){
+
+  console.error("CALL MEDIA:",error);
+
+  showStatus(
+   "Camera/mic permission required hai.",
+   4000
+  );
+
+  cleanupCall();
+ }
+}
+
+/* =========================================================
+   WEBRTC SIGNAL RECEIVE
+========================================================= */
+
+socket.on("webrtc-signal",async(data)=>{
+
+ const signal=data?.signal;
+ const senderId=data?.senderId;
+
+ if(!signal||!senderId)return;
+
+ try{
+
+  if(!peerConnection){
+
+   currentCallPeerId=senderId;
+
+   await openActiveCall(true,senderId);
+  }
+
+  if(signal.type==="offer"){
+
+   await peerConnection.setRemoteDescription(
+    new RTCSessionDescription(signal.sdp)
+   );
+
+   const answer=
+    await peerConnection.createAnswer();
+
+   await peerConnection.setLocalDescription(answer);
+
+   socket.emit("webrtc-signal",{
+    targetId:senderId,
+    signal:{
+     type:"answer",
+     sdp:answer
+    }
+   });
+
+  }else if(signal.type==="answer"){
+
+   await peerConnection.setRemoteDescription(
+    new RTCSessionDescription(signal.sdp)
+   );
+
+  }else if(signal.type==="ice-candidate"){
+
+   if(signal.candidate){
+
+    await peerConnection.addIceCandidate(
+     new RTCIceCandidate(signal.candidate)
+    );
+   }
+  }
+
+ }catch(error){
+
+  console.error("WEBRTC SIGNAL:",error);
+ }
+});
+
+/* =========================================================
+   CALL CONTROLS
+========================================================= */
+
+document.getElementById("muteCallBtn").onclick=()=>{
+
+ if(!localCallStream)return;
+
+ const audio=localCallStream.getAudioTracks()[0];
+
+ if(!audio)return;
+
+ audio.enabled=!audio.enabled;
+
+ callMuted=!audio.enabled;
+
+ document.getElementById("muteCallBtn")
+  .textContent=
+  callMuted?"🔇":"🎙️";
+};
+
+document.getElementById("cameraCallBtn").onclick=()=>{
+
+ if(!localCallStream)return;
+
+ const video=localCallStream.getVideoTracks()[0];
+
+ if(!video)return;
+
+ video.enabled=!video.enabled;
+
+ callCameraOff=!video.enabled;
+
+ document.getElementById("cameraCallBtn")
+  .textContent=
+  callCameraOff?"🚫":"📹";
+};
+
+document.getElementById("endCallBtn").onclick=()=>{
+
+ if(currentCallPeerId){
+
+  socket.emit("end-call",{
+   targetId:currentCallPeerId
+  });
+ }
+
+ cleanupCall();
+};
+
+function cleanupCall(){
+
+ if(peerConnection){
+
+  try{
+   peerConnection.close();
+  }catch(e){}
+
+  peerConnection=null;
+ }
+
+ if(localCallStream){
+
+  localCallStream.getTracks()
+   .forEach(track=>track.stop());
+
+  localCallStream=null;
+ }
+
+ remoteCallStream=null;
+
+ document.getElementById("localVideo").srcObject=null;
+ document.getElementById("remoteVideo").srcObject=null;
+
+ document.getElementById("activeCall")
+  .style.display="none";
+
+ document.getElementById("callOverlay")
+  .style.display="none";
+
+ currentCallPeerId=null;
+ callMuted=false;
+ callCameraOff=false;
+
+ document.getElementById("muteCallBtn")
+  .textContent="🎙️";
+
+ document.getElementById("cameraCallBtn")
+  .textContent="📹";
+}
+
+/* =========================================================
+   SIMPLE ROOM INPUT FOR CALL
+   =========================================================
+   The call server expects a room ID. This keeps the map clean:
+   user can use browser prompt when they want to call.
+========================================================= */
+
+window.startPastSnapCall=async function(){
+
+ if(!currentUser){
+  openAuth("login");
+  return;
+ }
+
+ const room=prompt(
+  "Jis user ko call karna hai uska Room ID enter karo:"
+ );
+
+ if(!room)return;
+
+ await startCallToRoom(room);
+};
+
+/* =========================================================
+   OPTIONAL ACCOUNT LONG PRESS / CALL ACCESS
+   ========================================================= */
+
+document.getElementById("accountBtn")
+ .addEventListener("contextmenu",e=>{
+
+  e.preventDefault();
+
+  if(currentUser)
+   window.startPastSnapCall();
+ });
 
 /* =========================================================
    BROWSER BACK
 ========================================================= */
 
-let modalHistory=false;
+window.addEventListener("popstate",()=>{
 
-
-function openCameraWithHistory(){
-
- if(!modalHistory){
-
-  history.pushState(
-   {
-    pastSnapModal:
-    "camera"
-   },
-   "",
-   "#camera"
-  );
-
-  modalHistory=true;
-
+ if(cameraModal.style.display==="flex"){
+  stopCameraStream();
+  cameraModal.style.display="none";
  }
 
- openCamera();
+ if(previewModal.style.display==="flex"){
+  previewModal.style.display="none";
+ }
 
-}
+ if(galleryModal.style.display==="flex"){
+  document.getElementById("galleryVideo").pause();
+  galleryModal.style.display="none";
+ }
 
+ if(
+  document.getElementById("activeCall")
+   .style.display==="block"
+ ){
+  cleanupCall();
+ }
+});
 
-window.addEventListener(
- "popstate",
- ()=>{
+/* =========================================================
+   SOCKET ERROR
+========================================================= */
 
-  if(
-   cameraModal.style.display===
-   "flex"
-  ){
+socket.on("connect_error",error=>{
 
-   stopCameraStream();
+ console.error("SOCKET CONNECT ERROR:",error);
 
-   cameraModal.style.display=
-   "none";
-
-  }
-
-  if(
-   previewModal.style.display===
-   "flex"
-  ){
-
-   previewModal.style.display=
-   "none";
-
-  }
-
-  if(
-   galleryModal.style.display===
-   "flex"
-  ){
-
-   document
-   .getElementById(
-    "galleryVideo"
-   )
-   .pause();
-
-   galleryModal.style.display=
-   "none";
-
-  }
-
-  modalHistory=false;
-
- });
-
+ showStatus(
+  "Call server connection failed.",
+  4000
+ );
+});
 
 /* =========================================================
    START
@@ -4184,18 +2949,30 @@ window.addEventListener(
 (async()=>{
 
  await loadAuth();
-
  await loadSnaps();
 
- if(currentUser){
-
-  await loadNotifications();
-
- }
+ if(currentUser)
+  joinOwnCallRoom();
 
 })();
-
 </script>
 
 </body>
 </html>
+
+Ab 3 kaam karo
+
+1. GitHub → "public/index.html" → purana poora code delete → upar wala code paste → Commit changes.
+
+2. Render ko deploy hone do. Build command/start command wahi rehne do:
+
+npm install
+npm start
+
+3. Deploy ke baad pehle Register/Login → ek snap post → doosre account se snap open → Like/Comment test karna.
+
+Call test ke liye current code me Account button par long-press/right-click se Room ID prompt khulta hai. Calling user ka room ID target user ka hona chahiye.
+
+Ek important limitation: tumhare existing old snaps jinke "user_id" "NULL" hain, unmein original poster ka naam database se recover nahi ho sakta. Naye snaps me "user_id" properly save hoga aur display name dikhega.
+
+Post karne ke baad agar comment me exact Supabase error aaye, screenshot bhejna—usse RLS/policy issue hua to wahi fix karenge.
