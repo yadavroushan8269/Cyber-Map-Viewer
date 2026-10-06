@@ -4,2159 +4,872 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Cyber Map Viewer</title>
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
 <style>
 :root{
- --green:#00ff66;--green2:#00c853;--bg:#030603;--panel:rgba(3,10,5,.96);
- --line:rgba(0,255,102,.45);--muted:#8aa895;--danger:#ff416c
+  --bg:#050805;
+  --panel:#0a100a;
+  --panel2:#0d160d;
+  --green:#39ff14;
+  --green2:#8aff6b;
+  --line:#1d6b1d;
+  --text:#eaffea;
+  --muted:#79a879;
+  --danger:#ff4545;
 }
-*{box-sizing:border-box}
-html,body,#app{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:#eafff0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body,#app{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:monospace}
 button,input,textarea{font:inherit}
 button{cursor:pointer}
-#map{position:absolute;inset:0;z-index:1}
-#app:after{
- content:"";position:absolute;inset:0;z-index:2;pointer-events:none;
- background:repeating-linear-gradient(0deg,rgba(0,255,102,.025) 0 1px,transparent 1px 4px)
-}
-.leaflet-control-zoom a,.leaflet-control-attribution{
- background:#071109!important;color:var(--green)!important;border-color:var(--line)!important
-}
+#app{position:relative}
+#map{position:absolute;inset:0;z-index:1;background:#101710}
+.leaflet-container{background:#101710}
+.leaflet-control-attribution{font-size:9px}
+.leaflet-control-zoom{display:none}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#071007;color:#eaffea;border:1px solid #238c23}
+.leaflet-popup-content{font-family:monospace}
+.leaflet-popup-content a{color:var(--green)}
+
+#scanlines{pointer-events:none;position:absolute;inset:0;z-index:5000;background:repeating-linear-gradient(to bottom,rgba(57,255,20,.018) 0,rgba(57,255,20,.018) 1px,transparent 1px,transparent 4px);mix-blend-mode:screen}
+
 #topBar{
- position:absolute;z-index:1000;top:10px;left:10px;right:10px;display:flex;gap:6px;
- padding:7px;background:rgba(0,0,0,.86);border:1px solid var(--line);border-radius:12px;
- box-shadow:0 0 18px rgba(0,255,102,.18)
+ position:absolute;top:0;left:0;right:0;z-index:1000;
+ padding:10px 10px 8px;display:flex;gap:7px;align-items:center;
+ background:linear-gradient(180deg,rgba(3,8,3,.96),rgba(3,8,3,.72),transparent);
 }
 #searchInput{
- min-width:0;flex:1;background:#020602;color:var(--green);border:1px solid var(--line);
- border-radius:8px;padding:10px;outline:none
+ flex:1;min-width:0;height:42px;border:1px solid var(--line);border-radius:9px;
+ background:#061006e8;color:var(--text);outline:none;padding:0 12px;
+ box-shadow:0 0 12px #39ff1420 inset;
 }
-.btn{
- border:1px solid var(--line);background:#071109;color:var(--green);border-radius:8px;
- padding:9px 10px;font-weight:700;box-shadow:0 0 8px rgba(0,255,102,.1)
+.topBtn,.iconBtn{
+ height:42px;border:1px solid var(--line);border-radius:9px;
+ color:var(--green);background:#061006e8;padding:0 11px;font-weight:700;
 }
-.btn:active{transform:scale(.97)}
-.danger{border-color:var(--danger)!important;color:var(--danger)!important}
+.topBtn:active,.iconBtn:active,.navBtn:active,.actionBtn:active{transform:scale(.96)}
+#notificationBtn{font-size:18px;padding:0 10px;position:relative}
+#notificationCount{position:absolute;right:3px;top:2px;min-width:15px;height:15px;border-radius:10px;background:#ff3030;color:white;font-size:9px;display:none;align-items:center;justify-content:center}
+
 #status{
- display:none;position:absolute;z-index:6000;top:68px;left:50%;transform:translateX(-50%);
- max-width:92%;padding:9px 13px;border:1px solid var(--green);border-radius:20px;
- background:#020602;color:var(--green);font-size:12px;text-align:center;
- box-shadow:0 0 15px rgba(0,255,102,.3)
+ position:absolute;top:62px;left:50%;transform:translateX(-50%);z-index:1000;
+ background:#020702e8;border:1px solid var(--line);color:var(--green);
+ border-radius:20px;padding:7px 13px;font-size:11px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
+
 #locBtn{
- position:absolute;z-index:1000;bottom:18px;left:50%;transform:translateX(-50%);
- padding:12px 17px
+ position:absolute;z-index:1000;right:15px;bottom:94px;width:54px;height:54px;border-radius:50%;
+ border:1px solid var(--green);background:#061006f2;color:var(--green);font-size:23px;
+ box-shadow:0 0 18px #39ff1440;
 }
-.panel{
- display:none;position:absolute;z-index:4000;top:66px;right:10px;width:min(94vw,390px);
- max-height:75vh;overflow:auto;background:var(--panel);border:1px solid var(--green);
- border-radius:14px;padding:14px;box-shadow:0 0 30px rgba(0,255,102,.22)
+
+#bottomNav{
+ position:absolute;left:0;right:0;bottom:0;height:78px;z-index:1100;
+ display:flex;align-items:stretch;justify-content:space-around;
+ background:rgba(3,8,3,.97);border-top:1px solid var(--line);
+ box-shadow:0 -8px 25px #000;
+ padding-bottom:env(safe-area-inset-bottom);
 }
-.panelTitle{color:var(--green);font-weight:900;margin-bottom:10px}
-.panelRow{display:flex;gap:7px;margin:7px 0}.panelRow>*{min-width:0}
-.field{
- width:100%;background:#020602;color:#eafff0;border:1px solid var(--line);
- border-radius:8px;padding:10px;outline:none
+.navBtn{
+ flex:1;border:0;background:transparent;color:#6d966d;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:3px;font-size:10px;max-width:110px;
 }
-.readonly{color:var(--green)}
-.small{font-size:11px;color:var(--muted)}
-.notificationItem,.commentRow{
- border:1px solid rgba(0,255,102,.18);padding:9px;border-radius:9px;margin:6px 0;
- background:rgba(0,255,102,.025)
+.navBtn .navIcon{font-size:23px;line-height:24px}
+.navBtn.active{color:var(--green);text-shadow:0 0 10px #39ff1460}
+.navBtn.cameraNav{
+ margin:-16px 8px 7px;width:62px;max-width:62px;flex:0 0 62px;height:62px;
+ border:1px solid var(--green);border-radius:50%;background:#071207;
+ box-shadow:0 0 20px #39ff1440;
 }
-.notificationItem{cursor:pointer}
-.modal{
- display:none;position:absolute;inset:0;z-index:5000;background:#000;flex-direction:column
-}
-#cameraVideo{width:100%;height:100%;object-fit:cover;background:#000}
-#cameraVideo.mirror{transform:scaleX(-1)}
-#cameraTop,#galleryTop{
- position:absolute;z-index:10;top:0;left:0;right:0;display:flex;
- justify-content:space-between;padding:12px
-}
-.round{
- width:44px;height:44px;border-radius:50%;border:1px solid var(--line);
- background:rgba(0,0,0,.7);color:var(--green);font-size:19px
-}
-#zoomBox{
- position:absolute;right:10px;top:45%;z-index:10;background:rgba(0,0,0,.7);
- padding:8px;border:1px solid var(--line);border-radius:12px
-}
-#zoomRange{writing-mode:vertical-lr;direction:rtl;height:150px}
-#modeBar,#filterBar{
- position:absolute;z-index:10;left:0;right:0;display:flex;gap:6px;overflow-x:auto;
- padding:7px 10px;scrollbar-width:none
-}
-#modeBar{bottom:145px;justify-content:center}
-.modeBtn,.filterBtn{
- flex:0 0 auto;border:1px solid var(--line);background:rgba(0,0,0,.7);
- color:var(--green);border-radius:16px;padding:7px 11px
-}
-.active{background:var(--green)!important;color:#001507!important}
-#filterBar{bottom:88px}
-#recordTimer{
- display:none;position:absolute;z-index:11;bottom:82px;left:50%;
- transform:translateX(-50%);background:#000;color:var(--green);
- border:1px solid var(--green);padding:5px 10px;border-radius:15px
-}
-#cameraBottom{
- position:absolute;z-index:10;bottom:13px;left:0;right:0;display:flex;
- align-items:center;justify-content:center;gap:25px
-}
-#captureBtn{
- width:72px;height:72px;border-radius:50%;border:5px solid var(--green);
- background:#001b0b;box-shadow:0 0 20px rgba(0,255,102,.45)
-}
-#captureBtn.recording{background:#ff1744;border-color:#ff1744;border-radius:17px}
-#previewMedia{
- flex:1;min-height:0;display:flex;align-items:center;justify-content:center
-}
-.previewMedia{max-width:100%;max-height:100%;object-fit:contain}
-#previewBottom{display:flex;gap:8px;padding:10px}
-.previewBtn{flex:1}
-#qualityBox{display:flex;justify-content:center;gap:6px;padding:7px}
-#uploadBox{
- display:none;position:absolute;z-index:8000;left:50%;top:50%;
- transform:translate(-50%,-50%);width:min(90vw,360px);background:#020602;
- border:1px solid var(--green);border-radius:14px;padding:18px
-}
-#uploadTrack{height:9px;background:#152019;border-radius:9px;overflow:hidden;margin-top:14px}
-#uploadBar{height:100%;width:0;background:var(--green)}
-#galleryImageBox{
- flex:1;min-height:0;display:flex;align-items:center;justify-content:center;
- position:relative;touch-action:pan-y
-}
-#galleryImage,#galleryVideo{max-width:100%;max-height:100%;object-fit:contain}
-#galleryDetails{
- position:absolute;z-index:5;left:10px;right:10px;bottom:10px;max-height:42%;
- overflow:auto;background:rgba(0,0,0,.78);border:1px solid var(--line);
- border-radius:10px;padding:10px;font-size:12px;line-height:1.55
-}
-.galleryArrow{
- display:none;position:absolute;z-index:7;top:50%;border:1px solid var(--green);
- background:#020602;color:var(--green);border-radius:50%;width:42px;height:42px;font-size:25px
-}
-#prevBtn{left:8px}#nextBtn{right:8px}
-#socialBox{padding:10px;border-top:1px solid var(--line);max-height:35%;overflow:auto}
-#socialActions{display:flex;gap:7px;flex-wrap:wrap}
-#commentBox{display:none}
-.commentUser{color:var(--green);font-weight:800}
-.commentTime{color:#67816f;font-size:10px}
-.auth{
- display:none;position:absolute;inset:0;z-index:7000;background:rgba(0,0,0,.82);
- align-items:center;justify-content:center;padding:15px
-}
-.authBox{
- width:min(94vw,390px);background:#020602;border:1px solid var(--green);
- border-radius:15px;padding:18px;box-shadow:0 0 35px rgba(0,255,102,.25)
-}
-.authBox h2{color:var(--green);margin-top:0}
-.authBox input{margin:6px 0}
-#callOverlay{
- display:none;position:absolute;inset:0;z-index:9000;background:rgba(0,0,0,.78);
- align-items:center;justify-content:center
-}
-.callBox{
- width:min(90vw,360px);padding:22px;background:#020602;border:1px solid var(--green);
- border-radius:18px;text-align:center;box-shadow:0 0 40px rgba(0,255,102,.3)
-}
-#activeCall{display:none;position:absolute;inset:0;z-index:8500;background:#000}
-.remoteWrap{position:absolute;inset:0}
-.remoteWrap video{width:100%;height:100%;object-fit:cover}
-.localWrap{
- position:absolute;right:12px;top:60px;width:115px;height:165px;
- border:1px solid var(--green);border-radius:10px;overflow:hidden
-}
-.localWrap video{width:100%;height:100%;object-fit:cover}
-.callControls{
- position:absolute;bottom:20px;left:0;right:0;display:flex;
- justify-content:center;gap:12px
-}
+
 .markerGhost{
- width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;
- background:#020602;border:2px solid var(--green);color:var(--green);font-size:21px;
- position:relative;box-shadow:0 0 12px rgba(0,255,102,.35)
+ width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ color:#001500;background:var(--green);border:2px solid #d8ffd0;
+ font-weight:900;font-size:12px;box-shadow:0 0 18px #39ff1490;
 }
-.markerGhost span{
- position:absolute;right:-8px;top:-8px;background:var(--green);color:#001507;
- border-radius:10px;padding:2px 5px;font-size:10px;font-weight:900
+
+.panel{
+ position:absolute;z-index:3000;left:10px;right:10px;bottom:88px;max-height:75vh;overflow:auto;
+ background:#061006f8;border:1px solid var(--line);border-radius:14px;padding:14px;
+ box-shadow:0 15px 50px #000;
 }
-@media(min-width:700px){.galleryArrow{display:block}}
+.panel.hidden,.modal.hidden{display:none!important}
+.panelHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.panelTitle{color:var(--green);font-weight:900;font-size:16px}
+.closeX{background:none;border:0;color:#9fc99f;font-size:23px}
+
+.field{
+ width:100%;height:43px;border:1px solid var(--line);border-radius:8px;
+ background:#020702;color:var(--text);padding:0 11px;outline:none;margin:5px 0 9px;
+}
+textarea.field{height:80px;padding-top:10px;resize:none}
+.primary{
+ width:100%;min-height:43px;border:1px solid var(--green);border-radius:8px;
+ background:#0a250a;color:var(--green);font-weight:900;margin:4px 0;
+}
+.secondary{
+ border:1px solid var(--line);border-radius:8px;background:#071007;color:#a8dca8;padding:9px 12px;
+}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1}
+.muted{color:var(--muted);font-size:11px}
+.roomCode{font-size:23px;letter-spacing:3px;color:var(--green);text-align:center;border:1px dashed var(--line);padding:13px;border-radius:9px;margin:10px 0}
+
+#authModal,#cameraModal,#previewModal,#viewerModal,#callModal,#incomingModal{
+ position:absolute;inset:0;z-index:4000;background:#000b;display:flex;align-items:center;justify-content:center;padding:12px;
+}
+.modalCard{
+ width:min(520px,100%);max-height:94vh;overflow:auto;background:#061006;
+ border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:0 0 50px #000;
+}
+.modalTitle{font-size:18px;color:var(--green);font-weight:900;margin-bottom:10px}
+
+#cameraModal{align-items:stretch;padding:0;background:#000}
+.cameraCard{width:100%;height:100%;background:#000;position:relative}
+#cameraVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cameraShade{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 90px #000}
+.cameraTop,.cameraBottom{position:absolute;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:15px}
+.cameraTop{top:0}.cameraBottom{bottom:10px;flex-direction:column;gap:10px}
+.cameraControls{display:flex;gap:9px;align-items:center;justify-content:center}
+.camRound{width:48px;height:48px;border-radius:50%;border:1px solid var(--green);background:#061006d9;color:var(--green)}
+#captureBtn{width:76px;height:76px;border-radius:50%;border:5px solid white;background:var(--green);box-shadow:0 0 25px #39ff1480}
+#recordTimer{color:#ff5555;font-weight:900}
+.cameraModes,.filterRow{display:flex;gap:5px;overflow:auto}
+.cameraModes button,.filterRow button{
+ border:1px solid var(--line);background:#061006dd;color:#8fd68f;border-radius:7px;padding:6px 9px;font-size:11px
+}
+.cameraModes button.active,.filterRow button.active{color:var(--green);border-color:var(--green)}
+
+#previewMedia,#viewerMedia{max-width:100%;max-height:52vh;display:block;margin:auto;border-radius:9px}
+#viewerModal{background:#000f}
+.viewerCard{width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center}
+.viewerTop{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:2}
+.viewerInfo{margin-top:10px;background:#061006e8;border:1px solid var(--line);border-radius:10px;padding:10px;max-height:28vh;overflow:auto}
+.viewerActions{display:flex;gap:6px;margin-top:8px}
+.viewerActions button{flex:1}
+.comments{margin-top:9px}
+.commentItem{padding:7px 0;border-bottom:1px solid #173117;font-size:12px}
+.commentReply{margin-left:20px;border-left:1px solid var(--line);padding-left:8px}
+.commentMeta{color:var(--muted);font-size:10px}
+.likeUsers{font-size:10px;color:#9fd99f;margin-top:4px}
+
+#notificationList{display:flex;flex-direction:column;gap:7px}
+.notice{padding:10px;border:1px solid #194619;border-radius:9px;background:#071007}
+.notice.unread{border-color:var(--green)}
+.notice small{color:var(--muted)}
+
+#incomingModal{z-index:5000}
+.incomingCard{text-align:center}
+.callerBig{font-size:32px;color:var(--green);margin:15px 0}
+.accept{background:#0b410b!important}.reject{background:#410b0b!important;border-color:#ff4545!important;color:#ff8b8b!important}
+
+#callModal{z-index:4900;background:#000}
+.callCard{width:100%;height:100%;position:relative;background:#000}
+#remoteVideo{width:100%;height:100%;object-fit:cover;background:#050805}
+#localVideo{position:absolute;right:12px;top:12px;width:115px;height:155px;object-fit:cover;border:1px solid var(--green);border-radius:10px;background:#000;z-index:2}
+.callControls{position:absolute;left:0;right:0;bottom:25px;display:flex;justify-content:center;gap:12px;z-index:3}
+.callControls button{width:52px;height:52px;border-radius:50%;border:1px solid var(--green);background:#071007e8;color:var(--green)}
+.callControls .end{background:#4a0909;color:#ff7777;border-color:#ff4545}
+
+#chatBox{position:absolute;left:10px;right:10px;bottom:90px;z-index:5;background:#061006ed;border:1px solid var(--line);border-radius:12px;padding:9px;display:none}
+#chatMessages{height:130px;overflow:auto;margin-bottom:7px}
+.chatMsg{padding:5px 7px;margin:3px 0;border-radius:7px;background:#0b170b;font-size:11px}
+.chatMine{text-align:right;color:var(--green)}
+
+.hidden{display:none!important}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
+
 <body>
 <div id="app">
+  <div id="map"></div>
+  <div id="scanlines"></div>
 
-<div id="map"></div>
+  <div id="topBar">
+    <input id="searchInput" placeholder="🔍 Search location">
+    <button class="topBtn" id="searchBtn">SEARCH</button>
+    <button class="iconBtn" id="notificationBtn">🔔<span id="notificationCount"></span></button>
+  </div>
 
-<div id="topBar">
-<input id="searchInput" placeholder="⌕ Search location...">
-<button id="searchBtn" class="btn">SEARCH</button>
-<button id="notificationBtn" class="btn">🔔<span id="notificationCount"></span></button>
-<button id="myRoomBtn" class="btn">📞 MY ROOM ID</button>
-<button id="accountBtn" class="btn">👤</button>
-</div>
+  <div id="status">SYSTEM ONLINE</div>
 
-<button id="locBtn" class="btn">📍 MY LOCATION</button>
-<div id="status"></div>
+  <button id="locBtn" title="My Location">⌖</button>
 
-<div id="roomPanel" class="panel">
-<div class="panelTitle">📞 PERMANENT CALL ID</div>
-<div class="small">Ye ID account ke saath permanently linked hai.</div>
-<div class="panelRow">
-<input id="myCallId" class="field readonly" readonly>
-<button id="copyCallIdBtn" class="btn">COPY</button>
-</div>
-<div class="panelRow">
-<input id="targetCallId" class="field" placeholder="Dusre user ka Call ID">
-</div>
-<button id="callUserBtn" class="btn" style="width:100%">📞 CALL USER</button>
-<div class="small" style="margin-top:8px">Target online hona chahiye.</div>
-</div>
+  <div id="bottomNav">
+    <button class="navBtn active" id="mapNav"><span class="navIcon">🗺️</span><span>MAP</span></button>
+    <button class="navBtn" id="exploreNav"><span class="navIcon">👻</span><span>EXPLORE</span></button>
+    <button class="navBtn cameraNav" id="cameraNav"><span class="navIcon">📸</span><span>SNAP</span></button>
+    <button class="navBtn" id="roomNav"><span class="navIcon">📞</span><span>CALL</span></button>
+    <button class="navBtn" id="accountNav"><span class="navIcon">👤</span><span>ACCOUNT</span></button>
+  </div>
 
-<div id="notificationPanel" class="panel">
-<div class="panelTitle">🔔 NOTIFICATIONS</div>
-<div id="notificationList"></div>
-</div>
+  <div id="roomPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">📞 MY ROOM ID</div><button class="closeX" data-close="roomPanel">×</button></div>
+    <div class="muted">Permanent Call ID — generated once for this account.</div>
+    <div id="myRoomCode" class="roomCode">LOGIN REQUIRED</div>
+    <div class="row"><button class="secondary" id="copyRoomBtn">COPY ID</button><button class="secondary" id="shareRoomBtn">SHARE</button></div>
+    <input class="field" id="targetRoomInput" placeholder="Enter target Call ID">
+    <button class="primary" id="callUserBtn">CALL USER</button>
+  </div>
 
-<div id="accountPanel" class="panel">
-<div class="panelTitle">ACCOUNT</div>
-<div id="accountInfo" class="small">Not logged in</div>
-<button id="accountActionBtn" class="btn" style="width:100%;margin-top:10px">LOGIN</button>
-</div>
+  <div id="notificationPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">🔔 NOTIFICATIONS</div><button class="closeX" data-close="notificationPanel">×</button></div>
+    <div id="notificationList"></div>
+  </div>
 
-<div id="authModal" class="auth">
-<div class="authBox">
-<button id="authClose" class="round" style="float:right">✕</button>
-<h2 id="authTitle">LOGIN</h2>
-<div id="authSubtitle" class="small">Account se sign in karo.</div>
-<input id="authName" class="field" placeholder="Display name" style="display:none">
-<input id="authEmail" class="field" type="email" placeholder="Email">
-<input id="authPassword" class="field" type="password" placeholder="Password">
-<button id="authMainBtn" class="btn" style="width:100%;margin-top:8px">LOGIN</button>
-<button id="authSwitch" class="btn" style="width:100%;margin-top:8px">CREATE ACCOUNT</button>
-</div>
-</div>
+  <div id="authModal" class="hidden">
+    <div class="modalCard">
+      <div class="panelHeader"><div class="modalTitle" id="authTitle">LOGIN</div><button class="closeX" id="authClose">×</button></div>
+      <input class="field" id="authEmail" type="email" placeholder="Email">
+      <input class="field" id="authPassword" type="password" placeholder="Password">
+      <input class="field" id="authName" placeholder="Display name" style="display:none">
+      <button class="primary" id="authSubmit">LOGIN</button>
+      <button class="secondary" id="authSwitch">Create account</button>
+    </div>
+  </div>
 
-<div id="cameraModal" class="modal">
-<video id="cameraVideo" autoplay playsinline muted></video>
-<canvas id="cameraCanvas" style="display:none"></canvas>
-<div id="cameraTop">
-<button id="closeCameraBtn" class="round">✕</button>
-<button id="switchCameraBtn" class="round">🔄</button>
-</div>
-<div id="zoomBox">
-<div id="zoomValue" style="color:var(--green);text-align:center">1×</div>
-<input id="zoomRange" type="range" min=".5" max="20" step=".1" value="1">
-</div>
-<div id="modeBar">
-<button id="photoModeBtn" class="modeBtn active">📷 PHOTO</button>
-<button id="videoModeBtn" class="modeBtn">🎥 VIDEO</button>
-</div>
-<div id="filterBar">
-<button class="filterBtn active" data-filter="none">NORMAL</button>
-<button class="filterBtn" data-filter="vintage">VINTAGE</button>
-<button class="filterBtn" data-filter="bw">B&W</button>
-<button class="filterBtn" data-filter="warm">WARM</button>
-<button class="filterBtn" data-filter="cool">COOL</button>
-<button class="filterBtn" data-filter="glow">GLOW</button>
-<button class="filterBtn" data-filter="night">NIGHT</button>
-</div>
-<div id="recordTimer">00:00</div>
-<div id="cameraBottom">
-<button id="mirrorBtn" class="btn">🪞 MIRROR</button>
-<button id="captureBtn"></button>
-</div>
-</div>
+  <div id="cameraModal" class="hidden">
+    <div class="cameraCard">
+      <video id="cameraVideo" autoplay playsinline muted></video>
+      <div class="cameraShade"></div>
+      <div class="cameraTop">
+        <button class="camRound" id="cameraClose">×</button>
+        <span id="cameraGpsText" style="color:var(--green);font-size:10px">GPS LOCK</span>
+        <button class="camRound" id="switchCamera">↻</button>
+      </div>
+      <div class="cameraBottom">
+        <div class="cameraModes">
+          <button class="active" data-mode="photo">PHOTO</button>
+          <button data-mode="video">VIDEO</button>
+          <button id="mirrorBtn">MIRROR</button>
+        </div>
+        <div class="filterRow">
+          <button class="active" data-filter="none">NORMAL</button>
+          <button data-filter="mono">MONO</button>
+          <button data-filter="green">CYBER</button>
+          <button data-filter="warm">WARM</button>
+        </div>
+        <div id="recordTimer"></div>
+        <div class="cameraControls">
+          <button class="camRound" id="zoomOut">−</button>
+          <button id="captureBtn"></button>
+          <button class="camRound" id="zoomIn">+</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div id="previewModal" class="modal">
-<div id="previewMedia">
-<img id="previewImage" class="previewMedia" style="display:none">
-<video id="previewVideo" class="previewMedia" style="display:none" controls playsinline></video>
-</div>
-<div id="qualityBox">
-<button class="btn qualityBtn active" data-quality="480">480P</button>
-<button class="btn qualityBtn" data-quality="720">720P</button>
-<button class="btn qualityBtn" data-quality="1080">1080P</button>
-</div>
-<div id="previewInfo" class="small" style="padding:7px;text-align:center"></div>
-<div id="previewBottom">
-<button id="cancelPreviewBtn" class="btn previewBtn">RETAKE</button>
-<button id="postBtn" class="btn previewBtn">📍 POST SNAP</button>
-</div>
-</div>
+  <div id="previewModal" class="modal hidden">
+    <div class="modalCard">
+      <div class="panelHeader"><div class="modalTitle">PREVIEW</div><button class="closeX" id="previewClose">×</button></div>
+      <img id="previewImage" class="hidden" alt="">
+      <video id="previewVideo" class="hidden" controls playsinline></video>
+      <textarea class="field" id="descriptionInput" placeholder="Description"></textarea>
+      <div class="row">
+        <button class="secondary" id="retakeBtn">RETAKE</button>
+        <button class="primary" id="postBtn">POST SNAP</button>
+      </div>
+    </div>
+  </div>
 
-<div id="uploadBox">
-<b style="color:var(--green)">UPLOAD</b>
-<div id="uploadText" class="small">Preparing...</div>
-<div id="uploadTrack"><div id="uploadBar"></div></div>
-<div id="uploadPercent" style="text-align:center;margin-top:7px">0%</div>
-</div>
+  <div id="viewerModal" class="hidden">
+    <div class="viewerCard">
+      <div class="viewerTop">
+        <button class="secondary" id="prevSnap">‹</button>
+        <span id="viewerCounter" style="color:var(--green);padding:10px">1/1</span>
+        <button class="secondary" id="closeViewer">×</button>
+        <button class="secondary" id="nextSnap">›</button>
+      </div>
+      <div id="viewerMediaWrap"></div>
+      <div class="viewerInfo">
+        <div id="viewerAuthor"></div>
+        <div id="viewerLocation"></div>
+        <div id="viewerTime"></div>
+        <div id="viewerDescription"></div>
+        <div class="viewerActions">
+          <button class="secondary" id="likeBtn">♡ LIKE</button>
+          <button class="secondary" id="commentFocusBtn">💬 COMMENT</button>
+          <button class="secondary" id="viewCountBtn">👁 VIEW</button>
+        </div>
+        <div id="likeUsers" class="likeUsers"></div>
+        <div class="comments" id="commentsList"></div>
+        <div class="row">
+          <input class="field" id="commentInput" placeholder="Comment / reply" style="margin-bottom:0">
+          <button class="primary" id="sendCommentBtn">SEND</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-<div id="galleryModal" class="modal">
-<div id="galleryTop">
-<span id="galleryCounter" style="color:var(--green)">1 / 1</span>
-<button id="closeGalleryBtn" class="round">✕</button>
-</div>
-<div id="galleryImageBox">
-<button id="prevBtn" class="galleryArrow">‹</button>
-<img id="galleryImage" style="display:none">
-<video id="galleryVideo" style="display:none" controls playsinline></video>
-<button id="nextBtn" class="galleryArrow">›</button>
-<div id="galleryDetails"></div>
-</div>
-<div id="socialBox">
-<div id="socialActions">
-<button id="likeBtn" class="btn">♡ <span id="likeCount">0</span></button>
-<button id="commentBtn" class="btn">💬 <span id="commentCount">0</span></button>
-<span class="btn">👁 <span id="viewCount">0</span></span>
-</div>
-<div id="likeUsers" class="small" style="margin-top:7px"></div>
-<div id="commentsList" style="display:none"></div>
-<div id="commentBox">
-<textarea id="commentInput" class="field" rows="2" placeholder="Comment..."></textarea>
-<div class="panelRow">
-<button id="cancelCommentBtn" class="btn">CANCEL</button>
-<button id="sendCommentBtn" class="btn">SEND</button>
-</div>
-</div>
-</div>
-</div>
+  <div id="incomingModal" class="hidden">
+    <div class="modalCard incomingCard">
+      <div class="modalTitle">📞 INCOMING CALL</div>
+      <div id="incomingCaller" class="callerBig">UNKNOWN</div>
+      <div class="muted">Someone is calling your permanent room.</div>
+      <div class="row" style="margin-top:20px">
+        <button class="primary accept" id="acceptCallBtn">ACCEPT</button>
+        <button class="primary reject" id="rejectCallBtn">REJECT</button>
+      </div>
+    </div>
+  </div>
 
-<div id="callOverlay">
-<div class="callBox">
-<div style="font-size:45px">📞</div>
-<h3 id="callerText" style="color:var(--green)">Incoming call...</h3>
-<div style="display:flex;gap:8px">
-<button id="rejectCallBtn" class="btn danger" style="flex:1">REJECT</button>
-<button id="acceptCallBtn" class="btn" style="flex:1">ACCEPT</button>
-</div>
-</div>
-</div>
-
-<div id="activeCall">
-<div class="remoteWrap"><video id="remoteVideo" autoplay playsinline></video></div>
-<div class="localWrap"><video id="localVideo" autoplay playsinline muted></video></div>
-<div id="callStatus" style="position:absolute;top:15px;left:15px;color:var(--green);z-index:3">Connecting...</div>
-<div class="callControls">
-<button id="muteCallBtn" class="round">🎙️</button>
-<button id="cameraCallBtn" class="round">📹</button>
-<button id="endCallBtn" class="round danger">☎</button>
-</div>
+  <div id="callModal" class="hidden">
+    <div class="callCard">
+      <video id="remoteVideo" autoplay playsinline></video>
+      <video id="localVideo" autoplay playsinline muted></video>
+      <div style="position:absolute;top:15px;left:15px;color:var(--green);z-index:3">● SECURE CALL</div>
+      <div class="callControls">
+        <button id="muteCallBtn">🎙</button>
+        <button id="cameraCallBtn">📷</button>
+        <button id="chatCallBtn">💬</button>
+        <button class="end" id="endCallBtn">☎</button>
+      </div>
+      <div id="chatBox">
+        <div id="chatMessages"></div>
+        <div class="row"><input class="field" id="chatInput" placeholder="Message" style="margin:0"><button class="primary" id="sendChatBtn">SEND</button></div>
+      </div>
+    </div>
+  </div>
 </div>
 
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 <script>
 "use strict";
 
-/* =========================
-   SUPABASE
-========================= */
+/* ================= SUPABASE ================= */
 const SUPABASE_URL="https://zzxhymydsvwpjbyaslde.supabase.co";
 const SUPABASE_KEY="sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-/* =========================
-   SOCKET
-========================= */
+/* ================= SOCKET ================= */
 const socket=io({transports:["websocket","polling"]});
 
-/* =========================
-   STATE
-========================= */
-let currentUser=null;
-let currentProfile=null;
-let authMode="login";
-
-let map=null;
-let userLocationMarker=null;
-
-let cameraStream=null;
-let currentFacing="environment";
-let mirrorEnabled=false;
-let currentFilter="none";
-let currentMode="photo";
-let currentZoom=1;
-
-let recorder=null;
-let recordedChunks=[];
-let recordingStartedAt=0;
-let recordingTimer=null;
-
-let capturedBlob=null;
-let capturedImageData=null;
-let capturedVideoUrl=null;
-let capturedType=null;
-let capturedLatitude=null;
-let capturedLongitude=null;
-let selectedQuality=480;
-let isPostingSnap=false;
-
-let galleryItems=[];
-let galleryIndex=0;
+/* ================= STATE ================= */
+let currentUser=null,currentProfile=null,authMode="login";
+let map=null,userMarker=null,userCircle=null;
 let markerGroups=[];
-let currentGallerySnap=null;
-
+let cameraStream=null,currentFacing="environment",mirror=false,currentFilter="none";
+let capturedBlob=null,capturedType=null,capturedLatitude=null,capturedLongitude=null;
+let mediaRecorder=null,recordedChunks=[],recording=false;
+let galleryItems=[],galleryIndex=0,currentGallerySnap=null;
 let myRoom=null;
+let incomingCallerId=null,incomingCallerRoom=null;
+let peerConnection=null,currentCallPeerId=null,localCallStream=null;
+let muted=false,cameraOff=false;
+let replyingTo=null;
+const peers={};
 
-let incomingCallerId=null;
-let incomingCallerRoom=null;
-
-let currentCallPeerId=null;
-let peerConnection=null;
-let localCallStream=null;
-let remoteCallStream=null;
-let callMuted=false;
-let callCameraOff=false;
-
-/* =========================
-   HELPERS
-========================= */
+/* ================= HELPERS ================= */
 const $=id=>document.getElementById(id);
+function show(el){el.classList.remove("hidden")}
+function hide(el){el.classList.add("hidden")}
+function status(t){$("status").textContent=t}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function beep(freq=650,dur=.045){
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;
+  if(!C)return;
+  const a=new C(),o=a.createOscillator(),g=a.createGain();
+  o.frequency.value=freq;o.type="square";g.gain.value=.025;o.connect(g);g.connect(a.destination);
+  o.start();o.stop(a.currentTime+dur);
+ }catch(e){}
+}
+document.addEventListener("click",e=>{if(e.target.closest("button"))beep()},true);
 
-function showStatus(message,ms=2800){
- const e=$("status");
- e.textContent=message;
- e.style.display="block";
- clearTimeout(showStatus.timer);
- showStatus.timer=setTimeout(()=>e.style.display="none",ms);
+function setActiveNav(id){
+ document.querySelectorAll(".navBtn").forEach(x=>x.classList.remove("active"));
+ $(id)?.classList.add("active");
 }
 
-function escapeHtml(value){
- return String(value??"").replace(/[&<>"']/g,m=>({
-  "&":"&amp;",
-  "<":"&lt;",
-  ">":"&gt;",
-  '"':"&quot;",
-  "'":"&#39;"
- }[m]));
+/* ================= MAP ================= */
+function initMap(){
+ map=L.map("map",{zoomControl:false,attributionControl:true}).setView([20.5937,78.9629],5);
+ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+   maxZoom:20,
+   attribution:"© OpenStreetMap contributors"
+ }).addTo(map);
+
+ map.on("click",()=>{}); // Map click NEVER opens camera.
+ setTimeout(()=>map.invalidateSize(),300);
 }
 
-function formatMB(bytes){
- return (bytes/1048576).toFixed(2)+" MB";
+function haversine(a,b,c,d){
+ const R=6371000,rad=Math.PI/180;
+ const x=(c-a)*rad,y=(d-b)*rad;
+ const q=Math.sin(x/2)**2+Math.cos(a*rad)*Math.cos(c*rad)*Math.sin(y/2)**2;
+ return 2*R*Math.asin(Math.sqrt(q));
 }
 
-function formatDuration(seconds){
- seconds=Math.max(0,Math.floor(seconds));
- return String(Math.floor(seconds/60)).padStart(2,"0")+":"+String(seconds%60).padStart(2,"0");
-}
-
-function distanceMeters(a,b){
- const R=6371000;
- const p1=a.lat*Math.PI/180;
- const p2=b.lat*Math.PI/180;
- const dp=(b.lat-a.lat)*Math.PI/180;
- const dl=(b.lng-a.lng)*Math.PI/180;
- const x=Math.sin(dp/2)**2+
- Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
- return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
-}
-
-function randomRoom(){
- const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
- let value="";
- for(let i=0;i<6;i++){
-  value+=chars[Math.floor(Math.random()*chars.length)];
- }
- return value;
-}
-
-/* =========================
-   MAP
-========================= */
-map=L.map("map",{
- zoomControl:true,
- attributionControl:true
-}).setView([20.5937,78.9629],5);
-
-L.tileLayer(
- "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
- {
-  maxZoom:20,
-  attribution:"© OpenStreetMap contributors"
- }
-).addTo(map);
-
-function makeGhostIcon(count){
- return L.divIcon({
-  className:"",
-  html:'<div class="markerGhost">👻<span>'+count+"</span></div>",
-  iconSize:[42,42],
-  iconAnchor:[21,21]
- });
-}
-
-function renderSnaps(rows){
- markerGroups.forEach(marker=>{
-  try{map.removeLayer(marker)}catch(e){}
- });
- markerGroups=[];
-
+function groupSnaps(snaps){
  const groups=[];
-
- for(const row of rows||[]){
-  let group=groups.find(g=>
-   distanceMeters(
-    {lat:g.latitude,lng:g.longitude},
-    {lat:row.latitude,lng:row.longitude}
-   )<=50
-  );
-
-  if(!group){
-   group={
-    latitude:Number(row.latitude),
-    longitude:Number(row.longitude),
-    items:[]
-   };
-   groups.push(group);
-  }
-
-  group.items.push(row);
+ for(const snap of snaps){
+  let g=groups.find(x=>haversine(x.lat,x.lng,snap.latitude,snap.longitude)<=50);
+  if(!g){g={lat:snap.latitude,lng:snap.longitude,items:[]};groups.push(g)}
+  g.items.push(snap);
  }
+ return groups;
+}
 
- groups.forEach(group=>{
-  const marker=L.marker(
-   [group.latitude,group.longitude],
-   {icon:makeGhostIcon(group.items.length)}
-  ).addTo(map);
-
-  marker.on("click",()=>openGallery(group.items));
-  markerGroups.push(marker);
+function renderGroups(groups){
+ markerGroups.forEach(m=>map.removeLayer(m));
+ markerGroups=[];
+ groups.forEach(g=>{
+   const icon=L.divIcon({className:"",html:`<div class="markerGhost">${g.items.length} 👻</div>`,iconSize:[50,50],iconAnchor:[25,25]});
+   const m=L.marker([g.lat,g.lng],{icon}).addTo(map);
+   m.on("click",()=>openGallery(g.items));
+   markerGroups.push(m);
  });
 }
 
 async function loadSnaps(){
- const {data,error}=await supabaseClient
-  .from("snaps")
-  .select("*")
-  .order("created_at",{ascending:false});
-
- if(error){
-  console.error("snaps:",error);
-  showStatus("Snaps load nahi hue.");
-  return;
- }
-
- renderSnaps(data||[]);
+ const {data,error}=await supabaseClient.from("snaps").select("*").order("created_at",{ascending:false});
+ if(error){console.error(error);status("SNAPS LOAD ERROR");return}
+ renderGroups(groupSnaps(data||[]));
+ status(`${data?.length||0} SNAP(S) ONLINE`);
 }
 
-/* Map click intentionally does NOTHING.
-   Only My Location opens camera. */
-
-/* =========================
-   SEARCH
-========================= */
-async function searchPlace(){
- const query=$("searchInput").value.trim();
- if(!query)return;
-
- showStatus("Searching...");
-
+/* ================= SEARCH ================= */
+async function searchLocation(){
+ const q=$("searchInput").value.trim();
+ if(!q)return;
+ status("SEARCHING...");
  try{
-  const response=await fetch(
-   "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&accept-language=en&q="+
-   encodeURIComponent(query+", India")
-  );
-
-  const data=await response.json();
-
-  if(!data.length){
-   showStatus("Location nahi mili.");
-   return;
-  }
-
-  map.setView([+data[0].lat,+data[0].lon],15);
-  showStatus(data[0].display_name);
- }catch(error){
-  console.error(error);
-  showStatus("Search failed.");
- }
+  const r=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&q="+encodeURIComponent(q),{headers:{"Accept":"application/json"}});
+  const d=await r.json();
+  if(!d.length){status("LOCATION NOT FOUND");return}
+  map.setView([+d[0].lat,+d[0].lon],16);
+  status("LOCATION FOUND");
+ }catch(e){status("SEARCH FAILED")}
 }
 
-$("searchBtn").onclick=searchPlace;
+/* ================= AUTH ================= */
+function openAuth(mode="login"){
+ authMode=mode;
+ $("authTitle").textContent=mode==="login"?"LOGIN":"CREATE ACCOUNT";
+ $("authSubmit").textContent=mode==="login"?"LOGIN":"REGISTER";
+ $("authName").style.display=mode==="login"?"none":"block";
+ show($("authModal"));
+}
+async function loadProfile(){
+ if(!currentUser){currentProfile=null;return}
+ const {data}=await supabaseClient.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
+ currentProfile=data||{id:currentUser.id,display_name:currentUser.email?.split("@")[0]||"User"};
+ if(!currentProfile.call_room_id)await ensureRoom();
+ $("accountNav").querySelector("span:last-child").textContent=(currentProfile.display_name||"ACCOUNT").slice(0,10);
+ await loadNotifications();
+}
+async function ensureRoom(){
+ if(!currentUser)return;
+ const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+ const make=()=>Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
+ let room=currentProfile?.call_room_id;
+ if(!room){
+  room=make();
+  const {error}=await supabaseClient.from("profiles").update({call_room_id:room}).eq("id",currentUser.id);
+  if(error){console.error(error);return}
+  currentProfile.call_room_id=room;
+ }
+ myRoom=room;
+ $("myRoomCode").textContent=room;
+ socket.emit("join-room",room);
+}
+async function authSubmit(){
+ const email=$("authEmail").value.trim(),pass=$("authPassword").value,name=$("authName").value.trim();
+ if(!email||!pass)return alert("Email aur password required.");
+ if(authMode==="login"){
+  const {error}=await supabaseClient.auth.signInWithPassword({email,password:pass});
+  if(error)return alert(error.message);
+ }else{
+  const {data,error}=await supabaseClient.auth.signUp({email,password:pass});
+  if(error)return alert(error.message);
+  if(data.user){
+   await supabaseClient.from("profiles").upsert({id:data.user.id,display_name:name||email.split("@")[0]});
+  }
+  alert("Account created. Email verification may be required.");
+ }
+ hide($("authModal"));
+}
+async function logout(){
+ await supabaseClient.auth.signOut();
+ currentUser=null;currentProfile=null;myRoom=null;
+ $("myRoomCode").textContent="LOGIN REQUIRED";
+ $("accountNav").querySelector("span:last-child").textContent="ACCOUNT";
+ status("LOGGED OUT");
+}
+async function initAuth(){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ currentUser=session?.user||null;
+ if(currentUser)await loadProfile();
+ supabaseClient.auth.onAuthStateChange(async(_e,session)=>{
+  currentUser=session?.user||null;
+  if(currentUser)await loadProfile();
+ });
+}
 
-$("searchInput").onkeydown=event=>{
- if(event.key==="Enter")searchPlace();
+/* ================= NOTIFICATIONS ================= */
+async function loadNotifications(){
+ if(!currentUser)return;
+ const {data,error}=await supabaseClient.from("notifications").select("*").eq("recipient_id",currentUser.id).order("created_at",{ascending:false}).limit(50);
+ if(error)return;
+ const unread=(data||[]).filter(x=>!x.is_read).length;
+ $("notificationCount").style.display=unread?"flex":"none";
+ $("notificationCount").textContent=unread>9?"9+":unread||"";
+ $("notificationList").innerHTML=(data||[]).map(n=>`
+  <div class="notice ${n.is_read?"":"unread"}" data-notice="${esc(n.id)}" data-snap="${esc(n.snap_id||"")}">
+   <div>${esc(n.message||n.notification_type||"Notification")}</div>
+   <small>${new Date(n.created_at).toLocaleString()}</small>
+  </div>`).join("")||'<div class="muted">No notifications.</div>';
+}
+$("notificationList").onclick=async e=>{
+ const n=e.target.closest(".notice");if(!n)return;
+ if(currentUser)await supabaseClient.from("notifications").update({is_read:true}).eq("id",n.dataset.notice);
+ if(n.dataset.snap){
+  const {data}=await supabaseClient.from("snaps").select("*").eq("id",n.dataset.snap).maybeSingle();
+  if(data)openGallery([data]);
+ }
+ await loadNotifications();
 };
 
-/* =========================
-   LOCATION
-========================= */
+/* ================= LOCATION + CAMERA ================= */
 function getFreshPosition(){
  return new Promise((resolve,reject)=>{
-  if(!navigator.geolocation){
-   reject(new Error("Geolocation unavailable"));
-   return;
-  }
-
-  navigator.geolocation.getCurrentPosition(
-   resolve,
-   reject,
-   {
-    enableHighAccuracy:true,
-    timeout:15000,
-    maximumAge:0
-   }
-  );
- }
+  if(!navigator.geolocation)return reject(new Error("GPS unavailable"));
+  navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+ });
 }
-
-async function getMyLocationAndCamera(){
- if(!currentUser){
-  openAuth("login");
-  return;
- }
-
+async function openCameraFromLocation(){
+ if(!currentUser){openAuth();return}
+ status("LOCKING GPS...");
  try{
-  const position=await getFreshPosition();
-  const lat=position.coords.latitude;
-  const lng=position.coords.longitude;
-
-  map.setView([lat,lng],17);
-
-  if(userLocationMarker){
-   map.removeLayer(userLocationMarker);
-  }
-
-  userLocationMarker=L.circleMarker(
-   [lat,lng],
-   {
-    radius:8,
-    color:"#00ff66",
-    fillColor:"#00ff66",
-    fillOpacity:.7
-   }
-  ).addTo(map);
-
-  capturedLatitude=lat;
-  capturedLongitude=lng;
-
-  await openCamera();
- }catch(error){
-  console.error(error);
-  showStatus("Live location permission required hai.",3500);
- }
+  const p=await getFreshPosition();
+  capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
+  if(userMarker)map.removeLayer(userMarker);
+  if(userCircle)map.removeLayer(userCircle);
+  userMarker=L.marker([capturedLatitude,capturedLongitude]).addTo(map).bindPopup("CAPTURE GPS").openPopup();
+  userCircle=L.circle([capturedLatitude,capturedLongitude],{radius:50,color:"#39ff14",fillOpacity:.08}).addTo(map);
+  map.setView([capturedLatitude,capturedLongitude],17);
+  $("cameraGpsText").textContent=`GPS ${capturedLatitude.toFixed(5)}, ${capturedLongitude.toFixed(5)}`;
+  await startCamera();
+ }catch(e){status("GPS FAILED: "+e.message)}
 }
-
-$("locBtn").onclick=getMyLocationAndCamera;
-
-/* =========================
-   CAMERA
-========================= */
-function filterCss(filter){
- return {
-  none:"none",
-  vintage:"sepia(.7) contrast(1.1)",
-  bw:"grayscale(1)",
-  warm:"sepia(.25) saturate(1.35)",
-  cool:"saturate(.9) hue-rotate(15deg)",
-  glow:"brightness(1.1) saturate(1.2)",
-  night:"brightness(.65) contrast(1.25)"
- }[filter]||"none";
-}
-
-function updateCameraView(){
- $("cameraVideo").style.filter=filterCss(currentFilter);
- $("cameraVideo").classList.toggle("mirror",mirrorEnabled);
-}
-
-async function openCamera(){
- if(!navigator.mediaDevices?.getUserMedia){
-  showStatus("Camera API unavailable.");
-  return;
- }
-
- stopCameraStream();
-
+async function startCamera(){
  try{
+  stopCamera();
   cameraStream=await navigator.mediaDevices.getUserMedia({
-   video:{
-    facingMode:{ideal:currentFacing},
-    width:{ideal:1920},
-    height:{ideal:1080}
-   },
-   audio:false
+   video:{facingMode:{ideal:currentFacing},width:{ideal:1920},height:{ideal:1080}},
+   audio:true
   });
-
   $("cameraVideo").srcObject=cameraStream;
-  $("cameraModal").style.display="flex";
-  updateCameraView();
-  await applyZoom();
- }catch(error){
-  console.error(error);
-  showStatus("Camera permission allow karo.",3500);
- }
+  show($("cameraModal"));
+ }catch(e){alert("Camera permission required: "+e.message)}
 }
-
-function stopCameraStream(){
- if(cameraStream){
-  cameraStream.getTracks().forEach(track=>track.stop());
-  cameraStream=null;
- }
-
- $("cameraVideo").srcObject=null;
+function stopCamera(){
+ if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null}
 }
+$("cameraClose").onclick=()=>{stopCamera();hide($("cameraModal"));status("CAMERA CLOSED")}
+$("switchCamera").onclick=async()=>{currentFacing=currentFacing==="environment"?"user":"environment";await startCamera()}
+$("mirrorBtn").onclick=()=>{mirror=!mirror;$("cameraVideo").style.transform=mirror?"scaleX(-1)":"none"}
+document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{
+ currentFilter=b.dataset.filter;
+ document.querySelectorAll("[data-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+ const v=$("cameraVideo");
+ v.style.filter=currentFilter==="mono"?"grayscale(1)":currentFilter==="green"?"sepia(1) hue-rotate(65deg) saturate(4)":currentFilter==="warm"?"sepia(.4) saturate(1.4)":"none";
+});
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll("[data-mode]").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+ window.cameraMode=b.dataset.mode;
+});
+window.cameraMode="photo";
 
-$("closeCameraBtn").onclick=()=>{
- if(recorder?.state==="recording"){
-  stopRecording();
- }
-
- stopCameraStream();
- $("cameraModal").style.display="none";
-};
-
-$("switchCameraBtn").onclick=async()=>{
- currentFacing=currentFacing==="environment"?"user":"environment";
- await openCamera();
-};
-
-async function applyZoom(){
- const track=cameraStream?.getVideoTracks?.()[0];
- if(!track)return;
-
- const capabilities=track.getCapabilities?.()||{};
-
- if(capabilities.zoom){
+$("captureBtn").onclick=async()=>{
+ if(window.cameraMode==="video"){
+  if(recording){mediaRecorder.stop();recording=false;return}
   try{
-   const zoom=Math.max(
-    capabilities.zoom.min,
-    Math.min(capabilities.zoom.max,currentZoom)
-   );
-
-   await track.applyConstraints({
-    advanced:[{zoom}]
-   });
-
-   return;
-  }catch(error){}
- }
-
- $("cameraVideo").style.transform=
-  (mirrorEnabled?"scaleX(-1) ":"")+
-  "scale("+Math.max(.5,Math.min(20,currentZoom))+")";
-}
-
-$("zoomRange").oninput=async event=>{
- currentZoom=Number(event.target.value);
-
- $("zoomValue").textContent=
-  (currentZoom%1?currentZoom.toFixed(1):currentZoom)+"×";
-
- await applyZoom();
-};
-
-document.querySelectorAll(".filterBtn").forEach(button=>{
- button.onclick=()=>{
-  document.querySelectorAll(".filterBtn")
-   .forEach(x=>x.classList.remove("active"));
-
-  button.classList.add("active");
-  currentFilter=button.dataset.filter;
-  updateCameraView();
- };
-});
-
-$("mirrorBtn").onclick=async()=>{
- mirrorEnabled=!mirrorEnabled;
- updateCameraView();
- await applyZoom();
-};
-
-/* =========================
-   CAPTURE GPS
-========================= */
-async function lockCaptureLocation(){
- try{
-  const position=await getFreshPosition();
-
-  capturedLatitude=position.coords.latitude;
-  capturedLongitude=position.coords.longitude;
-
-  return true;
- }catch(error){
-  showStatus("Capture ke liye live GPS required hai.");
-  return false;
- }
-}
-
-/* =========================
-   PHOTO
-========================= */
-function drawCapture(){
- const video=$("cameraVideo");
- const canvas=$("cameraCanvas");
-
- const width=video.videoWidth;
- const height=video.videoHeight;
-
- canvas.width=width;
- canvas.height=height;
-
- const ctx=canvas.getContext("2d");
-
- ctx.save();
- ctx.filter=filterCss(currentFilter);
-
- if(mirrorEnabled){
-  ctx.translate(width,0);
-  ctx.scale(-1,1);
- }
-
- ctx.drawImage(video,0,0,width,height);
- ctx.restore();
-
- return canvas;
-}
-
-function dataURLToBlob(dataUrl){
- const parts=dataUrl.split(",");
- const mime=parts[0].match(/:(.*?);/)[1];
- const binary=atob(parts[1]);
- const bytes=new Uint8Array(binary.length);
-
- for(let i=0;i<binary.length;i++){
-  bytes[i]=binary.charCodeAt(i);
- }
-
- return new Blob([bytes],{type:mime});
-}
-
-async function capturePhoto(){
- if(!cameraStream)return;
-
- if(!(await lockCaptureLocation()))return;
-
- const canvas=drawCapture();
-
- capturedImageData=canvas.toDataURL("image/jpeg",.9);
- capturedBlob=dataURLToBlob(capturedImageData);
- capturedType="image";
- capturedVideoUrl=null;
-
- $("previewImage").src=capturedImageData;
- $("previewImage").style.display="block";
- $("previewVideo").style.display="none";
- $("qualityBox").style.display="none";
- $("previewInfo").textContent="Photo • "+formatMB(capturedBlob.size);
-
- stopCameraStream();
- $("cameraModal").style.display="none";
- $("previewModal").style.display="flex";
-}
-
-/* =========================
-   VIDEO
-========================= */
-function getVideoMime(){
- const types=[
-  "video/webm;codecs=vp9",
-  "video/webm;codecs=vp8",
-  "video/webm"
- ];
-
- return types.find(type=>MediaRecorder.isTypeSupported(type))||"";
-}
-
-async function startRecording(){
- if(!cameraStream)return;
-
- if(!(await lockCaptureLocation()))return;
-
- const mime=getVideoMime();
-
- if(!mime){
-  showStatus("Video recording supported nahi hai.");
-  return;
- }
-
- recordedChunks=[];
-
- recorder=new MediaRecorder(
-  cameraStream,
-  {mimeType:mime}
- );
-
- recordingStartedAt=Date.now();
-
- recorder.ondataavailable=event=>{
-  if(event.data?.size){
-   recordedChunks.push(event.data);
-  }
- };
-
- recorder.onstop=()=>{
-  capturedBlob=new Blob(recordedChunks,{type:mime});
-  capturedType="video";
-
-  capturedVideoUrl=URL.createObjectURL(capturedBlob);
-
-  $("previewImage").style.display="none";
-  $("previewVideo").style.display="block";
-  $("previewVideo").src=capturedVideoUrl;
-  $("previewVideo").load();
-
-  $("previewInfo").textContent=
-   "Video • "+formatMB(capturedBlob.size);
-
-  $("qualityBox").style.display="flex";
-
-  stopCameraStream();
-  $("cameraModal").style.display="none";
-  updateRecordingUI(false);
- };
-
- recorder.start(250);
- updateRecordingUI(true);
-
- recordingTimer=setInterval(()=>{
-  $("recordTimer").textContent=
-   formatDuration((Date.now()-recordingStartedAt)/1000);
- },250);
-}
-
-function stopRecording(){
- if(recorder?.state==="recording"){
-  recorder.stop();
- }
-
- clearInterval(recordingTimer);
- recordingTimer=null;
-}
-
-function updateRecordingUI(recording){
- $("captureBtn").classList.toggle("recording",recording);
- $("recordTimer").style.display=recording?"block":"none";
-}
-
-$("captureBtn").onclick=()=>{
- if(currentMode==="photo"){
-  capturePhoto();
+   const p=await getFreshPosition();capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
+   recordedChunks=[];
+   mediaRecorder=new MediaRecorder(cameraStream,{mimeType:"video/webm"});
+   mediaRecorder.ondataavailable=e=>{if(e.data.size)recordedChunks.push(e.data)};
+   mediaRecorder.onstop=()=>{
+    capturedBlob=new Blob(recordedChunks,{type:"video/webm"});capturedType="video";
+    const u=URL.createObjectURL(capturedBlob);$("previewVideo").src=u;hide($("previewImage"));show($("previewVideo"));show($("previewModal"));
+   };
+   mediaRecorder.start();recording=true;$("recordTimer").textContent="● REC";
+  }catch(e){status("VIDEO GPS FAILED")}
  }else{
-  if(recorder?.state==="recording"){
-   stopRecording();
-  }else{
-   startRecording();
-  }
+  try{
+   const p=await getFreshPosition();capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
+   const v=$("cameraVideo"),c=document.createElement("canvas");
+   c.width=v.videoWidth||1280;c.height=v.videoHeight||720;
+   const x=c.getContext("2d");
+   if(mirror){x.translate(c.width,0);x.scale(-1,1)}
+   x.filter=v.style.filter||"none";x.drawImage(v,0,0,c.width,c.height);
+   const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.9));
+   capturedBlob=blob;capturedType="image";
+   $("previewImage").src=URL.createObjectURL(blob);show($("previewImage"));hide($("previewVideo"));show($("previewModal"));stopCamera();hide($("cameraModal"));
+  }catch(e){status("PHOTO FAILED")}
  }
 };
 
-$("photoModeBtn").onclick=()=>{
- currentMode="photo";
- $("photoModeBtn").classList.add("active");
- $("videoModeBtn").classList.remove("active");
-};
+$("retakeBtn").onclick=()=>{hide($("previewModal"));startCamera()}
+$("previewClose").onclick=()=>{hide($("previewModal"));capturedBlob=null}
+$("postBtn").onclick=postSnap;
 
-$("videoModeBtn").onclick=()=>{
- currentMode="video";
- $("videoModeBtn").classList.add("active");
- $("photoModeBtn").classList.remove("active");
-};
-
-/* =========================
-   PREVIEW
-========================= */
-document.querySelectorAll(".qualityBtn").forEach(button=>{
- button.onclick=()=>{
-  document.querySelectorAll(".qualityBtn")
-   .forEach(x=>x.classList.remove("active"));
-
-  button.classList.add("active");
-  selectedQuality=Number(button.dataset.quality);
- };
-});
-
-$("cancelPreviewBtn").onclick=()=>{
- if(capturedVideoUrl){
-  URL.revokeObjectURL(capturedVideoUrl);
- }
-
- capturedBlob=null;
- capturedVideoUrl=null;
- capturedImageData=null;
- capturedLatitude=null;
- capturedLongitude=null;
-
- $("previewModal").style.display="none";
- openCamera();
-};
-
-/* =========================
-   STORAGE UPLOAD
-========================= */
-function setUploadProgress(percent,text){
- $("uploadBar").style.width=
-  Math.max(0,Math.min(100,percent))+"%";
-
- $("uploadPercent").textContent=Math.round(percent)+"%";
- $("uploadText").textContent=text;
+async function postSnap(){
+ if(!currentUser||!capturedBlob)return;
+ $("postBtn").disabled=true;status("VERIFYING FRESH GPS...");
+ try{
+  const p=await getFreshPosition();
+  const d=haversine(capturedLatitude,capturedLongitude,p.coords.latitude,p.coords.longitude);
+  if(d>50){alert(`Posting blocked. Capture se ${Math.round(d)}m door ho.`);return}
+  const ext=capturedType==="image"?"jpg":"webm";
+  const path=`${currentUser.id}/${Date.now()}.${ext}`;
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  const token=session?.access_token||SUPABASE_KEY;
+  const xhr=await uploadStorage(path,capturedBlob,token);
+  const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/past-snaps/${path}`;
+  const {error}=await supabaseClient.from("snaps").insert({
+   latitude:capturedLatitude,longitude:capturedLongitude,image_url:publicUrl,
+   media_type:capturedType,user_id:currentUser.id,description:$("descriptionInput").value.trim()||null
+  });
+  if(error)throw error;
+  hide($("previewModal"));$("descriptionInput").value="";
+  capturedBlob=null;status("SNAP POSTED");await loadSnaps();
+ }catch(e){console.error(e);alert("Post failed: "+e.message)}
+ finally{$("postBtn").disabled=false}
 }
-
-function xhrUpload(path,blob){
+function uploadStorage(path,blob,token){
  return new Promise((resolve,reject)=>{
   const xhr=new XMLHttpRequest();
-
-  xhr.open(
-   "POST",
-   SUPABASE_URL+
-   "/storage/v1/object/past-snaps/"+
-   encodeURIComponent(path)
-  );
-
+  xhr.open("POST",`${SUPABASE_URL}/storage/v1/object/past-snaps/${encodeURIComponent(path)}`);
+  xhr.setRequestHeader("Authorization","Bearer "+token);
   xhr.setRequestHeader("apikey",SUPABASE_KEY);
-  xhr.setRequestHeader("Authorization","Bearer "+SUPABASE_KEY);
-  xhr.setRequestHeader(
-   "Content-Type",
-   blob.type||"application/octet-stream"
-  );
-  xhr.setRequestHeader("x-upsert","false");
-
-  xhr.upload.onprogress=event=>{
-   if(event.lengthComputable){
-    setUploadProgress(
-     event.loaded/event.total*100,
-     "Uploading "+
-     formatMB(event.loaded)+
-     " / "+
-     formatMB(event.total)
-    );
-   }
-  };
-
-  xhr.onload=()=>{
-   if(xhr.status>=200&&xhr.status<300){
-    resolve();
-   }else{
-    reject(new Error(xhr.responseText||"Upload failed"));
-   }
-  };
-
-  xhr.onerror=()=>reject(new Error("Network error"));
+  xhr.setRequestHeader("Content-Type",blob.type||"application/octet-stream");
+  xhr.onload=()=>xhr.status>=200&&xhr.status<300?resolve(xhr.responseText):reject(new Error("Storage "+xhr.status+" "+xhr.responseText));
+  xhr.onerror=()=>reject(new Error("Storage network error"));
   xhr.send(blob);
  });
 }
 
-/* =========================
-   POST SNAP
-========================= */
-async function postSnap(){
- if(isPostingSnap||!capturedBlob)return;
-
- if(capturedLatitude===null){
-  showStatus("Capture GPS missing.");
-  return;
- }
-
- try{
-  const position=await getFreshPosition();
-
-  const freshDistance=distanceMeters(
-   {
-    lat:capturedLatitude,
-    lng:capturedLongitude
-   },
-   {
-    lat:position.coords.latitude,
-    lng:position.coords.longitude
-   }
-  );
-
-  if(freshDistance>50){
-   showStatus("❌ Capture location se 50m se zyada door ho.");
-   return;
-  }
-
-  isPostingSnap=true;
-  $("postBtn").disabled=true;
-  $("uploadBox").style.display="block";
-
-  setUploadProgress(0,"Preparing upload...");
-
-  const extension=capturedType==="video"?"webm":"jpg";
-
-  const path=
-   currentUser.id+
-   "/snap_"+
-   Date.now()+
-   "_"+
-   Math.random().toString(36).slice(2,8)+
-   "."+
-   extension;
-
-  await xhrUpload(path,capturedBlob);
-
-  setUploadProgress(100,"Saving snap...");
-
-  const publicUrl=
-   SUPABASE_URL+
-   "/storage/v1/object/public/past-snaps/"+
-   path;
-
-  const {error}=await supabaseClient
-   .from("snaps")
-   .insert({
-    latitude:capturedLatitude,
-    longitude:capturedLongitude,
-    image_url:publicUrl,
-    created_at:new Date().toISOString(),
-    media_type:capturedType,
-    user_id:currentUser.id
-   });
-
-  if(error)throw error;
-
-  $("uploadBox").style.display="none";
-  $("previewModal").style.display="none";
-
-  showStatus("✅ Snap posted");
-
-  capturedBlob=null;
-  capturedLatitude=null;
-  capturedLongitude=null;
-
-  if(capturedVideoUrl){
-   URL.revokeObjectURL(capturedVideoUrl);
-  }
-
-  capturedVideoUrl=null;
-
-  await loadSnaps();
-
- }catch(error){
-  console.error("post:",error);
-
-  $("uploadText").textContent="Upload failed";
-
-  showStatus(
-   "Upload failed. Supabase storage/table policy check karo.",
-   4500
-  );
-
-  setTimeout(()=>{
-   $("uploadBox").style.display="none";
-  },1200);
-
- }finally{
-  isPostingSnap=false;
-  $("postBtn").disabled=false;
- }
+/* ================= VIEWER ================= */
+function openGallery(items){
+ galleryItems=items||[];galleryIndex=0;show($("viewerModal"));renderGallery();
 }
-
-$("postBtn").onclick=postSnap;
-
-/* =========================
-   GALLERY
-========================= */
-async function openGallery(items){
- galleryItems=items||[];
- galleryIndex=0;
-
+async function renderGallery(){
  if(!galleryItems.length)return;
-
- $("galleryModal").style.display="flex";
-
- await renderGalleryItem();
+ const snap=galleryItems[galleryIndex];currentGallerySnap=snap;
+ $("viewerCounter").textContent=`${galleryIndex+1}/${galleryItems.length}`;
+ $("viewerMediaWrap").innerHTML=snap.media_type==="video"
+  ?`<video id="viewerMedia" controls autoplay playsinline src="${esc(snap.image_url)}"></video>`
+  :`<img id="viewerMedia" src="${esc(snap.image_url)}" alt="snap">`;
+ const p=await getProfileName(snap.user_id);
+ $("viewerAuthor").innerHTML=`👤 <b>${esc(p)}</b>`;
+ $("viewerLocation").textContent=`📍 ${Number(snap.latitude).toFixed(5)}, ${Number(snap.longitude).toFixed(5)}`;
+ $("viewerTime").textContent=`🕒 ${new Date(snap.created_at).toLocaleString()}`;
+ $("viewerDescription").textContent=snap.description||"";
+ await loadEngagement(snap);
 }
-
-async function renderGalleryItem(){
- const item=galleryItems[galleryIndex];
-
- currentGallerySnap=item;
-
- $("galleryCounter").textContent=
-  (galleryIndex+1)+" / "+galleryItems.length;
-
- const isVideo=
-  item.media_type==="video"||
-  /\.(webm|mp4|mov)$/i.test(item.image_url||"");
-
- if(isVideo){
-  $("galleryImage").style.display="none";
-  $("galleryVideo").style.display="block";
-  $("galleryVideo").src=item.image_url;
-  $("galleryVideo").load();
- }else{
-  $("galleryVideo").pause();
-  $("galleryVideo").removeAttribute("src");
-  $("galleryVideo").load();
-
-  $("galleryImage").style.display="block";
-  $("galleryVideo").style.display="none";
-  $("galleryImage").src=item.image_url;
- }
-
- let userName="User";
-
- if(item.user_id){
-  const profile=await supabaseClient
-   .from("profiles")
-   .select("display_name")
-   .eq("id",item.user_id)
-   .maybeSingle();
-
-  userName=profile.data?.display_name||"User";
- }
-
- const created=item.created_at?
-  new Date(item.created_at):null;
-
- let description=item.description||"";
-
- $("galleryDetails").innerHTML=
-  "<b>"+escapeHtml(userName)+"</b><br>"+
-  "📍 "+Number(item.latitude).toFixed(5)+
-  ", "+Number(item.longitude).toFixed(5)+
-  "<br>📅 "+(created?created.toLocaleDateString():"")+
-  " ⏱ "+(created?
-   created.toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):"")+
-  (description?
-   "<br>📝 "+escapeHtml(description):"");
-
- await loadPostDetails(item);
+async function getProfileName(id){
+ if(!id)return"Unknown";
+ const {data}=await supabaseClient.from("profiles").select("display_name").eq("id",id).maybeSingle();
+ return data?.display_name||"User";
 }
-
-$("prevBtn").onclick=async()=>{
- if(!galleryItems.length)return;
- galleryIndex=
-  (galleryIndex-1+galleryItems.length)%galleryItems.length;
- await renderGalleryItem();
-};
-
-$("nextBtn").onclick=async()=>{
- if(!galleryItems.length)return;
- galleryIndex=
-  (galleryIndex+1)%galleryItems.length;
- await renderGalleryItem();
-};
-
-$("closeGalleryBtn").onclick=()=>{
- $("galleryVideo").pause();
- $("galleryModal").style.display="none";
- $("commentsList").style.display="none";
- $("commentBox").style.display="none";
- currentGallerySnap=null;
-};
-
-let touchX=0;
-
-$("galleryImageBox").ontouchstart=event=>{
- touchX=event.changedTouches[0].clientX;
-};
-
-$("galleryImageBox").ontouchend=async event=>{
- const difference=
-  event.changedTouches[0].clientX-touchX;
-
- if(Math.abs(difference)>50){
-  if(difference<0){
-   await $("nextBtn").onclick();
-  }else{
-   await $("prevBtn").onclick();
-  }
- }
-};
-
-/* =========================
-   LIKES / VIEWS / COMMENTS
-========================= */
-async function loadPostDetails(snap){
- const [likes,comments,views]=await Promise.all([
-  supabaseClient
-   .from("snap_likes")
-   .select("user_id")
-   .eq("snap_id",snap.id),
-
-  supabaseClient
-   .from("snap_comments")
-   .select("id")
-   .eq("snap_id",snap.id),
-
-  supabaseClient
-   .from("snap_views")
-   .select("id",{count:"exact",head:true})
-   .eq("snap_id",snap.id)
- ]);
-
- $("likeCount").textContent=likes.data?.length||0;
- $("commentCount").textContent=comments.data?.length||0;
- $("viewCount").textContent=views.count||0;
-
- if(currentUser){
-  const existingView=await supabaseClient
-   .from("snap_views")
-   .select("id")
-   .eq("snap_id",snap.id)
-   .eq("user_id",currentUser.id)
-   .maybeSingle();
-
-  if(!existingView.data){
-   await supabaseClient
-    .from("snap_views")
-    .insert({
-     snap_id:snap.id,
-     user_id:currentUser.id
-    });
-  }
- }
-
- if(likes.data?.length){
-  const ids=likes.data
-   .map(item=>item.user_id)
-   .filter(Boolean);
-
-  if(ids.length){
-   const profiles=await supabaseClient
-    .from("profiles")
-    .select("id,display_name")
-    .in("id",ids);
-
-   $("likeUsers").textContent=
-    (profiles.data||[])
-     .map(item=>item.display_name||"User")
-     .join(", ")+" liked this";
-  }
- }else{
-  $("likeUsers").textContent="";
- }
+async function loadEngagement(snap){
+ const {data:likes}=await supabaseClient.from("snap_likes").select("user_id").eq("snap_id",snap.id);
+ const mine=currentUser&&likes?.some(x=>x.user_id===currentUser.id);
+ $("likeBtn").textContent=mine?"♥ LIKED":"♡ LIKE";
+ const names=[];
+ for(const l of (likes||[]).slice(0,8))names.push(await getProfileName(l.user_id));
+ $("likeUsers").textContent=names.length?`Liked by: ${names.join(", ")}`:"No likes yet";
+ await addView(snap);
+ await loadComments(snap);
 }
-
-$("likeBtn").onclick=async()=>{
- if(!currentUser){
-  openAuth("login");
-  return;
- }
-
- if(!currentGallerySnap)return;
-
- const existing=await supabaseClient
-  .from("snap_likes")
-  .select("id")
-  .eq("snap_id",currentGallerySnap.id)
-  .eq("user_id",currentUser.id)
-  .maybeSingle();
-
- if(existing.data){
-  await supabaseClient
-   .from("snap_likes")
-   .delete()
-   .eq("id",existing.data.id);
- }else{
-  await supabaseClient
-   .from("snap_likes")
-   .insert({
-    snap_id:currentGallerySnap.id,
-    user_id:currentUser.id
-   });
- }
-
- await loadPostDetails(currentGallerySnap);
-};
-
-$("commentBtn").onclick=async()=>{
- if(!currentGallerySnap)return;
-
- const visible=
-  $("commentsList").style.display==="block";
-
- $("commentsList").style.display=
-  visible?"none":"block";
-
- if(!visible){
-  await loadComments(currentGallerySnap.id);
- }
-
- if(currentUser){
-  $("commentBox").style.display="block";
- }else{
-  $("commentBox").style.display="none";
-
-  if(!visible){
-   showStatus("Comment karne ke liye login karo.");
-  }
- }
-};
-
-async function loadComments(snapId){
- const {data,error}=await supabaseClient
-  .from("snap_comments")
-  .select("*")
-  .eq("snap_id",snapId)
-  .order("created_at",{ascending:true});
-
- if(error){
-  console.error(error);
-  showStatus("Comments load failed.");
-  return;
- }
-
- const ids=[
-  ...new Set(
-   (data||[])
-    .map(item=>item.user_id)
-    .filter(Boolean)
-  )
- ];
-
- const profiles=ids.length?
-  await supabaseClient
-   .from("profiles")
-   .select("id,display_name")
-   .in("id",ids):
-  {data:[]};
-
- const names=Object.fromEntries(
-  (profiles.data||[])
-   .map(item=>[
-    item.id,
-    item.display_name||"User"
-   ])
- );
-
- function renderComment(comment,depth=0){
-  const children=(data||[])
-   .filter(child=>
-    String(child.parent_comment_id||"")===
-    String(comment.id)
-   );
-
-  return `
-  <div class="commentRow" style="margin-left:${Math.min(depth,4)*14}px">
-   <div class="commentUser">
-    ${escapeHtml(names[comment.user_id]||"User")}
-   </div>
-   <div>${escapeHtml(comment.comment_text)}</div>
-   <div class="commentTime">
-    ${comment.created_at?
-     new Date(comment.created_at).toLocaleString():""}
-   </div>
-   ${currentUser?
-    `<button class="btn replyBtn"
-     data-id="${escapeHtml(comment.id)}"
-     data-name="${escapeHtml(names[comment.user_id]||"User")}">
-     ↩ Reply
-    </button>`:""}
-   ${children.map(child=>renderComment(child,depth+1)).join("")}
-  </div>`;
- }
-
- $("commentsList").innerHTML=
-  (data||[])
-   .filter(item=>!item.parent_comment_id)
-   .map(item=>renderComment(item))
-   .join("")||
-   '<div class="small">No comments yet.</div>';
-
- $("commentsList")
-  .querySelectorAll(".replyBtn")
-  .forEach(button=>{
-   button.onclick=()=>{
-    $("commentInput").value=
-     "@"+button.dataset.name+" ";
-
-    $("commentInput").dataset.parentId=
-     button.dataset.id;
-
-    $("commentInput").focus();
-   };
-  });
-}
-
-$("sendCommentBtn").onclick=async()=>{
- if(!currentUser){
-  openAuth("login");
-  return;
- }
-
- if(!currentGallerySnap)return;
-
- const input=$("commentInput");
- const text=input.value.trim();
-
- if(!text)return;
-
- if(text.split(/\s+/).length>250){
-  showStatus("Maximum 250 words.");
-  return;
- }
-
- const row={
-  snap_id:currentGallerySnap.id,
-  user_id:currentUser.id,
-  comment_text:text
- };
-
- if(input.dataset.parentId){
-  row.parent_comment_id=input.dataset.parentId;
- }
-
- const {error}=await supabaseClient
-  .from("snap_comments")
-  .insert(row);
-
- if(error){
-  console.error(error);
-  showStatus("Comment post failed.");
-  return;
- }
-
- input.value="";
- delete input.dataset.parentId;
-
- await loadComments(currentGallerySnap.id);
- await loadPostDetails(currentGallerySnap);
-};
-
-$("cancelCommentBtn").onclick=()=>{
- $("commentInput").value="";
- delete $("commentInput").dataset.parentId;
- $("commentBox").style.display="none";
-};
-
-/* =========================
-   AUTH
-========================= */
-function openAuth(mode="login"){
- authMode=mode;
-
- $("authTitle").textContent=
-  mode==="login"?"LOGIN":"REGISTER";
-
- $("authName").style.display=
-  mode==="register"?"block":"none";
-
- $("authMainBtn").textContent=
-  mode==="login"?"LOGIN":"CREATE ACCOUNT";
-
- $("authSwitch").textContent=
-  mode==="login"?"Create account":"Already have account";
-
- $("authModal").style.display="flex";
-}
-
-$("authClose").onclick=()=>{
- $("authModal").style.display="none";
-};
-
-$("authSwitch").onclick=()=>{
- openAuth(authMode==="login"?"register":"login");
-};
-
-$("authMainBtn").onclick=async()=>{
- const email=$("authEmail").value.trim();
- const password=$("authPassword").value;
- const name=$("authName").value.trim();
-
- if(
-  !email||
-  !password||
-  (authMode==="register"&&!name)
- ){
-  showStatus("Required fields fill karo.");
-  return;
- }
-
- try{
-  if(authMode==="register"){
-   const {data,error}=
-    await supabaseClient.auth.signUp({
-     email,
-     password
-    });
-
-   if(error)throw error;
-
-   if(data.user){
-    await supabaseClient
-     .from("profiles")
-     .upsert(
-      {
-       id:data.user.id,
-       display_name:name
-      },
-      {onConflict:"id"}
-     );
-
-    showStatus(
-     "Account created. Email verification ho sakta hai.",
-     4500
-    );
-
-    await ensureRoom(data.user);
-   }
-  }else{
-   const {error}=
-    await supabaseClient.auth.signInWithPassword({
-     email,
-     password
-    });
-
-   if(error)throw error;
-
-   showStatus("Login successful.");
-  }
-
-  $("authModal").style.display="none";
-  await loadAuth();
-
- }catch(error){
-  console.error(error);
-  showStatus(
-   error.message||"Authentication failed.",
-   4500
-  );
- }
-};
-
-async function loadAuth(){
- const {data}=await supabaseClient.auth.getSession();
-
- currentUser=data.session?.user||null;
-
- if(currentUser){
-  const profile=await supabaseClient
-   .from("profiles")
-   .select("*")
-   .eq("id",currentUser.id)
-   .maybeSingle();
-
-  currentProfile=profile.data;
-
-  await ensureRoom(currentUser);
-
-  $("accountInfo").textContent=
-   (currentProfile?.display_name||currentUser.email)+
-   " • "+(myRoom||"");
-
-  $("accountActionBtn").textContent="LOGOUT";
-
-  await loadNotifications();
- }else{
-  currentProfile=null;
-  myRoom=null;
-
-  $("accountInfo").textContent="Not logged in";
-  $("accountActionBtn").textContent="LOGIN";
-  $("myCallId").value="";
- }
-}
-
-supabaseClient.auth.onAuthStateChange(()=>{
- setTimeout(loadAuth,0);
-});
-
-$("accountBtn").onclick=()=>{
- $("accountPanel").style.display=
-  $("accountPanel").style.display==="block"?
-  "none":"block";
-};
-
-$("accountActionBtn").onclick=async()=>{
- if(currentUser){
-  await supabaseClient.auth.signOut();
-  cleanupCall();
-  showStatus("Logged out.");
-  await loadAuth();
- }else{
-  openAuth("login");
- }
-};
-
-/* =========================
-   PERMANENT CALL ID
-========================= */
-async function ensureRoom(user){
- if(!user)return null;
-
- const result=await supabaseClient
-  .from("profiles")
-  .select("call_room_id")
-  .eq("id",user.id)
-  .maybeSingle();
-
- let room=result.data?.call_room_id;
-
- if(!room){
-  for(let attempt=0;attempt<5;attempt++){
-   const candidate=randomRoom();
-
-   const update=await supabaseClient
-    .from("profiles")
-    .update({call_room_id:candidate})
-    .eq("id",user.id)
-    .is("call_room_id",null);
-
-   if(!update.error){
-    room=candidate;
-    break;
-   }
-  }
- }
-
- myRoom=room||null;
-
- if(myRoom){
-  $("myCallId").value=myRoom;
-  joinOwnCallRoom();
- }
-
- return myRoom;
-}
-
-function joinOwnCallRoom(){
- if(!currentUser||!myRoom)return;
- socket.emit("join-room",{room:myRoom});
-}
-
-$("myRoomBtn").onclick=()=>{
- $("roomPanel").style.display=
-  $("roomPanel").style.display==="block"?
-  "none":"block";
-};
-
-$("copyCallIdBtn").onclick=async()=>{
- if(!myRoom)return;
-
- try{
-  await navigator.clipboard.writeText(myRoom);
-  showStatus("Call ID copied.");
- }catch(error){
-  showStatus("Call ID: "+myRoom,4000);
- }
-};
-
-$("callUserBtn").onclick=()=>{
- const targetRoom=
-  $("targetCallId").value.trim().toUpperCase();
-
- if(!currentUser){
-  openAuth("login");
-  return;
- }
-
- if(!targetRoom||targetRoom===myRoom){
-  showStatus("Valid dusre user ka Call ID enter karo.");
-  return;
- }
-
- socket.emit(
-  "call-user",
-  {
-   targetRoom,
-   callerRoom:myRoom
-  }
- );
-
- showStatus(
-  "Calling "+targetRoom+"...",
-  4000
- );
-};
-
-/* =========================
-   NOTIFICATIONS
-========================= */
-async function loadNotifications(){
+async function addView(snap){
  if(!currentUser)return;
-
- const {data,error}=await supabaseClient
-  .from("notifications")
-  .select("*")
-  .eq("recipient_id",currentUser.id)
-  .order("created_at",{ascending:false})
-  .limit(30);
-
- if(error){
-  console.error(error);
-  return;
- }
-
- const list=$("notificationList");
- list.innerHTML="";
-
- (data||[]).forEach(notification=>{
-  const item=document.createElement("div");
-
-  item.className="notificationItem";
-  item.textContent=
-   notification.message||"New notification";
-
-  item.onclick=async()=>{
-   if(notification.snap_id){
-    const snap=await supabaseClient
-     .from("snaps")
-     .select("*")
-     .eq("id",notification.snap_id)
-     .maybeSingle();
-
-    if(snap.data){
-     openGallery([snap.data]);
-    }
-   }
-
-   if(notification.id){
-    await supabaseClient
-     .from("notifications")
-     .update({is_read:true})
-     .eq("id",notification.id);
-   }
-  };
-
-  list.appendChild(item);
+ await supabaseClient.from("snap_views").insert({snap_id:snap.id,user_id:currentUser.id}).catch(()=>{});
+}
+$("likeBtn").onclick=async()=>{
+ if(!currentUser)return openAuth();
+ if(!currentGallerySnap)return;
+ const snap=currentGallerySnap;
+ const {data}=await supabaseClient.from("snap_likes").select("id").eq("snap_id",snap.id).eq("user_id",currentUser.id).maybeSingle();
+ if(data)await supabaseClient.from("snap_likes").delete().eq("id",data.id);
+ else await supabaseClient.from("snap_likes").insert({snap_id:snap.id,user_id:currentUser.id});
+ await loadEngagement(snap);
+};
+async function loadComments(snap){
+ const {data,error}=await supabaseClient.from("snap_comments").select("*").eq("snap_id",snap.id).order("created_at",{ascending:true});
+ if(error){$("commentsList").innerHTML="Comments unavailable.";return}
+ const rows=data||[];
+ const render=(parent,depth=0)=>rows.filter(x=>(x.parent_comment_id||null)===(parent||null)).map(x=>`
+  <div class="commentItem ${depth?"commentReply":""}">
+   <div><b>${esc(x.user_id===currentUser?.id?"You":"User")}</b> ${esc(x.comment_text)}</div>
+   <div class="commentMeta">${new Date(x.created_at).toLocaleString()} <button class="secondary replyBtn" data-id="${x.id}" data-text="${esc(x.comment_text)}">REPLY</button></div>
+   ${render(x.id,depth+1)}
+  </div>`).join("");
+ $("commentsList").innerHTML=render(null)||'<div class="muted">No comments yet.</div>';
+}
+$("commentsList").onclick=e=>{
+ const b=e.target.closest(".replyBtn");if(!b)return;
+ replyingTo=b.dataset.id;$("commentInput").value="@reply ";
+ $("commentInput").focus();
+};
+$("sendCommentBtn").onclick=async()=>{
+ if(!currentUser)return openAuth();
+ if(!currentGallerySnap)return;
+ const text=$("commentInput").value.trim();if(!text)return;
+ const {error}=await supabaseClient.from("snap_comments").insert({
+  snap_id:currentGallerySnap.id,user_id:currentUser.id,parent_comment_id:replyingTo||null,comment_text:text
  });
+ if(error)return alert(error.message);
+ $("commentInput").value="";replyingTo=null;await loadComments(currentGallerySnap);
+};
+$("commentFocusBtn").onclick=()=>$("commentInput").focus();
+$("closeViewer").onclick=()=>hide($("viewerModal"));
+$("prevSnap").onclick=()=>{if(galleryIndex>0){galleryIndex--;renderGallery()}}
+$("nextSnap").onclick=()=>{if(galleryIndex<galleryItems.length-1){galleryIndex++;renderGallery()}};
+let touchX=0;
+$("viewerModal").addEventListener("touchstart",e=>touchX=e.changedTouches[0].clientX);
+$("viewerModal").addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>70){if(dx<0)$("nextSnap").click();else $("prevSnap").click()}});
 
- const unread=(data||[])
-  .filter(item=>!item.is_read).length;
-
- $("notificationCount").textContent=
-  unread?" "+Math.min(unread,99):"";
+/* ================= CALLING ================= */
+function openRoomPanel(){
+ if(!currentUser)return openAuth();
+ ensureRoom();show($("roomPanel"));
 }
-
-$("notificationBtn").onclick=()=>{
- $("notificationPanel").style.display=
-  $("notificationPanel").style.display==="block"?
-  "none":"block";
+$("copyRoomBtn").onclick=async()=>{
+ if(!myRoom)return;
+ await navigator.clipboard?.writeText(myRoom);status("ROOM ID COPIED");
+};
+$("shareRoomBtn").onclick=async()=>{
+ if(!myRoom)return;
+ try{await navigator.share({title:"My Call ID",text:myRoom})}catch(e){}
+};
+$("callUserBtn").onclick=()=>{
+ if(!currentUser)return openAuth();
+ const room=$("targetRoomInput").value.trim().toUpperCase();
+ if(!room)return;
+ socket.emit("call-user",{targetRoom:room});
+ status("CALLING "+room+"...");
 };
 
-/* =========================
-   CALL SOCKET EVENTS
-========================= */
-socket.on("connect",()=>{
- if(currentUser){
-  joinOwnCallRoom();
- }
+socket.on("room-joined",d=>{myRoom=d.room||myRoom});
+socket.on("room-full",()=>status("ROOM FULL"));
+socket.on("call-ringing",d=>status("RINGING "+(d.targetRoom||"")+"..."));
+socket.on("call-unavailable",()=>status("USER OFFLINE"));
+socket.on("incoming-call",d=>{
+ incomingCallerId=d.callerId;incomingCallerRoom=d.callerRoom||"";
+ $("incomingCaller").textContent=incomingCallerRoom||"INCOMING";
+ show($("incomingModal"));
 });
-
-socket.on("room-full",()=>{
- showStatus("Call room full hai.");
-});
-
-socket.on("call-ringing",data=>{
- showStatus(
-  "📞 Calling "+(data?.roomId||"")+"...",
-  4000
- );
-});
-
-socket.on("call-unavailable",data=>{
- showStatus(
-  "Room "+(data?.roomId||"")+" online nahi hai.",
-  4000
- );
-});
-
-socket.on("incoming-call",data=>{
- incomingCallerId=data?.callerId;
- incomingCallerRoom=data?.callerRoom||"";
-
- $("callerText").textContent=
-  "📞 Room "+
-  (incomingCallerRoom||"")+" is calling you";
-
- $("callOverlay").style.display="flex";
-});
-
 $("acceptCallBtn").onclick=async()=>{
- if(!incomingCallerId)return;
-
- const callerId=incomingCallerId;
-
- $("callOverlay").style.display="none";
-
- socket.emit(
-  "accept-call",
-  {callerId}
- );
-
- await openActiveCall(true,callerId);
-
- incomingCallerId=null;
+ hide($("incomingModal"));
+ socket.emit("accept-call",{callerId:incomingCallerId});
+ await createPeer(incomingCallerId,false);
+ openCallUI();
 };
-
 $("rejectCallBtn").onclick=()=>{
- if(incomingCallerId){
-  socket.emit(
-   "reject-call",
-   {callerId:incomingCallerId}
-  );
- }
-
- $("callOverlay").style.display="none";
- incomingCallerId=null;
+ socket.emit("reject-call",{callerId:incomingCallerId});hide($("incomingModal"));
 };
-
-socket.on("call-accepted",async data=>{
- if(data?.accepterId){
-  await openActiveCall(false,data.accepterId);
- }
+socket.on("call-accepted",async d=>{
+ currentCallPeerId=d.acceptedBy;
+ await createPeer(currentCallPeerId,true);
+ openCallUI();
 });
+socket.on("call-rejected",()=>{status("CALL REJECTED")});
+socket.on("call-ended",()=>endCall(false));
 
-socket.on("call-rejected",()=>{
- showStatus("Call rejected.");
- cleanupCall();
-});
-
-socket.on("call-ended",()=>{
- showStatus("Call ended.");
- cleanupCall();
-});
-
-/* =========================
-   WEBRTC
-========================= */
-async function openActiveCall(receiver,peerId){
- try{
-  currentCallPeerId=peerId;
-
-  localCallStream=
-   await navigator.mediaDevices.getUserMedia({
-    video:true,
-    audio:true
-   });
-
-  $("localVideo").srcObject=localCallStream;
-
-  remoteCallStream=new MediaStream();
-  $("remoteVideo").srcObject=remoteCallStream;
-
-  $("activeCall").style.display="block";
-  $("callStatus").textContent="Connecting...";
-
-  peerConnection=new RTCPeerConnection({
-   iceServers:[
-    {urls:"stun:stun.l.google.com:19302"},
-    {urls:"stun:stun1.l.google.com:19302"}
-   ]
-  });
-
-  localCallStream
-   .getTracks()
-   .forEach(track=>{
-    peerConnection.addTrack(
-     track,
-     localCallStream
-    );
-   });
-
-  peerConnection.ontrack=event=>{
-   if(event.streams?.[0]){
-    event.streams[0]
-     .getTracks()
-     .forEach(track=>{
-      if(
-       !remoteCallStream
-        .getTracks()
-        .some(existing=>existing.id===track.id)
-      ){
-       remoteCallStream.addTrack(track);
-      }
-     });
-   }
-
-   $("callStatus").textContent="Connected";
-  };
-
-  peerConnection.onicecandidate=event=>{
-   if(event.candidate){
-    socket.emit(
-     "webrtc-signal",
-     {
-      targetId:peerId,
-      signal:{
-       type:"ice-candidate",
-       candidate:event.candidate
-      }
-     }
-    );
-   }
-  };
-
-  peerConnection.onconnectionstatechange=()=>{
-   if(
-    ["failed","disconnected","closed"]
-    .includes(peerConnection?.connectionState)
-   ){
-    cleanupCall();
-   }
-  };
-
-  if(!receiver){
-   const offer=
-    await peerConnection.createOffer();
-
-   await peerConnection.setLocalDescription(offer);
-
-   socket.emit(
-    "webrtc-signal",
-    {
-     targetId:peerId,
-     signal:{
-      type:"offer",
-      sdp:offer
-     }
-    }
-   );
-  }
-
- }catch(error){
-  console.error(error);
-  showStatus(
-   "Call camera/mic permission required.",
-   4000
-  );
-  cleanupCall();
+async function createPeer(peerId,isCaller){
+ currentCallPeerId=peerId;
+ peerConnection=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"}]});
+ localCallStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+ localCallStream.getTracks().forEach(t=>peerConnection.addTrack(t,localCallStream));
+ $("localVideo").srcObject=localCallStream;
+ peerConnection.ontrack=e=>{$("remoteVideo").srcObject=e.streams[0]};
+ peerConnection.onicecandidate=e=>{if(e.candidate)socket.emit("webrtc-signal",{targetId:peerId,signal:{candidate:e.candidate}})};
+ if(isCaller){
+  const offer=await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  socket.emit("webrtc-signal",{targetId:peerId,signal:{offer}});
  }
 }
-
-socket.on("webrtc-signal",async data=>{
- try{
-  const signal=data?.signal;
-  const senderId=data?.senderId;
-
-  if(!signal||!senderId)return;
-
-  if(!peerConnection){
-   await openActiveCall(true,senderId);
-  }
-
-  if(signal.type==="offer"){
-   await peerConnection.setRemoteDescription(
-    new RTCSessionDescription(signal.sdp)
-   );
-
-   const answer=
-    await peerConnection.createAnswer();
-
-   await peerConnection.setLocalDescription(answer);
-
-   socket.emit(
-    "webrtc-signal",
-    {
-     targetId:senderId,
-     signal:{
-      type:"answer",
-      sdp:answer
-     }
-    }
-   );
-
-  }else if(signal.type==="answer"){
-   await peerConnection.setRemoteDescription(
-    new RTCSessionDescription(signal.sdp)
-   );
-
-  }else if(
-   signal.type==="ice-candidate"&&
-   signal.candidate
-  ){
-   await peerConnection.addIceCandidate(
-    new RTCIceCandidate(signal.candidate)
-   );
-  }
-
- }catch(error){
-  console.error("WebRTC signal:",error);
+socket.on("webrtc-signal",async d=>{
+ if(!peerConnection)await createPeer(d.senderId,false);
+ const s=d.signal;
+ if(s.offer){
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(s.offer));
+  const answer=await peerConnection.createAnswer();
+  await peerConnection.setLocalDescription(answer);
+  socket.emit("webrtc-signal",{targetId:d.senderId,signal:{answer}});
+ }else if(s.answer){
+  await peerConnection.setRemoteDescription(new RTCSessionDescription(s.answer));
+ }else if(s.candidate){
+  try{await peerConnection.addIceCandidate(new RTCIceCandidate(s.candidate))}catch(e){}
  }
 });
-
+function openCallUI(){show($("callModal"));$("chatBox").style.display="none"}
+async function endCall(send=true){
+ if(send&&currentCallPeerId)socket.emit("end-call",{targetId:currentCallPeerId});
+ if(peerConnection){peerConnection.close();peerConnection=null}
+ if(localCallStream){localCallStream.getTracks().forEach(t=>t.stop());localCallStream=null}
+ $("localVideo").srcObject=null;$("remoteVideo").srcObject=null;
+ currentCallPeerId=null;hide($("callModal"));status("CALL ENDED");
+}
+$("endCallBtn").onclick=()=>endCall(true);
 $("muteCallBtn").onclick=()=>{
- const track=
-  localCallStream?.getAudioTracks?.()[0];
-
- if(!track)return;
-
- track.enabled=!track.enabled;
- callMuted=!track.enabled;
-
- $("muteCallBtn").textContent=
-  callMuted?"🔇":"🎙️";
+ if(!localCallStream)return;
+ muted=!muted;localCallStream.getAudioTracks().forEach(t=>t.enabled=!muted);
+ $("muteCallBtn").textContent=muted?"🔇":"🎙";
 };
-
 $("cameraCallBtn").onclick=()=>{
- const track=
-  localCallStream?.getVideoTracks?.()[0];
-
- if(!track)return;
-
- track.enabled=!track.enabled;
- callCameraOff=!track.enabled;
-
- $("cameraCallBtn").textContent=
-  callCameraOff?"🚫":"📹";
+ if(!localCallStream)return;
+ cameraOff=!cameraOff;localCallStream.getVideoTracks().forEach(t=>t.enabled=!cameraOff);
+ $("cameraCallBtn").textContent=cameraOff?"🚫":"📷";
 };
-
-$("endCallBtn").onclick=()=>{
- if(currentCallPeerId){
-  socket.emit(
-   "end-call",
-   {targetId:currentCallPeerId}
-  );
- }
-
- cleanupCall();
+$("chatCallBtn").onclick=()=>{$("chatBox").style.display=$("chatBox").style.display==="none"?"block":"none"};
+$("sendChatBtn").onclick=()=>{
+ const msg=$("chatInput").value.trim();if(!msg||!currentCallPeerId)return;
+ socket.emit("chat-message",{targetId:currentCallPeerId,message:msg});
+ addChat(msg,true);$("chatInput").value="";
 };
-
-function cleanupCall(){
- try{
-  peerConnection?.close();
- }catch(error){}
-
- peerConnection=null;
-
- localCallStream
-  ?.getTracks()
-  .forEach(track=>track.stop());
-
- localCallStream=null;
- remoteCallStream=null;
-
- $("localVideo").srcObject=null;
- $("remoteVideo").srcObject=null;
-
- $("activeCall").style.display="none";
- $("callOverlay").style.display="none";
-
- currentCallPeerId=null;
- incomingCallerId=null;
- incomingCallerRoom=null;
-
- callMuted=false;
- callCameraOff=false;
-
- $("muteCallBtn").textContent="🎙️";
- $("cameraCallBtn").textContent="📹";
+socket.on("chat-message",d=>addChat(d.message,false));
+function addChat(msg,mine){
+ const x=document.createElement("div");x.className="chatMsg "+(mine?"chatMine":"");x.textContent=msg;
+ $("chatMessages").appendChild(x);$("chatMessages").scrollTop=$("chatMessages").scrollHeight;
 }
 
-/* =========================
-   BACK BUTTON
-========================= */
-window.addEventListener("popstate",()=>{
- if($("cameraModal").style.display==="flex"){
-  stopCameraStream();
-  $("cameraModal").style.display="none";
- }
+/* ================= UI NAV ================= */
+function closePanels(){hide($("roomPanel"));hide($("notificationPanel"))}
+$("mapNav").onclick=()=>{closePanels();setActiveNav("mapNav");map.invalidateSize();status("MAP ONLINE")}
+$("exploreNav").onclick=async()=>{closePanels();setActiveNav("exploreNav");await loadSnaps();status("EXPLORE: NEARBY SNAP CLUSTERS")}
+$("cameraNav").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()}
+$("roomNav").onclick=()=>{setActiveNav("roomNav");openRoomPanel()}
+$("accountNav").onclick=()=>{
+ setActiveNav("accountNav");
+ if(currentUser){
+  if(confirm(`Logged in as ${currentProfile?.display_name||currentUser.email}.\nLogout?`))logout();
+ }else openAuth();
+};
+$("notificationBtn").onclick=()=>{hide($("roomPanel"));show($("notificationPanel"));loadNotifications()}
+$("searchBtn").onclick=searchLocation;
+$("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocation()});
+$("locBtn").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hide($(b.dataset.close)));
+$("authClose").onclick=()=>hide($("authModal"));
+$("authSubmit").onclick=authSubmit;
+$("authSwitch").onclick=()=>openAuth(authMode==="login"?"register":"login");
 
- if($("previewModal").style.display==="flex"){
-  $("previewModal").style.display="none";
- }
-
- if($("galleryModal").style.display==="flex"){
-  $("galleryModal").style.display="none";
- }
-
- cleanupCall();
-});
-
-/* =========================
-   START
-========================= */
+/* ================= START ================= */
 (async()=>{
- await loadAuth();
+ initMap();
+ await initAuth();
  await loadSnaps();
+ window.addEventListener("resize",()=>setTimeout(()=>map.invalidateSize(),150));
 })();
 </script>
 </body>
