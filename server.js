@@ -11,560 +11,732 @@ const io = new Server(server, {
     origin: "*",
     methods: ["GET", "POST"]
   },
-  transports: ["websocket", "polling"]
+  maxHttpBufferSize: 50 * 1024 * 1024
 });
 
 const PORT = process.env.PORT || 10000;
-const MAX_USERS_PER_ROOM = 2;
 
-/* =========================
-   EXPRESS
-========================= */
+/*
+  Maximum users inside one permanent call room.
+*/
+const MAX_USERS_PER_ROOM = 6;
 
 app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({
+  extended: true,
+  limit: "10mb"
+}));
 
-const publicPath = path.join(__dirname, "public");
+app.use(express.static(path.join(__dirname, "public")));
 
-app.use(express.static(publicPath));
-
-app.get("/health", (req, res) => {
+app.get("/health", (_req, res) => {
   res.json({
     ok: true,
     service: "Cyber Map Viewer",
+    maxUsersPerRoom: MAX_USERS_PER_ROOM,
     time: new Date().toISOString()
   });
 });
 
-app.get("/", (req, res) => {
-  res.sendFile(path.join(publicPath, "index.html"));
+app.get("/", (_req, res) => {
+  res.sendFile(
+    path.join(__dirname, "public", "index.html")
+  );
 });
 
-/* =========================
-   SOCKET STATE
-========================= */
 
-// socket.id -> user information
-const users = new Map();
-
-// roomId -> Set(socket.id)
-const rooms = new Map();
-
-/* =========================
+/* =========================================================
    ROOM HELPERS
-========================= */
+========================================================= */
 
-function normalizeRoom(room) {
-  return String(room || "").trim().toUpperCase();
+function normalRoom(value) {
+  return String(value || "")
+    .trim()
+    .toUpperCase();
 }
 
-function addToRoom(room, socketId) {
-  room = normalizeRoom(room);
+function getRoomUsers(room) {
+  const set = io.sockets.adapter.rooms.get(room);
+  if (!set) return [];
 
-  if (!room) {
+  return [...set].map(id => {
+    const s = io.sockets.sockets.get(id);
+
     return {
-      ok: false,
-      reason: "invalid-room"
+      socketId: id,
+      room: s?.data?.room || "",
+      displayName: s?.data?.displayName || "USER"
     };
-  }
-
-  if (!rooms.has(room)) {
-    rooms.set(room, new Set());
-  }
-
-  const members = rooms.get(room);
-
-  if (!members.has(socketId) && members.size >= MAX_USERS_PER_ROOM) {
-    return {
-      ok: false,
-      reason: "room-full"
-    };
-  }
-
-  members.add(socketId);
-
-  return {
-    ok: true,
-    room
-  };
+  });
 }
 
-function removeFromRoom(room, socketId) {
-  room = normalizeRoom(room);
+function leaveRoom(socket) {
+  const room = socket.data.room;
 
-  if (!room || !rooms.has(room)) {
-    return;
-  }
+  if (!room) return;
 
-  const members = rooms.get(room);
-
-  members.delete(socketId);
-
-  if (members.size === 0) {
-    rooms.delete(room);
-  }
-}
-
-function findSocketByRoom(room) {
-  room = normalizeRoom(room);
-
-  const members = rooms.get(room);
-
-  if (!members || members.size === 0) {
-    return null;
-  }
-
-  for (const socketId of members) {
-    const socket = io.sockets.sockets.get(socketId);
-
-    if (socket) {
-      return socket;
-    }
-  }
-
-  return null;
-}
-
-function getRoomMembers(room) {
-  room = normalizeRoom(room);
-
-  const members = rooms.get(room);
-
-  if (!members) {
-    return [];
-  }
-
-  return [...members];
-}
-
-/* =========================
-   SOCKET CONNECTION
-========================= */
-
-io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
-
-  users.set(socket.id, {
-    socketId: socket.id,
-    room: null,
-    callPeer: null
+  socket.to(room).emit("peer-left", {
+    peerId: socket.id,
+    displayName: socket.data.displayName || "USER"
   });
 
-  /* =========================
-     JOIN ROOM
-  ========================= */
+  socket.leave(room);
 
-  socket.on("join-room", (room) => {
-    room = normalizeRoom(room);
+  socket.data.room = null;
+}
 
-    if (!room) {
-      socket.emit("room-error", {
-        message: "Invalid room ID."
-      });
-      return;
-    }
 
-    const user = users.get(socket.id);
+/* =========================================================
+   SOCKET CONNECTION
+========================================================= */
 
-    // Already inside same room
-    if (user && user.room === room) {
+io.on("connection", socket => {
+
+  console.log(
+    `[CONNECT] ${socket.id}`
+  );
+
+
+  /* =======================================================
+     JOIN PERMANENT ROOM
+  ======================================================= */
+
+  socket.on("join-room", payload => {
+
+    const room = normalRoom(
+      typeof payload === "string"
+        ? payload
+        : payload?.room
+    );
+
+    const displayName =
+      String(
+        typeof payload === "object"
+          ? payload?.displayName || "USER"
+          : "USER"
+      ).trim().slice(0, 50);
+
+    if (!room) return;
+
+
+    /*
+      Already inside this room.
+    */
+
+    if (socket.data.room === room) {
+
+      socket.data.displayName = displayName;
+
       socket.emit("room-joined", {
         room,
-        users: getRoomMembers(room).length
+        count:
+          io.sockets.adapter.rooms.get(room)?.size || 1,
+        max: MAX_USERS_PER_ROOM,
+        users: getRoomUsers(room)
       });
-      return;
-    }
-
-    // Leave previous room
-    if (user && user.room) {
-      removeFromRoom(user.room, socket.id);
-    }
-
-    const result = addToRoom(room, socket.id);
-
-    if (!result.ok) {
-      if (result.reason === "room-full") {
-        socket.emit("room-full", {
-          room,
-          maxUsers: MAX_USERS_PER_ROOM
-        });
-      } else {
-        socket.emit("room-error", {
-          message: "Unable to join room."
-        });
-      }
 
       return;
     }
 
-    if (user) {
-      user.room = room;
+
+    /*
+      Leave previous room.
+    */
+
+    if (socket.data.room) {
+      leaveRoom(socket);
     }
+
+
+    /*
+      Check room capacity.
+    */
+
+    const existing =
+      io.sockets.adapter.rooms.get(room);
+
+    const count =
+      existing ? existing.size : 0;
+
+    if (count >= MAX_USERS_PER_ROOM) {
+
+      socket.emit("room-full", {
+        room,
+        max: MAX_USERS_PER_ROOM
+      });
+
+      return;
+    }
+
+
+    /*
+      Existing users BEFORE joining.
+      These are important for multi-peer WebRTC.
+    */
+
+    const existingUsers =
+      existing ? [...existing] : [];
+
 
     socket.join(room);
 
-    const members = getRoomMembers(room);
+    socket.data.room = room;
+    socket.data.displayName = displayName;
+
+
+    /*
+      Tell joining user about everyone already
+      inside the room.
+    */
 
     socket.emit("room-joined", {
       room,
-      users: members.length
+      count: existingUsers.length + 1,
+      max: MAX_USERS_PER_ROOM,
+      users: getRoomUsers(room)
     });
 
-    socket.to(room).emit("user-joined", {
-      socketId: socket.id,
-      room
+
+    /*
+      Tell existing users that a new peer arrived.
+    */
+
+    socket.to(room).emit("peer-joined", {
+      peerId: socket.id,
+      displayName
     });
+
+
+    /*
+      Send updated member list.
+    */
+
+    io.to(room).emit("room-users", {
+      room,
+      count: io.sockets.adapter.rooms.get(room)?.size || 0,
+      max: MAX_USERS_PER_ROOM,
+      users: getRoomUsers(room)
+    });
+
 
     console.log(
-      `Socket ${socket.id} joined room ${room}. Users: ${members.length}`
+      `[ROOM] ${socket.id} -> ${room} ` +
+      `(${existingUsers.length + 1}/${MAX_USERS_PER_ROOM})`
     );
   });
 
-  /* =========================
-     CALL USER
-  ========================= */
 
-  socket.on("call-user", ({ targetRoom }) => {
-    targetRoom = normalizeRoom(targetRoom);
+  /* =======================================================
+     CALL USER BY PERMANENT ROOM ID
+  ======================================================= */
 
-    if (!targetRoom) {
+  socket.on("call-user", ({ targetRoom } = {}) => {
+
+    const room = normalRoom(targetRoom);
+
+    if (!room) return;
+
+
+    const targetSet =
+      io.sockets.adapter.rooms.get(room);
+
+    if (!targetSet || targetSet.size === 0) {
+
       socket.emit("call-unavailable", {
-        reason: "invalid-room"
-      });
-      return;
-    }
-
-    const caller = users.get(socket.id);
-
-    if (!caller) {
-      socket.emit("call-unavailable", {
-        reason: "caller-not-found"
-      });
-      return;
-    }
-
-    const targetSocket = findSocketByRoom(targetRoom);
-
-    if (!targetSocket) {
-      socket.emit("call-unavailable", {
-        room: targetRoom,
+        targetRoom: room,
         reason: "offline"
       });
 
       return;
     }
 
-    if (targetSocket.id === socket.id) {
-      socket.emit("call-unavailable", {
-        room: targetRoom,
-        reason: "self-call"
+
+    /*
+      Find an actual online user.
+    */
+
+    for (const targetId of targetSet) {
+
+      if (targetId === socket.id) continue;
+
+      io.to(targetId).emit("incoming-call", {
+
+        callerId: socket.id,
+
+        callerRoom:
+          socket.data.room || "",
+
+        callerName:
+          socket.data.displayName || "USER",
+
+        /*
+          New call session ID.
+        */
+
+        callId:
+          `${socket.id}-${Date.now()}`
+      });
+
+      socket.emit("call-ringing", {
+        targetRoom: room,
+        targetId
       });
 
       return;
     }
 
-    const targetUser = users.get(targetSocket.id);
 
-    caller.callPeer = targetSocket.id;
-
-    if (targetUser) {
-      targetUser.callPeer = socket.id;
-    }
-
-    socket.emit("call-ringing", {
-      targetRoom,
-      targetId: targetSocket.id
+    socket.emit("call-unavailable", {
+      targetRoom: room
     });
-
-    targetSocket.emit("incoming-call", {
-      callerId: socket.id,
-      callerRoom: caller.room || "",
-      callerName: "Cyber Map User"
-    });
-
-    console.log(
-      `Call: ${socket.id} -> ${targetSocket.id} (${targetRoom})`
-    );
   });
 
-  /* =========================
+
+  /* =======================================================
      ACCEPT CALL
-  ========================= */
+  ======================================================= */
 
-  socket.on("accept-call", ({ callerId }) => {
-    if (!callerId) {
-      return;
-    }
+  socket.on("accept-call", ({ callerId } = {}) => {
 
-    const callerSocket = io.sockets.sockets.get(callerId);
+    if (!callerId) return;
 
-    if (!callerSocket) {
-      socket.emit("call-unavailable", {
-        reason: "caller-offline"
-      });
+    io.to(callerId).emit("call-accepted", {
 
-      return;
-    }
-
-    const user = users.get(socket.id);
-    const caller = users.get(callerId);
-
-    if (user) {
-      user.callPeer = callerId;
-    }
-
-    if (caller) {
-      caller.callPeer = socket.id;
-    }
-
-    callerSocket.emit("call-accepted", {
       acceptedBy: socket.id,
-      acceptedRoom: user?.room || ""
-    });
 
-    console.log(
-      `Call accepted: ${socket.id} <- ${callerId}`
-    );
+      accepterId: socket.id,
+
+      accepterName:
+        socket.data.displayName || "USER",
+
+      accepterRoom:
+        socket.data.room || ""
+    });
   });
 
-  /* =========================
+
+  /* =======================================================
      REJECT CALL
-  ========================= */
+  ======================================================= */
 
-  socket.on("reject-call", ({ callerId }) => {
-    if (!callerId) {
-      return;
-    }
+  socket.on("reject-call", ({ callerId } = {}) => {
 
-    const callerSocket = io.sockets.sockets.get(callerId);
+    if (!callerId) return;
 
-    if (callerSocket) {
-      callerSocket.emit("call-rejected", {
-        rejectedBy: socket.id
-      });
-    }
+    io.to(callerId).emit("call-rejected", {
 
-    const user = users.get(socket.id);
+      rejectedBy: socket.id,
 
-    if (user) {
-      user.callPeer = null;
-    }
-
-    console.log(
-      `Call rejected: ${socket.id} <- ${callerId}`
-    );
-  });
-
-  /* =========================
-     WEBRTC SIGNAL
-  ========================= */
-
-  socket.on("webrtc-signal", ({ targetId, signal }) => {
-    if (!targetId || !signal) {
-      return;
-    }
-
-    const targetSocket = io.sockets.sockets.get(targetId);
-
-    if (!targetSocket) {
-      socket.emit("call-unavailable", {
-        reason: "peer-disconnected"
-      });
-
-      return;
-    }
-
-    targetSocket.emit("webrtc-signal", {
-      senderId: socket.id,
-      signal
+      rejectedName:
+        socket.data.displayName || "USER"
     });
   });
 
-  /* =========================
-     END CALL
-  ========================= */
 
-  socket.on("end-call", ({ targetId }) => {
-    if (targetId) {
-      const targetSocket = io.sockets.sockets.get(targetId);
+  /* =======================================================
+     ADD FRIEND TO ACTIVE CALL
+  ======================================================= */
 
-      if (targetSocket) {
-        targetSocket.emit("call-ended", {
-          endedBy: socket.id
+  socket.on(
+    "invite-to-call",
+    ({ targetRoom, callParticipants = [] } = {}) => {
+
+      const room = normalRoom(targetRoom);
+
+      if (!room) return;
+
+
+      const targetSet =
+        io.sockets.adapter.rooms.get(room);
+
+      if (!targetSet || targetSet.size === 0) {
+
+        socket.emit("invite-unavailable", {
+          targetRoom: room
         });
+
+        return;
+      }
+
+
+      /*
+        Prevent more than 6 participants.
+      */
+
+      const currentRoom =
+        socket.data.callRoom ||
+        socket.data.room;
+
+      const currentCount =
+        currentRoom
+          ? (
+              io.sockets.adapter.rooms.get(currentRoom)
+                ?.size || 0
+            )
+          : 0;
+
+      if (currentCount >= MAX_USERS_PER_ROOM) {
+
+        socket.emit("call-room-full", {
+          max: MAX_USERS_PER_ROOM
+        });
+
+        return;
+      }
+
+
+      for (const targetId of targetSet) {
+
+        if (targetId === socket.id) continue;
+
+        io.to(targetId).emit(
+          "incoming-call",
+          {
+            callerId: socket.id,
+
+            callerRoom:
+              socket.data.room || "",
+
+            callerName:
+              socket.data.displayName || "USER",
+
+            callId:
+              `${socket.id}-${Date.now()}`,
+
+            groupCall: true,
+
+            participants:
+              Array.isArray(callParticipants)
+                ? callParticipants.slice(0, MAX_USERS_PER_ROOM)
+                : []
+          }
+        );
+
+        socket.emit("friend-invited", {
+          targetRoom: room
+        });
+
+        return;
       }
     }
+  );
 
-    const user = users.get(socket.id);
 
-    if (user) {
-      user.callPeer = null;
+  /* =======================================================
+     WEBRTC SIGNALING
+  ======================================================= */
+
+  socket.on(
+    "webrtc-signal",
+    ({ targetId, signal } = {}) => {
+
+      if (!targetId || !signal) return;
+
+      io.to(targetId).emit(
+        "webrtc-signal",
+        {
+          senderId: socket.id,
+          senderName:
+            socket.data.displayName || "USER",
+          signal
+        }
+      );
     }
+  );
 
-    if (targetId) {
-      const targetUser = users.get(targetId);
 
-      if (targetUser) {
-        targetUser.callPeer = null;
+  /* =======================================================
+     CALL CHAT
+  ======================================================= */
+
+  socket.on(
+    "chat-message",
+    ({ targetId, message } = {}) => {
+
+      const text =
+        String(message || "").trim();
+
+      if (!targetId || !text) return;
+
+      io.to(targetId).emit(
+        "chat-message",
+        {
+          fromId: socket.id,
+
+          fromName:
+            socket.data.displayName || "USER",
+
+          message: text,
+
+          time: Date.now()
+        }
+      );
+    }
+  );
+
+
+  /* =======================================================
+     GROUP CALL CHAT
+  ======================================================= */
+
+  socket.on(
+    "call-room-message",
+    ({ room, message, type = "text", mediaUrl = "" } = {}) => {
+
+      const targetRoom = normalRoom(room);
+
+      const text =
+        String(message || "").trim();
+
+      if (!targetRoom) return;
+
+      const targetSet =
+        io.sockets.adapter.rooms.get(targetRoom);
+
+      if (!targetSet) return;
+
+
+      socket.to(targetRoom).emit(
+        "call-room-message",
+        {
+          fromId: socket.id,
+
+          fromName:
+            socket.data.displayName || "USER",
+
+          message: text,
+
+          type,
+
+          mediaUrl,
+
+          time: Date.now()
+        }
+      );
+    }
+  );
+
+
+  /* =======================================================
+     END CALL WITH ONE USER
+  ======================================================= */
+
+  socket.on(
+    "end-call",
+    ({ targetId } = {}) => {
+
+      if (!targetId) return;
+
+      io.to(targetId).emit(
+        "call-ended",
+        {
+          endedBy: socket.id,
+
+          endedByName:
+            socket.data.displayName || "USER"
+        }
+      );
+    }
+  );
+
+
+  /* =======================================================
+     END GROUP CALL
+  ======================================================= */
+
+  socket.on(
+    "end-group-call",
+    ({ room } = {}) => {
+
+      const targetRoom = normalRoom(room);
+
+      if (!targetRoom) return;
+
+      socket.to(targetRoom).emit(
+        "group-call-ended",
+        {
+          endedBy: socket.id,
+
+          endedByName:
+            socket.data.displayName || "USER"
+        }
+      );
+    }
+  );
+
+
+  /* =======================================================
+     NORMAL ROOM CHAT
+  ======================================================= */
+
+  socket.on(
+    "room-chat",
+    ({ targetRoom, message, type = "text", mediaUrl = "" } = {}) => {
+
+      const room = normalRoom(targetRoom);
+
+      const text =
+        String(message || "").trim();
+
+      if (!room) return;
+
+      const targetSet =
+        io.sockets.adapter.rooms.get(room);
+
+      if (!targetSet || targetSet.size === 0) {
+
+        socket.emit("room-chat-unavailable", {
+          targetRoom: room
+        });
+
+        return;
       }
+
+
+      socket.to(room).emit(
+        "room-chat",
+        {
+          fromId: socket.id,
+
+          fromName:
+            socket.data.displayName || "USER",
+
+          message: text,
+
+          type,
+
+          mediaUrl,
+
+          time: Date.now()
+        }
+      );
+
+
+      socket.emit(
+        "room-chat-sent",
+        {
+          targetRoom: room
+        }
+      );
     }
+  );
 
-    console.log("Call ended:", socket.id, targetId || "");
-  });
 
-  /* =========================
-     CHAT DURING CALL
-  ========================= */
-
-  socket.on("chat-message", ({ targetId, message }) => {
-    if (!targetId || !message) {
-      return;
-    }
-
-    const cleanMessage = String(message).trim();
-
-    if (!cleanMessage) {
-      return;
-    }
-
-    if (cleanMessage.length > 2000) {
-      return;
-    }
-
-    const targetSocket = io.sockets.sockets.get(targetId);
-
-    if (!targetSocket) {
-      return;
-    }
-
-    targetSocket.emit("chat-message", {
-      senderId: socket.id,
-      message: cleanMessage,
-      createdAt: Date.now()
-    });
-  });
-
-  /* =========================
+  /* =======================================================
      LEAVE ROOM
-  ========================= */
+  ======================================================= */
 
   socket.on("leave-room", () => {
-    const user = users.get(socket.id);
 
-    if (!user) {
-      return;
-    }
+    leaveRoom(socket);
 
-    if (user.room) {
-      const oldRoom = user.room;
-
-      removeFromRoom(oldRoom, socket.id);
-      socket.leave(oldRoom);
-
-      socket.to(oldRoom).emit("user-left", {
-        socketId: socket.id,
-        room: oldRoom
-      });
-
-      user.room = null;
-    }
+    io.emit("room-users-updated");
   });
 
-  /* =========================
+
+  /* =======================================================
      DISCONNECT
-  ========================= */
+  ======================================================= */
 
-  socket.on("disconnect", (reason) => {
-    console.log(
-      "Socket disconnected:",
-      socket.id,
-      reason
-    );
+  socket.on("disconnect", reason => {
 
-    const user = users.get(socket.id);
+    const room =
+      socket.data.room;
 
-    if (!user) {
-      return;
-    }
+    if (room) {
 
-    // End active call
-    if (user.callPeer) {
-      const peerSocket = io.sockets.sockets.get(user.callPeer);
+      socket.to(room).emit(
+        "peer-left",
+        {
+          peerId: socket.id,
 
-      if (peerSocket) {
-        peerSocket.emit("call-ended", {
-          endedBy: socket.id
-        });
-
-        const peerUser = users.get(user.callPeer);
-
-        if (peerUser) {
-          peerUser.callPeer = null;
+          displayName:
+            socket.data.displayName || "USER"
         }
-      }
+      );
+
+      socket.to(room).emit(
+        "room-users",
+        {
+          room,
+
+          count:
+            io.sockets.adapter.rooms.get(room)?.size || 0,
+
+          max: MAX_USERS_PER_ROOM,
+
+          users:
+            getRoomUsers(room)
+        }
+      );
     }
 
-    // Remove from room
-    if (user.room) {
-      const oldRoom = user.room;
-
-      removeFromRoom(oldRoom, socket.id);
-
-      socket.to(oldRoom).emit("user-left", {
-        socketId: socket.id,
-        room: oldRoom
-      });
-    }
-
-    users.delete(socket.id);
+    console.log(
+      `[DISCONNECT] ${socket.id} ${reason}`
+    );
   });
 });
 
-/* =========================
-   404 FALLBACK
-========================= */
 
-app.use((req, res) => {
-  res.sendFile(path.join(publicPath, "index.html"));
+/* =========================================================
+   404
+========================================================= */
+
+app.use((_req, res) => {
+  res.status(404).send("Not found");
 });
 
-/* =========================
-   ERROR HANDLER
-========================= */
 
-app.use((err, req, res, next) => {
-  console.error("Server error:", err);
+/* =========================================================
+   ERROR HANDLER
+========================================================= */
+
+app.use((err, _req, res, _next) => {
+
+  console.error(err);
 
   res.status(500).json({
     error: "Internal server error"
   });
 });
 
-/* =========================
-   START SERVER
-========================= */
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log("====================================");
-  console.log(" Cyber Map Viewer");
-  console.log(" Server running");
-  console.log(" Port:", PORT);
-  console.log(" Max users per room:", MAX_USERS_PER_ROOM);
-  console.log("====================================");
-});
+/* =========================================================
+   START
+========================================================= */
 
-/* =========================
+server.listen(
+  PORT,
+  "0.0.0.0",
+  () => {
+    console.log("");
+    console.log("=================================");
+    console.log(" CYBER MAP VIEWER ONLINE");
+    console.log(" PORT:", PORT);
+    console.log(" MAX CALL USERS:", MAX_USERS_PER_ROOM);
+    console.log("=================================");
+    console.log("");
+  }
+);
+
+
+/* =========================================================
    SAFE SHUTDOWN
-========================= */
+========================================================= */
 
 function shutdown(signal) {
-  console.log(`${signal} received. Shutting down...`);
 
-  io.close(() => {
-    server.close(() => {
-      process.exit(0);
-    });
+  console.log(
+    `[SHUTDOWN] ${signal}`
+  );
+
+  server.close(() => {
+    process.exit(0);
   });
+
+  setTimeout(() => {
+    process.exit(1);
+  }, 10000);
 }
 
 process.on("SIGTERM", () => shutdown("SIGTERM"));
