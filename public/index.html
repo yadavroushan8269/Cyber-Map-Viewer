@@ -321,39 +321,134 @@ button{
 
 #snapVideo{
     width:100%;
-    max-height:55vh;
+    max-height:58vh;
     object-fit:cover;
     background:#000;
     border:1px solid var(--green);
     border-radius:8px;
 }
 
-.camera-tools{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:5px;
-    margin-top:7px;
+.camera-stage{
+    position:relative;
+    background:#000;
+    border-radius:9px;
+    overflow:hidden;
 }
 
-.camera-tools button,
-.filter-row button{
-    padding:7px 4px;
+.camera-mode{
+    position:absolute;
+    top:9px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:5;
+    display:flex;
+    gap:3px;
+    padding:3px;
+    background:rgba(0,0,0,.72);
+    border:1px solid rgba(57,255,136,.5);
+    border-radius:20px;
+}
+
+.camera-mode button{
+    min-width:65px;
+    padding:6px 10px;
+    border:0;
+    border-radius:16px;
+    color:#baffd0;
+    background:transparent;
+    font-size:9px;
+}
+
+.camera-mode button.active{
+    color:#000;
+    background:var(--green);
+}
+
+.camera-zoom{
+    position:absolute;
+    right:9px;
+    bottom:10px;
+    z-index:5;
+    padding:6px 9px;
+    border:1px solid var(--green);
+    border-radius:20px;
+    background:rgba(0,0,0,.72);
+    color:var(--green);
+    font-size:9px;
+}
+
+.camera-bottom{
+    margin-top:8px;
+    display:grid;
+    grid-template-columns:55px 1fr 55px;
+    align-items:center;
+    gap:10px;
+}
+
+.camera-side{
+    width:48px;
+    height:48px;
+    border-radius:50%;
     background:#03100b;
     border:1px solid var(--green);
     color:var(--green);
-    border-radius:5px;
-    font-size:8px;
+    font-size:18px;
+}
+
+.shutter-wrap{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.shutter{
+    width:72px;
+    height:72px;
+    border-radius:50%;
+    background:#fff;
+    border:5px solid rgba(255,255,255,.35);
+    box-shadow:
+        0 0 0 3px #111,
+        0 0 18px rgba(57,255,136,.45);
+    transition:.12s;
+}
+
+.shutter:active{
+    transform:scale(.88);
+}
+
+.shutter.video{
+    border-color:#ff2448;
+}
+
+.shutter.video.recording{
+    background:#ff2448;
+    border-radius:18px;
+    transform:scale(.75);
+}
+
+.camera-label{
+    text-align:center;
+    color:var(--cyan);
+    font-size:9px;
+    margin-top:4px;
 }
 
 .filter-row{
     display:flex;
     overflow-x:auto;
     gap:4px;
-    margin-top:7px;
+    margin-top:8px;
 }
 
 .filter-row button{
     white-space:nowrap;
+    padding:7px 8px;
+    background:#03100b;
+    border:1px solid var(--green);
+    color:var(--green);
+    border-radius:5px;
+    font-size:8px;
 }
 
 #cameraCanvas{
@@ -367,10 +462,6 @@ button{
     object-fit:contain;
     background:#000;
     border-radius:8px;
-}
-
-#cameraLocationInfo{
-    margin-top:8px;
 }
 
 /* UPLOAD */
@@ -431,44 +522,132 @@ button{
     font-size:10px;
 }
 
-/* SNAP CLUSTER */
+/* SNAP DETECTOR */
 
-.snap-cluster{
+.snap-detector{
+    position:relative;
+    width:94px;
+    height:94px;
     display:flex;
-    justify-content:center;
     align-items:center;
+    justify-content:center;
+}
+
+.detector-core{
+    position:absolute;
     width:42px;
     height:42px;
     border-radius:50%;
-    color:white;
-    background:#b90025;
-    border:3px solid #ff3155;
+    background:rgba(255,20,55,.78);
+    border:2px solid #fff;
     box-shadow:
-        0 0 8px #ff2448,
-        0 0 20px rgba(255,36,72,.65);
-    font:bold 12px Consolas;
+        0 0 10px #ff2448,
+        0 0 25px rgba(255,36,72,.9);
+    animation:detectorCore 1s infinite alternate;
 }
 
-.snap-cluster.single{
-    background:#ff2448;
+.detector-ring{
+    position:absolute;
+    width:54px;
+    height:54px;
+    border-radius:50%;
+    border:2px solid #ff2448;
+    animation:detectorRing 1.5s infinite;
 }
 
-.snap-cluster.pulse{
-    animation:snapPulse 1.4s infinite;
+.detector-ring.r2{
+    width:74px;
+    height:74px;
+    animation-delay:.35s;
 }
 
-@keyframes snapPulse{
+.detector-ring.r3{
+    width:94px;
+    height:94px;
+    animation-delay:.7s;
+}
+
+.detector-name{
+    position:absolute;
+    bottom:-16px;
+    left:50%;
+    transform:translateX(-50%);
+    min-width:90px;
+    max-width:160px;
+    padding:3px 7px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    text-align:center;
+    color:#fff;
+    background:rgba(0,0,0,.9);
+    border:1px solid #ff2448;
+    border-radius:8px;
+    font:bold 9px Consolas;
+    box-shadow:0 0 10px rgba(255,36,72,.6);
+}
+
+.detector-count{
+    position:absolute;
+    top:-5px;
+    right:-2px;
+    z-index:5;
+    min-width:18px;
+    padding:2px 5px;
+    color:#fff;
+    background:#8d001d;
+    border:1px solid #ff2448;
+    border-radius:10px;
+    text-align:center;
+    font:bold 8px Consolas;
+}
+
+@keyframes detectorRing{
     0%{
-        box-shadow:
-            0 0 0 0 rgba(255,36,72,.7);
+        opacity:1;
+        transform:scale(.55);
     }
     70%{
-        box-shadow:
-            0 0 0 18px rgba(255,36,72,0);
+        opacity:.12;
+        transform:scale(1);
     }
     100%{
-        box-shadow:
-            0 0 0 0 rgba(255,36,72,0);
+        opacity:0;
+        transform:scale(1.08);
+    }
+}
+
+@keyframes detectorCore{
+    from{
+        transform:scale(.85);
+        opacity:.72;
+    }
+    to{
+        transform:scale(1.08);
+        opacity:1;
+    }
+}
+
+/* LOCATION */
+
+.live-location-icon{
+    width:25px;
+    height:25px;
+    border-radius:50%;
+    border:3px solid #ff2448;
+    box-shadow:0 0 0 0 rgba(255,36,72,.8);
+    animation:locationPulse 1s infinite;
+}
+
+@keyframes locationPulse{
+    0%{
+        box-shadow:0 0 0 0 rgba(255,36,72,.8);
+    }
+    70%{
+        box-shadow:0 0 0 18px rgba(255,36,72,0);
+    }
+    100%{
+        box-shadow:0 0 0 0 rgba(255,36,72,0);
     }
 }
 
@@ -478,11 +657,8 @@ button{
     width:min(520px,97vw);
 }
 
-.snap-viewer{
-    position:relative;
-}
-
-#viewerMedia{
+#viewerImage,
+#viewerVideo{
     width:100%;
     max-height:55vh;
     object-fit:contain;
@@ -680,59 +856,26 @@ button{
 
 <div id="map"></div>
 
-<!-- TOP -->
-
 <div class="topbar">
-
     <div class="brand">
         CYBER MAP
         <small>TRACK • TRACE • SNAP</small>
     </div>
 
     <div class="top-actions">
-
-        <button class="hbtn" id="notifyBtn">
-            🔔 Notification
-        </button>
-
-        <button class="hbtn" id="adminBtn">
-            ⚡ Admin
-        </button>
-
-        <button class="hbtn" id="logoutBtn">
-            ↪ Logout
-        </button>
-
+        <button class="hbtn" id="notifyBtn">🔔 Notification</button>
+        <button class="hbtn" id="adminBtn">⚡ Admin</button>
+        <button class="hbtn" id="logoutBtn">↪ Logout</button>
     </div>
-
 </div>
-
-
-<!-- MAP HUD -->
 
 <div class="map-hud">
-
     <b>LIVE MAP</b>
-
-    <div id="locationText">
-        Location: waiting...
-    </div>
-
-    <div id="mapStatus">
-        Tap + to detect live location
-    </div>
-
+    <div id="locationText">Location: waiting...</div>
+    <div id="mapStatus">Tap + to detect live location</div>
 </div>
 
-
-<!-- TRACE -->
-
-<button class="trace-btn" id="traceBtn">
-    ⌖ TRACE
-</button>
-
-
-<!-- BOTTOM -->
+<button class="trace-btn" id="traceBtn">⌖ TRACE</button>
 
 <div class="bottom">
 
@@ -758,36 +901,23 @@ button{
 
 </div>
 
-
 <div id="toast"></div>
 
-
-<!-- TRACE WARNING -->
-
 <div id="traceWarning">
-
-    <div class="warning-title">
-        ⚠ LOCATION TRACE
-    </div>
-
+    <div class="warning-title">⚠ LOCATION TRACE</div>
     <div class="warning-text" id="traceWarningText">
         TRACE INITIALIZING...
         <br>
         LIVE LOCATION DETECTION STARTING
     </div>
-
 </div>
-
 
 <!-- ROOM -->
 
 <div class="modal" id="roomModal">
-
     <div class="panel">
 
-        <button class="close" data-close="roomModal">
-            ×
-        </button>
+        <button class="close" data-close="roomModal">×</button>
 
         <h2>MY ROOM ID</h2>
 
@@ -805,19 +935,14 @@ button{
         </button>
 
     </div>
-
 </div>
-
 
 <!-- JOIN -->
 
 <div class="modal" id="joinModal">
-
     <div class="panel">
 
-        <button class="close" data-close="joinModal">
-            ×
-        </button>
+        <button class="close" data-close="joinModal">×</button>
 
         <h2>JOIN CALL</h2>
 
@@ -836,29 +961,22 @@ button{
         </button>
 
         <div id="scannerBox" style="display:none">
-
             <div id="scanner"></div>
 
             <button class="action" id="stopScanner">
                 STOP SCANNER
             </button>
-
         </div>
 
     </div>
-
 </div>
-
 
 <!-- YOU -->
 
 <div class="modal" id="youModal">
-
     <div class="panel">
 
-        <button class="close" data-close="youModal">
-            ×
-        </button>
+        <button class="close" data-close="youModal">×</button>
 
         <h2>YOU</h2>
 
@@ -902,19 +1020,14 @@ button{
         </button>
 
     </div>
-
 </div>
-
 
 <!-- ADMIN -->
 
 <div class="modal" id="adminModal">
-
     <div class="panel">
 
-        <button class="close" data-close="adminModal">
-            ×
-        </button>
+        <button class="close" data-close="adminModal">×</button>
 
         <h2>ADMIN</h2>
 
@@ -935,19 +1048,14 @@ button{
         </div>
 
     </div>
-
 </div>
-
 
 <!-- NOTIFICATIONS -->
 
 <div class="modal" id="notifyModal">
-
     <div class="panel">
 
-        <button class="close" data-close="notifyModal">
-            ×
-        </button>
+        <button class="close" data-close="notifyModal">×</button>
 
         <h2>NOTIFICATIONS</h2>
 
@@ -956,14 +1064,11 @@ button{
         </div>
 
     </div>
-
 </div>
-
 
 <!-- LOGOUT -->
 
 <div class="modal" id="logoutModal">
-
     <div class="panel">
 
         <h2>LOGOUT?</h2>
@@ -985,9 +1090,7 @@ button{
         </div>
 
     </div>
-
 </div>
-
 
 <!-- CAMERA -->
 
@@ -995,18 +1098,36 @@ button{
 
     <div class="panel">
 
-        <button class="close" id="closeCamera">
-            ×
-        </button>
+        <button class="close" id="closeCamera">×</button>
 
         <h2>SNAP CAMERA</h2>
 
-        <video
-            id="snapVideo"
-            autoplay
-            playsinline
-            muted>
-        </video>
+        <div class="camera-stage">
+
+            <video
+                id="snapVideo"
+                autoplay
+                playsinline
+                muted>
+            </video>
+
+            <div class="camera-mode">
+
+                <button id="photoModeBtn" class="active">
+                    PHOTO
+                </button>
+
+                <button id="videoModeBtn">
+                    VIDEO
+                </button>
+
+            </div>
+
+            <div class="camera-zoom" id="cameraZoomLabel">
+                0.5×
+            </div>
+
+        </div>
 
         <canvas id="cameraCanvas"></canvas>
 
@@ -1025,24 +1146,24 @@ button{
 
         </div>
 
-        <div class="camera-tools">
+        <div class="camera-bottom">
 
-            <button id="flipCamera">
-                ↔ Camera
+            <button class="camera-side" id="flipCamera">
+                ↔
             </button>
 
-            <button id="zoomBtn">
-                + Zoom
+            <div class="shutter-wrap">
+                <button class="shutter" id="shutterBtn"></button>
+            </div>
+
+            <button class="camera-side" id="zoomBtn">
+                🔍
             </button>
 
-            <button id="captureBtn">
-                ● Photo
-            </button>
+        </div>
 
-            <button id="recordBtn">
-                ● Video
-            </button>
-
+        <div class="camera-label" id="cameraModeLabel">
+            PHOTO
         </div>
 
         <div class="info" id="cameraLocationInfo">
@@ -1053,16 +1174,13 @@ button{
 
 </div>
 
-
 <!-- PREVIEW -->
 
 <div class="modal" id="previewModal">
 
     <div class="panel">
 
-        <button class="close" data-close="previewModal">
-            ×
-        </button>
+        <button class="close" data-close="previewModal">×</button>
 
         <h2>POST PREVIEW</h2>
 
@@ -1089,8 +1207,7 @@ button{
 
 </div>
 
-
-<!-- UPLOAD PROGRESS -->
+<!-- UPLOAD -->
 
 <div class="modal" id="uploadModal">
 
@@ -1112,44 +1229,32 @@ button{
 
                 <div class="upload-stat">
                     <b>PROGRESS</b>
-                    <span id="uploadPercent">
-                        0%
-                    </span>
+                    <span id="uploadPercent">0%</span>
                 </div>
 
                 <div class="upload-stat">
                     <b>DATA</b>
-                    <span id="uploadSize">
-                        0 MB / 0 MB
-                    </span>
+                    <span id="uploadSize">0 MB / 0 MB</span>
                 </div>
 
                 <div class="upload-stat">
                     <b>ELAPSED</b>
-                    <span id="uploadElapsed">
-                        00:00
-                    </span>
+                    <span id="uploadElapsed">00:00</span>
                 </div>
 
                 <div class="upload-stat">
                     <b>DURATION</b>
-                    <span id="uploadDuration">
-                        00:00
-                    </span>
+                    <span id="uploadDuration">00:00</span>
                 </div>
 
                 <div class="upload-stat">
                     <b>SPEED</b>
-                    <span id="uploadSpeed">
-                        0 MB/s
-                    </span>
+                    <span id="uploadSpeed">0 MB/s</span>
                 </div>
 
                 <div class="upload-stat">
                     <b>STATUS</b>
-                    <span id="uploadStatus">
-                        INIT
-                    </span>
+                    <span id="uploadStatus">INIT</span>
                 </div>
 
             </div>
@@ -1160,16 +1265,13 @@ button{
 
 </div>
 
-
 <!-- SNAP VIEWER -->
 
 <div class="modal" id="snapViewerModal">
 
     <div class="panel">
 
-        <button class="close" data-close="snapViewerModal">
-            ×
-        </button>
+        <button class="close" data-close="snapViewerModal">×</button>
 
         <h2>📍 SNAP VIEWER</h2>
 
@@ -1212,16 +1314,13 @@ button{
 
 </div>
 
-
 <!-- INCOMING CALL -->
 
 <div class="incoming" id="incomingCall">
 
     <div class="callbox">
 
-        <div>
-            ☎ INCOMING CALL
-        </div>
+        <div>☎ INCOMING CALL</div>
 
         <div class="caller" id="incomingCaller">
             Unknown
@@ -1247,7 +1346,6 @@ button{
 
 </div>
 
-
 <!-- ACTIVE CALL -->
 
 <div id="activeCallVideo">
@@ -1267,22 +1365,15 @@ button{
 
     <div class="call-controls">
 
-        <button id="muteBtn">
-            🎙
-        </button>
+        <button id="muteBtn">🎙</button>
 
-        <button id="cameraCallBtn">
-            📷
-        </button>
+        <button id="cameraCallBtn">📷</button>
 
-        <button class="end" id="endCallBtn">
-            ☎
-        </button>
+        <button class="end" id="endCallBtn">☎</button>
 
     </div>
 
 </div>
-
 
 <script>
 
@@ -1350,10 +1441,13 @@ let currentFacing="environment";
 let currentZoom=.5;
 let currentFilter="none";
 
+let cameraMode="photo";
+
 let pendingPost=null;
 let mediaRecorder=null;
 let recordedChunks=[];
 let recording=false;
+let recordingStartedAt=0;
 
 let snapGroups=[];
 let currentSnapList=[];
@@ -1520,7 +1614,7 @@ document.addEventListener(
 
 
 /* =========================================================
-3 SECOND TRACE WARNING SOUND
+TRACE SOUND
 ========================================================= */
 
 function stopWarningSound(){
@@ -1610,7 +1704,6 @@ function getLocation(){
 
         }
     );
-
 }
 
 
@@ -1645,8 +1738,27 @@ function distanceMeters(a,b){
 
 
 /* =========================================================
-REVERSE GEOCODE
+PLACE NAME
 ========================================================= */
+
+function pickPlaceName(address){
+
+    if(!address)return "";
+
+    return (
+        address.suburb||
+        address.neighbourhood||
+        address.village||
+        address.town||
+        address.city_district||
+        address.city||
+        address.municipality||
+        address.county||
+        address.state_district||
+        address.state||
+        ""
+    );
+}
 
 async function reverseGeocode(lat,lng){
 
@@ -1658,25 +1770,37 @@ async function reverseGeocode(lat,lng){
             "?format=jsonv2"+
             "&lat="+encodeURIComponent(lat)+
             "&lon="+encodeURIComponent(lng)+
-            "&zoom=18"
+            "&zoom=18"+
+            "&addressdetails=1"
         );
+
+        if(!response.ok){
+            throw new Error("GEOCODE_FAILED");
+        }
 
         const data=
             await response.json();
 
-        return data.display_name||
-            `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        const shortName=
+            pickPlaceName(
+                data.address
+            );
+
+        return shortName||
+            data.name||
+            data.display_name||
+            "UNKNOWN AREA";
 
     }catch(e){
 
-        return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+        return "UNKNOWN AREA";
 
     }
 }
 
 
 /* =========================================================
-LIVE LOCATION DISPLAY
+LIVE LOCATION
 ========================================================= */
 
 function showLiveLocation(location,name){
@@ -1706,14 +1830,7 @@ function showLiveLocation(location,name){
         L.divIcon({
             className:"",
             html:
-            `<div style="
-                width:25px;
-                height:25px;
-                border-radius:50%;
-                border:3px solid #ff2448;
-                box-shadow:0 0 0 0 rgba(255,36,72,.8);
-                animation:locationPulse 1s infinite;
-            "></div>`,
+            `<div class="live-location-icon"></div>`,
             iconSize:[25,25],
             iconAnchor:[12,12]
         });
@@ -1726,6 +1843,7 @@ function showLiveLocation(location,name){
 
     marker.bindPopup(
         `<b>LIVE LOCATION</b><br>
+         ${escapeHtml(name||"UNKNOWN AREA")}<br>
          Accuracy ±${Math.round(location.accuracy)}m`
     ).openPopup();
 
@@ -1739,6 +1857,14 @@ function showLiveLocation(location,name){
 
     $("mapStatus").textContent=
         "LIVE • ±"+Math.round(location.accuracy)+"m";
+
+    /*
+     * Important:
+     * after live location is detected,
+     * immediately highlight nearby existing snaps.
+     */
+
+    highlightNearbySnapGroups(location);
 }
 
 
@@ -1789,7 +1915,7 @@ $("traceBtn").onclick=async()=>{
         );
 
         toast(
-            "LOCATION DETECTED",
+            "LOCATION DETECTED • "+name,
             3000
         );
 
@@ -1842,10 +1968,7 @@ function clusterSnaps(snaps){
 
             if(
                 distanceMeters(
-                    {
-                        lat,
-                        lng
-                    },
+                    {lat,lng},
                     {
                         lat:g.lat,
                         lng:g.lng
@@ -1863,33 +1986,30 @@ function clusterSnaps(snaps){
             group={
                 lat,
                 lng,
-                snaps:[snap]
+                snaps:[],
+                placeName:""
             };
 
             groups.push(group);
-
-        }else{
-
-            group.snaps.push(snap);
-
-            const n=group.snaps.length;
-
-            group.lat=
-                group.snaps.reduce(
-                    (sum,s)=>
-                        sum+Number(s.lat),
-                    0
-                )/n;
-
-            group.lng=
-                group.snaps.reduce(
-                    (sum,s)=>
-                        sum+Number(s.lng),
-                    0
-                )/n;
-
         }
 
+        group.snaps.push(snap);
+
+        const n=group.snaps.length;
+
+        group.lat=
+            group.snaps.reduce(
+                (sum,s)=>
+                    sum+Number(s.lat),
+                0
+            )/n;
+
+        group.lng=
+            group.snaps.reduce(
+                (sum,s)=>
+                    sum+Number(s.lng),
+                0
+            )/n;
     }
 
     return groups;
@@ -1897,10 +2017,76 @@ function clusterSnaps(snaps){
 
 
 /* =========================================================
-CREATE RED SNAP MARKER
+SNAP PLACE NAME CACHE
 ========================================================= */
 
-function renderSnapMarkers(snaps){
+const placeCache=new Map();
+
+async function getGroupPlaceName(group){
+
+    const key=
+        `${group.lat.toFixed(5)},${group.lng.toFixed(5)}`;
+
+    if(placeCache.has(key)){
+        return placeCache.get(key);
+    }
+
+    const name=
+        await reverseGeocode(
+            group.lat,
+            group.lng
+        );
+
+    placeCache.set(
+        key,
+        name
+    );
+
+    return name;
+}
+
+
+/* =========================================================
+SNAP DETECTOR HTML
+========================================================= */
+
+function detectorHtml(name,count){
+
+    return `
+        <div class="snap-detector">
+
+            <div class="detector-ring"></div>
+
+            <div class="detector-ring r2"></div>
+
+            <div class="detector-ring r3"></div>
+
+            <div class="detector-core"></div>
+
+            ${
+                count>1
+                ?`
+                <div class="detector-count">
+                    ${count}
+                </div>
+                `
+                :""
+            }
+
+            <div class="detector-name">
+                ${escapeHtml(name||"DETECTING...")}
+            </div>
+
+        </div>
+    `;
+}
+
+
+/* =========================================================
+CREATE SNAP MARKERS
+========================================================= */
+
+async function renderSnapMarkers(snaps){
 
     snapMarkers.forEach(
         marker=>{
@@ -1915,54 +2101,132 @@ function renderSnapMarkers(snaps){
     snapGroups=
         clusterSnaps(snaps);
 
-    snapGroups.forEach(
-        group=>{
+    /*
+     * First create all markers immediately.
+     * Names are filled asynchronously.
+     */
 
-            const count=
-                group.snaps.length;
+    for(const group of snapGroups){
 
-            const icon=
+        const count=
+            group.snaps.length;
+
+        let name="DETECTING...";
+
+        const icon=
+            L.divIcon({
+                className:"",
+                html:
+                    detectorHtml(
+                        name,
+                        count
+                    ),
+                iconSize:[94,110],
+                iconAnchor:[47,55]
+            });
+
+        const marker=
+            L.marker(
+                [group.lat,group.lng],
+                {
+                    icon,
+                    zIndexOffset:500
+                }
+            ).addTo(map);
+
+        marker.on(
+            "click",
+            ()=>{
+
+                hackerSound(
+                    900,
+                    .09
+                );
+
+                openSnapViewer(
+                    group.snaps
+                );
+
+            }
+        );
+
+        snapMarkers.push(marker);
+
+        /*
+         * Resolve locality name.
+         */
+
+        getGroupPlaceName(group)
+        .then(resolvedName=>{
+
+            group.placeName=
+                resolvedName;
+
+            marker.setIcon(
                 L.divIcon({
                     className:"",
                     html:
-                    `<div class="snap-cluster
-                        ${count===1?"single":""}
-                        pulse">
-                        ${count}
-                    </div>`,
-                    iconSize:[42,42],
-                    iconAnchor:[21,21]
-                });
-
-            const marker=
-                L.marker(
-                    [group.lat,group.lng],
-                    {icon}
-                ).addTo(map);
-
-            marker.on(
-                "click",
-                ()=>{
-
-                    hackerSound(900,.09);
-
-                    openSnapViewer(
-                        group.snaps
-                    );
-
-                }
+                        detectorHtml(
+                            resolvedName,
+                            count
+                        ),
+                    iconSize:[94,110],
+                    iconAnchor:[47,55]
+                })
             );
 
-            snapMarkers.push(marker);
-
-        }
-    );
+        })
+        .catch(()=>{});
+    }
 
 }
 
 
 /* =========================================================
-LOAD ALL EXISTING SNAPS
+HIGHLIGHT NEARBY SNAP GROUPS
+========================================================= */
+
+function highlightNearbySnapGroups(location){
+
+    if(!snapGroups.length)return;
+
+    let nearby=0;
+
+    snapGroups.forEach(group=>{
+
+        const d=
+            distanceMeters(
+                location,
+                {
+                    lat:group.lat,
+                    lng:group.lng
+                }
+            );
+
+        if(d<=1000){
+            nearby++;
+        }
+    });
+
+    if(nearby){
+
+        $("mapStatus").textContent=
+            "LIVE • "+
+            nearby+
+            " SNAP DETECTION"+
+            (nearby===1?"":"S")+
+            " NEARBY";
+
+        snapMarkers.forEach(marker=>{
+            marker.setZIndexOffset(1000);
+        });
+
+    }
+}
+
+
+/* =========================================================
+LOAD ALL EXISTING PAST-SNAP DATA
 ========================================================= */
 
 async function loadSnaps(){
@@ -1983,26 +2247,52 @@ async function loadSnaps(){
             throw result.error;
         }
 
-        /*
-         * THIS IS THE IMPORTANT FIX:
-         * Every old uploaded snap is rendered
-         * again after page load.
-         */
+        const rows=
+            (result.data||[])
+            .filter(row=>{
 
-        renderSnapMarkers(
-            result.data||[]
+                return Number.isFinite(
+                    Number(row.lat)
+                ) &&
+                Number.isFinite(
+                    Number(row.lng)
+                );
+
+            });
+
+        console.log(
+            "PAST-SNAP MAP RECORDS:",
+            rows.length
         );
+
+        await renderSnapMarkers(rows);
+
+        if(rows.length){
+
+            $("mapStatus").textContent=
+                rows.length+
+                " EXISTING SNAP"+
+                (rows.length===1?"":"S")+
+                " DETECTED";
+
+        }else{
+
+            $("mapStatus").textContent=
+                "NO SNAP COORDINATES FOUND";
+
+        }
 
     }catch(error){
 
         console.error(
-            "LOAD SNAPS:",
+            "LOAD PAST-SNAP SNAPS:",
             error
         );
 
         toast(
-            "Existing snaps load nahi hue."
+            "Existing Past-Snap snaps load nahi hue."
         );
+
     }
 }
 
@@ -2047,19 +2337,21 @@ function renderCurrentSnap(){
         snap.media_url||
         snap.url||
         snap.image_url||
+        snap.photo_url||
+        snap.file_url||
         "";
 
     const type=
         String(
             snap.media_type||
             snap.type||
+            snap.mime_type||
             ""
         ).toLowerCase();
 
     if(
         type.includes("video")||
-        url.startsWith("blob:")&&
-        type==="video"
+        /\.(mp4|webm|mov|m4v)(\?|$)/i.test(url)
     ){
 
         video.src=url;
@@ -2094,7 +2386,9 @@ function renderCurrentSnap(){
         <br>
         TYPE:
         ${escapeHtml(
-            snap.media_type||"photo"
+            snap.media_type||
+            snap.type||
+            "photo"
         )}
         <br>
         LOCATION:
@@ -2119,10 +2413,6 @@ function renderCurrentSnap(){
         }
         `;
 
-    /*
-     * Keep map focused on selected snap.
-     */
-
     if(
         Number.isFinite(lat)&&
         Number.isFinite(lng)
@@ -2137,7 +2427,6 @@ function renderCurrentSnap(){
         );
 
     }
-
 }
 
 $("prevSnap").onclick=()=>{
@@ -2175,10 +2464,7 @@ $("nextSnap").onclick=()=>{
 
 
 /* =========================================================
-PLUS:
-1. Detect GPS
-2. Zoom map
-3. Camera opens ONLY after GPS
+PLUS
 ========================================================= */
 
 let snapOpening=false;
@@ -2203,11 +2489,6 @@ $("plusBtn").onclick=async()=>{
 
     try{
 
-        /*
-         * CAMERA IS NOT TOUCHED HERE.
-         * GPS first.
-         */
-
         const location=
             await getLocation();
 
@@ -2219,10 +2500,6 @@ $("plusBtn").onclick=async()=>{
                 location.lat,
                 location.lng
             );
-
-        /*
-         * Zoom to actual live location.
-         */
 
         currentLocation=
             location;
@@ -2247,15 +2524,12 @@ $("plusBtn").onclick=async()=>{
             Math.round(location.accuracy)+
             "m";
 
+        highlightNearbySnapGroups(location);
+
         toast(
             "📍 LIVE LOCATION LOCKED",
             1800
         );
-
-        /*
-         * Small pause so map visibly reaches
-         * live location before camera appears.
-         */
 
         await new Promise(
             resolve=>setTimeout(
@@ -2263,10 +2537,6 @@ $("plusBtn").onclick=async()=>{
                 900
             )
         );
-
-        /*
-         * ONLY NOW open camera.
-         */
 
         await openCamera();
 
@@ -2300,9 +2570,7 @@ async function openCamera(){
 
     if(!captureLocation){
 
-        toast(
-            "Location first."
-        );
+        toast("Location first.");
 
         return;
     }
@@ -2324,7 +2592,6 @@ async function openCamera(){
         .forEach(
             track=>track.stop()
         );
-
     }
 
     captureStream=
@@ -2332,6 +2599,12 @@ async function openCamera(){
             video:{
                 facingMode:{
                     ideal:currentFacing
+                },
+                width:{
+                    ideal:1920
+                },
+                height:{
+                    ideal:1080
                 }
             },
             audio:true
@@ -2342,6 +2615,9 @@ async function openCamera(){
 
     currentZoom=.5;
 
+    cameraMode="photo";
+    setCameraMode("photo");
+
     $("cameraLocationInfo").textContent=
         "📍 LOCATION VERIFIED • CAMERA READY";
 
@@ -2350,8 +2626,16 @@ async function openCamera(){
     hackerSound(820,.08);
 }
 
-
 $("closeCamera").onclick=()=>{
+
+    if(recording){
+
+        try{
+            mediaRecorder?.stop();
+        }catch(e){}
+
+        recording=false;
+    }
 
     if(captureStream){
 
@@ -2360,12 +2644,69 @@ $("closeCamera").onclick=()=>{
         .forEach(
             track=>track.stop()
         );
-
     }
 
     captureStream=null;
 
     hideModal("cameraModal");
+};
+
+
+/* =========================================================
+CAMERA MODE
+========================================================= */
+
+function setCameraMode(mode){
+
+    cameraMode=mode;
+
+    $("photoModeBtn")
+        .classList.toggle(
+            "active",
+            mode==="photo"
+        );
+
+    $("videoModeBtn")
+        .classList.toggle(
+            "active",
+            mode==="video"
+        );
+
+    $("cameraModeLabel").textContent=
+        mode==="photo"
+        ?"PHOTO"
+        :"VIDEO";
+
+    $("shutterBtn")
+        .classList.toggle(
+            "video",
+            mode==="video"
+        );
+
+    if(mode!=="video"){
+        $("shutterBtn")
+            .classList.remove(
+                "recording"
+            );
+    }
+}
+
+$("photoModeBtn").onclick=()=>{
+
+    if(recording)return;
+
+    setCameraMode("photo");
+
+    hackerSound(500,.05);
+};
+
+$("videoModeBtn").onclick=()=>{
+
+    if(recording)return;
+
+    setCameraMode("video");
+
+    hackerSound(650,.05);
 };
 
 
@@ -2391,7 +2732,6 @@ $("flipCamera").onclick=async()=>{
             .forEach(
                 track=>track.stop()
             );
-
         }
 
         captureStream=
@@ -2399,6 +2739,12 @@ $("flipCamera").onclick=async()=>{
                 video:{
                     facingMode:{
                         ideal:currentFacing
+                    },
+                    width:{
+                        ideal:1920
+                    },
+                    height:{
+                        ideal:1080
                     }
                 },
                 audio:true
@@ -2418,7 +2764,7 @@ $("flipCamera").onclick=async()=>{
 
 
 /* =========================================================
-ZOOM .5X - 20X
+ZOOM .5 - 20
 ========================================================= */
 
 $("zoomBtn").onclick=async()=>{
@@ -2430,6 +2776,9 @@ $("zoomBtn").onclick=async()=>{
     if(currentZoom>20){
         currentZoom=.5;
     }
+
+    $("cameraZoomLabel").textContent=
+        currentZoom.toFixed(1)+"×";
 
     const track=
         captureStream
@@ -2466,7 +2815,7 @@ $("zoomBtn").onclick=async()=>{
     }
 
     toast(
-        "ZOOM "+currentZoom.toFixed(1)+"x"
+        "ZOOM "+currentZoom.toFixed(1)+"×"
     );
 
 };
@@ -2511,10 +2860,10 @@ document.querySelectorAll(
 
 
 /* =========================================================
-PHOTO
+PHOTO CAPTURE
 ========================================================= */
 
-$("captureBtn").onclick=()=>{
+function capturePhoto(){
 
     if(
         !captureStream||
@@ -2554,7 +2903,7 @@ $("captureBtn").onclick=()=>{
     const data=
         canvas.toDataURL(
             "image/jpeg",
-            .86
+            .88
         );
 
     pendingPost={
@@ -2573,32 +2922,27 @@ $("captureBtn").onclick=()=>{
         "📍 Capture location locked. Fresh location will be checked within 50m before posting.";
 
     hideModal("cameraModal");
+
     showModal("previewModal");
 
     hackerSound(880,.08);
-
-};
+}
 
 
 /* =========================================================
 VIDEO RECORD
 ========================================================= */
 
-$("recordBtn").onclick=()=>{
+function startRecording(){
 
-    if(!captureStream||!captureLocation){
-        toast("Location + camera required.");
-        return;
-    }
+    if(
+        !captureStream||
+        !captureLocation
+    ){
 
-    if(recording){
-
-        mediaRecorder.stop();
-
-        recording=false;
-
-        $("recordBtn").textContent=
-            "● Video";
+        toast(
+            "Location + camera required."
+        );
 
         return;
     }
@@ -2624,11 +2968,16 @@ $("recordBtn").onclick=()=>{
 
     }
 
+    recordingStartedAt=
+        Date.now();
+
     mediaRecorder.ondataavailable=
         e=>{
+
             if(e.data.size){
                 recordedChunks.push(e.data);
             }
+
         };
 
     mediaRecorder.onstop=()=>{
@@ -2644,6 +2993,10 @@ $("recordBtn").onclick=()=>{
         const url=
             URL.createObjectURL(blob);
 
+        const duration=
+            (Date.now()-
+            recordingStartedAt)/1000;
+
         pendingPost={
             type:"video",
             blob,
@@ -2651,9 +3004,7 @@ $("recordBtn").onclick=()=>{
             captureLocation:{
                 ...captureLocation
             },
-            duration:
-                $("snapVideo").duration||
-                0
+            duration
         };
 
         $("previewVideo").src=url;
@@ -2664,7 +3015,13 @@ $("recordBtn").onclick=()=>{
             "📍 Video ready. Fresh location check will run before upload.";
 
         hideModal("cameraModal");
+
         showModal("previewModal");
+
+        $("shutterBtn")
+            .classList.remove(
+                "recording"
+            );
 
         hackerSound(780,.1);
 
@@ -2674,8 +3031,10 @@ $("recordBtn").onclick=()=>{
 
     recording=true;
 
-    $("recordBtn").textContent=
-        "■ STOP";
+    $("shutterBtn")
+        .classList.add(
+            "recording"
+        );
 
     hackerSound(900,.08);
 
@@ -2683,7 +3042,45 @@ $("recordBtn").onclick=()=>{
         "VIDEO RECORDING...",
         2000
     );
+}
 
+function stopRecording(){
+
+    if(!mediaRecorder)return;
+
+    try{
+        mediaRecorder.stop();
+    }catch(e){}
+
+    recording=false;
+
+    hackerSound(480,.08);
+}
+
+
+/* =========================================================
+PHONE CAMERA SHUTTER
+========================================================= */
+
+$("shutterBtn").onclick=()=>{
+
+    if(cameraMode==="photo"){
+
+        capturePhoto();
+
+    }else{
+
+        if(recording){
+
+            stopRecording();
+
+        }else{
+
+            startRecording();
+
+        }
+
+    }
 };
 
 
@@ -2824,10 +3221,6 @@ async function uploadSnap(){
         throw new Error("No snap");
     }
 
-    /*
-     * Fresh GPS check.
-     */
-
     const freshLocation=
         await getLocation();
 
@@ -2840,7 +3233,7 @@ async function uploadSnap(){
     if(distance>50){
 
         throw new Error(
-            "You moved "+Math.round(distance)+"m"
+            "You moved "+Math.round(distance)+"m. Snap must be posted within 50m."
         );
     }
 
@@ -2871,19 +3264,12 @@ async function uploadSnap(){
         throw new Error("Empty media");
     }
 
-    /*
-     * Upload progress modal.
-     */
-
     showModal("uploadModal");
 
     uploadStartTime=Date.now();
 
     $("uploadTitle").textContent=
         "UPLOADING SNAP...";
-
-    $("uploadStatus").textContent=
-        "STARTING";
 
     updateUploadUI(
         0,
@@ -2915,16 +3301,6 @@ async function uploadSnap(){
             200
         );
 
-    /*
-     * NOTE:
-     * Supabase JS upload doesn't expose a
-     * browser upload progress callback.
-     *
-     * So for the actual Supabase transfer
-     * we show an active hacker upload state
-     * and final verified progress.
-     */
-
     const extension=
         pendingPost.type==="photo"
         ?"jpg"
@@ -2940,14 +3316,14 @@ async function uploadSnap(){
         "."+
         extension;
 
-    $("uploadStatus")
-        .textContent=
-        "UPLOADING";
-
-    /*
-     * Storage bucket:
-     * "snaps"
-     */
+    updateUploadUI(
+        18,
+        blob.size*.18,
+        blob.size,
+        duration,
+        0,
+        "UPLOADING"
+    );
 
     const result=
         await supabaseClient
@@ -2972,22 +3348,9 @@ async function uploadSnap(){
         throw result.error;
     }
 
-    const publicResult=
-        supabaseClient
-        .storage
-        .from("snaps")
-        .getPublicUrl(path);
-
-    const mediaUrl=
-        publicResult.data.publicUrl;
-
-    /*
-     * Database insert.
-     */
-
     updateUploadUI(
-        92,
-        blob.size*.92,
+        78,
+        blob.size*.78,
         blob.size,
         duration,
         (
@@ -2999,8 +3362,17 @@ async function uploadSnap(){
             .1,
             (Date.now()-uploadStartTime)/1000
         ),
-        "DATABASE"
+        "VERIFYING"
     );
+
+    const publicResult=
+        supabaseClient
+        .storage
+        .from("snaps")
+        .getPublicUrl(path);
+
+    const mediaUrl=
+        publicResult.data.publicUrl;
 
     const insertResult=
         await supabaseClient
@@ -3067,7 +3439,7 @@ async function uploadSnap(){
 
 
 /* =========================================================
-POST BUTTON
+POST
 ========================================================= */
 
 $("postBtn").onclick=async()=>{
@@ -3087,29 +3459,12 @@ $("postBtn").onclick=async()=>{
         const uploaded=
             await uploadSnap();
 
-        /*
-         * Close upload + preview.
-         */
-
         hideModal("uploadModal");
         hideModal("previewModal");
 
-        /*
-         * Add new snap to map immediately.
-         */
-
         if(uploaded){
 
-            /*
-             * Reload all snaps so clustering
-             * remains correct.
-             */
-
             await loadSnaps();
-
-            /*
-             * Focus newly uploaded snap.
-             */
 
             if(
                 Number.isFinite(
@@ -3140,10 +3495,6 @@ $("postBtn").onclick=async()=>{
             3500
         );
 
-        /*
-         * Reset media.
-         */
-
         if(captureStream){
 
             captureStream
@@ -3151,7 +3502,6 @@ $("postBtn").onclick=async()=>{
             .forEach(
                 track=>track.stop()
             );
-
         }
 
         captureStream=null;
@@ -3299,7 +3649,7 @@ $("copyRoom").onclick=async()=>{
 
 
 /* =========================================================
-JOIN CALL
+JOIN
 ========================================================= */
 
 $("joinBtn").onclick=()=>{
@@ -3319,7 +3669,7 @@ $("joinBtn").onclick=()=>{
 
 
 /* =========================================================
-SOCKET CALL
+SOCKET
 ========================================================= */
 
 const socket=io();
@@ -3787,7 +4137,7 @@ socket.on(
 
 
 /* =========================================================
-QR SCANNER
+QR
 ========================================================= */
 
 let qrScanner=null;
@@ -4179,11 +4529,6 @@ window.addEventListener(
             );
 
         }
-
-        /*
-         * Existing snaps MUST be rendered
-         * on initial load.
-         */
 
         loadSnaps();
 
