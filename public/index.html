@@ -3,1116 +3,4205 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Cyber Map Viewer</title>
+<title>Past Snap</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-:root{
-  --bg:#	#00FF00;
-  --panel:#0a100a;
-  --panel2:#008000;
-  --green:#008000;
-  --green2:#8aff6b;
-  --line:#1d6b1d;
-  --text:	#00FF00;
-  --muted:#79a879;
-  --danger:#ff4545;
+*{box-sizing:border-box}
+html,body{
+ margin:0;width:100%;height:100%;
+ font-family:Arial,sans-serif;
+ background:#111;color:#fff;overflow:hidden
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body,#app{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:monospace}
 button,input,textarea{font:inherit}
 button{cursor:pointer}
-#app{position:relative}
-#map{position:absolute;inset:0;z-index:1;background:#101710}
-.leaflet-container{background:#101710}
-.leaflet-control-attribution{font-size:9px}
-.leaflet-control-zoom{display:none}
-.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#071007;color:#eaffea;border:1px solid #238c23}
-.leaflet-popup-content{font-family:monospace}
-.leaflet-popup-content a{color:var(--green)}
 
-#scanlines{pointer-events:none;position:absolute;inset:0;z-index:5000;background:repeating-linear-gradient(to bottom,rgba(57,255,20,.018) 0,rgba(57,255,20,.018) 1px,transparent 1px,transparent 4px);mix-blend-mode:screen}
+#app,#map{width:100%;height:100%}
+#app{position:relative}
+#map{position:absolute;inset:0;z-index:1}
 
 #topBar{
- position:absolute;top:0;left:0;right:0;z-index:1000;
- padding:10px 10px 8px;display:flex;gap:7px;align-items:center;
- background:linear-gradient(180deg,rgba(3,8,3,.96),rgba(3,8,3,.72),transparent);
+ position:absolute;z-index:1000;
+ top:10px;left:10px;right:10px;
+ display:flex;gap:6px;
+ background:rgba(0,0,0,.75);
+ padding:7px;border-radius:14px
 }
 #searchInput{
- flex:1;min-width:0;height:42px;border:1px solid var(--line);border-radius:9px;
- background:#061006e8;color:var(--text);outline:none;padding:0 12px;
- box-shadow:0 0 12px #39ff1420 inset;
+ flex:1;min-width:0;border:0;border-radius:9px;
+ padding:10px;outline:none
 }
-.topBtn,.iconBtn{
- height:42px;border:1px solid var(--line);border-radius:9px;
- color:var(--green);background:#061006e8;padding:0 11px;font-weight:700;
+#searchBtn,#accountBtn,#notificationBtn,#myRoomBtn{
+ border:0;border-radius:9px;
+ background:#fff;color:#111;
+ padding:9px 11px;font-weight:bold;
+ white-space:nowrap
 }
-.topBtn:active,.iconBtn:active,.navBtn:active,.actionBtn:active{transform:scale(.96)}
-#notificationBtn{font-size:18px;padding:0 10px;position:relative}
-#notificationCount{position:absolute;right:3px;top:2px;min-width:15px;height:15px;border-radius:10px;background:#ff3030;color:white;font-size:9px;display:none;align-items:center;justify-content:center}
+#notificationBtn{position:relative}
+#notificationCount{
+ position:absolute;top:-6px;right:-5px;
+ background:#e33;color:#fff;border-radius:10px;
+ min-width:17px;font-size:10px;padding:2px 4px;
+ display:none
+}
+
+@media(max-width:600px){
+ #myRoomBtn,#accountBtn,#notificationBtn{
+  font-size:11px;
+  padding:9px 7px
+ }
+ #searchBtn{
+  font-size:11px;
+  padding:9px 8px
+ }
+}
+
+#locBtn{
+ position:absolute;z-index:1000;
+ bottom:20px;left:50%;
+ transform:translateX(-50%);
+ border:0;border-radius:12px;
+ background:#fff;color:#111;
+ padding:12px 17px;font-weight:bold
+}
 
 #status{
- position:absolute;top:62px;left:50%;transform:translateX(-50%);z-index:1000;
- background:#020702e8;border:1px solid var(--line);color:var(--green);
- border-radius:20px;padding:7px 13px;font-size:11px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+ position:absolute;z-index:12000;
+ top:70px;left:50%;
+ transform:translateX(-50%);
+ background:rgba(0,0,0,.92);
+ padding:8px 13px;border-radius:20px;
+ font-size:13px;display:none;
+ max-width:90%;text-align:center
 }
 
-#locBtn{display:none!important;
- position:absolute;z-index:1000;right:15px;bottom:94px;width:54px;height:54px;border-radius:50%;
- border:1px solid var(--green);background:#061006f2;color:var(--green);font-size:23px;
- box-shadow:0 0 18px #39ff1440;
+/* AUTH */
+#authModal{
+ display:none;position:absolute;inset:0;z-index:7000;
+ background:rgba(0,0,0,.82);
+ align-items:center;justify-content:center;padding:20px
+}
+#authBox{
+ width:min(94%,390px);background:#181818;
+ border-radius:20px;padding:22px;
+ box-shadow:0 20px 70px #000
+}
+#authBox h2{margin:0 0 6px}
+#authBox p{color:#aaa;font-size:13px}
+.authInput{
+ width:100%;margin:7px 0;border:1px solid #444;
+ background:#222;color:#fff;border-radius:10px;
+ padding:12px;outline:none
+}
+.authMainBtn{
+ width:100%;border:0;background:#fff;color:#111;
+ padding:12px;border-radius:10px;font-weight:bold;margin-top:8px
+}
+.authSwitch{
+ border:0;background:transparent;color:#fff;
+ margin-top:12px;width:100%;padding:7px
+}
+#authClose{
+ float:right;border:0;background:#333;color:#fff;
+ width:35px;height:35px;border-radius:50%
 }
 
-#bottomNav{
- position:absolute;left:0;right:0;bottom:0;height:78px;z-index:1100;
- display:flex;align-items:stretch;justify-content:space-around;
- background:rgba(3,8,3,.97);border-top:1px solid var(--line);
- box-shadow:0 -8px 25px #000;
- padding-bottom:env(safe-area-inset-bottom);
+/* CALL PANEL */
+#callPanel{
+ display:none;
+ position:absolute;
+ z-index:2000;
+ top:68px;
+ right:10px;
+ width:min(90%,300px);
+ background:rgba(15,15,15,.96);
+ border:1px solid #333;
+ border-radius:15px;
+ padding:11px;
+ box-shadow:0 12px 40px #000
 }
-.navBtn{
- flex:1;border:0;background:transparent;color:#6d966d;display:flex;flex-direction:column;
- align-items:center;justify-content:center;gap:3px;font-size:10px;max-width:110px;
+.callPanelTitle{
+ font-size:12px;color:#aaa;margin-bottom:6px
 }
-.navBtn .navIcon{font-size:23px;line-height:24px}
-.navBtn.active{color:var(--green);text-shadow:0 0 10px #39ff1460}
-.navBtn.cameraNav{
- margin:-16px 8px 7px;width:62px;max-width:62px;flex:0 0 62px;height:62px;
- border:1px solid var(--green);border-radius:50%;background:#071207;
- box-shadow:0 0 20px #39ff1440;
+.myCallIdRow{
+ display:flex;gap:6px;align-items:center
 }
-#bottomNav .navBtn{max-width:none}
-#bottomNav .plusNav{margin:-16px 8px 7px;width:62px;max-width:62px;flex:0 0 62px;height:62px;border:1px solid var(--green);border-radius:50%;background:#071207;box-shadow:0 0 20px #39ff1440}
-#bottomNav .plusNav .navIcon{font-size:34px;line-height:32px}
-.infoGrid{display:grid;gap:10px;margin-top:12px}
-.infoItem{border:1px solid #163516;background:#030803;padding:11px;border-radius:10px}
-.infoLabel{font-size:9px;color:#5d895d;letter-spacing:1px}
-.infoValue{margin-top:4px;color:var(--green);font-size:13px;word-break:break-word}
-.qrBox{width:220px;height:220px;margin:12px auto;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center}
-.qrBox:empty{display:none}
-.scanRoomBtn{width:100%;margin-top:5px}
-.savedRooms{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.savedRoom{border:1px solid var(--line);background:#071007;color:var(--green);border-radius:7px;padding:7px 9px;font-size:10px}
-#qrScannerModal,#callRecordModal{position:absolute;inset:0;z-index:6000;background:#000c;display:flex;align-items:center;justify-content:center;padding:12px}
-.qrScannerVideo{width:100%;max-height:65vh;background:#000;border:1px solid var(--green);border-radius:10px;object-fit:cover}
-.recordText{white-space:pre-wrap;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--green);line-height:1.6}
-#adminBtn{padding:0 9px;font-size:10px}
+#myCallId{
+ flex:1;background:#222;border:1px solid #444;
+ border-radius:9px;padding:9px;font-weight:bold;
+ letter-spacing:2px;text-align:center
+}
+#copyCallIdBtn{
+ border:0;border-radius:9px;padding:9px 11px;
+ background:#fff;color:#111;font-weight:bold
+}
+#targetCallId{
+ width:100%;margin-top:7px;
+ border:1px solid #444;background:#222;color:#fff;
+ border-radius:9px;padding:10px;outline:none;
+ text-transform:uppercase
+}
+#callUserBtn{
+ width:100%;margin-top:7px;border:0;
+ border-radius:9px;padding:10px;
+ background:#fff;color:#111;font-weight:bold
+}
+#callHint{
+ color:#777;font-size:10px;margin-top:6px;line-height:1.4
+}
 
+/* NOTIFICATIONS */
+#notificationPanel{
+ display:none;position:absolute;z-index:6500;
+ top:65px;right:10px;width:min(94%,360px);
+ max-height:70vh;overflow:auto;background:#181818;
+ border-radius:15px;box-shadow:0 15px 50px #000
+}
+#notificationHeader{
+ padding:13px;font-weight:bold;border-bottom:1px solid #333
+}
+.notificationItem{
+ padding:12px;border-bottom:1px solid #333;font-size:13px
+}
+.notificationItem.unread{background:#222}
+.notificationItem.clickable{cursor:pointer}
+.notificationItem.clickable:active{background:#333}
+.notificationTime{color:#888;font-size:11px;margin-top:4px}
+
+/* MODALS */
+.modal{
+ display:none;position:absolute;inset:0;z-index:3000;
+ background:#000;flex-direction:column
+}
+
+/* CAMERA */
+#cameraVideo{
+ width:100%;height:100%;object-fit:cover;background:#000
+}
+#cameraVideo.mirror-preview{transform:scaleX(-1)}
+#cameraTop{
+ position:absolute;top:10px;left:0;right:0;
+ display:flex;justify-content:space-between;
+ padding:10px;z-index:10
+}
+#cameraTop button{
+ border:0;background:rgba(0,0,0,.65);color:#fff;
+ border-radius:50%;width:46px;height:46px;font-size:20px
+}
+#cameraCanvas{display:none}
+#modeBar{
+ position:absolute;bottom:152px;left:50%;
+ transform:translateX(-50%);z-index:10;
+ display:flex;background:rgba(0,0,0,.65);
+ border-radius:20px;padding:4px
+}
+#modeBar button{
+ border:0;background:transparent;color:#aaa;
+ padding:8px 14px;border-radius:17px;font-weight:bold
+}
+#modeBar button.active{background:#fff;color:#111}
+#zoomBox{
+ position:absolute;right:8px;top:50%;
+ transform:translateY(-50%);z-index:10;
+ background:rgba(0,0,0,.6);border-radius:18px;
+ padding:8px 5px;display:flex;flex-direction:column;
+ align-items:center;gap:5px
+}
+#zoomRange{
+ writing-mode:vertical-lr;direction:rtl;
+ width:30px;height:170px
+}
+#zoomValue{font-size:12px;font-weight:bold}
+#filterBar{
+ position:absolute;bottom:91px;left:0;right:0;z-index:10;
+ display:flex;gap:7px;overflow-x:auto;
+ padding:7px 10px;scrollbar-width:none
+}
+#filterBar::-webkit-scrollbar{display:none}
+.filterBtn{
+ flex:0 0 auto;border:0;background:rgba(0,0,0,.62);
+ color:#fff;padding:8px 12px;border-radius:17px;font-size:12px
+}
+.filterBtn.active{background:#fff;color:#111}
+#cameraBottom{
+ position:absolute;bottom:15px;left:0;right:0;z-index:10;
+ display:flex;justify-content:center;align-items:center;gap:28px
+}
+#mirrorBtn{
+ border:0;background:rgba(0,0,0,.65);color:#fff;
+ border-radius:20px;padding:10px 14px
+}
+#mirrorBtn.active{background:#fff;color:#111}
+#captureBtn{
+ width:70px;height:70px;border-radius:50%;
+ border:6px solid #fff;background:#fff
+}
+#captureBtn.recording{background:#e33;border-radius:18px}
+#recordTimer{
+ position:absolute;bottom:83px;left:50%;
+ transform:translateX(-50%);z-index:11;
+ background:rgba(0,0,0,.7);padding:6px 12px;
+ border-radius:16px;display:none;font-weight:bold
+}
+
+/* PREVIEW */
+#previewModal{background:#111}
+#previewMediaBox{
+ flex:1;display:flex;align-items:center;
+ justify-content:center;min-height:0
+}
+#previewImage,#previewVideo{
+ max-width:100%;max-height:100%;object-fit:contain
+}
+#previewInfo{
+ padding:10px;text-align:center;font-size:13px;background:#181818
+}
+#descriptionInput{
+ width:calc(100% - 20px);margin:8px 10px;
+ min-height:55px;resize:none;
+ border:1px solid #444;background:#222;color:#fff;
+ border-radius:9px;padding:9px;outline:none
+}
+#previewBottom{display:flex;gap:10px;padding:12px}
+#previewBottom button{
+ flex:1;border:0;border-radius:12px;
+ padding:13px;font-weight:bold
+}
+#cancelPreviewBtn{background:#333;color:#fff}
+#postBtn{background:#fff;color:#111}
+#postBtn:disabled{opacity:.5}
+#qualityBox{
+ display:flex;gap:6px;justify-content:center;
+ padding:8px;background:#181818
+}
+.qualityBtn{
+ border:0;background:#333;color:#fff;
+ border-radius:9px;padding:7px 12px
+}
+.qualityBtn.active{background:#fff;color:#111}
+
+/* UPLOAD */
+#uploadBox{
+ display:none;position:absolute;z-index:8000;
+ left:50%;top:50%;transform:translate(-50%,-50%);
+ width:min(90%,360px);background:#181818;
+ border-radius:16px;padding:20px;box-shadow:0 10px 50px #000
+}
+#uploadTitle{font-weight:bold;font-size:18px}
+#uploadText{margin-top:8px;color:#aaa;font-size:13px}
+#uploadTrack{
+ height:10px;background:#333;border-radius:10px;
+ overflow:hidden;margin-top:18px
+}
+#uploadBar{height:100%;width:0;background:#fff}
+#uploadPercent{text-align:center;margin-top:8px;font-weight:bold}
+
+/* VIEWER */
+#galleryTop{
+ display:flex;justify-content:space-between;
+ align-items:center;padding:12px
+}
+#galleryImageBox{
+ flex:1;position:relative;display:flex;
+ align-items:center;justify-content:center;
+ min-height:0;touch-action:pan-y
+}
+#galleryImage,#galleryVideo{
+ max-width:100%;max-height:100%;object-fit:contain
+}
+#galleryDetails{
+ position:absolute;z-index:5;left:10px;right:10px;bottom:10px;
+ background:rgba(0,0,0,.82);padding:11px;
+ border-radius:13px;font-size:12px;line-height:1.55;
+ max-height:34%;overflow:auto;padding-bottom:15px
+}
+#likeUsers{margin-top:7px;color:#bbb;font-size:11px;line-height:1.4}
+#closeGalleryBtn{
+ border:0;background:#333;color:#fff;border-radius:50%;
+ width:42px;height:42px;font-size:20px
+}
+#socialBox{
+ position:absolute;z-index:8;right:12px;bottom:95px;
+ display:flex;flex-direction:column;gap:9px
+}
+.socialBtn{
+ border:0;background:rgba(0,0,0,.72);color:#fff;
+ border-radius:20px;padding:8px 10px;font-size:13px
+}
+.socialBtn.liked{background:#e53935}
+#commentBox{
+ display:none;position:absolute;z-index:20;
+ left:10px;right:10px;bottom:10px;
+ background:#181818;border-radius:15px;padding:10px
+}
+#commentInput{
+ width:100%;min-height:55px;resize:none;
+ border:1px solid #444;background:#222;color:#fff;
+ border-radius:9px;padding:9px;outline:none
+}
+#commentActions{display:flex;gap:7px;margin-top:7px}
+#commentActions button{
+ flex:1;border:0;padding:9px;border-radius:9px
+}
+#sendCommentBtn{background:#fff;color:#111}
+#cancelCommentBtn{background:#333;color:#fff}
+#commentsList{
+ position:absolute;z-index:15;left:10px;right:10px;bottom:72px;
+ max-height:45%;overflow:auto;display:none;
+ background:rgba(20,20,20,.96);border-radius:13px;padding:10px
+}
+.commentRow{
+ padding:8px 2px;border-bottom:1px solid #333;font-size:12px
+}
+.commentUser{font-weight:bold;color:#fff}
+.commentText{
+ margin-top:3px;line-height:1.4;word-break:break-word
+}
+.commentTime{font-size:10px;color:#888;margin-top:3px}
+.commentActions{margin-top:5px;display:flex;gap:8px}
+.replyBtn{
+ border:0;background:transparent;color:#aaa;
+ padding:2px 0;font-size:11px
+}
+.replyBtn:hover{color:#fff}
+.replyLabel{color:#888;font-size:10px;margin-bottom:3px}
+
+/* CALL */
+#callOverlay{
+ display:none;position:absolute;inset:0;z-index:10000;
+ background:rgba(0,0,0,.94);
+ align-items:center;justify-content:center;
+ text-align:center;padding:25px
+}
+#callBox{
+ width:min(92%,380px);background:#181818;
+ border-radius:22px;padding:25px;box-shadow:0 20px 80px #000
+}
+#callAvatar{
+ width:75px;height:75px;margin:auto;border-radius:50%;
+ background:#333;display:flex;align-items:center;
+ justify-content:center;font-size:35px
+}
+#callerText{margin:15px 0 20px;font-size:18px;font-weight:bold}
+.callActions{display:flex;gap:10px}
+.callActions button{
+ flex:1;border:0;border-radius:12px;padding:13px;font-weight:bold
+}
+#acceptCallBtn{background:#2eaf5d;color:#fff}
+#rejectCallBtn{background:#d83a3a;color:#fff}
+
+#activeCall{
+ display:none;position:absolute;inset:0;
+ z-index:9500;background:#000
+}
+#remoteVideo{
+ width:100%;height:100%;object-fit:cover;background:#111
+}
+#localVideo{
+ position:absolute;z-index:3;right:12px;top:65px;
+ width:105px;height:145px;object-fit:cover;
+ border-radius:12px;border:2px solid #fff;background:#222
+}
+#callTopBar{
+ position:absolute;top:10px;left:10px;right:10px;
+ z-index:5;display:flex;justify-content:space-between
+}
+#callStatus{
+ background:rgba(0,0,0,.7);padding:9px 13px;
+ border-radius:18px;font-size:13px
+}
+#callControls{
+ position:absolute;bottom:25px;left:0;right:0;
+ z-index:5;display:flex;justify-content:center;gap:12px
+}
+.callControl{
+ width:52px;height:52px;border:0;border-radius:50%;
+ background:rgba(255,255,255,.18);color:#fff;font-size:20px
+}
+#endCallBtn{background:#d83a3a}
+
+/* GHOST */
 .markerGhost{
- width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;
- color:#001500;background:var(--green);border:2px solid #d8ffd0;
- font-weight:900;font-size:12px;box-shadow:0 0 18px #39ff1490;
+ width:40px;height:40px;border-radius:50%;
+ background:#fff;color:#111;display:flex;
+ align-items:center;justify-content:center;font-size:20px;
+ border:3px solid #111;position:relative
 }
-
-.panel{
- position:absolute;z-index:3000;left:10px;right:10px;bottom:88px;max-height:75vh;overflow:auto;
- background:#061006f8;border:1px solid var(--line);border-radius:14px;padding:14px;
- box-shadow:0 15px 50px #000;
+.markerGhost span{
+ position:absolute;right:-8px;top:-8px;
+ background:#111;color:#fff;border-radius:10px;
+ min-width:18px;text-align:center;font-size:10px;padding:2px
 }
-.panel.hidden,.modal.hidden{display:none!important}
-.panelHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.panelTitle{color:var(--green);font-weight:900;font-size:16px}
-.closeX{background:none;border:0;color:#9fc99f;font-size:23px}
-
-.field{
- width:100%;height:43px;border:1px solid var(--line);border-radius:8px;
- background:#020702;color:var(--text);padding:0 11px;outline:none;margin:5px 0 9px;
-}
-textarea.field{height:80px;padding-top:10px;resize:none}
-.primary{
- width:100%;min-height:43px;border:1px solid var(--green);border-radius:8px;
- background:#0a250a;color:var(--green);font-weight:900;margin:4px 0;
-}
-.secondary{
- border:1px solid var(--line);border-radius:8px;background:#071007;color:#a8dca8;padding:9px 12px;
-}
-.row{display:flex;gap:8px;align-items:center}
-.row>*{flex:1}
-.muted{color:var(--muted);font-size:11px}
-.roomCode{font-size:23px;letter-spacing:3px;color:var(--green);text-align:center;border:1px dashed var(--line);padding:13px;border-radius:9px;margin:10px 0}
-
-#authModal,#cameraModal,#previewModal,#viewerModal,#callModal,#incomingModal{
- position:absolute;inset:0;z-index:4000;background:#000b;display:flex;align-items:center;justify-content:center;padding:12px;
-}
-.modalCard{
- width:min(520px,100%);max-height:94vh;overflow:auto;background:#061006;
- border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:0 0 50px #000;
-}
-.modalTitle{font-size:18px;color:var(--green);font-weight:900;margin-bottom:10px}
-
-#cameraModal{align-items:stretch;padding:0;background:#000}
-.cameraCard{width:100%;height:100%;background:#000;position:relative}
-#cameraVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.cameraShade{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 90px #000}
-.cameraTop,.cameraBottom{position:absolute;left:0;right:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:15px}
-.cameraTop{top:0}.cameraBottom{bottom:10px;flex-direction:column;gap:10px}
-.cameraControls{display:flex;gap:9px;align-items:center;justify-content:center}
-.camRound{width:48px;height:48px;border-radius:50%;border:1px solid var(--green);background:#061006d9;color:var(--green)}
-#captureBtn{width:76px;height:76px;border-radius:50%;border:5px solid white;background:var(--green);box-shadow:0 0 25px #39ff1480}
-#recordTimer{color:#ff5555;font-weight:900}
-.cameraModes,.filterRow{display:flex;gap:5px;overflow:auto}
-.cameraModes button,.filterRow button{
- border:1px solid var(--line);background:#061006dd;color:#8fd68f;border-radius:7px;padding:6px 9px;font-size:11px
-}
-.cameraModes button.active,.filterRow button.active{color:var(--green);border-color:var(--green)}
-
-#previewMedia,#viewerMedia{max-width:100%;max-height:52vh;display:block;margin:auto;border-radius:9px}
-.previewFrame{width:min(92vw,320px);height:min(70vh,560px);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:#020402;border:1px solid var(--line);border-radius:12px;overflow:hidden}
-#previewImage,#previewVideo{width:100%;height:100%;object-fit:contain;background:#000}
-#zoomControl{display:flex;align-items:center;gap:8px;width:min(92vw,420px)}
-#zoomRange{flex:1;accent-color:var(--green)}
-#zoomValue{min-width:45px;text-align:center;color:var(--green);font-weight:900}
-#viewerModal{background:#000f}
-.viewerCard{width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center}
-.viewerTop{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:2}
-.viewerInfo{margin-top:10px;background:#061006e8;border:1px solid var(--line);border-radius:10px;padding:10px;max-height:28vh;overflow:auto}
-.viewerActions{display:flex;gap:6px;margin-top:8px}
-.viewerActions button{flex:1}
-.comments{margin-top:9px}
-.commentItem{padding:7px 0;border-bottom:1px solid #173117;font-size:12px}
-.commentReply{margin-left:20px;border-left:1px solid var(--line);padding-left:8px}
-.commentMeta{color:var(--muted);font-size:10px}
-.likeUsers{font-size:10px;color:#9fd99f;margin-top:4px}
-
-#notificationList{display:flex;flex-direction:column;gap:7px}
-.notice{padding:10px;border:1px solid #194619;border-radius:9px;background:#071007}
-.notice.unread{border-color:var(--green)}
-.notice small{color:var(--muted)}
-
-#incomingModal{z-index:5000}
-.incomingCard{text-align:center}
-.callerBig{font-size:32px;color:var(--green);margin:15px 0}
-.accept{background:#0b410b!important}.reject{background:#410b0b!important;border-color:#ff4545!important;color:#ff8b8b!important}
-
-#callModal{z-index:4900;background:#000}
-.callCard{width:100%;height:100%;position:relative;background:#000;overflow:hidden}
-#callGrid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:5px;padding:48px 5px 92px;overflow:auto;background:#000}
-.callTile{position:relative;min-height:0;background:#050805;border:1px solid #174817;border-radius:7px;overflow:hidden;aspect-ratio:4/16;display:flex;align-items:center;justify-content:center}
-.callTile video{width:100%;height:100%;object-fit:cover;background:#000}
-.callTile .tileName{position:absolute;left:5px;bottom:5px;padding:3px 6px;border:1px solid #1d6b1d;background:#020702d9;color:var(--green);font-size:9px;z-index:2}
-.callTile .tileStatus{position:absolute;right:5px;top:5px;color:var(--green);font-size:9px;z-index:2}
-.callLocalTile{position:absolute;right:10px;top:48px;width:76px;height:118px;z-index:8;border:1px solid var(--green);border-radius:7px;overflow:hidden;background:#000}
-.callLocalTile video{width:100%;height:100%;object-fit:cover}
-.callLocalTile .tileName{position:absolute;bottom:3px;left:3px;color:var(--green);font-size:8px}
-.callHeader{position:absolute;top:0;left:0;right:0;height:44px;z-index:9;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:#020702e8;border-bottom:1px solid var(--line)}
-.callHeaderTitle{color:var(--green);font-weight:900;font-size:11px}
-#callMemberCount{color:#8fd68f;font-size:10px}
-.callControls{position:absolute;left:0;right:0;bottom:0;height:82px;display:flex;justify-content:center;align-items:center;gap:10px;z-index:10;background:linear-gradient(transparent,#020702f5 35%)}
-.callControls button{width:48px;height:48px;border-radius:50%;border:1px solid var(--green);background:#071007e8;color:var(--green)}
-.callControls .end{background:#4a0909;color:#ff7777;border-color:#ff4545}
-#addFriendCallBtn{border-color:#8aff6b}
-#chatBox{position:absolute;left:8px;right:8px;bottom:78px;z-index:20;background:#061006f5;border:1px solid var(--line);border-radius:12px;padding:9px;display:none;max-height:55vh}
-#chatMessages{height:170px;overflow:auto;margin-bottom:7px}
-.chatMsg{padding:6px 8px;margin:4px 0;border-radius:7px;background:#0b170b;font-size:11px}
-.chatMine{text-align:right;color:var(--green)}
-.chatMedia{max-width:180px;max-height:180px;border:1px solid var(--line);border-radius:7px;margin-top:4px}
-#callChatFile{display:none}
-#uploadProgress{margin-top:10px;border:1px solid var(--line);border-radius:10px;background:#020702;padding:10px;display:none}
-#uploadProgressBar{height:8px;background:#0b240b;border:1px solid #194619;border-radius:8px;overflow:hidden}
-#uploadProgressFill{height:100%;width:0;background:var(--green);box-shadow:0 0 12px #39ff14;transition:width .12s}
-#uploadProgressText{margin-top:7px;color:var(--green);font-size:10px;line-height:1.5;white-space:pre-wrap}
-
-.hidden{display:none!important}
-.spin{animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+.leaflet-control-attribution{font-size:9px}
 </style>
 </head>
 
 <body>
+
 <div id="app">
-  <div id="map"></div>
-  <div id="scanlines"></div>
 
-  <div id="topBar">
-    <input id="searchInput" placeholder="🔍 Search location">
-    <button class="topBtn" id="searchBtn">SEARCH</button>
-    <button class="topBtn" id="adminBtn">ADMIN</button>
-    <button class="iconBtn" id="notificationBtn">🔔<span id="notificationCount"></span></button>
+<div id="map"></div>
+
+<div id="topBar">
+ <input id="searchInput" placeholder="🔍 Search any location">
+ <button id="searchBtn">Search</button>
+
+ <button id="notificationBtn">
+  🔔
+  <span id="notificationCount"></span>
+ </button>
+
+ <button id="myRoomBtn">
+  📞 My Room ID
+ </button>
+
+ <button id="accountBtn">
+  Login
+ </button>
+</div>
+
+<div id="callPanel">
+ <div class="callPanelTitle">📞 My Permanent Call ID</div>
+
+ <div class="myCallIdRow">
+  <span id="myCallId">------</span>
+  <button id="copyCallIdBtn">Copy</button>
+ </div>
+
+ <input
+  id="targetCallId"
+  placeholder="Dusre user ka Call ID"
+  autocomplete="off"
+  maxlength="6"
+ >
+
+ <button id="callUserBtn">📞 Call User</button>
+
+ <div id="callHint">
+  Apna Call ID share karke doosra user tumhe call kar sakta hai.
+ </div>
+</div>
+
+<button id="locBtn">📍 My Location</button>
+
+<div id="status"></div>
+
+<!-- AUTH -->
+<div id="authModal">
+ <div id="authBox">
+  <button id="authClose">✕</button>
+
+  <h2 id="authTitle">Register</h2>
+
+  <p id="authSubtitle">
+   Register to post and interact with snaps.
+  </p>
+
+  <input id="authName" class="authInput" placeholder="Display Name">
+
+  <input id="authEmail" class="authInput" type="email" placeholder="Email">
+
+  <input id="authPassword" class="authInput" type="password" placeholder="Password">
+
+  <button id="authMainBtn" class="authMainBtn">
+   Register
+  </button>
+
+  <button id="authSwitch" class="authSwitch">
+   Already have an account? Login
+  </button>
+ </div>
+</div>
+
+<!-- NOTIFICATIONS -->
+<div id="notificationPanel">
+ <div id="notificationHeader">Notifications</div>
+ <div id="notificationList"></div>
+</div>
+
+<!-- CAMERA -->
+<div id="cameraModal" class="modal">
+
+ <video id="cameraVideo" autoplay playsinline muted></video>
+ <canvas id="cameraCanvas"></canvas>
+
+ <div id="cameraTop">
+  <button id="closeCameraBtn">✕</button>
+  <button id="switchCameraBtn">🔄</button>
+ </div>
+
+ <div id="zoomBox">
+  <div id="zoomValue">1×</div>
+  <input id="zoomRange" type="range" min="0.5" max="20" step="0.1" value="1">
+ </div>
+
+ <div id="modeBar">
+  <button id="photoModeBtn" class="active">📷 Photo</button>
+  <button id="videoModeBtn">🎥 Video</button>
+ </div>
+
+ <div id="filterBar">
+  <button class="filterBtn active" data-filter="none">Normal</button>
+  <button class="filterBtn" data-filter="vintage">Vintage</button>
+  <button class="filterBtn" data-filter="bw">B&W</button>
+  <button class="filterBtn" data-filter="warm">Warm</button>
+  <button class="filterBtn" data-filter="cool">Cool</button>
+  <button class="filterBtn" data-filter="glow">Glow</button>
+  <button class="filterBtn" data-filter="night">Night</button>
+  <button class="filterBtn" data-filter="pop">Color Pop</button>
+  <button class="filterBtn" data-filter="dream">Dream</button>
+  <button class="filterBtn" data-filter="sunset">Sunset</button>
+ </div>
+
+ <div id="recordTimer">00:00</div>
+
+ <div id="cameraBottom">
+  <button id="mirrorBtn">🪞 Mirror</button>
+  <button id="captureBtn"></button>
+ </div>
+</div>
+
+<!-- PREVIEW -->
+<div id="previewModal" class="modal">
+
+ <div id="previewMediaBox">
+  <img id="previewImage" style="display:none">
+  <video id="previewVideo" style="display:none" controls playsinline></video>
+ </div>
+
+ <div id="qualityBox">
+  <button class="qualityBtn active" data-quality="480">480p</button>
+  <button class="qualityBtn" data-quality="720">720p</button>
+  <button class="qualityBtn" data-quality="1080">1080p</button>
+ </div>
+
+ <textarea
+  id="descriptionInput"
+  maxlength="2000"
+  placeholder="Description likho (optional)..."
+ ></textarea>
+
+ <div id="previewInfo">Ready</div>
+
+ <div id="previewBottom">
+  <button id="cancelPreviewBtn">Retake</button>
+  <button id="postBtn">📍 Post Snap</button>
+ </div>
+</div>
+
+<!-- UPLOAD -->
+<div id="uploadBox">
+ <div id="uploadTitle">📤 Uploading Snap</div>
+ <div id="uploadText">Please wait...</div>
+ <div id="uploadTrack">
+  <div id="uploadBar"></div>
+ </div>
+ <div id="uploadPercent">0%</div>
+</div>
+
+<!-- VIEWER -->
+<div id="galleryModal" class="modal">
+
+ <div id="galleryTop">
+  <span id="galleryCounter">1 / 1</span>
+  <button id="closeGalleryBtn">✕</button>
+ </div>
+
+ <div id="galleryImageBox">
+
+  <img id="galleryImage" style="display:none">
+
+  <video id="galleryVideo" style="display:none" controls playsinline></video>
+
+  <div id="galleryDetails">
+   <div id="likeUsers"></div>
   </div>
 
-  <div id="status">SYSTEM ONLINE</div>
+  <div id="socialBox">
+   <button id="likeBtn" class="socialBtn">
+    ❤️ <span id="likeCount">0</span>
+   </button>
 
-  <button id="locBtn" title="My Location">⌖</button>
+   <button id="commentBtn" class="socialBtn">
+    💬 <span id="commentCount">0</span>
+   </button>
 
-  <div id="bottomNav">
-    <button class="navBtn active" id="chatNav"><span class="navIcon">💬</span><span>CHAT</span></button>
-    <button class="navBtn" id="joinNav"><span class="navIcon">🛡️</span><span>JOIN ROOM</span></button>
-    <button class="navBtn plusNav" id="cameraNav"><span class="navIcon">＋</span><span>SNAPS</span></button>
-    <button class="navBtn" id="myRoomNav"><span class="navIcon">🆔</span><span>MY ROOM ID</span></button>
-    <button class="navBtn" id="youNav"><span class="navIcon">👤</span><span>YOU</span></button>
+   <button id="viewBtn" class="socialBtn">
+    👁️ <span id="viewCount">0</span>
+   </button>
   </div>
 
-  <div id="roomPanel" class="panel hidden">
-    <div class="panelHeader"><div class="panelTitle">🆔 MY PERMANENT ROOM ID</div><button class="closeX" data-close="roomPanel">×</button></div>
-    <div class="muted">Ye ID account ke saath permanently linked hai. Refresh se nahi badlega.</div>
-    <div id="myRoomCode" class="roomCode">LOGIN REQUIRED</div>
-    <div id="myRoomQr" class="qrBox"></div>
-    <div class="row"><button class="secondary" id="copyRoomBtn">COPY ID</button><button class="secondary" id="shareRoomBtn">SHARE</button></div>
+  <div id="commentsList"></div>
+
+  <div id="commentBox">
+   <textarea
+    id="commentInput"
+    maxlength="2000"
+    placeholder="Write a comment..."
+   ></textarea>
+
+   <div id="commentActions">
+    <button id="cancelCommentBtn">Cancel</button>
+    <button id="sendCommentBtn">Send</button>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- INCOMING CALL -->
+<div id="callOverlay">
+ <div id="callBox">
+
+  <div id="callAvatar">📞</div>
+
+  <div id="callerText">
+   Incoming call...
   </div>
 
-  <div id="joinPanel" class="panel hidden">
-    <div class="panelHeader"><div class="panelTitle">🛡️ JOIN ROOM / CALL</div><button class="closeX" data-close="joinPanel">×</button></div>
-    <div class="muted">Kisi user ka permanent Room ID dalo. User online hua to incoming call jayega.</div>
-    <input class="field" id="targetRoomInput" placeholder="Enter target Room ID" autocomplete="off">
-    <button class="primary" id="callUserBtn">📞 CALL USER</button>
-    <button class="secondary scanRoomBtn" id="scanRoomBtn">▣ SCAN QR</button>
-    <div id="savedRoomsList" class="savedRooms"></div>
+  <div class="callActions">
+   <button id="rejectCallBtn">Reject</button>
+   <button id="acceptCallBtn">Accept</button>
   </div>
 
-  <div id="chatPanel" class="panel hidden">
-    <div class="panelHeader"><div class="panelTitle">💬 CHAT BY ROOM ID</div><button class="closeX" data-close="chatPanel">×</button></div>
-    <div class="muted">Room ID dalo aur direct chat karo. Saved Room IDs neeche milenge.</div>
-    <input class="field" id="chatTargetRoom" placeholder="Target Room ID" autocomplete="off">
-    <div id="roomChatMessages" style="max-height:240px;overflow:auto;margin:6px 0"></div>
-    <div class="row"><input class="field" id="roomChatInput" placeholder="Message" style="margin:0"><button class="primary" id="sendRoomChatBtn">SEND</button></div>
-  </div>
+ </div>
+</div>
 
-  <div id="notificationPanel" class="panel hidden">
-    <div class="panelHeader"><div class="panelTitle">🔔 NOTIFICATIONS</div><button class="closeX" data-close="notificationPanel">×</button></div>
-    <div id="notificationList"></div>
-  </div>
+<!-- ACTIVE CALL -->
+<div id="activeCall">
 
-  <div id="youPanel" class="panel hidden">
-    <div class="panelHeader"><div class="panelTitle">👤 YOU</div><button class="closeX" data-close="youPanel">×</button></div>
-    <div class="infoGrid">
-      <div class="infoItem"><div class="infoLabel">DISPLAY NAME</div><div class="infoValue" id="youName">NOT LOGGED IN</div></div>
-      <div class="infoItem"><div class="infoLabel">EMAIL</div><div class="infoValue" id="youEmail">NOT LOGGED IN</div></div>
-      <div class="infoItem"><div class="infoLabel">PERMANENT ROOM ID</div><div class="infoValue" id="youRoom">LOGIN REQUIRED</div></div>
-      <div class="infoItem"><div class="infoLabel">LOCATION</div><div class="infoValue" id="youLocation">LOCATION NOT LOADED</div></div>
-    </div>
-    <div class="row" style="margin-top:12px"><button class="secondary" id="youCancelBtn">CANCEL</button><button class="primary" id="youLogoutBtn">LOGOUT</button></div>
-  </div>
+ <video id="remoteVideo" autoplay playsinline></video>
+ <video id="localVideo" autoplay playsinline muted></video>
 
-  <div id="adminPanel" class="panel hidden">
-    <div class="panelHeader"><div class="panelTitle">⚡ ADMIN</div><button class="closeX" data-close="adminPanel">×</button></div>
-    <div class="infoGrid">
-      <div class="infoItem"><div class="infoLabel">NAME</div><div class="infoValue">ROUSHAN YADAV</div></div>
-      <div class="infoItem"><div class="infoLabel">CONTACT</div><div class="infoValue">+91 91535 76962</div></div>
-      <div class="infoItem"><div class="infoLabel">NOTE</div><div class="infoValue">Website banwane ke liye WhatsApp pe message kre</div></div>
-      <div class="infoItem"><div class="infoLabel">MY ROOM ID</div><div class="infoValue" id="adminRoomId">LOADING...</div></div>
-    </div>
-    <button class="primary" id="adminWhatsAppBtn">WHATSAPP ADMIN</button>
-  </div>
+ <div id="callTopBar">
+  <div id="callStatus">Connecting...</div>
+ </div>
 
-  <div id="qrScannerModal" class="hidden">
-    <div class="modalCard">
-      <div class="panelHeader"><div class="modalTitle">▣ SCAN ROOM QR</div><button class="closeX" id="scanClose">×</button></div>
-      <video id="qrScannerVideo" autoplay playsinline muted class="qrScannerVideo"></video>
-      <div id="scanStatus" class="muted" style="margin-top:8px">QR SCAN READY</div>
-    </div>
-  </div>
+ <div id="callControls">
+  <button id="muteCallBtn" class="callControl">🎙️</button>
+  <button id="cameraCallBtn" class="callControl">📹</button>
+  <button id="endCallBtn" class="callControl">📞</button>
+ </div>
 
-  <div id="callRecordModal" class="hidden">
-    <div class="modalCard">
-      <div class="modalTitle">▣ CALLING RECORD</div>
-      <div id="callRecordText" class="recordText">CALL ENDED</div>
-      <div class="row" style="margin-top:12px"><button class="primary" id="shareCallRecordBtn">SHARE</button><button class="secondary" id="shareWhatsAppBtn">WHATSAPP</button></div>
-      <div class="row" style="margin-top:8px"><button class="secondary" id="shareFacebookBtn">FACEBOOK</button><button class="secondary" id="shareInstagramBtn">INSTAGRAM</button><button class="secondary" id="closeCallRecordBtn">CLOSE</button></div>
-    </div>
-  </div>
+</div>
 
-  <div id="authModal" class="hidden">
-    <div class="modalCard">
-      <div class="panelHeader"><div class="modalTitle" id="authTitle">LOGIN</div><button class="closeX" id="authClose">×</button></div>
-      <input class="field" id="authEmail" type="email" placeholder="Email">
-      <input class="field" id="authPassword" type="password" placeholder="Password">
-      <input class="field" id="authName" placeholder="Display name" style="display:none">
-      <button class="primary" id="authSubmit">LOGIN</button>
-      <button class="secondary" id="authSwitch">Create account</button>
-    </div>
-  </div>
-
-  <div id="cameraModal" class="hidden">
-    <div class="cameraCard">
-      <video id="cameraVideo" autoplay playsinline muted></video>
-      <div class="cameraShade"></div>
-      <div class="cameraTop">
-        <button class="camRound" id="cameraClose">×</button>
-        <span id="cameraGpsText" style="color:var(--green);font-size:10px">GPS LOCK</span>
-        <button class="camRound" id="switchCamera">↻</button>
-      </div>
-      <div class="cameraBottom">
-        <div class="cameraModes">
-          <button class="active" data-mode="photo">PHOTO</button>
-          <button data-mode="video">VIDEO</button>
-          <button id="mirrorBtn">MIRROR</button>
-        </div>
-        <div class="filterRow">
-          <button class="active" data-filter="none">NORMAL</button>
-          <button data-filter="mono">MONO</button>
-          <button data-filter="green">CYBER</button>
-          <button data-filter="warm">WARM</button>
-        </div>
-        <div id="recordTimer"></div>
-        <div id="zoomControl">
-          <span id="zoomValue">1×</span>
-          <input id="zoomRange" type="range" min="0.5" max="20" step="0.1" value="1">
-        </div>
-        <div class="cameraControls">
-          <button class="camRound" id="zoomOut">−</button>
-          <button id="captureBtn"></button>
-          <button class="camRound" id="zoomIn">+</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="previewModal" class="modal hidden">
-    <div class="modalCard">
-      <div class="panelHeader"><div class="modalTitle">SNAP PREVIEW · 4:16</div><button class="closeX" id="previewClose">×</button></div>
-      <div class="previewFrame"><img id="previewImage" class="hidden" alt=""><video id="previewVideo" class="hidden" controls playsinline></video></div>
-      <textarea class="field" id="descriptionInput" placeholder="Description"></textarea>
-      <div id="uploadProgress">
-        <div id="uploadProgressBar"><div id="uploadProgressFill"></div></div>
-        <div id="uploadProgressText">UPLOAD READY</div>
-      </div>
-      <div class="row">
-        <button class="secondary" id="retakeBtn">RETAKE</button>
-        <button class="primary" id="postBtn">POST SNAP</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="viewerModal" class="hidden">
-    <div class="viewerCard">
-      <div class="viewerTop">
-        <button class="secondary" id="prevSnap">‹</button>
-        <span id="viewerCounter" style="color:var(--green);padding:10px">1/1</span>
-        <button class="secondary" id="closeViewer">×</button>
-        <button class="secondary" id="nextSnap">›</button>
-      </div>
-      <div id="viewerMediaWrap"></div>
-      <div class="viewerInfo">
-        <div id="viewerAuthor"></div>
-        <div id="viewerLocation"></div>
-        <div id="viewerTime"></div>
-        <div id="viewerDescription"></div>
-        <div class="viewerActions">
-          <button class="secondary" id="likeBtn">♡ LIKE</button>
-          <button class="secondary" id="commentFocusBtn">💬 COMMENT</button>
-          <button class="secondary" id="viewCountBtn">👁 VIEW</button>
-        </div>
-        <div id="likeUsers" class="likeUsers"></div>
-        <div class="comments" id="commentsList"></div>
-        <div class="row">
-          <input class="field" id="commentInput" placeholder="Comment / reply" style="margin-bottom:0">
-          <button class="primary" id="sendCommentBtn">SEND</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="incomingModal" class="hidden">
-    <div class="modalCard incomingCard">
-      <div class="modalTitle">📞 INCOMING CALL</div>
-      <div id="incomingCaller" class="callerBig">UNKNOWN</div>
-      <div class="muted">Someone is calling your permanent room.</div>
-      <div class="row" style="margin-top:20px">
-        <button class="primary accept" id="acceptCallBtn">ACCEPT</button>
-        <button class="primary reject" id="rejectCallBtn">REJECT</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="callModal" class="hidden">
-    <div class="callCard">
-      <div class="callHeader">
-        <div class="callHeaderTitle">● CCTV // SECURE GROUP CALL</div>
-        <div id="callMemberCount">0/6 USERS</div>
-      </div>
-      <div id="callGrid"></div>
-      <div class="callLocalTile">
-        <video id="localVideo" autoplay playsinline muted></video>
-        <div class="tileName">YOU</div>
-      </div>
-      <div class="callControls">
-        <button id="muteCallBtn">🎙</button>
-        <button id="cameraCallBtn">📷</button>
-        <button id="chatCallBtn">💬</button>
-        <button id="addFriendCallBtn">👥+</button>
-        <button class="end" id="endCallBtn">☎</button>
-      </div>
-      <div id="chatBox">
-        <div style="color:var(--green);font-size:11px;margin-bottom:5px">CALL CHAT // TEXT + MEDIA</div>
-        <div id="chatMessages"></div>
-        <div class="row">
-          <button class="secondary" id="callChatFileBtn" style="flex:0 0 48px">＋</button>
-          <input type="file" id="callChatFile" accept="image/*,video/*">
-          <input class="field" id="chatInput" placeholder="Message" style="margin:0">
-          <button class="primary" id="sendChatBtn">SEND</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="addFriendModal" class="hidden">
-    <div class="modalCard">
-      <div class="panelHeader"><div class="modalTitle">👥 ADD FRIEND TO CALL</div><button class="closeX" data-close="addFriendModal">×</button></div>
-      <div class="muted">Friend ka permanent Room ID dalo. Maximum 6 users.</div>
-      <input class="field" id="callFriendRoomInput" placeholder="FRIEND ROOM ID" autocomplete="off">
-      <button class="primary" id="inviteFriendBtn">📞 INVITE FRIEND</button>
-    </div>
-  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
-"use strict";
+/* =========================================================
+   SUPABASE
+========================================================= */
 
-/* ================= SUPABASE ================= */
-const SUPABASE_URL="https://zzxhymydsvwpjbyaslde.supabase.co";
-const SUPABASE_KEY="sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const SUPABASE_URL=
+ "https://zzxhymydsvwpjbyaslde.supabase.co";
 
-/* ================= SOCKET ================= */
-const socket=io({transports:["websocket","polling"]});
-socket.on("connect",async()=>{if(currentUser)await ensureRoom()});
+const SUPABASE_KEY=
+ "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
 
-/* ================= STATE ================= */
-let currentUser=null,currentProfile=null,authMode="login";
-let map=null,userMarker=null,userCircle=null;
-let markerGroups=[];
-let cameraStream=null,currentFacing="environment",mirror=false,currentFilter="none",cameraTrack=null,zoomMin=0.5,zoomMax=20,currentZoom=1;
-let capturedBlob=null,capturedType=null,capturedLatitude=null,capturedLongitude=null;
-let mediaRecorder=null,recordedChunks=[],recording=false;
-let galleryItems=[],galleryIndex=0,currentGallerySnap=null;
+const supabaseClient=
+ window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+ );
+
+/* =========================================================
+   SOCKET
+========================================================= */
+
+const socket=io({
+ transports:["websocket","polling"]
+});
+
+/* =========================================================
+   GLOBALS
+========================================================= */
+
+let currentUser=null;
+let currentProfile=null;
+let authMode="register";
+
+let map=null;
+
+let cameraStream=null;
+let currentFacing="environment";
+let mirrorEnabled=false;
+let currentFilter="none";
+let currentMode="photo";
+let currentZoom=1;
+
+let recorder=null;
+let recordedChunks=[];
+let recordingStartedAt=0;
+let recordingTimer=null;
+
+let capturedBlob=null;
+let capturedImageData=null;
+let capturedVideoUrl=null;
+let capturedType=null;
+
+let capturedLatitude=null;
+let capturedLongitude=null;
+
+let selectedQuality=480;
+let userLocationMarker=null;
+
+let galleryItems=[];
+let galleryIndex=0;
+let markerGroups={};
+let currentGallerySnap=null;
+let isPostingSnap=false;
+
 let myRoom=null;
-let incomingCallerId=null,incomingCallerRoom=null,incomingCallerName="USER";
-let localCallStream=null,callRoom=null,callActive=false,callStartedAt=0,lastCallRecord="";
-let muted=false,cameraOff=false,callPeers=new Map();
-let replyingTo=null;
-let roomPromise=null;
-const peers={};
 
-/* ================= HELPERS ================= */
-const $=id=>document.getElementById(id);
-function show(el){el.classList.remove("hidden")}
-function hide(el){el.classList.add("hidden")}
-function status(t){$("status").textContent=t}
-function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
-function formatBytes(bytes){const n=Number(bytes)||0;if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";if(n<1073741824)return (n/1048576).toFixed(2)+" MB";return (n/1073741824).toFixed(2)+" GB";}
+let currentCallPeerId=null;
+let incomingCallerId=null;
+let incomingCallerRoom=null;
 
-function beep(freq=650,dur=.045){
- try{
-  const C=window.AudioContext||window.webkitAudioContext;
-  if(!C)return;
-  const a=new C(),o=a.createOscillator(),g=a.createGain();
-  o.frequency.value=freq;o.type="square";g.gain.value=.025;o.connect(g);g.connect(a.destination);
-  o.start();o.stop(a.currentTime+dur);
- }catch(e){}
+let peerConnection=null;
+let localCallStream=null;
+let remoteCallStream=null;
+
+let callMuted=false;
+let callCameraOff=false;
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+const cameraModal=
+ document.getElementById("cameraModal");
+
+const previewModal=
+ document.getElementById("previewModal");
+
+const galleryModal=
+ document.getElementById("galleryModal");
+
+const cameraVideo=
+ document.getElementById("cameraVideo");
+
+const cameraCanvas=
+ document.getElementById("cameraCanvas");
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+function showStatus(msg,ms=2500){
+
+ const el=document.getElementById("status");
+
+ el.textContent=msg;
+ el.style.display="block";
+
+ clearTimeout(showStatus.timer);
+
+ showStatus.timer=setTimeout(()=>{
+  el.style.display="none";
+ },ms);
 }
-document.addEventListener("click",e=>{if(e.target.closest("button"))beep()},true);
 
-function setActiveNav(id){
- document.querySelectorAll(".navBtn").forEach(x=>x.classList.remove("active"));
- $(id)?.classList.add("active");
-}
+/* =========================================================
+   MAP
+========================================================= */
 
-/* ================= MAP ================= */
-function initMap(){
- map=L.map("map",{zoomControl:false,attributionControl:true}).setView([20.5937,78.9629],5);
- L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-   maxZoom:20,
-   attribution:"© OpenStreetMap contributors"
- }).addTo(map);
+map=L.map("map").setView(
+ [20.5937,78.9629],
+ 5
+);
 
- map.on("click",()=>{}); // Map click NEVER opens camera.
- setTimeout(()=>map.invalidateSize(),300);
-}
-
-function haversine(a,b,c,d){
- const R=6371000,rad=Math.PI/180;
- const x=(c-a)*rad,y=(d-b)*rad;
- const q=Math.sin(x/2)**2+Math.cos(a*rad)*Math.cos(c*rad)*Math.sin(y/2)**2;
- return 2*R*Math.asin(Math.sqrt(q));
-}
-
-function groupSnaps(snaps){
- const groups=[];
- for(const snap of snaps){
-  let g=groups.find(x=>haversine(x.lat,x.lng,snap.latitude,snap.longitude)<=50);
-  if(!g){g={lat:snap.latitude,lng:snap.longitude,items:[]};groups.push(g)}
-  g.items.push(snap);
+L.tileLayer(
+ "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+ {
+  maxZoom:20,
+  attribution:"© OpenStreetMap contributors"
  }
- return groups;
+).addTo(map);
+
+/* =========================================================
+   DISTANCE
+========================================================= */
+
+function distanceMeters(a,b){
+
+ const R=6371000;
+
+ const p1=a.lat*Math.PI/180;
+ const p2=b.lat*Math.PI/180;
+
+ const dp=(b.lat-a.lat)*Math.PI/180;
+ const dl=(b.lng-a.lng)*Math.PI/180;
+
+ const x=
+  Math.sin(dp/2)**2+
+  Math.cos(p1)*Math.cos(p2)*
+  Math.sin(dl/2)**2;
+
+ return 2*R*Math.atan2(
+  Math.sqrt(x),
+  Math.sqrt(1-x)
+ );
 }
 
-function renderGroups(groups){
- markerGroups.forEach(m=>map.removeLayer(m));
- markerGroups=[];
- groups.forEach(g=>{
-   const icon=L.divIcon({className:"",html:`<div class="markerGhost">${g.items.length} 👻</div>`,iconSize:[50,50],iconAnchor:[25,25]});
-   const m=L.marker([g.lat,g.lng],{icon}).addTo(map);
-   m.on("click",()=>openGallery(g.items));
-   markerGroups.push(m);
+/* =========================================================
+   GHOST MARKERS
+========================================================= */
+
+function makeGhostIcon(count){
+
+ return L.divIcon({
+  className:"",
+  html:
+   `<div class="markerGhost">
+     👻
+     <span>${count}</span>
+    </div>`,
+  iconSize:[40,40],
+  iconAnchor:[20,20]
  });
 }
+
+function renderSnaps(rows){
+
+ Object.values(markerGroups).forEach(marker=>{
+  try{map.removeLayer(marker)}catch(e){}
+ });
+
+ markerGroups={};
+
+ const groups=[];
+
+ (rows||[]).forEach(row=>{
+
+  const lat=Number(row.latitude);
+  const lng=Number(row.longitude);
+
+  if(!Number.isFinite(lat)||!Number.isFinite(lng))
+   return;
+
+  let group=groups.find(g=>
+   distanceMeters(
+    {lat:g.latitude,lng:g.longitude},
+    {lat,lng}
+   )<50
+  );
+
+  if(!group){
+   group={
+    latitude:lat,
+    longitude:lng,
+    items:[]
+   };
+   groups.push(group);
+  }
+
+  group.items.push(row);
+ });
+
+ groups.forEach((group,index)=>{
+
+  const marker=L.marker(
+   [group.latitude,group.longitude],
+   {icon:makeGhostIcon(group.items.length)}
+  ).addTo(map);
+
+  marker.on("click",()=>{
+   openGallery(group.items);
+  });
+
+  markerGroups[index]=marker;
+ });
+}
+
+/* =========================================================
+   LOAD SNAPS
+========================================================= */
 
 async function loadSnaps(){
- const {data,error}=await supabaseClient.from("snaps").select("*").order("created_at",{ascending:false});
- if(error){console.error(error);status("SNAPS LOAD ERROR");return}
- renderGroups(groupSnaps(data||[]));
- status(`${data?.length||0} SNAP(S) ONLINE`);
+
+ const {data,error}=
+  await supabaseClient
+   .from("snaps")
+   .select("*")
+   .order("created_at",{ascending:false});
+
+ if(error){
+  console.error("LOAD SNAPS:",error);
+  showStatus("Snaps load nahi ho paaye.");
+  return;
+ }
+
+ renderSnaps(data||[]);
 }
 
-/* ================= SEARCH ================= */
-async function searchLocation(){
- const q=$("searchInput").value.trim();
+/* =========================================================
+   SEARCH
+========================================================= */
+
+async function searchPlace(){
+
+ const q=
+  document.getElementById("searchInput")
+  .value.trim();
+
  if(!q)return;
- status("SEARCHING...");
+
+ showStatus("Location search ho rahi hai...");
+
  try{
-  const r=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&q="+encodeURIComponent(q),{headers:{"Accept":"application/json"}});
-  const d=await r.json();
-  if(!d.length){status("LOCATION NOT FOUND");return}
-  map.setView([+d[0].lat,+d[0].lon],16);
-  status("LOCATION FOUND");
- }catch(e){status("SEARCH FAILED")}
+
+  const response=
+   await fetch(
+    "https://nominatim.openstreetmap.org/search"+
+    "?format=jsonv2&limit=8&q="+
+    encodeURIComponent(q+", India")
+   );
+
+  const data=await response.json();
+
+  if(!data.length){
+   showStatus("Location nahi mili.");
+   return;
+  }
+
+  map.setView(
+   [Number(data[0].lat),Number(data[0].lon)],
+   15
+  );
+
+ }catch(error){
+
+  console.error(error);
+  showStatus("Search failed.");
+ }
 }
 
-/* ================= AUTH ================= */
-function openAuth(mode="login"){
- authMode=mode;
- $("authTitle").textContent=mode==="login"?"LOGIN":"CREATE ACCOUNT";
- $("authSubmit").textContent=mode==="login"?"LOGIN":"REGISTER";
- $("authName").style.display=mode==="login"?"none":"block";
- show($("authModal"));
+document.getElementById("searchBtn").onclick=searchPlace;
+
+document.getElementById("searchInput")
+ .addEventListener("keydown",e=>{
+  if(e.key==="Enter")searchPlace();
+ });
+
+/* =========================================================
+   PERMANENT ROOM ID
+   IMPORTANT:
+   This function NEVER opens callPanel.
+========================================================= */
+
+function generateRoomId(){
+
+ const chars=
+  "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+
+ let result="";
+
+ for(let i=0;i<6;i++){
+  result+=chars[
+   Math.floor(Math.random()*chars.length)
+  ];
+ }
+
+ return result;
 }
+
+async function createMyRoom(){
+
+ if(!currentUser)
+  return null;
+
+ if(myRoom){
+
+  document.getElementById(
+   "myCallId"
+  ).textContent=myRoom;
+
+  return myRoom;
+ }
+
+ const {data,error}=
+  await supabaseClient
+   .from("profiles")
+   .select("call_room_id")
+   .eq("id",currentUser.id)
+   .maybeSingle();
+
+ if(error)
+  console.error("CALL ROOM LOAD:",error);
+
+ if(data?.call_room_id){
+
+  myRoom=data.call_room_id;
+
+  document.getElementById(
+   "myCallId"
+  ).textContent=myRoom;
+
+  return myRoom;
+ }
+
+ for(let attempt=0;attempt<5;attempt++){
+
+  const newRoom=generateRoomId();
+
+  const {
+   data:updateData,
+   error:updateError
+  }=
+   await supabaseClient
+    .from("profiles")
+    .update({
+     call_room_id:newRoom
+    })
+    .eq("id",currentUser.id)
+    .select("call_room_id")
+    .maybeSingle();
+
+  if(
+   !updateError &&
+   updateData?.call_room_id
+  ){
+
+   myRoom=updateData.call_room_id;
+
+   document.getElementById(
+    "myCallId"
+   ).textContent=myRoom;
+
+   console.log(
+    "Permanent Call ID:",
+    myRoom
+   );
+
+   return myRoom;
+  }
+
+  console.error(
+   "CALL ROOM CREATE:",
+   updateError
+  );
+ }
+
+ showStatus(
+  "Permanent Call ID create nahi hua.",
+  5000
+ );
+
+ return null;
+}
+
+async function joinOwnCallRoom(){
+
+ if(!currentUser)
+  return null;
+
+ const room=
+  await createMyRoom();
+
+ if(!room)
+  return null;
+
+ socket.emit(
+  "join-room",
+  room
+ );
+
+ document.getElementById(
+  "myCallId"
+ ).textContent=room;
+
+ /*
+  IMPORTANT:
+  callPanel yahan open nahi hota.
+ */
+
+ return room;
+}
+
+/* =========================================================
+   AUTH LOAD
+========================================================= */
+
+async function loadAuth(){
+
+ const {data}=await supabaseClient
+  .auth
+  .getSession();
+
+ currentUser=
+  data.session?.user||null;
+
+ if(currentUser){
+
+  await loadProfile();
+
+  document.getElementById(
+   "accountBtn"
+  ).textContent=
+   currentProfile?.display_name||"Account";
+
+  await createMyRoom();
+  await joinOwnCallRoom();
+  await loadNotifications();
+
+ }else{
+
+  document.getElementById(
+   "accountBtn"
+  ).textContent="Login";
+
+  document.getElementById(
+   "callPanel"
+  ).style.display="none";
+ }
+}
+
 async function loadProfile(){
- if(!currentUser){currentProfile=null;return}
- const {data}=await supabaseClient.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
- currentProfile=data||{id:currentUser.id,display_name:currentUser.email?.split("@")[0]||"User"};
- await ensureRoom();
- $("youName").textContent=currentProfile.display_name||"User";
- $("youEmail").textContent=currentUser.email||"—";
- $("youRoom").textContent=myRoom||currentProfile.call_room_id||"LOADING...";
- await loadNotifications();
-}
-async function ensureRoom(){
- if(!currentUser)return null;
- if(roomPromise)return roomPromise;
- roomPromise=(async()=>{
-  const key="cyberRoom:"+currentUser.id;
-  let room=currentProfile?.call_room_id||localStorage.getItem(key);
-  if(!room){
-   const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-   room=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
-  }
-  room=String(room).toUpperCase();
-  if(currentProfile?.call_room_id!==room){
-   const {data,error}=await supabaseClient.from("profiles").upsert({id:currentUser.id,display_name:currentProfile?.display_name||currentUser.email?.split("@")[0]||"User",call_room_id:room},{onConflict:"id"}).select("*").maybeSingle();
-   if(error)console.error("Room save:",error);
-   if(data)currentProfile=data;
-  }
-  localStorage.setItem(key,room);
-  myRoom=room;
-  $("myRoomCode").textContent=room;
-  $("youRoom").textContent=room;
-  renderMyRoomQR(room);
-  if(socket.connected)socket.emit("join-room",{room});
-  return room;
- })().finally(()=>roomPromise=null);
- return roomPromise;
-}
-async function authSubmit(){
- const email=$("authEmail").value.trim(),pass=$("authPassword").value,name=$("authName").value.trim();
- if(!email||!pass)return alert("Email aur password required.");
- if(authMode==="login"){
-  const {error}=await supabaseClient.auth.signInWithPassword({email,password:pass});
-  if(error)return alert(error.message);
- }else{
-  const {data,error}=await supabaseClient.auth.signUp({email,password:pass});
-  if(error)return alert(error.message);
-  if(data.user){
-   const newRoom=Array.from({length:6},()=>"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random()*32)]).join("");
-   await supabaseClient.from("profiles").upsert({id:data.user.id,display_name:name||email.split("@")[0],call_room_id:newRoom},{onConflict:"id"});
-   localStorage.setItem("cyberRoom:"+data.user.id,newRoom);
-  }
-  alert("Account created. Email verification may be required.");
- }
- hide($("authModal"));
-}
-async function logout(){
- await supabaseClient.auth.signOut();
- currentUser=null;currentProfile=null;myRoom=null;roomPromise=null;
- $("myRoomCode").textContent="LOGIN REQUIRED";
- $("youName").textContent="NOT LOGGED IN";
- $("youEmail").textContent="NOT LOGGED IN";
- $("youRoom").textContent="LOGIN REQUIRED";
- $("youLocation").textContent="LOCATION NOT LOADED";
- $("myRoomQr").innerHTML="";
- status("LOGGED OUT");
-}
-async function initAuth(){
- const {data:{session}}=await supabaseClient.auth.getSession();
- currentUser=session?.user||null;
- if(currentUser)await loadProfile();
- supabaseClient.auth.onAuthStateChange(async(_e,session)=>{
-  currentUser=session?.user||null;
-  if(currentUser)await loadProfile();
- });
-}
 
-/* ================= NOTIFICATIONS ================= */
-async function loadNotifications(){
  if(!currentUser)return;
- const {data,error}=await supabaseClient.from("notifications").select("*").eq("recipient_id",currentUser.id).order("created_at",{ascending:false}).limit(50);
- if(error)return;
- const unread=(data||[]).filter(x=>!x.is_read).length;
- $("notificationCount").style.display=unread?"flex":"none";
- $("notificationCount").textContent=unread>9?"9+":unread||"";
- $("notificationList").innerHTML=(data||[]).map(n=>`
-  <div class="notice ${n.is_read?"":"unread"}" data-notice="${esc(n.id)}" data-snap="${esc(n.snap_id||"")}" data-chatroom="${esc(n.notification_type==="chat"?(n.message||"").match(/Room ([A-Z0-9]+)/)?.[1]||"":"")}">
-   <div>${esc(n.message||n.notification_type||"Notification")}</div>
-   <small>${new Date(n.created_at).toLocaleString()}</small>
-  </div>`).join("")||'<div class="muted">No notifications.</div>';
+
+ const {data,error}=
+  await supabaseClient
+   .from("profiles")
+   .select("*")
+   .eq("id",currentUser.id)
+   .maybeSingle();
+
+ if(error){
+  console.error("PROFILE:",error);
+  return;
+ }
+
+ currentProfile=data;
 }
-$("notificationList").onclick=async e=>{
- const n=e.target.closest(".notice");if(!n)return;
- if(currentUser)await supabaseClient.from("notifications").update({is_read:true}).eq("id",n.dataset.notice);
- if(n.dataset.snap){
-  const {data}=await supabaseClient.from("snaps").select("*").eq("id",n.dataset.snap).maybeSingle();
-  if(data)openGallery([data]);
+
+/* =========================================================
+   AUTH MODAL
+========================================================= */
+
+function openAuth(mode="register"){
+
+ authMode=mode;
+
+ document.getElementById(
+  "authModal"
+ ).style.display="flex";
+
+ const name=
+  document.getElementById("authName");
+
+ const title=
+  document.getElementById("authTitle");
+
+ const main=
+  document.getElementById("authMainBtn");
+
+ const sw=
+  document.getElementById("authSwitch");
+
+ if(mode==="register"){
+
+  title.textContent="Register";
+  name.style.display="block";
+  main.textContent="Register";
+  sw.textContent=
+   "Already have an account? Login";
+
+ }else{
+
+  title.textContent="Login";
+  name.style.display="none";
+  main.textContent="Login";
+  sw.textContent="Create new account";
  }
- if(n.dataset.chatroom){
-  $("chatTargetRoom").value=n.dataset.chatroom;
-  show($("chatPanel"));
-  setActiveNav("chatNav");
+}
+
+document.getElementById(
+ "accountBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
  }
- await loadNotifications();
+
+ const name=
+  currentProfile?.display_name||"Account";
+
+ const yes=confirm(
+  name+"\n\nLogout karna hai?"
+ );
+
+ if(!yes)return;
+
+ try{
+
+  const {error}=
+   await supabaseClient
+    .auth
+    .signOut();
+
+  if(error)throw error;
+
+  showStatus("Logout successful.");
+
+ }catch(error){
+
+  console.error("LOGOUT:",error);
+
+  showStatus(
+   "Logout failed.",
+   4000
+  );
+ }
 };
 
-/* ================= LOCATION + CAMERA ================= */
-function getFreshPosition(){
- return new Promise((resolve,reject)=>{
-  if(!navigator.geolocation)return reject(new Error("GPS unavailable"));
-  navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+/* =========================================================
+   MY ROOM ID BUTTON
+   ONLY THIS BUTTON CONTROLS CALL PANEL
+========================================================= */
+
+document.getElementById(
+ "myRoomBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ const panel=
+  document.getElementById("callPanel");
+
+ if(panel.style.display==="block"){
+
+  panel.style.display="none";
+  return;
+ }
+
+ if(!myRoom)
+  await createMyRoom();
+
+ if(!myRoom){
+
+  showStatus(
+   "Permanent Room ID ready nahi hai.",
+   4000
+  );
+
+  return;
+ }
+
+ document.getElementById(
+  "myCallId"
+ ).textContent=myRoom;
+
+ panel.style.display="block";
+};
+
+/* =========================================================
+   AUTH CLOSE/SWITCH
+========================================================= */
+
+document.getElementById(
+ "authClose"
+).onclick=()=>{
+
+ document.getElementById(
+  "authModal"
+ ).style.display="none";
+};
+
+document.getElementById(
+ "authSwitch"
+).onclick=()=>{
+
+ openAuth(
+  authMode==="register"
+   ?"login"
+   :"register"
+ );
+};
+
+/* =========================================================
+   AUTH SUBMIT
+========================================================= */
+
+async function submitAuth(){
+
+ const name=
+  document.getElementById(
+   "authName"
+  ).value.trim();
+
+ const email=
+  document.getElementById(
+   "authEmail"
+  ).value.trim();
+
+ const password=
+  document.getElementById(
+   "authPassword"
+  ).value;
+
+ if(!email||!password){
+
+  showStatus(
+   "Email aur password bharna zaroori hai."
+  );
+
+  return;
+ }
+
+ try{
+
+  if(authMode==="register"){
+
+   if(!name){
+
+    showStatus(
+     "Display name bharna zaroori hai."
+    );
+
+    return;
+   }
+
+   const {data,error}=
+    await supabaseClient.auth
+     .signUp({
+      email,
+      password
+     });
+
+   if(error)throw error;
+
+   if(!data.user){
+
+    showStatus(
+     "Registration complete. Email verification check karo.",
+     5000
+    );
+
+    return;
+   }
+
+   const {error:profileError}=
+    await supabaseClient
+     .from("profiles")
+     .upsert({
+      id:data.user.id,
+      display_name:name
+     });
+
+   if(profileError)
+    throw profileError;
+
+   currentUser=data.user;
+
+   await loadProfile();
+   await createMyRoom();
+   await joinOwnCallRoom();
+
+   showStatus(
+    "✅ Registration successful!"
+   );
+
+  }else{
+
+   const {data,error}=
+    await supabaseClient.auth
+     .signInWithPassword({
+      email,
+      password
+     });
+
+   if(error)throw error;
+
+   currentUser=data.user;
+
+   await loadProfile();
+   await createMyRoom();
+   await joinOwnCallRoom();
+
+   showStatus(
+    "✅ Login successful!"
+   );
+  }
+
+  document.getElementById(
+   "authModal"
+  ).style.display="none";
+
+  document.getElementById("authName").value="";
+  document.getElementById("authEmail").value="";
+  document.getElementById("authPassword").value="";
+
+  document.getElementById(
+   "accountBtn"
+  ).textContent=
+   currentProfile?.display_name||"Account";
+
+  await loadNotifications();
+
+ }catch(error){
+
+  console.error("AUTH:",error);
+
+  showStatus(
+   error.message||"Authentication failed.",
+   6000
+  );
+ }
+}
+
+document.getElementById(
+ "authMainBtn"
+).onclick=submitAuth;
+
+/* =========================================================
+   AUTH STATE
+========================================================= */
+
+supabaseClient.auth.onAuthStateChange(
+ async(event,session)=>{
+
+  currentUser=
+   session?.user||null;
+
+  if(currentUser){
+
+   await loadProfile();
+
+   document.getElementById(
+    "accountBtn"
+   ).textContent=
+    currentProfile?.display_name||"Account";
+
+   await createMyRoom();
+   await joinOwnCallRoom();
+   await loadNotifications();
+
+  }else{
+
+   currentProfile=null;
+   myRoom=null;
+
+   document.getElementById(
+    "accountBtn"
+   ).textContent="Login";
+
+   document.getElementById(
+    "callPanel"
+   ).style.display="none";
+  }
+ }
+);
+
+/* =========================================================
+   NOTIFICATIONS
+========================================================= */
+
+async function loadNotifications(){
+
+ if(!currentUser){
+
+  document.getElementById(
+   "notificationCount"
+  ).style.display="none";
+
+  return;
+ }
+
+ const {data,error}=
+  await supabaseClient
+   .from("notifications")
+   .select("*")
+   .eq("recipient_id",currentUser.id)
+   .order("created_at",{ascending:false})
+   .limit(50);
+
+ if(error){
+  console.error("NOTIFICATIONS:",error);
+  return;
+ }
+
+ const unread=
+  (data||[]).filter(n=>!n.is_read).length;
+
+ const count=
+  document.getElementById(
+   "notificationCount"
+  );
+
+ if(unread){
+
+  count.textContent=
+   unread>99?"99+":unread;
+
+  count.style.display="block";
+
+ }else{
+
+  count.style.display="none";
+ }
+
+ const list=
+  document.getElementById(
+   "notificationList"
+  );
+
+ if(!data?.length){
+
+  list.innerHTML=
+   `<div class="notificationItem">
+     No notifications yet.
+    </div>`;
+
+  return;
+ }
+
+ list.innerHTML=
+  data.map(n=>`
+
+   <div
+    class="notificationItem
+    ${n.is_read?"":"unread"}
+    ${n.snap_id?"clickable":""}"
+    data-notification-id="${escapeHtml(n.id||"")}"
+    data-snap-id="${escapeHtml(n.snap_id||"")}"
+    data-comment-id="${escapeHtml(n.comment_id||"")}"
+   >
+    <div>
+     ${escapeHtml(n.message||"New notification")}
+    </div>
+
+    <div class="notificationTime">
+     ${
+      n.created_at
+       ?new Date(n.created_at).toLocaleString()
+       :""
+     }
+    </div>
+   </div>
+  `).join("");
+
+ list.querySelectorAll(
+  ".notificationItem"
+ ).forEach(item=>{
+
+  item.onclick=async()=>{
+
+   const notificationId=
+    item.dataset.notificationId;
+
+   const snapId=
+    Number(item.dataset.snapId);
+
+   if(notificationId){
+
+    await supabaseClient
+     .from("notifications")
+     .update({is_read:true})
+     .eq("id",notificationId)
+     .eq("recipient_id",currentUser.id);
+   }
+
+   if(!snapId){
+
+    await loadNotifications();
+    return;
+   }
+
+   const {data:snap,error}=
+    await supabaseClient
+     .from("snaps")
+     .select("*")
+     .eq("id",snapId)
+     .maybeSingle();
+
+   if(error||!snap){
+
+    showStatus("Post nahi mila.");
+    await loadNotifications();
+    return;
+   }
+
+   document.getElementById(
+    "notificationPanel"
+   ).style.display="none";
+
+   await openGallery([snap]);
+
+   if(item.dataset.commentId){
+
+    document.getElementById(
+     "commentsList"
+    ).style.display="block";
+
+    await loadComments(snap.id);
+   }
+
+   await loadNotifications();
+  };
  });
 }
-async function openCameraFromLocation(){
- if(!currentUser){openAuth();return}
- status("LOCKING GPS...");
- try{
-  const p=await getFreshPosition();
-  capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
-  if(userMarker)map.removeLayer(userMarker);
-  if(userCircle)map.removeLayer(userCircle);
-  userMarker=L.marker([capturedLatitude,capturedLongitude]).addTo(map).bindPopup("CAPTURE GPS").openPopup();
-  userCircle=L.circle([capturedLatitude,capturedLongitude],{radius:50,color:"#39ff14",fillOpacity:.08}).addTo(map);
-  map.setView([capturedLatitude,capturedLongitude],17);
-  $("cameraGpsText").textContent=`GPS ${capturedLatitude.toFixed(5)}, ${capturedLongitude.toFixed(5)}`;
-  await startCamera();
- }catch(e){status("GPS FAILED: "+e.message)}
-}
-async function startCamera(){
- try{
-  stopCamera();
-  cameraStream=await navigator.mediaDevices.getUserMedia({
-   video:{facingMode:{ideal:currentFacing},width:{ideal:1920},height:{ideal:1080}},
-   audio:true
-  });
-  $("cameraVideo").srcObject=cameraStream;
-  setupRealZoom();
-  show($("cameraModal"));
- }catch(e){alert("Camera permission required: "+e.message)}
-}
-function stopCamera(){
- if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;cameraTrack=null}
-}
-function setupRealZoom(){
- const range=$("zoomRange"),value=$("zoomValue");
- cameraTrack=cameraStream?.getVideoTracks?.()[0]||null;
- const caps=cameraTrack?.getCapabilities?.()||{};
- zoomMin=Number.isFinite(caps.zoom)?caps.zoom.min:0.5;
- zoomMax=Number.isFinite(caps.zoom)?caps.zoom.max:20;
- zoomMin=Math.max(0.5,zoomMin);zoomMax=Math.min(20,zoomMax);
- if(zoomMax<zoomMin){zoomMin=1;zoomMax=1}
- currentZoom=Math.min(Math.max(currentZoom,zoomMin),zoomMax);
- range.min=zoomMin;range.max=zoomMax;range.step=0.1;range.value=currentZoom;
- value.textContent=currentZoom.toFixed(1).replace(".0","")+"×";
- range.disabled=zoomMax<=zoomMin;
-}
-async function applyRealZoom(v){
- currentZoom=Number(v);
- $("zoomValue").textContent=currentZoom.toFixed(1).replace(".0","")+"×";
- if(!cameraTrack?.applyConstraints)return;
- try{await cameraTrack.applyConstraints({advanced:[{zoom:currentZoom}]})}catch(e){status("REAL ZOOM UNSUPPORTED ON THIS CAMERA")}
-}
-$("cameraClose").onclick=()=>{stopCamera();hide($("cameraModal"));hide($("previewModal"));document.body.style.overflow="hidden";map.invalidateSize();setActiveNav("cameraNav");status("CAMERA CLOSED")}
-$("switchCamera").onclick=async()=>{currentFacing=currentFacing==="environment"?"user":"environment";await startCamera()}
-$("zoomRange").oninput=e=>applyRealZoom(e.target.value);
-$("zoomOut").onclick=()=>applyRealZoom(Math.max(zoomMin,currentZoom-0.5));
-$("zoomIn").onclick=()=>applyRealZoom(Math.min(zoomMax,currentZoom+0.5));
-$("mirrorBtn").onclick=()=>{mirror=!mirror;$("cameraVideo").style.transform=mirror?"scaleX(-1)":"none"}
-document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{
- currentFilter=b.dataset.filter;
- document.querySelectorAll("[data-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");
- const v=$("cameraVideo");
- v.style.filter=currentFilter==="mono"?"grayscale(1)":currentFilter==="green"?"sepia(1) hue-rotate(65deg) saturate(4)":currentFilter==="warm"?"sepia(.4) saturate(1.4)":"none";
-});
-document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
- document.querySelectorAll("[data-mode]").forEach(x=>x.classList.remove("active"));b.classList.add("active");
- window.cameraMode=b.dataset.mode;
-});
-window.cameraMode="photo";
 
-$("captureBtn").onclick=async()=>{
- if(window.cameraMode==="video"){
-  if(recording){mediaRecorder.stop();recording=false;return}
+document.getElementById(
+ "notificationBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ const panel=
+  document.getElementById(
+   "notificationPanel"
+  );
+
+ panel.style.display=
+  panel.style.display==="block"
+   ?"none"
+   :"block";
+
+ if(panel.style.display==="block")
+  await loadNotifications();
+};
+
+/* =========================================================
+   ESCAPE
+========================================================= */
+
+function escapeHtml(value){
+
+ return String(value??"")
+  .replaceAll("&","&amp;")
+  .replaceAll("<","&lt;")
+  .replaceAll(">","&gt;")
+  .replaceAll('"',"&quot;")
+  .replaceAll("'","&#039;");
+}
+
+/* =========================================================
+   LOCATION
+========================================================= */
+
+function getFreshPosition(){
+
+ return new Promise((resolve,reject)=>{
+
+  navigator.geolocation.getCurrentPosition(
+   resolve,
+   reject,
+   {
+    enableHighAccuracy:true,
+    timeout:15000,
+    maximumAge:0
+   }
+  );
+ });
+}
+
+async function openCameraFromLocation(){
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ if(!navigator.geolocation){
+
+  showStatus(
+   "Location support nahi hai."
+  );
+
+  return;
+ }
+
+ showStatus(
+  "Live location mil rahi hai..."
+ );
+
+ try{
+
+  const pos=
+   await getFreshPosition();
+
+  capturedLatitude=
+   pos.coords.latitude;
+
+  capturedLongitude=
+   pos.coords.longitude;
+
+  if(userLocationMarker)
+   map.removeLayer(userLocationMarker);
+
+  userLocationMarker=
+   L.circleMarker(
+    [
+     capturedLatitude,
+     capturedLongitude
+    ],
+    {radius:8}
+   ).addTo(map);
+
+  map.setView(
+   [capturedLatitude,capturedLongitude],
+   17
+  );
+
+  await openCamera();
+
+ }catch(error){
+
+  console.error(error);
+
+  showStatus(
+   "Location permission allow karo.",
+   3500
+  );
+ }
+}
+
+document.getElementById(
+ "locBtn"
+).onclick=openCameraFromLocation;
+
+async function lockCaptureLocation(){
+
+ try{
+
+  const pos=
+   await getFreshPosition();
+
+  capturedLatitude=
+   pos.coords.latitude;
+
+  capturedLongitude=
+   pos.coords.longitude;
+
+  return true;
+
+ }catch(error){
+
+  showStatus(
+   "Live location required hai.",
+   3000
+  );
+
+  return false;
+ }
+}
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+function filterToCss(filter){
+
+ switch(filter){
+
+  case "vintage":
+   return "sepia(.7) contrast(1.1) saturate(.8)";
+
+  case "bw":
+   return "grayscale(1)";
+
+  case "warm":
+   return "sepia(.25) saturate(1.35)";
+
+  case "cool":
+   return "saturate(.9) hue-rotate(15deg)";
+
+  case "glow":
+   return "brightness(1.1) saturate(1.2)";
+
+  case "night":
+   return "brightness(.65) contrast(1.25) saturate(1.2)";
+
+  case "pop":
+   return "saturate(1.8) contrast(1.15)";
+
+  case "dream":
+   return "brightness(1.08) contrast(.9) saturate(1.2)";
+
+  case "sunset":
+   return "sepia(.25) saturate(1.5) hue-rotate(-10deg)";
+
+  default:
+   return "none";
+ }
+}
+
+function updateMirrorPreview(){
+
+ cameraVideo.classList.toggle(
+  "mirror-preview",
+  mirrorEnabled
+ );
+
+ document.getElementById(
+  "mirrorBtn"
+ ).classList.toggle(
+  "active",
+  mirrorEnabled
+ );
+
+ document.getElementById(
+  "mirrorBtn"
+ ).textContent=
+  mirrorEnabled
+   ?"🪞 Mirror ON"
+   :"🪞 Mirror";
+}
+
+function updateLiveFilter(){
+
+ cameraVideo.style.filter=
+  filterToCss(currentFilter);
+}
+
+async function openCamera(){
+
+ stopCameraStream();
+
+ try{
+
+  cameraStream=
+   await navigator.mediaDevices
+    .getUserMedia({
+     video:{
+      facingMode:{ideal:currentFacing},
+      width:{ideal:1920},
+      height:{ideal:1080}
+     },
+     audio:false
+    });
+
+  cameraVideo.srcObject=cameraStream;
+  cameraModal.style.display="flex";
+
+  updateMirrorPreview();
+  updateLiveFilter();
+
+  await applyHardwareZoom();
+
+ }catch(error){
+
+  console.error("CAMERA:",error);
+
+  showStatus(
+   "Camera permission nahi mili.",
+   3500
+  );
+ }
+}
+
+function stopCameraStream(){
+
+ if(cameraStream){
+
+  cameraStream.getTracks().forEach(track=>{
+   track.stop();
+  });
+
+  cameraStream=null;
+ }
+
+ cameraVideo.srcObject=null;
+}
+
+function closeCamera(){
+
+ if(
+  recorder&&
+  recorder.state==="recording"
+ ){
+  stopRecording();
+ }
+
+ stopCameraStream();
+
+ cameraModal.style.display="none";
+}
+
+document.getElementById(
+ "closeCameraBtn"
+).onclick=closeCamera;
+
+document.getElementById(
+ "switchCameraBtn"
+).onclick=async()=>{
+
+ currentFacing=
+  currentFacing==="environment"
+   ?"user"
+   :"environment";
+
+ await openCamera();
+};
+
+/* =========================================================
+   ZOOM
+========================================================= */
+
+async function applyHardwareZoom(){
+
+ const track=
+  cameraStream?.getVideoTracks?.()[0];
+
+ if(!track)return;
+
+ const caps=
+  track.getCapabilities
+   ?track.getCapabilities()
+   :{};
+
+ if(caps.zoom){
+
+  const z=Math.max(
+   caps.zoom.min,
+   Math.min(caps.zoom.max,currentZoom)
+  );
+
   try{
-   const p=await getFreshPosition();capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
-   recordedChunks=[];
-   mediaRecorder=new MediaRecorder(cameraStream,{mimeType:"video/webm"});
-   mediaRecorder.ondataavailable=e=>{if(e.data.size)recordedChunks.push(e.data)};
-   mediaRecorder.onstop=()=>{
-    capturedBlob=new Blob(recordedChunks,{type:"video/webm"});capturedType="video";
-    const u=URL.createObjectURL(capturedBlob);$("previewVideo").src=u;hide($("previewImage"));show($("previewVideo"));show($("previewModal"));
-   };
-   mediaRecorder.start();recording=true;$("recordTimer").textContent="● REC";
-  }catch(e){status("VIDEO GPS FAILED")}
+
+   await track.applyConstraints({
+    advanced:[{zoom:z}]
+   });
+
+  }catch(e){}
+ }
+}
+
+document.getElementById(
+ "zoomRange"
+).oninput=async function(){
+
+ currentZoom=Number(this.value);
+
+ document.getElementById(
+  "zoomValue"
+ ).textContent=
+  currentZoom
+   .toFixed(1)
+   .replace(".0","")+"×";
+
+ await applyHardwareZoom();
+};
+
+/* =========================================================
+   FILTERS
+========================================================= */
+
+document.querySelectorAll(
+ ".filterBtn"
+).forEach(btn=>{
+
+ btn.onclick=()=>{
+
+  document.querySelectorAll(
+   ".filterBtn"
+  ).forEach(b=>b.classList.remove("active"));
+
+  btn.classList.add("active");
+
+  currentFilter=btn.dataset.filter;
+
+  updateLiveFilter();
+ };
+});
+
+document.getElementById(
+ "mirrorBtn"
+).onclick=()=>{
+
+ mirrorEnabled=!mirrorEnabled;
+
+ updateMirrorPreview();
+};
+
+/* =========================================================
+   PHOTO
+========================================================= */
+
+function drawVideoToCanvas(w,h){
+
+ cameraCanvas.width=w;
+ cameraCanvas.height=h;
+
+ const ctx=
+  cameraCanvas.getContext("2d");
+
+ ctx.save();
+
+ ctx.filter=
+  filterToCss(currentFilter);
+
+ if(mirrorEnabled){
+
+  ctx.translate(w,0);
+  ctx.scale(-1,1);
+ }
+
+ ctx.drawImage(
+  cameraVideo,
+  0,0,w,h
+ );
+
+ ctx.restore();
+}
+
+async function capturePhoto(){
+
+ if(
+  !cameraStream||
+  !cameraVideo.videoWidth
+ ){
+
+  showStatus(
+   "Camera ready nahi hai."
+  );
+
+  return;
+ }
+
+ if(!(await lockCaptureLocation()))
+  return;
+
+ drawVideoToCanvas(
+  cameraVideo.videoWidth,
+  cameraVideo.videoHeight
+ );
+
+ capturedImageData=
+  cameraCanvas.toDataURL(
+   "image/jpeg",
+   .88
+  );
+
+ capturedBlob=
+  dataURLToBlob(capturedImageData);
+
+ capturedType="image";
+ capturedVideoUrl=null;
+
+ document.getElementById(
+  "previewImage"
+ ).src=capturedImageData;
+
+ document.getElementById(
+  "previewImage"
+ ).style.display="block";
+
+ document.getElementById(
+  "previewVideo"
+ ).style.display="none";
+
+ document.getElementById(
+  "qualityBox"
+ ).style.display="none";
+
+ document.getElementById(
+  "previewInfo"
+ ).textContent=
+  "Photo • "+
+  cameraVideo.videoWidth+
+  "×"+
+  cameraVideo.videoHeight;
+
+ stopCameraStream();
+
+ cameraModal.style.display="none";
+ previewModal.style.display="flex";
+}
+
+/* =========================================================
+   VIDEO
+========================================================= */
+
+function chooseMime(){
+
+ const types=[
+  "video/webm;codecs=vp9",
+  "video/webm;codecs=vp8",
+  "video/webm"
+ ];
+
+ return types.find(
+  t=>MediaRecorder.isTypeSupported(t)
+ )||"";
+}
+
+async function startRecording(){
+
+ if(!cameraStream)return;
+
+ if(!(await lockCaptureLocation()))
+  return;
+
+ const mime=chooseMime();
+
+ if(!mime){
+
+  showStatus(
+   "Video recording supported nahi hai."
+  );
+
+  return;
+ }
+
+ recordedChunks=[];
+
+ recorder=
+  new MediaRecorder(
+   cameraStream,
+   {mimeType:mime}
+  );
+
+ recordingStartedAt=Date.now();
+
+ recorder.ondataavailable=e=>{
+
+  if(e.data&&e.data.size)
+   recordedChunks.push(e.data);
+ };
+
+ recorder.onstop=()=>{
+
+  capturedBlob=
+   new Blob(
+    recordedChunks,
+    {type:mime}
+   );
+
+  capturedType="video";
+
+  capturedVideoUrl=
+   URL.createObjectURL(capturedBlob);
+
+  document.getElementById(
+   "previewImage"
+  ).style.display="none";
+
+  const video=
+   document.getElementById(
+    "previewVideo"
+   );
+
+  video.style.display="block";
+  video.src=capturedVideoUrl;
+
+  document.getElementById(
+   "previewInfo"
+  ).textContent=
+   "Video • "+formatMB(capturedBlob.size);
+
+  document.getElementById(
+   "qualityBox"
+  ).style.display="flex";
+
+  stopCameraStream();
+
+  cameraModal.style.display="none";
+  previewModal.style.display="flex";
+
+  updateRecordUI(false);
+ };
+
+ recorder.start(250);
+
+ updateRecordUI(true);
+
+ recordingTimer=
+  setInterval(updateRecordTimer,250);
+}
+
+function stopRecording(){
+
+ if(
+  recorder&&
+  recorder.state==="recording"
+ ){
+  recorder.stop();
+ }
+
+ clearInterval(recordingTimer);
+ recordingTimer=null;
+}
+
+function updateRecordUI(on){
+
+ const btn=
+  document.getElementById("captureBtn");
+
+ const timer=
+  document.getElementById("recordTimer");
+
+ btn.classList.toggle("recording",on);
+ timer.style.display=on?"block":"none";
+}
+
+function updateRecordTimer(){
+
+ const seconds=
+  Math.floor(
+   (Date.now()-recordingStartedAt)/1000
+  );
+
+ document.getElementById(
+  "recordTimer"
+ ).textContent=
+  formatDuration(seconds);
+}
+
+document.getElementById(
+ "captureBtn"
+).onclick=()=>{
+
+ if(currentMode==="photo"){
+
+  capturePhoto();
+
  }else{
-  try{
-   const p=await getFreshPosition();capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
-   const v=$("cameraVideo"),c=document.createElement("canvas");
-   const sw=v.videoWidth||1280,sh=v.videoHeight||720;
-   const targetRatio=4/16;
-   let cw=sw,ch=Math.round(sw/targetRatio);
-   if(ch>sh){ch=sh;cw=Math.round(sh*targetRatio)}
-   c.width=cw;c.height=ch;
-   const sx=Math.max(0,(sw-cw)/2),sy=Math.max(0,(sh-ch)/2);
-   const x=c.getContext("2d");
-   if(mirror){x.translate(c.width,0);x.scale(-1,1)}
-   x.filter=v.style.filter||"none";x.drawImage(v,sx,sy,cw,ch,0,0,cw,ch);
-   const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.9));
-   capturedBlob=blob;capturedType="image";
-   $("previewImage").src=URL.createObjectURL(blob);show($("previewImage"));hide($("previewVideo"));show($("previewModal"));stopCamera();hide($("cameraModal"));
-  }catch(e){status("PHOTO FAILED")}
+
+  if(
+   recorder&&
+   recorder.state==="recording"
+  ){
+   stopRecording();
+  }else{
+   startRecording();
+  }
  }
 };
 
-$("retakeBtn").onclick=()=>{hide($("previewModal"));startCamera()}
-$("previewClose").onclick=()=>{hide($("previewModal"));capturedBlob=null}
-$("postBtn").onclick=postSnap;
+document.getElementById(
+ "photoModeBtn"
+).onclick=()=>{
 
-async function postSnap(){
- if(!currentUser||!capturedBlob)return;
- $("postBtn").disabled=true;status("VERIFYING FRESH GPS...");
- try{
-  const p=await getFreshPosition();
-  const d=haversine(capturedLatitude,capturedLongitude,p.coords.latitude,p.coords.longitude);
-  if(d>50){alert(`Posting blocked. Capture se ${Math.round(d)}m door ho.`);return}
-  const ext=capturedType==="image"?"jpg":"webm";
-  const path=`${currentUser.id}/${Date.now()}.${ext}`;
-  const {data:{session}}=await supabaseClient.auth.getSession();
-  const token=session?.access_token||SUPABASE_KEY;
-  const started=performance.now();
-  show($("uploadProgress"));$("uploadProgressFill").style.width="0%";
-  $("uploadProgressText").textContent=`UPLOAD:// PAST-SNAPS\nSIZE: ${formatBytes(capturedBlob.size)}\nDURATION: 00:00\nPROGRESS: 0%`;
-  const xhr=await uploadStorage(path,capturedBlob,token,(loaded,total)=>{
-   const pct=Math.round((loaded/total)*100),sec=Math.max(0,(performance.now()-started)/1000);
-   const duration=`${String(Math.floor(sec/60)).padStart(2,"0")}:${String(Math.floor(sec%60)).padStart(2,"0")}`;
-   $("uploadProgressFill").style.width=pct+"%";
-   $("uploadProgressText").textContent=`UPLOAD:// PAST-SNAPS\nSIZE: ${formatBytes(loaded)} / ${formatBytes(total)}\nDURATION: ${duration}\nPROGRESS: ${pct}%\n${"█".repeat(Math.max(1,Math.floor(pct/5))).padEnd(20,"░")}`;
-   if(pct%10===0)beep(300+pct*4,.012);
-  });
-  const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/past-snaps/${path}`;
-  const {error}=await supabaseClient.from("snaps").insert({
-   latitude:capturedLatitude,longitude:capturedLongitude,image_url:publicUrl,
-   media_type:capturedType,user_id:currentUser.id,description:$("descriptionInput").value.trim()||null
-  });
-  if(error)throw error;
-  hide($("previewModal"));$("descriptionInput").value="";hide($("uploadProgress"));
-  capturedBlob=null;status("SNAP POSTED");await loadSnaps();
- }catch(e){console.error(e);alert("Post failed: "+e.message)}
- finally{$("postBtn").disabled=false}
+ currentMode="photo";
+
+ document.getElementById(
+  "photoModeBtn"
+ ).classList.add("active");
+
+ document.getElementById(
+  "videoModeBtn"
+ ).classList.remove("active");
+};
+
+document.getElementById(
+ "videoModeBtn"
+).onclick=()=>{
+
+ currentMode="video";
+
+ document.getElementById(
+  "videoModeBtn"
+ ).classList.add("active");
+
+ document.getElementById(
+  "photoModeBtn"
+ ).classList.remove("active");
+};
+
+/* =========================================================
+   HELPERS
+========================================================= */
+
+function formatMB(bytes){
+
+ return (
+  bytes/1024/1024
+ ).toFixed(2)+" MB";
 }
-function uploadStorage(path,blob,token,progressCb=null){
+
+function formatDuration(sec){
+
+ sec=Math.max(0,Math.floor(sec));
+
+ return String(
+  Math.floor(sec/60)
+ ).padStart(2,"0")+
+ ":"+
+ String(sec%60).padStart(2,"0");
+}
+
+function dataURLToBlob(dataURL){
+
+ const parts=dataURL.split(",");
+
+ const mime=
+  parts[0].match(/:(.*?);/)[1];
+
+ const binary=atob(parts[1]);
+
+ const arr=
+  new Uint8Array(binary.length);
+
+ for(let i=0;i<binary.length;i++)
+  arr[i]=binary.charCodeAt(i);
+
+ return new Blob(
+  [arr],
+  {type:mime}
+ );
+}
+
+/* =========================================================
+   RETAKE
+========================================================= */
+
+document.getElementById(
+ "cancelPreviewBtn"
+).onclick=()=>{
+
+ if(capturedVideoUrl)
+  URL.revokeObjectURL(capturedVideoUrl);
+
+ capturedVideoUrl=null;
+ capturedBlob=null;
+ capturedImageData=null;
+
+ document.getElementById(
+  "descriptionInput"
+ ).value="";
+
+ previewModal.style.display="none";
+
+ openCamera();
+};
+
+/* =========================================================
+   UPLOAD
+========================================================= */
+
+function setUploadProgress(percent,text){
+
+ document.getElementById(
+  "uploadBar"
+ ).style.width=
+  percent+"%";
+
+ document.getElementById(
+  "uploadPercent"
+ ).textContent=
+  Math.round(percent)+"%";
+
+ document.getElementById(
+  "uploadText"
+ ).textContent=text;
+}
+
+async function uploadFile(path,blob,accessToken){
+
+ const url=
+  SUPABASE_URL+
+  "/storage/v1/object/past-snaps/"+
+  encodeURIComponent(path);
+
+ const xhr=new XMLHttpRequest();
+
  return new Promise((resolve,reject)=>{
-  const xhr=new XMLHttpRequest();
-  xhr.open("POST",`${SUPABASE_URL}/storage/v1/object/past-snaps/${encodeURIComponent(path)}`);
-  xhr.setRequestHeader("Authorization","Bearer "+token);
-  xhr.setRequestHeader("apikey",SUPABASE_KEY);
-  xhr.setRequestHeader("Content-Type",blob.type||"application/octet-stream");
-  xhr.upload.onprogress=e=>{if(e.lengthComputable&&progressCb)progressCb(e.loaded,e.total)};
-  xhr.onload=()=>xhr.status>=200&&xhr.status<300?resolve(xhr.responseText):reject(new Error("Storage "+xhr.status+" "+xhr.responseText));
-  xhr.onerror=()=>reject(new Error("Storage network error"));
+
+  xhr.open("POST",url,true);
+
+  xhr.setRequestHeader(
+   "apikey",
+   SUPABASE_KEY
+  );
+
+  xhr.setRequestHeader(
+   "Authorization",
+   "Bearer "+accessToken
+  );
+
+  xhr.setRequestHeader(
+   "Content-Type",
+   blob.type
+  );
+
+  xhr.setRequestHeader(
+   "x-upsert",
+   "false"
+  );
+
+  xhr.upload.onprogress=e=>{
+
+   if(e.lengthComputable){
+
+    setUploadProgress(
+     e.loaded/e.total*100,
+     "Uploading..."
+    );
+   }
+  };
+
+  xhr.onload=()=>{
+
+   if(xhr.status>=200&&xhr.status<300)
+    resolve();
+   else
+    reject(
+     new Error(
+      xhr.responseText||"Upload failed"
+     )
+    );
+  };
+
+  xhr.onerror=()=>{
+   reject(new Error("Network error"));
+  };
+
   xhr.send(blob);
  });
 }
 
-/* ================= VIEWER ================= */
-let viewerHistory=false;
-function openGallery(items){
+/* =========================================================
+   POST
+========================================================= */
+
+async function postSnap(){
+
+ if(isPostingSnap)return;
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ if(!capturedBlob){
+
+  showStatus("Pehle capture karo.");
+  return;
+ }
+
+ if(
+  capturedLatitude===null||
+  capturedLongitude===null
+ ){
+
+  showStatus("Capture location nahi mili.");
+  return;
+ }
+
+ let pos;
+
+ try{
+
+  pos=await getFreshPosition();
+
+ }catch(e){
+
+  showStatus(
+   "Live location required hai.",
+   3000
+  );
+
+  return;
+ }
+
+ const currentLat=pos.coords.latitude;
+ const currentLng=pos.coords.longitude;
+
+ const distance=
+  distanceMeters(
+   {
+    lat:capturedLatitude,
+    lng:capturedLongitude
+   },
+   {
+    lat:currentLat,
+    lng:currentLng
+   }
+  );
+
+ if(distance>50){
+
+  showStatus(
+   "❌ Post failed: capture location se 50 meter se zyada door ho.",
+   4500
+  );
+
+  return;
+ }
+
+ isPostingSnap=true;
+
+ const btn=
+  document.getElementById("postBtn");
+
+ btn.disabled=true;
+ btn.textContent="Uploading...";
+
+ const {data:sessionData}=
+  await supabaseClient.auth.getSession();
+
+ const accessToken=
+  sessionData?.session?.access_token;
+
+ if(!accessToken){
+
+  isPostingSnap=false;
+  btn.disabled=false;
+  btn.textContent="📍 Post Snap";
+
+  openAuth("login");
+  return;
+ }
+
+ document.getElementById(
+  "uploadBox"
+ ).style.display="block";
+
+ setUploadProgress(
+  0,
+  "Preparing upload..."
+ );
+
+ try{
+
+  const extension=
+   capturedType==="video"
+    ?"webm"
+    :"jpg";
+
+  const path=
+   currentUser.id+
+   "/snap_"+Date.now()+
+   "_"+
+   Math.random().toString(36).slice(2,9)+
+   "."+
+   extension;
+
+  await uploadFile(
+   path,
+   capturedBlob,
+   accessToken
+  );
+
+  const publicUrl=
+   SUPABASE_URL+
+   "/storage/v1/object/public/past-snaps/"+
+   path;
+
+  const description=
+   document.getElementById(
+    "descriptionInput"
+   ).value.trim();
+
+  const {
+   data:newSnap,
+   error
+  }=
+   await supabaseClient
+    .from("snaps")
+    .insert({
+     latitude:capturedLatitude,
+     longitude:capturedLongitude,
+     image_url:publicUrl,
+     media_type:capturedType,
+     user_id:currentUser.id,
+     description:description||null
+    })
+    .select()
+    .single();
+
+  if(error)throw error;
+
+  console.log("NEW SNAP:",newSnap);
+
+  document.getElementById(
+   "uploadBox"
+  ).style.display="none";
+
+  previewModal.style.display="none";
+
+  showStatus(
+   "✅ Snap posted successfully!",
+   3000
+  );
+
+  capturedBlob=null;
+  capturedImageData=null;
+  capturedLatitude=null;
+  capturedLongitude=null;
+
+  document.getElementById(
+   "descriptionInput"
+  ).value="";
+
+  if(capturedVideoUrl){
+
+   URL.revokeObjectURL(
+    capturedVideoUrl
+   );
+
+   capturedVideoUrl=null;
+  }
+
+  await loadSnaps();
+
+ }catch(error){
+
+  console.error("POST ERROR:",error);
+
+  document.getElementById(
+   "uploadBox"
+  ).style.display="none";
+
+  showStatus(
+   "Post failed: "+
+   (error.message||"Unknown error"),
+   6000
+  );
+
+ }finally{
+
+  isPostingSnap=false;
+  btn.disabled=false;
+  btn.textContent="📍 Post Snap";
+ }
+}
+
+document.getElementById(
+ "postBtn"
+).onclick=postSnap;
+
+/* =========================================================
+   QUALITY
+========================================================= */
+
+document.querySelectorAll(
+ ".qualityBtn"
+).forEach(btn=>{
+
+ btn.onclick=()=>{
+
+  document.querySelectorAll(
+   ".qualityBtn"
+  ).forEach(b=>
+   b.classList.remove("active")
+  );
+
+  btn.classList.add("active");
+
+  selectedQuality=
+   Number(btn.dataset.quality);
+ };
+});
+
+/* =========================================================
+   GALLERY
+========================================================= */
+
+async function openGallery(items){
+
  galleryItems=items||[];
  galleryIndex=0;
- show($("viewerModal"));
- renderGallery();
- if(!viewerHistory){
-   viewerHistory=true;
-   const base=location.pathname+location.search;
-   history.pushState({cyberViewer:true},"",base+"#snap-view");
- }
-}
-function closeViewer(fromPop=false){
- hide($("viewerModal"));
- if(viewerHistory&&!fromPop){
-   viewerHistory=false;
-   history.back();
- }else{
-   viewerHistory=false;
- }
- setTimeout(()=>{try{map?.invalidateSize()}catch(e){}},80);
-}
-async function renderGallery(){
+
  if(!galleryItems.length)return;
- const snap=galleryItems[galleryIndex];currentGallerySnap=snap;
- $("viewerCounter").textContent=`${galleryIndex+1}/${galleryItems.length}`;
- $("viewerMediaWrap").innerHTML=snap.media_type==="video"
-  ?`<video id="viewerMedia" controls autoplay playsinline src="${esc(snap.image_url)}"></video>`
-  :`<img id="viewerMedia" src="${esc(snap.image_url)}" alt="snap">`;
- const p=await getProfileName(snap.user_id);
- $("viewerAuthor").innerHTML=`👤 <b>${esc(p)}</b>`;
- $("viewerLocation").textContent=`📍 ${Number(snap.latitude).toFixed(5)}, ${Number(snap.longitude).toFixed(5)}`;
- $("viewerTime").textContent=`🕒 ${new Date(snap.created_at).toLocaleString()}`;
- $("viewerDescription").textContent=snap.description||"";
- await loadEngagement(snap);
+
+ galleryModal.style.display="flex";
+
+ await renderGalleryItem();
 }
-async function getProfileName(id){
- if(!id)return"Unknown";
- const {data}=await supabaseClient.from("profiles").select("display_name").eq("id",id).maybeSingle();
- return data?.display_name||"User";
+
+async function renderGalleryItem(){
+
+ const item=
+  galleryItems[galleryIndex];
+
+ currentGallerySnap=item;
+
+ document.getElementById(
+  "galleryCounter"
+ ).textContent=
+  (galleryIndex+1)+" / "+galleryItems.length;
+
+ const img=
+  document.getElementById("galleryImage");
+
+ const video=
+  document.getElementById("galleryVideo");
+
+ img.style.display="none";
+ video.style.display="none";
+ video.pause();
+
+ if(item.media_type==="video"){
+
+  video.src=item.image_url;
+  video.style.display="block";
+
+ }else{
+
+  img.src=item.image_url;
+  img.style.display="block";
+ }
+
+ await loadPostDetails(item);
 }
-async function loadEngagement(snap){
- const {data:likes}=await supabaseClient.from("snap_likes").select("user_id").eq("snap_id",snap.id);
- const mine=currentUser&&likes?.some(x=>x.user_id===currentUser.id);
- $("likeBtn").textContent=mine?"♥ LIKED":"♡ LIKE";
- const names=[];
- for(const l of (likes||[]).slice(0,8))names.push(await getProfileName(l.user_id));
- $("likeUsers").textContent=names.length?`Liked by: ${names.join(", ")}`:"No likes yet";
- await addView(snap);
- await loadComments(snap);
+
+/* =========================================================
+   POST DETAILS
+========================================================= */
+
+async function loadPostDetails(item){
+
+ let profile=null;
+
+ if(item.user_id){
+
+  const {data,error}=
+   await supabaseClient
+    .from("profiles")
+    .select("display_name")
+    .eq("id",item.user_id)
+    .maybeSingle();
+
+  if(error)
+   console.error("POST PROFILE:",error);
+
+  profile=data;
+ }
+
+ const likeResult=
+  await supabaseClient
+   .from("snap_likes")
+   .select("*",{count:"exact",head:true})
+   .eq("snap_id",item.id);
+
+ const commentResult=
+  await supabaseClient
+   .from("snap_comments")
+   .select("*",{count:"exact",head:true})
+   .eq("snap_id",item.id);
+
+ const viewResult=
+  await supabaseClient
+   .from("snap_views")
+   .select("*",{count:"exact",head:true})
+   .eq("snap_id",item.id);
+
+ const likes=likeResult.count||0;
+ const comments=commentResult.count||0;
+ const views=viewResult.count||0;
+
+ let likeUsers=[];
+
+ const likeUsersResult=
+  await supabaseClient
+   .from("snap_likes")
+   .select("user_id")
+   .eq("snap_id",item.id);
+
+ if(!likeUsersResult.error){
+
+  const ids=[
+   ...new Set(
+    (likeUsersResult.data||[])
+     .map(x=>x.user_id)
+     .filter(Boolean)
+   )
+  ];
+
+  if(ids.length){
+
+   const {data}=await supabaseClient
+    .from("profiles")
+    .select("id,display_name")
+    .in("id",ids);
+
+   likeUsers=data||[];
+  }
+ }
+
+ let liked=false;
+
+ if(currentUser){
+
+  const {data}=await supabaseClient
+   .from("snap_likes")
+   .select("id")
+   .eq("snap_id",item.id)
+   .eq("user_id",currentUser.id)
+   .maybeSingle();
+
+  liked=!!data;
+ }
+
+ const date=
+  item.created_at
+   ?new Date(item.created_at).toLocaleDateString()
+   :"";
+
+ const time=
+  item.created_at
+   ?new Date(item.created_at).toLocaleTimeString(
+    [],
+    {hour:"2-digit",minute:"2-digit"}
+   )
+   :"";
+
+ const location=
+  Number(item.latitude).toFixed(5)+
+  ", "+
+  Number(item.longitude).toFixed(5);
+
+ const likeText=
+  likeUsers.length
+   ?`
+    ❤️ Liked by:
+    ${likeUsers.slice(0,8)
+      .map(p=>
+       escapeHtml(p.display_name||"User")
+      )
+      .join(", ")}
+    ${
+     likeUsers.length>8
+      ?" + "+(likeUsers.length-8)+" more"
+      :""
+    }
+   `
+   :"";
+
+ document.getElementById(
+  "galleryDetails"
+ ).innerHTML=`
+
+  <div>
+   <b>👤 Posted by:</b>
+   ${escapeHtml(profile?.display_name||"User")}
+  </div>
+
+  <div>
+   <b>📍 Location:</b>
+   ${location}
+  </div>
+
+  <div>
+   <b>📅 Date:</b> ${date}
+   &nbsp;
+   <b>🕐 Time:</b> ${time}
+  </div>
+
+  ${
+   item.description
+    ?`
+     <div>
+      <b>📝 Description:</b>
+      ${escapeHtml(item.description)}
+     </div>
+    `
+    :""
+  }
+
+  <div id="likeUsers">
+   ${likeText}
+  </div>
+ `;
+
+ document.getElementById("likeCount").textContent=likes;
+ document.getElementById("commentCount").textContent=comments;
+ document.getElementById("viewCount").textContent=views;
+
+ document.getElementById(
+  "likeBtn"
+ ).classList.toggle("liked",liked);
+
+ document.getElementById(
+  "commentsList"
+ ).style.display="none";
+
+ document.getElementById(
+  "commentBox"
+ ).style.display="none";
+
+ document.getElementById(
+  "commentInput"
+ ).value="";
+
+ delete document.getElementById(
+  "commentInput"
+ ).dataset.parentId;
+
+ await addViewOnce(item);
 }
-async function addView(snap){
+
+/* =========================================================
+   VIEW
+========================================================= */
+
+async function addViewOnce(item){
+
  if(!currentUser)return;
- await supabaseClient.from("snap_views").insert({snap_id:snap.id,user_id:currentUser.id}).catch(()=>{});
+
+ const {error}=
+  await supabaseClient
+   .from("snap_views")
+   .insert({
+    snap_id:item.id,
+    user_id:currentUser.id
+   });
+
+ if(error)return;
+
+ const {count}=
+  await supabaseClient
+   .from("snap_views")
+   .select("*",{count:"exact",head:true})
+   .eq("snap_id",item.id);
+
+ document.getElementById(
+  "viewCount"
+ ).textContent=count||0;
 }
-$("likeBtn").onclick=async()=>{
- if(!currentUser)return openAuth();
+
+/* =========================================================
+   LIKE
+========================================================= */
+
+document.getElementById(
+ "likeBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
  if(!currentGallerySnap)return;
- const snap=currentGallerySnap;
- const {data}=await supabaseClient.from("snap_likes").select("id").eq("snap_id",snap.id).eq("user_id",currentUser.id).maybeSingle();
- if(data)await supabaseClient.from("snap_likes").delete().eq("id",data.id);
- else await supabaseClient.from("snap_likes").insert({snap_id:snap.id,user_id:currentUser.id});
- await loadEngagement(snap);
-};
-async function loadComments(snap){
- const {data,error}=await supabaseClient.from("snap_comments").select("*").eq("snap_id",snap.id).order("created_at",{ascending:true});
- if(error){$("commentsList").innerHTML="Comments unavailable.";return}
- const rows=data||[];
- const render=(parent,depth=0)=>rows.filter(x=>(x.parent_comment_id||null)===(parent||null)).map(x=>`
-  <div class="commentItem ${depth?"commentReply":""}">
-   <div><b>${esc(x.user_id===currentUser?.id?"You":"User")}</b> ${esc(x.comment_text)}</div>
-   <div class="commentMeta">${new Date(x.created_at).toLocaleString()} <button class="secondary replyBtn" data-id="${x.id}" data-text="${esc(x.comment_text)}">REPLY</button></div>
-   ${render(x.id,depth+1)}
-  </div>`).join("");
- $("commentsList").innerHTML=render(null)||'<div class="muted">No comments yet.</div>';
-}
-$("commentsList").onclick=e=>{
- const b=e.target.closest(".replyBtn");if(!b)return;
- replyingTo=b.dataset.id;$("commentInput").value="@reply ";
- $("commentInput").focus();
-};
-$("sendCommentBtn").onclick=async()=>{
- if(!currentUser)return openAuth();
- if(!currentGallerySnap)return;
- const text=$("commentInput").value.trim();if(!text)return;
- const {error}=await supabaseClient.from("snap_comments").insert({
-  snap_id:currentGallerySnap.id,user_id:currentUser.id,parent_comment_id:replyingTo||null,comment_text:text
- });
- if(error)return alert(error.message);
- $("commentInput").value="";replyingTo=null;await loadComments(currentGallerySnap);
-};
-$("commentFocusBtn").onclick=()=>$("commentInput").focus();
-$("closeViewer").onclick=()=>closeViewer();
-$("prevSnap").onclick=()=>{if(galleryIndex>0){galleryIndex--;renderGallery()}}
-$("nextSnap").onclick=()=>{if(galleryIndex<galleryItems.length-1){galleryIndex++;renderGallery()}};
-let touchX=0;
-$("viewerModal").addEventListener("touchstart",e=>touchX=e.changedTouches[0].clientX);
-$("viewerModal").addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>70){if(dx<0)$("nextSnap").click();else $("prevSnap").click()}});
 
-/* ================= CALLING + ROOM CHAT ================= */
-function openRoomPanel(){if(!currentUser)return openAuth();closePanels();ensureRoom();show($("roomPanel"))}
-function openJoinPanel(){if(!currentUser)return openAuth();closePanels();renderSavedRooms();show($("joinPanel"))}
-function openChatPanel(){if(!currentUser)return openAuth();closePanels();renderSavedRooms();show($("chatPanel"));}
-function renderMyRoomQR(room){const box=$("myRoomQr");if(!box)return;box.innerHTML="";if(!room||room==="LOGIN REQUIRED")return;try{new QRCode(box,{text:location.origin+location.pathname+"?room="+encodeURIComponent(room),width:200,height:200,colorDark:"#071007",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M})}catch(e){box.textContent="QR UNAVAILABLE"}}
-function getSavedRooms(){try{return JSON.parse(localStorage.getItem("cyberSavedRooms")||"[]")}catch(e){return[]}}
-function saveRoomId(room){room=String(room||"").trim().toUpperCase();if(!room)return;let a=getSavedRooms().filter(x=>x!==room);a.unshift(room);a=a.slice(0,20);localStorage.setItem("cyberSavedRooms",JSON.stringify(a));renderSavedRooms()}
-function renderSavedRooms(){const box=$("savedRoomsList");if(!box)return;const a=getSavedRooms();box.innerHTML=a.length?'<div class="muted" style="width:100%">SAVED ROOM IDs</div>':'';a.forEach(room=>{const b=document.createElement("button");b.className="savedRoom";b.textContent=room;b.onclick=()=>{$("targetRoomInput").value=room;$("chatTargetRoom").value=room;openChatPanel()};box.appendChild(b)})}
-$("copyRoomBtn").onclick=async()=>{if(!myRoom)return;await navigator.clipboard?.writeText(myRoom);status("ROOM ID COPIED")};
-$("shareRoomBtn").onclick=async()=>{if(!myRoom)return;try{await navigator.share({title:"My Room ID",text:myRoom})}catch(e){}};
-$("callUserBtn").onclick=()=>{
- if(!currentUser)return openAuth();
- const room=$("targetRoomInput").value.trim().toUpperCase();
- if(!room)return alert("Room ID dalo.");
- const saved=getSavedRooms();
- if(!saved.includes(room)&&confirm("Is Room ID ko save karna hai?"))saveRoomId(room);
- socket.emit("call-user",{targetRoom:room});
- status("CALLING "+room+"...");
-};
-async function notifyRoomMessage(targetRoom,message){const {data:recipient}=await supabaseClient.from("profiles").select("id").eq("call_room_id",targetRoom).maybeSingle();if(!recipient||recipient.id===currentUser?.id)return;const senderName=currentProfile?.display_name||"User";await supabaseClient.from("notifications").insert({recipient_id:recipient.id,actor_id:currentUser.id,notification_type:"chat",message:`Room ${targetRoom}: ${senderName} sent a message — ${message}`})}
-function addRoomChat(msg,mine=false,from="",mediaUrl="",type="text"){const x=document.createElement("div");x.className="chatMsg "+(mine?"chatMine":"");if(mediaUrl){const m=type==="video"?document.createElement("video"):document.createElement("img");m.src=mediaUrl;m.className="chatMedia";if(type==="video"){m.controls=true;m.playsInline=true}x.appendChild(m);const l=document.createElement("div");l.textContent=(from?from+" · ":"")+type.toUpperCase();x.appendChild(l)}else x.textContent=(from?from+": ":"")+msg;$("roomChatMessages").appendChild(x);$("roomChatMessages").scrollTop=$("roomChatMessages").scrollHeight}
-$("sendRoomChatBtn").onclick=async()=>{
- if(!currentUser)return openAuth();
- const room=$("chatTargetRoom").value.trim().toUpperCase();
- const msg=$("roomChatInput").value.trim();
- if(!room||!msg)return;
- const saved=getSavedRooms();
- if(!saved.includes(room)&&confirm("Is Room ID ko save karna hai?"))saveRoomId(room);
- socket.emit("room-chat",{targetRoom:room,message:msg,type:"text"});
- addRoomChat(msg,true,"You");
- await notifyRoomMessage(room,msg);
- $("roomChatInput").value="";
- status("MESSAGE SENT");
-};
-$("roomChatInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("sendRoomChatBtn").click()});
-socket.on("room-chat",d=>{addRoomChat(d.message,false,d.fromName||"User",d.mediaUrl||"",d.type||"text");show($("chatPanel"));setActiveNav("chatNav");loadNotifications();try{if(Notification.permission==="granted")new Notification("Cyber Map Viewer",{body:(d.fromName||"User")+": "+(d.message||"MEDIA")})}catch(e){}});
+ const snapId=currentGallerySnap.id;
 
-function ensureCallTile(peerId,name="USER"){let tile=$("callTile-"+peerId);if(tile)return tile;tile=document.createElement("div");tile.className="callTile";tile.id="callTile-"+peerId;const v=document.createElement("video");v.id="callVideo-"+peerId;v.autoplay=true;v.playsInline=true;const n=document.createElement("div");n.className="tileName";n.textContent=name;const st=document.createElement("div");st.className="tileStatus";st.textContent="● LIVE";tile.append(v,n,st);$("callGrid").appendChild(tile);return tile}
-function removeCallTile(peerId){$("callTile-"+peerId)?.remove()}
-function updateCallCount(){$("callMemberCount").textContent=`${1+callPeers.size}/6 USERS`}
-async function ensureLocalCallMedia(){if(localCallStream)return localCallStream;localCallStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});$("localVideo").srcObject=localCallStream;return localCallStream}
-function resetCallUI(){$("callGrid").innerHTML="";callPeers.clear();updateCallCount();$("chatMessages").innerHTML=""}
-async function createCallPeer(peerId,isOfferer,name="USER"){if(!peerId||peerId===socket.id)return;if(callPeers.has(peerId))return callPeers.get(peerId).pc;await ensureLocalCallMedia();const pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]});const entry={pc,name};callPeers.set(peerId,entry);ensureCallTile(peerId,name);updateCallCount();localCallStream.getTracks().forEach(t=>pc.addTrack(t,localCallStream));pc.ontrack=e=>{const v=$("callVideo-"+peerId);if(v)v.srcObject=e.streams[0]};pc.onicecandidate=e=>{if(e.candidate)socket.emit("webrtc-signal",{targetId:peerId,signal:{candidate:e.candidate}})};pc.onconnectionstatechange=()=>{if(["failed","closed","disconnected"].includes(pc.connectionState))removeCallPeer(peerId)};if(isOfferer){const offer=await pc.createOffer();await pc.setLocalDescription(offer);socket.emit("webrtc-signal",{targetId:peerId,signal:{offer}})}return pc}
-async function removeCallPeer(peerId){const e=callPeers.get(peerId);if(e){try{e.pc.close()}catch(_){}callPeers.delete(peerId)}removeCallTile(peerId);updateCallCount()}
-async function handleRoomUsers(users){if(!callActive||!Array.isArray(users))return;await ensureLocalCallMedia();for(const u of users){const id=typeof u==="string"?u:u.peerId;const name=typeof u==="string"?"USER":(u.displayName||"USER");if(id&&id!==socket.id&&!callPeers.has(id)&&socket.id<id)await createCallPeer(id,true,name)}}
-function openCallUI(){show($("callModal"));$("chatBox").style.display="none";if(!callStartedAt)callStartedAt=Date.now();beep(880,.08);beep(1200,.06)}
-async function beginCallRoom(room){callRoom=room;callActive=true;callStartedAt=Date.now();resetCallUI();await ensureLocalCallMedia();openCallUI();socket.emit("join-room",{room,displayName:currentProfile?.display_name||"USER"})}
-async function shareCallRecord(){if(!lastCallRecord)return;$("callRecordText").textContent=lastCallRecord;show($("callRecordModal"));}
-async function leaveCallRoom(){if(callRoom)socket.emit("leave-room");for(const id of [...callPeers.keys()])await removeCallPeer(id);if(localCallStream){localCallStream.getTracks().forEach(t=>t.stop());localCallStream=null}$("localVideo").srcObject=null;callRoom=null;callActive=false;hide($("callModal"));if(currentUser)setTimeout(()=>ensureRoom(),150)}
-async function endCall(send=true){const roomAtEnd=callRoom;const started=callStartedAt||Date.now();if(send&&roomAtEnd)socket.emit("end-group-call",{room:roomAtEnd});const sec=Math.max(0,Math.round((Date.now()-started)/1000));const mm=String(Math.floor(sec/60)).padStart(2,"0"),ss=String(sec%60).padStart(2,"0");lastCallRecord=`CYBER MAP VIEWER // CALLING RECORD\nROOM: ${roomAtEnd||"—"}\nDURATION: ${mm}:${ss}\nDATE: ${new Date().toLocaleString()}\nSTATUS: CALL ENDED`;callStartedAt=0;await leaveCallRoom();status("CALL ENDED");setTimeout(shareCallRecord,120)}
+ const {data:existing,error:checkError}=
+  await supabaseClient
+   .from("snap_likes")
+   .select("id")
+   .eq("snap_id",snapId)
+   .eq("user_id",currentUser.id)
+   .maybeSingle();
 
-socket.on("room-joined",async d=>{if(d.room===myRoom&&!callActive){status("ROOM ONLINE: "+d.room);return}if(callActive&&d.room===callRoom){await handleRoomUsers(d.users||[]);updateCallCount()}});
-socket.on("room-users",async d=>{if(callActive&&d.room===callRoom)await handleRoomUsers(d.users||[])});
-socket.on("peer-joined",async d=>{if(callActive&&callRoom&&d.peerId&&socket.id<d.peerId)await createCallPeer(d.peerId,true,d.displayName||"USER")});
-socket.on("peer-left",async d=>{if(callActive)await removeCallPeer(d.peerId)});
-socket.on("room-full",d=>status("CALL ROOM FULL · MAX "+(d.max||6)));
-socket.on("call-ringing",d=>status("RINGING "+(d.targetRoom||"")+"..."));
-socket.on("call-unavailable",()=>status("USER OFFLINE"));
-socket.on("invite-unavailable",()=>status("FRIEND OFFLINE"));
-socket.on("call-room-full",()=>status("CALL FULL · MAX 6"));
-socket.on("incoming-call",d=>{incomingCallerId=d.callerId;incomingCallerRoom=d.callerRoom||"";incomingCallerName=d.callerName||"USER";$("incomingCaller").textContent=(incomingCallerRoom?incomingCallerRoom+" · ":"")+incomingCallerName;show($("incomingModal"));beep(1000,.12);setTimeout(()=>beep(1000,.12),180)});
-$("acceptCallBtn").onclick=async()=>{
- hide($("incomingModal"));
- if(incomingCallerRoom&&!getSavedRooms().includes(incomingCallerRoom)&&confirm("Is Room ID ko save karna hai?"))saveRoomId(incomingCallerRoom);
- socket.emit("accept-call",{callerId:incomingCallerId,callRoom:incomingCallerRoom});
- await beginCallRoom(incomingCallerRoom);
-};
-$("rejectCallBtn").onclick=()=>{socket.emit("reject-call",{callerId:incomingCallerId});hide($("incomingModal"))};
-socket.on("call-accepted",async d=>{status("CALL ACCEPTED");if(!callActive){callActive=true;callRoom=d.callRoom||myRoom;resetCallUI();await ensureLocalCallMedia();openCallUI();socket.emit("join-room",{room:callRoom,displayName:currentProfile?.display_name||"USER"})}});
-socket.on("call-rejected",()=>status("CALL REJECTED"));socket.on("call-ended",()=>endCall(false));socket.on("group-call-ended",()=>endCall(false));
-socket.on("webrtc-signal",async d=>{if(!callActive)return;const s=d.signal||{};let entry=callPeers.get(d.senderId);if(s.offer&&!entry){const pc=await createCallPeer(d.senderId,false,d.senderName||"USER");entry=callPeers.get(d.senderId);await pc.setRemoteDescription(new RTCSessionDescription(s.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);socket.emit("webrtc-signal",{targetId:d.senderId,signal:{answer}});return}if(!entry)return;try{if(s.answer)await entry.pc.setRemoteDescription(new RTCSessionDescription(s.answer));if(s.candidate)await entry.pc.addIceCandidate(new RTCIceCandidate(s.candidate))}catch(e){console.warn("WebRTC signal:",e)}});
+ if(checkError){
 
-function addChat(msg,mine=false,from="",mediaUrl="",type="text"){const x=document.createElement("div");x.className="chatMsg "+(mine?"chatMine":"");if(mediaUrl){const m=type==="video"?document.createElement("video"):document.createElement("img");m.src=mediaUrl;m.className="chatMedia";if(type==="video"){m.controls=true;m.playsInline=true}x.appendChild(m);const l=document.createElement("div");l.textContent=(from||"USER")+" · "+type.toUpperCase();x.appendChild(l)}else x.textContent=(from?from+": ":"")+msg;$("chatMessages").appendChild(x);$("chatMessages").scrollTop=$("chatMessages").scrollHeight}
-$("chatCallBtn").onclick=()=>{$("chatBox").style.display=$("chatBox").style.display==="none"?"block":"none"};
-$("sendChatBtn").onclick=()=>{const msg=$("chatInput").value.trim();if(!msg||!callRoom)return;socket.emit("call-room-message",{room:callRoom,message:msg,type:"text"});addChat(msg,true,"YOU");$("chatInput").value=""};
-$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("sendChatBtn").click()});socket.on("call-room-message",d=>addChat(d.message,false,d.fromName||"USER",d.mediaUrl||"",d.type||"text"));
-$("callChatFileBtn").onclick=()=>$("callChatFile").click();
-$("callChatFile").onchange=async e=>{const file=e.target.files?.[0];if(!file||!callRoom||!currentUser)return;if(file.size>50*1024*1024){alert("Media max 50 MB.");e.target.value="";return}try{status("UPLOADING CHAT MEDIA...");const {data:{session}}=await supabaseClient.auth.getSession();const token=session?.access_token||SUPABASE_KEY;const type=file.type.startsWith("video/")?"video":"image";const ext=(file.name.split(".").pop()||"bin").replace(/[^a-z0-9]/gi,"");const path=`${currentUser.id}/chat/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;const url=`${SUPABASE_URL}/storage/v1/object/public/past-snaps/${path}`;await uploadStorage(path,file,token,(loaded,total)=>status(`CHAT UPLOAD ${Math.round(loaded/total*100)}% · ${formatBytes(loaded)}/${formatBytes(total)}`));socket.emit("call-room-message",{room:callRoom,message:file.name,type,mediaUrl:url});addChat(file.name,true,"YOU",url,type);status("MEDIA SENT")}catch(err){alert("Media send failed: "+err.message)}finally{e.target.value=""}};
-$("addFriendCallBtn").onclick=()=>{if(!callActive)return;$("callFriendRoomInput").value="";show($("addFriendModal"))};
-$("inviteFriendBtn").onclick=()=>{const room=$("callFriendRoomInput").value.trim().toUpperCase();if(!room)return;socket.emit("call-user",{targetRoom:room});hide($("addFriendModal"));status("FRIEND INVITE SENT "+room)};
-$("endCallBtn").onclick=()=>endCall(true);
-$("muteCallBtn").onclick=()=>{if(!localCallStream)return;muted=!muted;localCallStream.getAudioTracks().forEach(t=>t.enabled=!muted);$("muteCallBtn").textContent=muted?"🔇":"🎙"};
-$("cameraCallBtn").onclick=()=>{if(!localCallStream)return;cameraOff=!cameraOff;localCallStream.getVideoTracks().forEach(t=>t.enabled=!cameraOff);$("cameraCallBtn").textContent=cameraOff?"🚫":"📷"};
-$("shareCallRecordBtn").onclick=async()=>{
- if(!lastCallRecord)return;
- try{
-   if(navigator.share){await navigator.share({title:"Cyber Map Viewer Calling Record",text:lastCallRecord})}
-   else{await navigator.clipboard?.writeText(lastCallRecord);status("CALL RECORD COPIED")}
- }catch(e){}
-};
-$("shareWhatsAppBtn").onclick=async()=>{if(!lastCallRecord)return;await navigator.clipboard?.writeText(lastCallRecord);window.open("https://wa.me/?text="+encodeURIComponent(lastCallRecord),"_blank")};
-$("shareFacebookBtn").onclick=async()=>{if(!lastCallRecord)return;await navigator.clipboard?.writeText(lastCallRecord);window.open("https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(location.href),"_blank")};
-$("shareInstagramBtn").onclick=async()=>{if(!lastCallRecord)return;await navigator.clipboard?.writeText(lastCallRecord);status("CALL RECORD COPIED · OPEN INSTAGRAM TO SHARE")};
-$("closeCallRecordBtn").onclick=()=>hide($("callRecordModal"));
+  console.error("LIKE CHECK:",checkError);
+  showStatus("Like check failed.");
+  return;
+ }
 
-/* ================= BACK BUTTON SAFETY ================= */
-window.addEventListener("popstate",()=>{
- if(viewerHistory){
-   viewerHistory=false;
-   hide($("viewerModal"));
-   status("MAP ONLINE");
-   setTimeout(()=>{try{map?.invalidateSize()}catch(e){}},80);
+ if(existing){
+
+  const {error}=
+   await supabaseClient
+    .from("snap_likes")
+    .delete()
+    .eq("id",existing.id);
+
+  if(error){
+
+   showStatus("Like remove nahi hua.");
    return;
+  }
+
+ }else{
+
+  const {error}=
+   await supabaseClient
+    .from("snap_likes")
+    .insert({
+     snap_id:snapId,
+     user_id:currentUser.id
+    });
+
+  if(error){
+
+   showStatus("Like nahi hua.");
+   return;
+  }
+ }
+
+ await loadPostDetails(
+  currentGallerySnap
+ );
+};
+
+/* =========================================================
+   COMMENTS
+========================================================= */
+
+document.getElementById(
+ "commentBtn"
+).onclick=async()=>{
+
+ if(!currentGallerySnap)return;
+
+ const list=
+  document.getElementById("commentsList");
+
+ const box=
+  document.getElementById("commentBox");
+
+ if(list.style.display!=="block"){
+
+  list.style.display="block";
+
+  await loadComments(
+   currentGallerySnap.id
+  );
+
+  if(currentUser){
+
+   box.style.display="block";
+
+  }else{
+
+   box.style.display="none";
+
+   showStatus(
+    "Comment karne ke liye login karo.",
+    2500
+   );
+  }
+
+ }else{
+
+  list.style.display="none";
+  box.style.display="none";
+ }
+};
+
+async function loadComments(snapId){
+
+ const {data,error}=
+  await supabaseClient
+   .from("snap_comments")
+   .select("*")
+   .eq("snap_id",snapId)
+   .order("created_at",{ascending:true});
+
+ if(error){
+
+  console.error("COMMENTS:",error);
+
+  showStatus(
+   "Comments load nahi hue: "+
+   (error.message||"database error"),
+   5000
+  );
+
+  return;
+ }
+
+ const list=
+  document.getElementById("commentsList");
+
+ list.style.display="block";
+
+ if(!data?.length){
+
+  list.innerHTML=
+   `<div style="color:#aaa;padding:8px">
+     No comments yet.
+    </div>`;
+
+  return;
+ }
+
+ const userIds=[
+  ...new Set(
+   data.map(x=>x.user_id).filter(Boolean)
+  )
+ ];
+
+ let profiles=[];
+
+ if(userIds.length){
+
+  const result=
+   await supabaseClient
+    .from("profiles")
+    .select("id,display_name")
+    .in("id",userIds);
+
+  profiles=result.data||[];
+ }
+
+ const names={};
+
+ profiles.forEach(p=>{
+  names[p.id]=p.display_name;
+ });
+
+ function renderComment(comment,depth=0){
+
+  const children=
+   data.filter(
+    x=>
+     String(x.parent_comment_id||"")===
+     String(comment.id)
+   );
+
+  const username=
+   names[comment.user_id]||"User";
+
+  return `
+
+   <div class="commentRow"
+    style="margin-left:${Math.min(depth,4)*15}px">
+
+    ${
+     depth>0
+      ?`<div class="replyLabel">↳ Reply</div>`
+      :""
+    }
+
+    <div class="commentUser">
+     ${escapeHtml(username)}
+    </div>
+
+    <div class="commentText">
+     ${escapeHtml(comment.comment_text)}
+    </div>
+
+    <div class="commentTime">
+     ${
+      comment.created_at
+       ?new Date(comment.created_at).toLocaleString()
+       :""
+     }
+    </div>
+
+    ${
+     currentUser
+      ?`
+       <div class="commentActions">
+        <button
+         class="replyBtn"
+         data-reply-id="${escapeHtml(comment.id)}"
+         data-reply-name="${escapeHtml(username)}"
+        >
+         ↩ Reply
+        </button>
+       </div>
+      `
+      :""
+    }
+
+    ${
+     children.length
+      ?children
+       .map(c=>renderComment(c,depth+1))
+       .join("")
+      :""
+    }
+
+   </div>
+  `;
+ }
+
+ const roots=
+  data.filter(c=>!c.parent_comment_id);
+
+ const rootHtml=
+  roots.map(c=>renderComment(c)).join("");
+
+ const rootIds=
+  new Set(roots.map(c=>String(c.id)));
+
+ const orphanHtml=
+  data
+   .filter(
+    c=>
+     c.parent_comment_id&&
+     !rootIds.has(String(c.parent_comment_id))
+   )
+   .map(c=>renderComment(c))
+   .join("");
+
+ list.innerHTML=
+  rootHtml+orphanHtml;
+
+ list.querySelectorAll(
+  ".replyBtn"
+ ).forEach(btn=>{
+
+  btn.onclick=()=>{
+
+   if(!currentUser){
+
+    openAuth("login");
+    return;
+   }
+
+   const input=
+    document.getElementById("commentInput");
+
+   input.value=
+    "@"+btn.dataset.replyName+" ";
+
+   input.dataset.parentId=
+    btn.dataset.replyId;
+
+   document.getElementById(
+    "commentBox"
+   ).style.display="block";
+
+   input.focus();
+  };
+ });
+}
+
+/* =========================================================
+   SEND COMMENT
+========================================================= */
+
+document.getElementById(
+ "sendCommentBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ if(!currentGallerySnap)return;
+
+ const input=
+  document.getElementById("commentInput");
+
+ const text=input.value.trim();
+
+ if(!text){
+
+  showStatus("Comment likho.");
+  return;
+ }
+
+ if(text.split(/\s+/).length>250){
+
+  showStatus(
+   "Comment maximum 250 words ka hai."
+  );
+
+  return;
+ }
+
+ const parentId=
+  input.dataset.parentId||null;
+
+ const insertData={
+  snap_id:currentGallerySnap.id,
+  user_id:currentUser.id,
+  comment_text:text
+ };
+
+ if(parentId)
+  insertData.parent_comment_id=parentId;
+
+ const {error}=
+  await supabaseClient
+   .from("snap_comments")
+   .insert(insertData);
+
+ if(error){
+
+  console.error("COMMENT:",error);
+
+  showStatus(
+   "Comment post nahi hua: "+
+   (error.message||"database error"),
+   5000
+  );
+
+  return;
+ }
+
+ input.value="";
+ delete input.dataset.parentId;
+
+ await loadComments(
+  currentGallerySnap.id
+ );
+
+ await loadPostDetails(
+  currentGallerySnap
+ );
+
+ document.getElementById(
+  "commentsList"
+ ).style.display="block";
+
+ document.getElementById(
+  "commentBox"
+ ).style.display="block";
+
+ showStatus(
+  parentId
+   ?"↩️ Reply posted!"
+   :"💬 Comment posted!"
+ );
+};
+
+document.getElementById(
+ "cancelCommentBtn"
+).onclick=()=>{
+
+ const input=
+  document.getElementById("commentInput");
+
+ input.value="";
+ delete input.dataset.parentId;
+
+ document.getElementById(
+  "commentBox"
+ ).style.display="none";
+
+ document.getElementById(
+  "commentsList"
+ ).style.display="none";
+};
+
+/* =========================================================
+   SWIPE
+========================================================= */
+
+let touchStartX=0;
+
+const galleryBox=
+ document.getElementById("galleryImageBox");
+
+galleryBox.addEventListener(
+ "touchstart",
+ e=>{
+  touchStartX=
+   e.changedTouches[0].clientX;
+ },
+ {passive:true}
+);
+
+galleryBox.addEventListener(
+ "touchend",
+ async e=>{
+
+  const dx=
+   e.changedTouches[0].clientX-
+   touchStartX;
+
+  if(Math.abs(dx)<50)return;
+
+  if(dx<0){
+
+   galleryIndex=
+    (galleryIndex+1)%galleryItems.length;
+
+  }else{
+
+   galleryIndex=
+    (galleryIndex-1+galleryItems.length)%
+    galleryItems.length;
+  }
+
+  await renderGalleryItem();
+
+ },
+ {passive:true}
+);
+
+/* =========================================================
+   CLOSE GALLERY
+========================================================= */
+
+document.getElementById(
+ "closeGalleryBtn"
+).onclick=()=>{
+
+ document.getElementById(
+  "galleryVideo"
+ ).pause();
+
+ document.getElementById(
+  "commentsList"
+ ).style.display="none";
+
+ document.getElementById(
+  "commentBox"
+ ).style.display="none";
+
+ galleryModal.style.display="none";
+
+ currentGallerySnap=null;
+};
+
+/* =========================================================
+   SOCKET
+========================================================= */
+
+socket.on(
+ "connect",
+ async()=>{
+
+  console.log(
+   "Socket connected:",
+   socket.id
+  );
+
+  if(currentUser)
+   await joinOwnCallRoom();
+ }
+);
+
+socket.on(
+ "room-joined",
+ data=>{
+
+  console.log("ROOM JOINED:",data);
+
+  if(data?.roomId){
+
+   myRoom=data.roomId;
+
+   document.getElementById(
+    "myCallId"
+   ).textContent=myRoom;
+
+   /*
+    DO NOT OPEN CALL PANEL HERE.
+   */
  }
 });
 
+socket.on(
+ "room-full",
+ ()=>{
 
-/* ================= YOU / ADMIN / QR ================= */
-async function openYouPanel(){
- if(!currentUser)return openAuth();
- closePanels();
- $("youName").textContent=currentProfile?.display_name||"User";
- $("youEmail").textContent=currentUser.email||"—";
- $("youRoom").textContent=myRoom||currentProfile?.call_room_id||"LOADING...";
- $("youLocation").textContent="LOADING GPS...";
- show($("youPanel"));
- try{const p=await getFreshPosition();$("youLocation").textContent=`${p.coords.latitude.toFixed(5)}, ${p.coords.longitude.toFixed(5)}`}catch(e){$("youLocation").textContent="GPS UNAVAILABLE"}
-}
-async function openAdminPanel(){
- closePanels();show($("adminPanel"));
- const {data}=await supabaseClient.from("profiles").select("display_name,call_room_id").eq("display_name","ROUSHAN YADAV").maybeSingle();
- $("adminRoomId").textContent=data?.call_room_id||"ADMIN ROOM ID NOT FOUND";
-}
-$("youCancelBtn").onclick=()=>hide($("youPanel"));
-$("youLogoutBtn").onclick=async()=>{if(confirm("Logout karna hai?"))await logout()};
-$("adminBtn").onclick=openAdminPanel;
-$("adminWhatsAppBtn").onclick=()=>{window.open("https://wa.me/919153576962","_blank")};
-let qrStream=null,qrScanning=false;
-async function startQrScanner(){
- show($("qrScannerModal"));
- if(!("BarcodeDetector" in window)){ $("scanStatus").textContent="QR auto-scan supported nahi hai. Room ID manually enter karo.";return }
+  showStatus(
+   "Call room full hai.",
+   3500
+  );
+});
+
+/* =========================================================
+   CALL PANEL ACTIONS
+========================================================= */
+
+document.getElementById(
+ "copyCallIdBtn"
+).onclick=async()=>{
+
+ if(!myRoom){
+
+  showStatus(
+   "Call ID abhi ready nahi hai."
+  );
+
+  return;
+ }
+
  try{
-  const detector=new BarcodeDetector({formats:["qr_code"]});
-  qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
-  $("qrScannerVideo").srcObject=qrStream;qrScanning=true;$("scanStatus").textContent="SCANNING...";
-  const loop=async()=>{if(!qrScanning)return;try{const codes=await detector.detect($("qrScannerVideo"));if(codes?.[0]?.rawValue){const raw=codes[0].rawValue;let room=raw;try{const u=new URL(raw);room=u.searchParams.get("room")||raw}catch(e){}room=String(room).trim().toUpperCase();if(room){$("targetRoomInput").value=room;stopQrScanner();status("ROOM QR SCANNED");return}}}catch(e){}requestAnimationFrame(loop)};loop();
- }catch(e){$("scanStatus").textContent="CAMERA SCAN FAILED: "+e.message}
+
+  await navigator.clipboard.writeText(
+   myRoom
+  );
+
+  showStatus(
+   "✅ Call ID copied!"
+  );
+
+ }catch(error){
+
+  showStatus(
+   "Call ID: "+myRoom,
+   5000
+  );
+ }
+};
+
+document.getElementById(
+ "callUserBtn"
+).onclick=async()=>{
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ const input=
+  document.getElementById("targetCallId");
+
+ const room=
+  input.value.trim().toUpperCase();
+
+ if(!room){
+
+  showStatus(
+   "Dusre user ka Call ID enter karo."
+  );
+
+  return;
+ }
+
+ if(room===myRoom){
+
+  showStatus(
+   "Apne hi Call ID par call nahi kar sakte."
+  );
+
+  return;
+ }
+
+ await startCallToRoom(room);
+};
+
+/* =========================================================
+   OUTGOING CALL
+========================================================= */
+
+async function startCallToRoom(room){
+
+ if(!currentUser){
+
+  openAuth("login");
+  return;
+ }
+
+ if(!room){
+
+  showStatus("Room ID nahi mila.");
+  return;
+ }
+
+ const ownRoom=
+  await joinOwnCallRoom();
+
+ if(!ownRoom){
+
+  showStatus(
+   "Apna Call ID ready nahi hai.",
+   4000
+  );
+
+  return;
+ }
+
+ room=
+  String(room)
+   .trim()
+   .toUpperCase();
+
+ showStatus(
+  "Calling "+room+"...",
+  4000
+ );
+
+ socket.emit(
+  "call-user",
+  {
+   targetRoom:room,
+   callerRoom:ownRoom
+  }
+);
+
 }
-function stopQrScanner(){qrScanning=false;if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null}$("qrScannerVideo").srcObject=null;hide($("qrScannerModal"))}
-$("scanRoomBtn").onclick=startQrScanner;$("scanClose").onclick=stopQrScanner;
 
-/* ================= UI NAV ================= */
-function closePanels(){hide($("roomPanel"));hide($("joinPanel"));hide($("chatPanel"));hide($("notificationPanel"));hide($("youPanel"));hide($("adminPanel"))}
-$("chatNav").onclick=()=>{setActiveNav("chatNav");openChatPanel();};
-$("cameraNav").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
-$("joinNav").onclick=()=>{setActiveNav("joinNav");openJoinPanel()};
-$("myRoomNav").onclick=()=>{setActiveNav("myRoomNav");openRoomPanel()};
-$("youNav").onclick=()=>{setActiveNav("youNav");openYouPanel()};
-$("notificationBtn").onclick=()=>{closePanels();show($("notificationPanel"));loadNotifications()};
-$("searchBtn").onclick=searchLocation;
-$("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocation()});
-$("locBtn").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
-document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hide($(b.dataset.close)));
-$("authClose").onclick=()=>hide($("authModal"));
-$("authSubmit").onclick=authSubmit;
-$("authSwitch").onclick=()=>openAuth(authMode==="login"?"register":"login");
+socket.on(
+ "call-ringing",
+ data=>{
 
-/* ================= GLOBAL BACK SAFETY ================= */
-window.addEventListener("beforeunload",()=>{try{stopCamera();if(qrStream)stopQrScanner()}catch(e){}});
+  showStatus(
+   "📞 Calling room "+
+   (data?.roomId||"")+"...",
+   5000
+  );
+ }
+);
 
-/* ================= START ================= */
+socket.on(
+ "call-unavailable",
+ data=>{
+
+  showStatus(
+   "Room "+
+   (data?.roomId||"")+
+   " available nahi hai.",
+   4000
+  );
+ }
+);
+
+/* =========================================================
+   INCOMING CALL
+========================================================= */
+
+socket.on(
+ "incoming-call",
+ data=>{
+
+  incomingCallerId=
+   data.callerId;
+
+  incomingCallerRoom=
+   data.callerRoom||
+   data.targetRoom||
+   "";
+
+  document.getElementById(
+   "callerText"
+  ).textContent=
+   incomingCallerRoom
+    ?"📞 Room "+
+     incomingCallerRoom+
+     " is calling you"
+    :"📞 Incoming call...";
+
+  document.getElementById(
+   "callOverlay"
+  ).style.display="flex";
+});
+
+/* =========================================================
+   ACCEPT
+========================================================= */
+
+document.getElementById(
+ "acceptCallBtn"
+).onclick=async()=>{
+
+ if(!incomingCallerId)return;
+
+ const caller=incomingCallerId;
+
+ document.getElementById(
+  "callOverlay"
+ ).style.display="none";
+
+ currentCallPeerId=caller;
+
+ socket.emit(
+  "accept-call",
+  {callerId:caller}
+ );
+
+ await openActiveCall(
+  true,
+  caller
+ );
+
+ incomingCallerId=null;
+ incomingCallerRoom=null;
+};
+
+/* =========================================================
+   REJECT
+========================================================= */
+
+document.getElementById(
+ "rejectCallBtn"
+).onclick=()=>{
+
+ if(incomingCallerId){
+
+  socket.emit(
+   "reject-call",
+   {callerId:incomingCallerId}
+  );
+ }
+
+ document.getElementById(
+  "callOverlay"
+ ).style.display="none";
+
+ incomingCallerId=null;
+ incomingCallerRoom=null;
+};
+
+/* =========================================================
+   CALL ACCEPTED
+========================================================= */
+
+socket.on(
+ "call-accepted",
+ async data=>{
+
+  const peerId=data?.accepterId;
+
+  if(!peerId)return;
+
+  currentCallPeerId=peerId;
+
+  await openActiveCall(
+   false,
+   peerId
+  );
+ });
+
+socket.on(
+ "call-rejected",
+ ()=>{
+
+  showStatus(
+   "Call rejected.",
+   3500
+  );
+
+  cleanupCall();
+ });
+
+socket.on(
+ "call-ended",
+ ()=>{
+
+  showStatus(
+   "Call ended.",
+   3000
+  );
+
+  cleanupCall();
+ });
+
+/* =========================================================
+   WEBRTC
+========================================================= */
+
+async function openActiveCall(
+ isReceiver,
+ peerId
+){
+
+ try{
+
+  currentCallPeerId=peerId;
+
+  localCallStream=
+   await navigator.mediaDevices
+    .getUserMedia({
+     video:true,
+     audio:true
+    });
+
+  document.getElementById(
+   "localVideo"
+  ).srcObject=
+   localCallStream;
+
+  remoteCallStream=
+   new MediaStream();
+
+  document.getElementById(
+   "remoteVideo"
+  ).srcObject=
+   remoteCallStream;
+
+  document.getElementById(
+   "activeCall"
+  ).style.display="block";
+
+  document.getElementById(
+   "callStatus"
+  ).textContent=
+   "Connecting...";
+
+  peerConnection=
+   new RTCPeerConnection({
+
+    iceServers:[
+     {
+      urls:"stun:stun.l.google.com:19302"
+     },
+     {
+      urls:"stun:stun1.l.google.com:19302"
+     }
+    ]
+   });
+
+  localCallStream
+   .getTracks()
+   .forEach(track=>{
+
+    peerConnection.addTrack(
+     track,
+     localCallStream
+    );
+   });
+
+  peerConnection.ontrack=e=>{
+
+   const stream=e.streams?.[0];
+
+   if(stream){
+
+    stream.getTracks().forEach(track=>{
+
+     if(
+      !remoteCallStream
+       .getTracks()
+       .some(t=>t.id===track.id)
+     ){
+
+      remoteCallStream.addTrack(track);
+     }
+    });
+   }
+
+   document.getElementById(
+    "callStatus"
+   ).textContent=
+    "Connected";
+  };
+
+  peerConnection.onicecandidate=e=>{
+
+   if(e.candidate){
+
+    socket.emit(
+     "webrtc-signal",
+     {
+      targetId:peerId,
+      signal:{
+       type:"ice-candidate",
+       candidate:e.candidate
+      }
+     }
+    );
+   }
+  };
+
+  peerConnection.onconnectionstatechange=()=>{
+
+   if(!peerConnection)return;
+
+   const state=
+    peerConnection.connectionState;
+
+   if(state==="connected"){
+
+    document.getElementById(
+     "callStatus"
+    ).textContent="Connected";
+   }
+
+   if(
+    state==="failed"||
+    state==="disconnected"||
+    state==="closed"
+   ){
+
+    cleanupCall();
+   }
+  };
+
+  if(!isReceiver){
+
+   const offer=
+    await peerConnection.createOffer();
+
+   await peerConnection.setLocalDescription(
+    offer
+   );
+
+   socket.emit(
+    "webrtc-signal",
+    {
+     targetId:peerId,
+     signal:{
+      type:"offer",
+      sdp:offer
+     }
+    }
+   );
+  }
+
+ }catch(error){
+
+  console.error(
+   "CALL MEDIA:",
+   error
+  );
+
+  showStatus(
+   "Camera/mic permission required hai.",
+   4000
+  );
+
+  cleanupCall();
+ }
+}
+
+/* =========================================================
+   WEBRTC SIGNAL
+========================================================= */
+
+socket.on(
+ "webrtc-signal",
+ async data=>{
+
+  const signal=data?.signal;
+  const senderId=data?.senderId;
+
+  if(!signal||!senderId)return;
+
+  try{
+
+   if(!peerConnection){
+
+    currentCallPeerId=senderId;
+
+    await openActiveCall(
+     true,
+     senderId
+    );
+   }
+
+   if(signal.type==="offer"){
+
+    await peerConnection.setRemoteDescription(
+     new RTCSessionDescription(signal.sdp)
+    );
+
+    const answer=
+     await peerConnection.createAnswer();
+
+    await peerConnection.setLocalDescription(
+     answer
+    );
+
+    socket.emit(
+     "webrtc-signal",
+     {
+      targetId:senderId,
+      signal:{
+       type:"answer",
+       sdp:answer
+      }
+     }
+    );
+
+   }else if(signal.type==="answer"){
+
+    await peerConnection.setRemoteDescription(
+     new RTCSessionDescription(signal.sdp)
+    );
+
+   }else if(signal.type==="ice-candidate"){
+
+    if(signal.candidate){
+
+     await peerConnection.addIceCandidate(
+      new RTCIceCandidate(
+       signal.candidate
+      )
+     );
+    }
+   }
+
+  }catch(error){
+
+   console.error(
+    "WEBRTC SIGNAL:",
+    error
+   );
+  }
+});
+
+/* =========================================================
+   CALL CONTROLS
+========================================================= */
+
+document.getElementById(
+ "muteCallBtn"
+).onclick=()=>{
+
+ if(!localCallStream)return;
+
+ const audio=
+  localCallStream.getAudioTracks()[0];
+
+ if(!audio)return;
+
+ audio.enabled=!audio.enabled;
+
+ callMuted=!audio.enabled;
+
+ document.getElementById(
+  "muteCallBtn"
+ ).textContent=
+  callMuted?"🔇":"🎙️";
+};
+
+document.getElementById(
+ "cameraCallBtn"
+).onclick=()=>{
+
+ if(!localCallStream)return;
+
+ const video=
+  localCallStream.getVideoTracks()[0];
+
+ if(!video)return;
+
+ video.enabled=!video.enabled;
+
+ callCameraOff=!video.enabled;
+
+ document.getElementById(
+  "cameraCallBtn"
+ ).textContent=
+  callCameraOff?"🚫":"📹";
+};
+
+document.getElementById(
+ "endCallBtn"
+).onclick=()=>{
+
+ if(currentCallPeerId){
+
+  socket.emit(
+   "end-call",
+   {targetId:currentCallPeerId}
+  );
+ }
+
+ cleanupCall();
+};
+
+function cleanupCall(){
+
+ if(peerConnection){
+
+  try{
+   peerConnection.close();
+  }catch(e){}
+
+  peerConnection=null;
+ }
+
+ if(localCallStream){
+
+  localCallStream.getTracks().forEach(track=>{
+   track.stop();
+  });
+
+  localCallStream=null;
+ }
+
+ remoteCallStream=null;
+
+ document.getElementById(
+  "localVideo"
+ ).srcObject=null;
+
+ document.getElementById(
+  "remoteVideo"
+ ).srcObject=null;
+
+ document.getElementById(
+  "activeCall"
+ ).style.display="none";
+
+ document.getElementById(
+  "callOverlay"
+ ).style.display="none";
+
+ currentCallPeerId=null;
+
+ callMuted=false;
+ callCameraOff=false;
+
+ document.getElementById(
+  "muteCallBtn"
+ ).textContent="🎙️";
+
+ document.getElementById(
+  "cameraCallBtn"
+ ).textContent="📹";
+}
+
+/* =========================================================
+   BACK
+========================================================= */
+
+window.addEventListener(
+ "popstate",
+ ()=>{
+
+  if(cameraModal.style.display==="flex"){
+
+   stopCameraStream();
+   cameraModal.style.display="none";
+  }
+
+  if(previewModal.style.display==="flex")
+   previewModal.style.display="none";
+
+  if(galleryModal.style.display==="flex"){
+
+   document.getElementById(
+    "galleryVideo"
+   ).pause();
+
+   galleryModal.style.display="none";
+  }
+
+  if(
+   document.getElementById(
+    "activeCall"
+   ).style.display==="block"
+  ){
+   cleanupCall();
+  }
+ });
+
+/* =========================================================
+   SOCKET ERROR
+========================================================= */
+
+socket.on(
+ "connect_error",
+ error=>{
+
+  console.error(
+   "SOCKET CONNECT ERROR:",
+   error
+  );
+
+  showStatus(
+   "Call server connection failed.",
+   4000
+  );
+});
+
+/* =========================================================
+   START
+========================================================= */
+
 (async()=>{
- initMap();
- await initAuth();
+
+ await loadAuth();
+
  await loadSnaps();
- const roomFromUrl=new URLSearchParams(location.search).get("room");
- if(roomFromUrl){setTimeout(()=>{if(currentUser){$("targetRoomInput").value=String(roomFromUrl).toUpperCase();openJoinPanel()}},300)}
- window.addEventListener("resize",()=>setTimeout(()=>map.invalidateSize(),150));
+
+ if(currentUser){
+
+  await createMyRoom();
+  await joinOwnCallRoom();
+ }
+
 })();
 </script>
+
 </body>
 </html>
