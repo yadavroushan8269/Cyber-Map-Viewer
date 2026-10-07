@@ -11,7 +11,7 @@
 <style>
 :root{
   --bg:#05070b;
-  --panel:rgba(6,12,19,.96);
+  --panel:rgba(6,12,19,.97);
   --line:#21404c;
   --cyan:#00e5ff;
   --green:#00ff9d;
@@ -355,6 +355,60 @@ input[type=text]{
   font-size:26px;
 }
 
+/* ================= LOCATION PREVIEW ================= */
+
+.location-preview-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:13px;
+}
+
+.location-preview-avatar{
+  width:72px;
+  height:72px;
+  min-width:72px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid var(--cyan);
+  background:#071017;
+  box-shadow:0 0 18px #00e5ff22;
+}
+
+.location-status{
+  padding:9px 11px;
+  margin-bottom:10px;
+  border:1px solid #17604e;
+  border-radius:10px;
+  background:#031712;
+  color:var(--green);
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.6px;
+}
+
+.location-main-place{
+  font-size:17px;
+  line-height:1.35;
+  font-weight:900;
+  color:#fff;
+  margin-bottom:4px;
+}
+
+.location-subplace{
+  color:var(--muted);
+  font-size:11px;
+  line-height:1.45;
+  margin-bottom:10px;
+}
+
+.location-time{
+  color:var(--cyan);
+  font-size:12px;
+  font-weight:800;
+  margin-bottom:5px;
+}
+
 /* ================= CAMERA ================= */
 
 .camera-video{
@@ -363,6 +417,28 @@ input[type=text]{
   object-fit:cover;
   background:#000;
   border-radius:13px;
+  transition:filter .15s ease;
+}
+
+.camera-controls{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  margin-top:8px;
+}
+
+.camera-control-button{
+  border:1px solid #31515c;
+  border-radius:9px;
+  padding:9px;
+  background:#09151a;
+  color:#dffaff;
+  font-weight:800;
+}
+
+.camera-control-button.active{
+  border-color:var(--cyan);
+  color:var(--cyan);
 }
 
 .filter-row{
@@ -384,6 +460,7 @@ input[type=text]{
 .filter-row button.active{
   border-color:var(--cyan);
   color:var(--cyan);
+  box-shadow:0 0 8px #00e5ff18;
 }
 
 .media-mode{
@@ -622,6 +699,10 @@ input[type=text]{
     font-size:12px;
   }
 
+  .filter-row button{
+    font-size:9px;
+  }
+
   .trace{
     right:12px;
     bottom:max(
@@ -667,7 +748,7 @@ input[type=text]{
     </div>
 
     <div id="hudPlace" class="hud-place">
-      Location not detected
+      Detecting current location...
     </div>
 
     <div id="hudCoords" class="hud-coords">
@@ -836,7 +917,7 @@ input[type=text]{
     >
 
     <div class="row">
-      <b>Place</b>
+      <b>Live Place</b>
       <span id="pPlace">--</span>
     </div>
 
@@ -876,8 +957,176 @@ input[type=text]{
     </div>
 
     <div class="row">
+      <b>Latitude</b>
+      <span id="pLat">--</span>
+    </div>
+
+    <div class="row">
+      <b>Longitude</b>
+      <span id="pLng">--</span>
+    </div>
+
+    <div class="row">
       <b>GPS Accuracy</b>
       <span id="pAccuracy">--</span>
+    </div>
+
+    <div class="row">
+      <b>Date</b>
+      <span id="pDate">--</span>
+    </div>
+
+    <div class="row">
+      <b>Time</b>
+      <span id="pTime">--</span>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ================= LOCATION BEFORE CAMERA ================= -->
+
+<div id="locationPreviewModal" class="modal">
+
+  <div class="panel">
+
+    <button
+      class="close"
+      data-close="locationPreviewModal"
+    >
+      ×
+    </button>
+
+    <h2>Live Location</h2>
+
+    <div class="location-preview-head">
+
+      <div id="locationPreviewAvatar">
+        <div class="location-preview-avatar"
+             style="display:flex;align-items:center;justify-content:center;font-size:30px">
+          👤
+        </div>
+      </div>
+
+      <div>
+
+        <div
+          id="locationPreviewName"
+          style="font-size:16px;font-weight:900"
+        >
+          User
+        </div>
+
+        <div
+          id="locationPreviewEmail"
+          style="font-size:11px;color:var(--muted);margin-top:3px"
+        >
+          --
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="location-status">
+      ✓ LIVE LOCATION DETECTED
+    </div>
+
+    <div
+      id="locationPreviewMain"
+      class="location-main-place"
+    >
+      Detecting...
+    </div>
+
+    <div
+      id="locationPreviewSub"
+      class="location-subplace"
+    >
+      --
+    </div>
+
+    <div
+      id="locationPreviewDate"
+      class="location-time"
+    >
+      Date: --
+    </div>
+
+    <div
+      id="locationPreviewTime"
+      class="location-time"
+    >
+      Time: --
+    </div>
+
+    <div class="row">
+      <b>Locality / Area</b>
+      <span id="lpLocality">--</span>
+    </div>
+
+    <div class="row">
+      <b>Village</b>
+      <span id="lpVillage">--</span>
+    </div>
+
+    <div class="row">
+      <b>City / Town</b>
+      <span id="lpCity">--</span>
+    </div>
+
+    <div class="row">
+      <b>District</b>
+      <span id="lpDistrict">--</span>
+    </div>
+
+    <div class="row">
+      <b>State</b>
+      <span id="lpState">--</span>
+    </div>
+
+    <div class="row">
+      <b>PIN</b>
+      <span id="lpPin">--</span>
+    </div>
+
+    <div class="row">
+      <b>Country</b>
+      <span id="lpCountry">--</span>
+    </div>
+
+    <div class="row">
+      <b>Latitude</b>
+      <span id="lpLat">--</span>
+    </div>
+
+    <div class="row">
+      <b>Longitude</b>
+      <span id="lpLng">--</span>
+    </div>
+
+    <div class="row">
+      <b>GPS Accuracy</b>
+      <span id="lpAccuracy">--</span>
+    </div>
+
+    <div class="actions">
+
+      <button
+        id="locationRetryBtn"
+        class="secondary"
+      >
+        Detect Again
+      </button>
+
+      <button
+        id="continueCameraBtn"
+        class="primary"
+      >
+        Continue to Camera
+      </button>
+
     </div>
 
   </div>
@@ -1010,16 +1259,37 @@ input[type=text]{
       style="width:100%"
     >
 
+    <!-- 10 ORIGINAL FILTERS -->
+
+    <div
+      style="font-size:11px;color:var(--muted);margin-top:8px"
+    >
+      Filters
+    </div>
+
     <div id="filterRow" class="filter-row"></div>
 
-    <div class="actions">
+    <!-- CAMERA CONTROLS -->
+
+    <div class="camera-controls">
 
       <button
         id="switchCameraBtn"
-        class="secondary"
+        class="camera-control-button"
       >
-        Switch
+        🔄 Switch Camera
       </button>
+
+      <button
+        id="mirrorBtn"
+        class="camera-control-button"
+      >
+        🪞 Mirror: OFF
+      </button>
+
+    </div>
+
+    <div class="actions">
 
       <button
         id="captureBtn"
@@ -1200,6 +1470,7 @@ input[type=text]{
         id="remoteVideo"
         autoplay
         playsinline
+        style="width:100%;background:#000;border-radius:12px"
       ></video>
 
       <video
@@ -1207,7 +1478,7 @@ input[type=text]{
         autoplay
         playsinline
         muted
-        style="width:38%;margin-top:8px"
+        style="width:38%;margin-top:8px;border-radius:10px"
       ></video>
 
       <div class="actions">
@@ -1307,20 +1578,16 @@ function getAudioContext(){
     }
 
     if(!hackerAudioContext){
-
       hackerAudioContext =
         new AudioContext();
-
     }
 
     if(
       hackerAudioContext.state ===
       "suspended"
     ){
-
       hackerAudioContext.resume()
         .catch(()=>{});
-
     }
 
     return hackerAudioContext;
@@ -1580,12 +1847,18 @@ const panelIds = [
 let currentLocation = null;
 let currentDetails = null;
 
+let currentLocationDate = null;
+
 let cameraStream = null;
 let currentFacing = "environment";
 let zoomTrack = null;
 let currentZoom = 1;
 
 let activeFilter = "normal";
+
+/* RESTORED MIRROR */
+
+let mirrorCamera = false;
 
 let qrScanner = null;
 
@@ -1598,7 +1871,6 @@ let callPeer = null;
 let localCallStream = null;
 let callMuted = false;
 let callCamera = true;
-
 
 /* MEDIA STATE */
 
@@ -1799,17 +2071,13 @@ function setDetectFlash(
     text;
 
   if(show){
-
     showModal(
       "detectFlash"
     );
-
   }else{
-
     hideModal(
       "detectFlash"
     );
-
   }
 
 }
@@ -1899,7 +2167,7 @@ function getLivePosition(){
 
 
 /* =========================================================
-   FULL LOCATION
+   LOCATION HELPERS
 ========================================================= */
 
 function buildFullLocation(
@@ -1922,6 +2190,71 @@ function buildFullLocation(
   details.placeName
   ||
   "Unknown location";
+
+}
+
+
+function getLocationMainName(
+  details
+){
+
+  return (
+    details.locality ||
+    details.village ||
+    details.city ||
+    details.district ||
+    details.state ||
+    details.country ||
+    details.placeName ||
+    "Current location"
+  );
+
+}
+
+
+function getLocationSecondary(
+  details
+){
+
+  const parts = [
+    details.village,
+    details.city,
+    details.district,
+    details.state,
+    details.country
+  ].filter(Boolean);
+
+  return [
+    ...new Set(parts)
+  ].join(" • ");
+
+}
+
+
+function getLocationDateTime(
+  date = new Date()
+){
+
+  return {
+    date:
+      date.toLocaleDateString(
+        undefined,
+        {
+          year:"numeric",
+          month:"long",
+          day:"numeric"
+        }
+      ),
+    time:
+      date.toLocaleTimeString(
+        undefined,
+        {
+          hour:"2-digit",
+          minute:"2-digit",
+          second:"2-digit"
+        }
+      )
+  };
 
 }
 
@@ -1955,16 +2288,28 @@ async function reverseGeocodeDetails(
         }
       );
 
+    if(!response.ok){
+      throw new Error(
+        "Reverse geocoding failed"
+      );
+    }
+
     const json =
       await response.json();
 
     const a =
       json.address || {};
 
+    /*
+      Keep actual returned location.
+      Nothing is hardcoded.
+    */
+
     const locality =
       a.suburb ||
       a.neighbourhood ||
       a.locality ||
+      a.quarter ||
       "";
 
     const village =
@@ -1976,7 +2321,6 @@ async function reverseGeocodeDetails(
       a.city ||
       a.town ||
       a.municipality ||
-      a.city_district ||
       "";
 
     const district =
@@ -2004,6 +2348,7 @@ async function reverseGeocodeDetails(
       district ||
       state ||
       country ||
+      json.display_name ||
       "Unknown location";
 
     const details = {
@@ -2029,8 +2374,19 @@ async function reverseGeocodeDetails(
 
   }catch(error){
 
+    console.error(
+      "Reverse geocode error",
+      error
+    );
+
+    /*
+      Even if reverse geocoder fails,
+      don't pretend coordinates are a place name.
+    */
+
     return {
-      placeName:"GPS location",
+      placeName:
+        "Current GPS location",
       locality:"",
       village:"",
       city:"",
@@ -2042,7 +2398,7 @@ async function reverseGeocodeDetails(
       lng,
       accuracy:null,
       fullLocation:
-        `${lat.toFixed(6)}, ${lng.toFixed(6)}`
+        "Current GPS location"
     };
 
   }
@@ -2058,21 +2414,39 @@ function updateLocationUI(
   details
 ){
 
+  if(!details){
+    return;
+  }
+
+  const mainName =
+    getLocationMainName(
+      details
+    );
+
+  const full =
+    details.fullLocation ||
+    details.placeName ||
+    mainName;
+
+  /*
+    HUD:
+    Actual place hierarchy first.
+    Coordinates only secondary.
+  */
+
   $("hudPlace")
     .textContent =
-    details.fullLocation ||
-    details.placeName;
+    full;
 
   $("hudCoords")
     .textContent =
-    `GPS: ${details.lat.toFixed(6)}, ` +
-    `${details.lng.toFixed(6)} • ` +
+    `GPS: ${Number(details.lat).toFixed(6)}, ` +
+    `${Number(details.lng).toFixed(6)} • ` +
     `±${Math.round(details.accuracy || 0)}m`;
 
   $("pPlace")
     .textContent =
-    details.fullLocation ||
-    details.placeName;
+    full;
 
   $("pLocality")
     .textContent =
@@ -2109,7 +2483,134 @@ function updateLocationUI(
     details.country ||
     "—";
 
+  $("pLat")
+    .textContent =
+    Number.isFinite(
+      Number(details.lat)
+    )
+      ? Number(details.lat).toFixed(6)
+      : "—";
+
+  $("pLng")
+    .textContent =
+    Number.isFinite(
+      Number(details.lng)
+    )
+      ? Number(details.lng).toFixed(6)
+      : "—";
+
   $("pAccuracy")
+    .textContent =
+    details.accuracy
+      ? Math.round(
+          details.accuracy
+        ) + " m"
+      : "—";
+
+  const dt =
+    getLocationDateTime(
+      currentLocationDate ||
+      new Date()
+    );
+
+  $("pDate")
+    .textContent =
+    dt.date;
+
+  $("pTime")
+    .textContent =
+    dt.time;
+
+}
+
+
+/* =========================================================
+   LOCATION PREVIEW UI
+========================================================= */
+
+async function updateLocationPreview(){
+
+  await loadProfile();
+
+  if(!currentDetails){
+    return;
+  }
+
+  const details =
+    currentDetails;
+
+  const dt =
+    getLocationDateTime(
+      currentLocationDate ||
+      new Date()
+    );
+
+  $("locationPreviewMain")
+    .textContent =
+    getLocationMainName(
+      details
+    );
+
+  $("locationPreviewSub")
+    .textContent =
+    getLocationSecondary(
+      details
+    ) ||
+    details.fullLocation ||
+    "Current GPS location";
+
+  $("locationPreviewDate")
+    .textContent =
+    "Date: " + dt.date;
+
+  $("locationPreviewTime")
+    .textContent =
+    "Time: " + dt.time;
+
+  $("lpLocality")
+    .textContent =
+    details.locality ||
+    "—";
+
+  $("lpVillage")
+    .textContent =
+    details.village ||
+    "—";
+
+  $("lpCity")
+    .textContent =
+    details.city ||
+    "—";
+
+  $("lpDistrict")
+    .textContent =
+    details.district ||
+    "—";
+
+  $("lpState")
+    .textContent =
+    details.state ||
+    "—";
+
+  $("lpPin")
+    .textContent =
+    details.pin ||
+    "—";
+
+  $("lpCountry")
+    .textContent =
+    details.country ||
+    "—";
+
+  $("lpLat")
+    .textContent =
+    Number(details.lat).toFixed(6);
+
+  $("lpLng")
+    .textContent =
+    Number(details.lng).toFixed(6);
+
+  $("lpAccuracy")
     .textContent =
     details.accuracy
       ? Math.round(
@@ -2154,6 +2655,9 @@ async function detectLiveLocation(
 
   currentDetails =
     details;
+
+  currentLocationDate =
+    new Date();
 
   updateLocationUI(
     details
@@ -2316,14 +2820,25 @@ async function loadProfile(){
       user?.email?.split("@")[0] ||
       "User";
 
+    const email =
+      user?.email ||
+      "—";
+
     $("profileName")
       .textContent =
       name;
 
     $("profileEmail")
       .textContent =
-      user?.email ||
-      "—";
+      email;
+
+    $("locationPreviewName")
+      .textContent =
+      name;
+
+    $("locationPreviewEmail")
+      .textContent =
+      email;
 
     const savedPhoto =
       localStorage.getItem(
@@ -2332,15 +2847,23 @@ async function loadProfile(){
 
     const avatar =
       savedPhoto ||
-      user?.user_metadata?.avatar_url;
+      user?.user_metadata?.avatar_url ||
+      "";
 
     if(avatar){
 
       $("avatarWrap")
         .innerHTML =
         `<img class="avatar"
-              src="${avatar}"
+              src="${escapeHtml(avatar)}"
               alt="Profile">`;
+
+      $("locationPreviewAvatar")
+        .innerHTML =
+        `<img
+          class="location-preview-avatar"
+          src="${escapeHtml(avatar)}"
+          alt="Profile">`;
 
     }else{
 
@@ -2348,14 +2871,19 @@ async function loadProfile(){
         .textContent =
         "👤";
 
+      $("locationPreviewAvatar")
+        .innerHTML =
+        `<div
+          class="location-preview-avatar"
+          style="display:flex;align-items:center;justify-content:center;font-size:30px"
+        >👤</div>`;
+
     }
 
     if(currentDetails){
-
       updateLocationUI(
         currentDetails
       );
-
     }
 
   }catch(error){
@@ -2708,7 +3236,7 @@ $("mapBtn").onclick =
 
 
 /* =========================================================
-   CAMERA FILTERS
+   CAMERA FILTERS — ALL 10 RESTORED
 ========================================================= */
 
 const filters = [
@@ -2731,6 +3259,9 @@ filters.forEach(
       document.createElement(
         "button"
       );
+
+    button.type =
+      "button";
 
     button.textContent =
       label;
@@ -2783,7 +3314,7 @@ if(firstFilter){
 }
 
 
-function applyCameraFilter(){
+function getFilterCSS(){
 
   const filterMap = {
 
@@ -2818,14 +3349,63 @@ function applyCameraFilter(){
 
   };
 
-  $("cameraVideo")
-    .style.filter =
+  return (
     filterMap[
       activeFilter
     ] ||
-    "none";
+    "none"
+  );
 
 }
+
+
+function applyCameraFilter(){
+
+  $("cameraVideo")
+    .style.filter =
+    getFilterCSS();
+
+}
+
+
+/* =========================================================
+   MIRROR CAMERA — RESTORED
+========================================================= */
+
+function applyMirror(){
+
+  $("cameraVideo")
+    .style.transform =
+    mirrorCamera
+      ? "scaleX(-1)"
+      : "scaleX(1)";
+
+  $("mirrorBtn")
+    .textContent =
+    mirrorCamera
+      ? "🪞 Mirror: ON"
+      : "🪞 Mirror: OFF";
+
+  $("mirrorBtn")
+    .classList.toggle(
+      "active",
+      mirrorCamera
+    );
+
+}
+
+
+$("mirrorBtn").onclick =
+  () => {
+
+    mirrorCamera =
+      !mirrorCamera;
+
+    applyMirror();
+
+    playHackerConfirm();
+
+  };
 
 
 /* =========================================================
@@ -2884,12 +3464,6 @@ async function openCameraStream(){
 
   let stream = null;
 
-  /*
-    exact facingMode first.
-    This fixes many Android front-camera
-    switching problems.
-  */
-
   try{
 
     stream =
@@ -2912,8 +3486,10 @@ async function openCameraStream(){
         .getUserMedia({
           video:{
             ...common,
-            facingMode:
-              currentFacing
+            facingMode:{
+              ideal:
+                currentFacing
+            }
           },
           audio:false
         });
@@ -2950,8 +3526,14 @@ async function openCameraStream(){
 
   applyCameraFilter();
 
+  applyMirror();
+
 }
 
+
+/* =========================================================
+   ZOOM
+========================================================= */
 
 function setupZoom(){
 
@@ -3002,17 +3584,78 @@ function setupZoom(){
 }
 
 
+$("zoomSlider").oninput =
+  event => {
+
+    currentZoom =
+      Number(
+        event.target.value
+      );
+
+    $("zoomValue")
+      .textContent =
+      currentZoom.toFixed(1) +
+      "x";
+
+    try{
+
+      const capabilities =
+        zoomTrack
+          ?.getCapabilities?.();
+
+      if(
+        capabilities?.zoom
+      ){
+
+        const zoom =
+          Math.min(
+            capabilities.zoom.max,
+            Math.max(
+              capabilities.zoom.min,
+              currentZoom
+            )
+          );
+
+        zoomTrack
+          .applyConstraints({
+            advanced:[
+              {zoom}
+            ]
+          })
+          .catch(()=>{});
+
+      }
+
+    }catch(error){}
+
+  };
+
+
+/* =========================================================
+   PREPARE CAMERA
+========================================================= */
+
 async function prepareCamera(){
 
-  /*
-    FIX:
-    + button now centers map on
-    actual live GPS before camera.
-  */
+  if(!currentDetails){
 
-  await detectLiveLocation({
-    centerMap:true
-  });
+    await detectLiveLocation({
+      centerMap:true
+    });
+
+  }else{
+
+    /*
+      Refresh GPS before camera.
+      This ensures camera always starts from
+      the current live location.
+    */
+
+    await detectLiveLocation({
+      centerMap:true
+    });
+
+  }
 
   await openCameraStream();
 
@@ -3102,32 +3745,155 @@ $("videoModeBtn").onclick =
 
 
 /* =========================================================
-   PLUS BUTTON
+   PLUS — LOCATION FIRST
 ========================================================= */
 
 $("plusBtn").onclick =
   async () => {
 
+    playHackerClick();
+
     /*
-      Camera opens immediately.
-      Then GPS is detected and map moves
-      to user's real live location.
+      IMPORTANT:
+      Camera does NOT open here.
+
+      First detect live location.
     */
 
-    showModal(
-      "cameraModal"
+    panelIds.forEach(
+      id => hideModal(id)
     );
 
-    $("uploadPreview")
-      .classList.remove(
-        "show"
-      );
+    showModal(
+      "locationPreviewModal"
+    );
+
+    $("locationPreviewMain")
+      .textContent =
+      "Detecting current location...";
+
+    $("locationPreviewSub")
+      .textContent =
+      "Please wait for live GPS.";
 
     try{
 
+      await detectLiveLocation({
+        centerMap:true
+      });
+
+      await updateLocationPreview();
+
+      playHackerConfirm();
+
+    }catch(error){
+
+      console.error(
+        "Location before camera error",
+        error
+      );
+
+      $("locationPreviewMain")
+        .textContent =
+        "Location could not be detected";
+
+      $("locationPreviewSub")
+        .textContent =
+        "Please allow location permission and try again.";
+
+      toast(
+        "Live location permission required"
+      );
+
+    }
+
+  };
+
+
+/* =========================================================
+   LOCATION RETRY
+========================================================= */
+
+$("locationRetryBtn").onclick =
+  async () => {
+
+    try{
+
+      $("locationPreviewMain")
+        .textContent =
+        "Detecting current location...";
+
+      $("locationPreviewSub")
+        .textContent =
+        "Getting fresh GPS coordinates...";
+
+      await detectLiveLocation({
+        centerMap:true
+      });
+
+      await updateLocationPreview();
+
+      playHackerConfirm();
+
+      toast(
+        "Live location updated"
+      );
+
+    }catch(error){
+
+      console.error(
+        error
+      );
+
+      toast(
+        "GPS unavailable"
+      );
+
+    }
+
+  };
+
+
+/* =========================================================
+   CONTINUE TO CAMERA
+========================================================= */
+
+$("continueCameraBtn").onclick =
+  async () => {
+
+    if(!currentLocation){
+
+      toast(
+        "Live location is required first"
+      );
+
+      return;
+
+    }
+
+    try{
+
+      $("continueCameraBtn")
+        .disabled =
+        true;
+
+      $("continueCameraBtn")
+        .textContent =
+        "Opening Camera...";
+
+      hideModal(
+        "locationPreviewModal"
+      );
+
+      resetUploadPreview();
+
+      showModal(
+        "cameraModal"
+      );
+
       $("uploadStatus")
         .textContent =
-        "Detecting live location...";
+        "Opening camera...";
 
       await prepareCamera();
 
@@ -3135,9 +3901,7 @@ $("plusBtn").onclick =
         .textContent =
         "Camera ready. Live location locked.";
 
-      toast(
-        "Live location detected"
-      );
+      playHackerConfirm();
 
     }catch(error){
 
@@ -3150,24 +3914,19 @@ $("plusBtn").onclick =
         "cameraModal"
       );
 
-      if(
-        error?.code === 1 ||
-        error?.message
-          ?.toLowerCase()
-          .includes("permission")
-      ){
+      toast(
+        "Camera permission unavailable"
+      );
 
-        toast(
-          "Allow camera and location permission"
-        );
+    }finally{
 
-      }else{
+      $("continueCameraBtn")
+        .disabled =
+        false;
 
-        toast(
-          "Camera/GPS unavailable"
-        );
-
-      }
+      $("continueCameraBtn")
+        .textContent =
+        "Continue to Camera";
 
     }
 
@@ -3175,58 +3934,7 @@ $("plusBtn").onclick =
 
 
 /* =========================================================
-   ZOOM
-========================================================= */
-
-$("zoomSlider").oninput =
-  event => {
-
-    currentZoom =
-      Number(
-        event.target.value
-      );
-
-    $("zoomValue")
-      .textContent =
-      currentZoom.toFixed(1) +
-      "x";
-
-    try{
-
-      const capabilities =
-        zoomTrack
-          ?.getCapabilities?.();
-
-      if(
-        capabilities?.zoom
-      ){
-
-        const zoom =
-          Math.min(
-            capabilities.zoom.max,
-            Math.max(
-              capabilities.zoom.min,
-              currentZoom
-            )
-          );
-
-        zoomTrack
-          .applyConstraints({
-            advanced:[
-              {zoom}
-            ]
-          })
-          .catch(()=>{});
-
-      }
-
-    }catch(error){}
-
-  };
-
-
-/* =========================================================
-   SWITCH FRONT / BACK CAMERA
+   SWITCH FRONT / BACK
 ========================================================= */
 
 $("switchCameraBtn").onclick =
@@ -3270,9 +3978,7 @@ $("switchCameraBtn").onclick =
         oldFacing;
 
       try{
-
         await openCameraStream();
-
       }catch(error2){}
 
       toast(
@@ -3622,6 +4328,26 @@ async function capturePhoto(){
 
   }
 
+  /*
+    Recheck GPS immediately before capture.
+  */
+
+  try{
+
+    await detectLiveLocation({
+      centerMap:false
+    });
+
+  }catch(error){
+
+    toast(
+      "Could not refresh live location"
+    );
+
+    return;
+
+  }
+
   const captureLocation = {
     lat:
       currentLocation.lat,
@@ -3660,14 +4386,27 @@ async function capturePhoto(){
       );
 
     context.filter =
-      video.style.filter ||
-      "none";
+      getFilterCSS();
 
     /*
-      Front camera preview is often mirrored
-      by the browser only visually. We leave
-      the actual captured image natural.
+      Mirror is now restored.
+      If Mirror is ON, the actual photo
+      is also mirrored.
     */
+
+    if(mirrorCamera){
+
+      context.translate(
+        canvas.width,
+        0
+      );
+
+      context.scale(
+        -1,
+        1
+      );
+
+    }
 
     context.drawImage(
       video,
@@ -3801,7 +4540,7 @@ function updateRecordingTimer(){
 }
 
 
-function startVideoRecording(){
+async function startVideoRecording(){
 
   if(!cameraStream){
 
@@ -3829,6 +4568,22 @@ function startVideoRecording(){
 
     toast(
       "Live location not ready"
+    );
+
+    return;
+
+  }
+
+  try{
+
+    await detectLiveLocation({
+      centerMap:false
+    });
+
+  }catch(error){
+
+    toast(
+      "Could not refresh live location"
     );
 
     return;
@@ -4040,15 +4795,19 @@ function stopVideoRecording(){
 
   setTimeout(
     () => {
+
       $("captureBtn")
         .disabled =
         false;
 
       if(mediaMode === "video"){
+
         $("captureBtn")
           .textContent =
           "Start Video";
+
       }
+
     },
     700
   );
@@ -4186,7 +4945,9 @@ async function uploadMedia(
         latitude:lat,
         longitude:lng,
         description
-      });
+      })
+      .select("*")
+      .maybeSingle();
 
   if(insert.error){
     throw insert.error;
@@ -4206,7 +4967,9 @@ async function uploadMedia(
 
   return {
     publicUrl,
-    fileName
+    fileName,
+    row:
+      insert.data
   };
 
 }
@@ -4351,12 +5114,6 @@ $("uploadMediaBtn").onclick =
         );
 
       }
-
-      /*
-        Stage-based progress is used because
-        Supabase browser upload does not expose
-        a simple byte-progress callback here.
-      */
 
       $("uploadStatus")
         .textContent =
@@ -4606,7 +5363,6 @@ async function loadSnaps(){
 
   }
 
-
   for(
     const group of snapGroups
   ){
@@ -4623,11 +5379,11 @@ async function loadSnaps(){
         );
 
       label =
-        location.placeName ||
-        label;
+        getLocationMainName(
+          location
+        );
 
     }catch(error){}
-
 
     const icon =
       L.divIcon({
@@ -4644,7 +5400,6 @@ async function loadSnaps(){
         ]
       });
 
-
     const marker =
       L.marker(
         [
@@ -4659,14 +5414,12 @@ async function loadSnaps(){
         snapLayer
       );
 
-
     marker.bindTooltip(
       label,
       {
         direction:"top"
       }
     );
-
 
     marker.on(
       "click",
@@ -4828,7 +5581,7 @@ $("nextSnap").onclick =
 
 
 /* =========================================================
-   NOTIFICATION HELPERS
+   NOTIFICATIONS
 ========================================================= */
 
 function findDateField(
@@ -4952,12 +5705,6 @@ async function loadNotifications(){
 
   const notifications = [];
 
-  /*
-    Own uploads are stored locally so notification
-    still works even if the existing table does not
-    have created_at/user_id columns.
-  */
-
   getLocalNotifications()
     .forEach(
       item => {
@@ -4994,27 +5741,14 @@ async function loadNotifications(){
                 ).toFixed(6)},
                 ${Number(
                   item.lng
-                ).toFixed(6)}
-                <br>
-                <b>Size:</b>
-                ${escapeHtml(
-                  formatBytes(
-                    item.size
-                  )
-                )}
+                ).toFixed(6)
+                }
               `
             )
         });
 
       }
     );
-
-
-  /*
-    Existing database data.
-    select("*") avoids assuming any particular
-    notification/likes columns.
-  */
 
   try{
 
@@ -5104,10 +5838,6 @@ async function loadNotifications(){
               ? "Video"
               : "Photo";
 
-          const description =
-            snap.description ||
-            "Past Snap";
-
           notifications.push({
             sort:
               date
@@ -5127,7 +5857,8 @@ async function loadNotifications(){
                   <br>
                   <b>Info:</b>
                   ${escapeHtml(
-                    description
+                    snap.description ||
+                    "Past Snap"
                   )}
                   <br>
                   <b>GPS:</b>
@@ -5160,19 +5891,11 @@ async function loadNotifications(){
 
   }
 
-
   notifications.sort(
     (a,b) =>
       b.sort -
       a.sort
   );
-
-
-  /*
-    Remove exact duplicate-looking
-    local/database entries only when
-    they share same title/time.
-  */
 
   const seen =
     new Set();
@@ -5195,7 +5918,6 @@ async function loadNotifications(){
       }
     );
 
-
   if(!unique.length){
 
     list.innerHTML =
@@ -5213,7 +5935,6 @@ async function loadNotifications(){
     return;
 
   }
-
 
   list.innerHTML =
     unique
@@ -5551,7 +6272,6 @@ async function beginCall(
 
       };
 
-
     if(initiator){
 
       const offer =
@@ -5738,9 +6458,7 @@ function endCall(
     null;
 
   if(callPeer){
-
     callPeer.close();
-
   }
 
   callPeer =
@@ -5879,7 +6597,16 @@ $("youBtn").onclick =
             centerMap:false
           });
 
-        }catch(error){}
+          await updateLocationPreview();
+
+        }catch(error){
+
+          console.error(
+            "You location refresh error",
+            error
+          );
+
+        }
 
       }
     );
