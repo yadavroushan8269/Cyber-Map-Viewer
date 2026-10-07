@@ -1022,6 +1022,14 @@ input[type=text]{
       </button>
 
       <button
+        id="mirrorBtn"
+        class="secondary"
+        type="button"
+      >
+        Mirror OFF
+      </button>
+
+      <button
         id="captureBtn"
         class="primary"
       >
@@ -1582,6 +1590,7 @@ let currentDetails = null;
 
 let cameraStream = null;
 let currentFacing = "environment";
+let cameraMirror = false;
 let zoomTrack = null;
 let currentZoom = 1;
 
@@ -2785,45 +2794,8 @@ if(firstFilter){
 
 function applyCameraFilter(){
 
-  const filterMap = {
-
-    normal:"none",
-
-    contrast:
-      "contrast(1.35)",
-
-    mono:
-      "grayscale(1)",
-
-    sepia:
-      "sepia(1)",
-
-    cyan:
-      "hue-rotate(120deg) saturate(1.4)",
-
-    invert:
-      "invert(1)",
-
-    bright:
-      "brightness(1.35)",
-
-    dark:
-      "brightness(.65)",
-
-    red:
-      "hue-rotate(315deg) saturate(1.8)",
-
-    night:
-      "brightness(.55) contrast(1.2)"
-
-  };
-
-  $("cameraVideo")
-    .style.filter =
-    filterMap[
-      activeFilter
-    ] ||
-    "none";
+  $("cameraVideo").style.filter =
+    getCameraFilter();
 
 }
 
@@ -2831,6 +2803,74 @@ function applyCameraFilter(){
 /* =========================================================
    CAMERA HELPERS
 ========================================================= */
+
+function applyCameraMirror(){
+
+  const video = $("cameraVideo");
+
+  if(!video){
+    return;
+  }
+
+  video.style.transform =
+    cameraMirror
+      ? "scaleX(-1)"
+      : "scaleX(1)";
+
+  const button = $("mirrorBtn");
+
+  if(button){
+    button.textContent =
+      cameraMirror
+        ? "Mirror ON"
+        : "Mirror OFF";
+
+    button.classList.toggle(
+      "active",
+      cameraMirror
+    );
+  }
+}
+
+function getCameraFilter(){
+
+  const filterMap = {
+    normal:"none",
+    contrast:"contrast(1.35)",
+    mono:"grayscale(1)",
+    sepia:"sepia(1)",
+    cyan:"hue-rotate(120deg) saturate(1.4)",
+    invert:"invert(1)",
+    bright:"brightness(1.35)",
+    dark:"brightness(.65)",
+    red:"hue-rotate(315deg) saturate(1.8)",
+    night:"brightness(.55) contrast(1.2)"
+  };
+
+  return filterMap[activeFilter] || "none";
+}
+
+function drawVideoFrame(ctx, video, width, height){
+
+  ctx.save();
+
+  ctx.filter = getCameraFilter();
+
+  if(cameraMirror){
+    ctx.translate(width, 0);
+    ctx.scale(-1, 1);
+  }
+
+  ctx.drawImage(
+    video,
+    0,
+    0,
+    width,
+    height
+  );
+
+  ctx.restore();
+}
 
 function stopCamera(){
 
@@ -2949,6 +2989,7 @@ async function openCameraStream(){
   setupZoom();
 
   applyCameraFilter();
+  applyCameraMirror();
 
 }
 
@@ -3280,6 +3321,24 @@ $("switchCameraBtn").onclick =
       );
 
     }
+
+  };
+
+
+$("mirrorBtn").onclick =
+  () => {
+
+    cameraMirror = !cameraMirror;
+
+    applyCameraMirror();
+
+    playHackerClick();
+
+    toast(
+      cameraMirror
+        ? "Mirror ON"
+        : "Mirror OFF"
+    );
 
   };
 
@@ -3659,20 +3718,9 @@ async function capturePhoto(){
         "2d"
       );
 
-    context.filter =
-      video.style.filter ||
-      "none";
-
-    /*
-      Front camera preview is often mirrored
-      by the browser only visually. We leave
-      the actual captured image natural.
-    */
-
-    context.drawImage(
+    drawVideoFrame(
+      context,
       video,
-      0,
-      0,
       canvas.width,
       canvas.height
     );
@@ -3838,18 +3886,62 @@ function startVideoRecording(){
   const mime =
     chooseRecorderMime();
 
+  let recorderStream = cameraStream;
+  let mirrorCanvas = null;
+  let mirrorContext = null;
+  let mirrorAnimation = null;
+
+  /*
+    When Mirror is ON, record the same mirrored/filter-processed
+    view that the user sees. Fall back to the original camera
+    stream on browsers that do not support canvas.captureStream().
+  */
+  if(
+    cameraMirror &&
+    typeof HTMLCanvasElement !== "undefined" &&
+    typeof HTMLCanvasElement.prototype.captureStream === "function"
+  ){
+
+    const video = $("cameraVideo");
+
+    mirrorCanvas = document.createElement("canvas");
+    mirrorCanvas.width = video.videoWidth || 1280;
+    mirrorCanvas.height = video.videoHeight || 720;
+    mirrorContext = mirrorCanvas.getContext("2d");
+
+    const fps = 30;
+    recorderStream = mirrorCanvas.captureStream(fps);
+
+    const draw = () => {
+      if(!mediaRecorder || mediaRecorder.state === "inactive"){
+        return;
+      }
+
+      drawVideoFrame(
+        mirrorContext,
+        video,
+        mirrorCanvas.width,
+        mirrorCanvas.height
+      );
+
+      mirrorAnimation =
+        requestAnimationFrame(draw);
+    };
+
+  }
+
   try{
 
     mediaRecorder =
       mime
         ? new MediaRecorder(
-            cameraStream,
+            recorderStream,
             {
               mimeType:mime
             }
           )
         : new MediaRecorder(
-            cameraStream
+            recorderStream
           );
 
   }catch(error){
@@ -3995,6 +4087,47 @@ function startVideoRecording(){
 
   mediaRecorder.start(
     250
+  );
+
+  if(mirrorCanvas && mirrorContext){
+    const video = $("cameraVideo");
+    const drawMirroredFrame = () => {
+      if(
+        !mediaRecorder ||
+        mediaRecorder.state === "inactive"
+      ){
+        return;
+      }
+
+      drawVideoFrame(
+        mirrorContext,
+        video,
+        mirrorCanvas.width,
+        mirrorCanvas.height
+      );
+
+      mirrorAnimation =
+        requestAnimationFrame(drawMirroredFrame);
+    };
+
+    mirrorAnimation =
+      requestAnimationFrame(drawMirroredFrame);
+  }
+
+  mediaRecorder.addEventListener(
+    "stop",
+    () => {
+      if(mirrorAnimation){
+        cancelAnimationFrame(mirrorAnimation);
+        mirrorAnimation = null;
+      }
+
+      if(mirrorCanvas){
+        mirrorCanvas.width = 1;
+        mirrorCanvas.height = 1;
+      }
+    },
+    {once:true}
   );
 
   recordingTimer =
@@ -5993,1017 +6126,6 @@ $("logoutBtn").onclick =
     );
 
   }
-
-})();
-      /* =========================================================
-   FINAL LOCATION + PLUS FIX
-   Paste this at the END of the existing <script>
-========================================================= */
-
-(function(){
-
-  /* -------------------------------------------------------
-     Better reverse geocoder
-  ------------------------------------------------------- */
-
-  async function fixedReverseGeocode(lat,lng){
-
-    let osm = null;
-
-    /* ---------- OPENSTREETMAP ---------- */
-
-    try{
-
-      const url =
-        "https://nominatim.openstreetmap.org/reverse" +
-        "?format=jsonv2" +
-        "&lat=" + encodeURIComponent(lat) +
-        "&lon=" + encodeURIComponent(lng) +
-        "&zoom=18" +
-        "&addressdetails=1" +
-        "&accept-language=en";
-
-      const response =
-        await fetch(
-          url,
-          {
-            headers:{
-              "Accept":"application/json"
-            }
-          }
-        );
-
-      if(response.ok){
-
-        const json =
-          await response.json();
-
-        if(json && json.address){
-          osm = json.address;
-        }
-
-      }
-
-    }catch(error){
-
-      console.warn(
-        "OSM reverse geocoding failed",
-        error
-      );
-
-    }
-
-
-    /* -----------------------------------------------------
-       Extract OSM hierarchy
-    ----------------------------------------------------- */
-
-    if(osm){
-
-      const locality =
-        osm.suburb ||
-        osm.neighbourhood ||
-        osm.locality ||
-        osm.quarter ||
-        osm.residential ||
-        "";
-
-      const village =
-        osm.village ||
-        osm.hamlet ||
-        osm.locality_district ||
-        "";
-
-      const city =
-        osm.city ||
-        osm.town ||
-        osm.municipality ||
-        "";
-
-      const district =
-        osm.county ||
-        osm.district ||
-        osm.state_district ||
-        osm.city_district ||
-        "";
-
-      const state =
-        osm.state ||
-        osm.province ||
-        "";
-
-      const pin =
-        osm.postcode ||
-        "";
-
-      const country =
-        osm.country ||
-        "";
-
-      const placeName =
-        locality ||
-        village ||
-        city ||
-        district ||
-        state ||
-        country ||
-        "";
-
-      if(
-        placeName ||
-        locality ||
-        village ||
-        city ||
-        district ||
-        state ||
-        country
-      ){
-
-        const parts = [
-          locality,
-          village,
-          city,
-          district,
-          state,
-          country
-        ]
-        .filter(Boolean);
-
-        const uniqueParts =
-          [...new Set(parts)];
-
-        return {
-          placeName:
-            placeName ||
-            "GPS location",
-
-          locality:
-            locality,
-
-          village:
-            village,
-
-          city:
-            city,
-
-          district:
-            district,
-
-          state:
-            state,
-
-          pin:
-            pin,
-
-          country:
-            country,
-
-          lat:
-            lat,
-
-          lng:
-            lng,
-
-          accuracy:
-            null,
-
-          fullLocation:
-            uniqueParts.join(", ") ||
-            `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-        };
-
-      }
-
-    }
-
-
-    /* -----------------------------------------------------
-       BIGDATACLOUD FALLBACK
-    ----------------------------------------------------- */
-
-    try{
-
-      const url =
-        "https://api.bigdatacloud.net/data/reverse-geocode-client" +
-        "?latitude=" +
-        encodeURIComponent(lat) +
-        "&longitude=" +
-        encodeURIComponent(lng) +
-        "&localityLanguage=en";
-
-      const response =
-        await fetch(
-          url,
-          {
-            headers:{
-              "Accept":"application/json"
-            }
-          }
-        );
-
-      if(!response.ok){
-        throw new Error(
-          "Fallback geocoder failed"
-        );
-      }
-
-      const data =
-        await response.json();
-
-      const administrative =
-        data?.localityInfo?.administrative ||
-        [];
-
-
-      function adminName(regex){
-
-        const item =
-          administrative.find(
-            x =>
-              x &&
-              x.name &&
-              regex.test(
-                String(
-                  x.description || ""
-                )
-              )
-          );
-
-        return item?.name || "";
-
-      }
-
-
-      const locality =
-        data?.locality ||
-        adminName(
-          /suburb|neighbou?rhood|locality/i
-        ) ||
-        "";
-
-      const localityType =
-        String(
-          data?.localityType || ""
-        );
-
-
-      let village = "";
-
-      if(
-        /village|hamlet/i.test(
-          localityType
-        )
-      ){
-
-        village =
-          data?.locality ||
-          "";
-
-      }else{
-
-        village =
-          adminName(
-            /village|hamlet/i
-          ) ||
-          "";
-
-      }
-
-
-      const city =
-        data?.city ||
-        adminName(
-          /city|town|municipality/i
-        ) ||
-        "";
-
-
-      const district =
-        data?.district ||
-        adminName(
-          /district|county/i
-        ) ||
-        "";
-
-
-      const state =
-        data?.principalSubdivision ||
-        adminName(
-          /state|province/i
-        ) ||
-        "";
-
-
-      const pin =
-        data?.postcode ||
-        "";
-
-
-      const country =
-        data?.countryName ||
-        "";
-
-
-      const placeName =
-        locality ||
-        village ||
-        city ||
-        district ||
-        state ||
-        country ||
-        "GPS location";
-
-
-      const parts = [
-        locality,
-        village,
-        city,
-        district,
-        state,
-        country
-      ]
-      .filter(Boolean);
-
-
-      return {
-
-        placeName:
-
-          placeName,
-
-        locality:
-
-          locality,
-
-        village:
-
-          village,
-
-        city:
-
-          city,
-
-        district:
-
-          district,
-
-        state:
-
-          state,
-
-        pin:
-
-          pin,
-
-        country:
-
-          country,
-
-        lat:
-
-          lat,
-
-        lng:
-
-          lng,
-
-        accuracy:
-
-          null,
-
-        fullLocation:
-
-          [...new Set(parts)]
-            .join(", ") ||
-          `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-
-      };
-
-    }catch(error){
-
-      console.warn(
-        "Fallback reverse geocoder failed",
-        error
-      );
-
-    }
-
-
-    /* -----------------------------------------------------
-       GPS ONLY FALLBACK
-    ----------------------------------------------------- */
-
-    return {
-
-      placeName:
-        "GPS location",
-
-      locality:
-        "",
-
-      village:
-        "",
-
-      city:
-        "",
-
-      district:
-        "",
-
-      state:
-        "",
-
-      pin:
-        "",
-
-      country:
-        "",
-
-      lat:
-        lat,
-
-      lng:
-        lng,
-
-      accuracy:
-        null,
-
-      fullLocation:
-        `${lat.toFixed(6)}, ${lng.toFixed(6)}`
-
-    };
-
-  }
-
-
-  /* -------------------------------------------------------
-     Replace the existing reverse geocoder
-  ------------------------------------------------------- */
-
-  window.reverseGeocodeDetails =
-    fixedReverseGeocode;
-
-
-  /* -------------------------------------------------------
-     Update ALL location fields
-  ------------------------------------------------------- */
-
-  window.updateFixedLocationUI =
-    function(details){
-
-      if(!details){
-        return;
-      }
-
-
-      const set =
-        (id,value) => {
-
-          const el =
-            document.getElementById(id);
-
-          if(el){
-
-            el.textContent =
-              value ||
-              "—";
-
-          }
-
-        };
-
-
-      const full =
-        details.fullLocation ||
-        details.placeName ||
-        "GPS location";
-
-
-      /* HUD */
-
-      set(
-        "hudPlace",
-        full
-      );
-
-
-      set(
-        "hudCoords",
-
-        `GPS: ${
-          Number(details.lat)
-            .toFixed(6)
-        }, ${
-          Number(details.lng)
-            .toFixed(6)
-        } • ±${
-          Math.round(
-            Number(
-              details.accuracy || 0
-            )
-          )
-        }m`
-      );
-
-
-      /* YOU */
-
-      set(
-        "pPlace",
-        full
-      );
-
-      set(
-        "pLocality",
-        details.locality
-      );
-
-      set(
-        "pVillage",
-        details.village
-      );
-
-      set(
-        "pCity",
-        details.city
-      );
-
-      set(
-        "pDistrict",
-        details.district
-      );
-
-      set(
-        "pState",
-        details.state
-      );
-
-      set(
-        "pPin",
-        details.pin
-      );
-
-      set(
-        "pCountry",
-        details.country
-      );
-
-      set(
-        "pAccuracy",
-
-        details.accuracy
-          ? Math.round(
-              details.accuracy
-            ) + " m"
-          : "—"
-      );
-
-
-      /* -------------------------------------------------
-         Current details ko existing app state me bhi
-         rakho
-      ------------------------------------------------- */
-
-      try{
-
-        currentDetails =
-          details;
-
-      }catch(error){}
-
-    };
-
-
-  /* -------------------------------------------------------
-     FIXED LIVE LOCATION DETECTOR
-  ------------------------------------------------------- */
-
-  window.fixedDetectLiveLocation =
-    async function(
-      centerMap=true
-    ){
-
-      if(
-        !navigator.geolocation
-      ){
-
-        throw new Error(
-          "Geolocation unavailable"
-        );
-
-      }
-
-
-      const position =
-        await new Promise(
-          (resolve,reject) => {
-
-            navigator.geolocation
-              .getCurrentPosition(
-                resolve,
-                reject,
-                {
-                  enableHighAccuracy:true,
-                  maximumAge:0,
-                  timeout:20000
-                }
-              );
-
-          }
-        );
-
-
-      const lat =
-        position.coords.latitude;
-
-      const lng =
-        position.coords.longitude;
-
-      const accuracy =
-        position.coords.accuracy;
-
-
-      const details =
-        await fixedReverseGeocode(
-          lat,
-          lng
-        );
-
-
-      details.lat =
-        lat;
-
-      details.lng =
-        lng;
-
-      details.accuracy =
-        accuracy;
-
-
-      currentLocation = {
-
-        lat:
-          lat,
-
-        lng:
-          lng,
-
-        accuracy:
-          accuracy
-
-      };
-
-
-      currentDetails =
-        details;
-
-
-      updateFixedLocationUI(
-        details
-      );
-
-
-      /* -------------------------------------------------
-         IMPORTANT:
-         + aur Trace dono exact live GPS par map zoom
-      ------------------------------------------------- */
-
-      if(
-        centerMap &&
-        typeof map !== "undefined"
-      ){
-
-        map.setView(
-          [
-            lat,
-            lng
-          ],
-          17,
-          {
-            animate:true
-          }
-        );
-
-        setTimeout(
-          () => {
-
-            try{
-
-              map.invalidateSize();
-
-              map.setView(
-                [
-                  lat,
-                  lng
-                ],
-                17,
-                {
-                  animate:true
-                }
-              );
-
-            }catch(error){}
-
-          },
-          300
-        );
-
-      }
-
-
-      return details;
-
-    };
-
-
-  /* -------------------------------------------------------
-     YOU BUTTON FIX
-     Existing You button ko replace karo
-  ------------------------------------------------------- */
-
-  const youButton =
-    document.getElementById(
-      "youBtn"
-    );
-
-
-  if(youButton){
-
-    youButton.onclick =
-      async function(){
-
-        togglePanel(
-          "youModal",
-          async function(){
-
-            try{
-
-              if(
-                typeof loadProfile ===
-                "function"
-              ){
-
-                await loadProfile();
-
-              }
-
-            }catch(error){}
-
-
-            try{
-
-              await fixedDetectLiveLocation(
-                false
-              );
-
-            }catch(error){
-
-              console.error(
-                "You location error",
-                error
-              );
-
-              /*
-                Last known location agar available
-                ho to wahi display rahe.
-              */
-
-              if(
-                currentDetails
-              ){
-
-                updateFixedLocationUI(
-                  currentDetails
-                );
-
-              }
-
-            }
-
-          }
-        );
-
-      };
-
-  }
-
-
-  /* -------------------------------------------------------
-     PLUS BUTTON FIX
-     
-     Order:
-       GPS detect
-       ↓
-       map zoom
-       ↓
-       camera open
-     
-     No Detect button.
-  ------------------------------------------------------- */
-
-  const plusButton =
-    document.getElementById(
-      "plusBtn"
-    );
-
-
-  if(plusButton){
-
-    plusButton.onclick =
-      async function(){
-
-        try{
-
-          /*
-            FIRST:
-            Automatic live location detect.
-          */
-
-          const details =
-            await fixedDetectLiveLocation(
-              true
-            );
-
-
-          /*
-            SECOND:
-            Ab camera flow open hoga.
-          */
-
-          if(
-            typeof showModal ===
-            "function"
-          ){
-
-            showModal(
-              "cameraModal"
-            );
-
-          }
-
-
-          const preview =
-            document.getElementById(
-              "uploadPreview"
-            );
-
-          if(preview){
-
-            preview.classList.remove(
-              "show"
-            );
-
-          }
-
-
-          const status =
-            document.getElementById(
-              "uploadStatus"
-            );
-
-          if(status){
-
-            status.textContent =
-              "Camera ready. Live location locked.";
-
-          }
-
-
-          /*
-            THIRD:
-            Camera stream.
-          */
-
-          if(
-            typeof openCameraStream ===
-            "function"
-          ){
-
-            await openCameraStream();
-
-          }
-
-
-          if(
-            typeof toast ===
-            "function"
-          ){
-
-            toast(
-              "Live location detected"
-            );
-
-          }
-
-
-        }catch(error){
-
-          console.error(
-            "Automatic GPS + Camera error",
-            error
-          );
-
-
-          try{
-
-            if(
-              typeof stopCamera ===
-              "function"
-            ){
-
-              stopCamera();
-
-            }
-
-          }catch(e){}
-
-
-          if(
-            typeof hideModal ===
-            "function"
-          ){
-
-            hideModal(
-              "cameraModal"
-            );
-
-          }
-
-
-          if(
-            error?.code === 1 ||
-            String(
-              error?.message || ""
-            )
-              .toLowerCase()
-              .includes(
-                "permission"
-              )
-          ){
-
-            if(
-              typeof toast ===
-              "function"
-            ){
-
-              toast(
-                "Allow location permission"
-              );
-
-            }
-
-          }else{
-
-            if(
-              typeof toast ===
-              "function"
-            ){
-
-              toast(
-                error?.message ||
-                "Live location unavailable"
-              );
-
-            }
-
-          }
-
-        }
-
-      };
-
-  }
-
-
-  /* -------------------------------------------------------
-     INITIAL LOCATION
-     
-     Page open hote hi location detect hogi,
-     lekin map country-level hi rahega.
-  ------------------------------------------------------- */
-
-  setTimeout(
-    async function(){
-
-      try{
-
-        await fixedDetectLiveLocation(
-          false
-        );
-
-      }catch(error){
-
-        console.warn(
-          "Initial live location unavailable",
-          error
-        );
-
-      }
-
-    },
-    700
-  );
-
 
 })();
 
