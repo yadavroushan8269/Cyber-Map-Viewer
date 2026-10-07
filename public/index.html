@@ -701,6 +701,38 @@ input[type=text]{
     );
   }
 }
+
+/* ===== CYBER DARK MAP + LOCATION OVERLAY ===== */
+.leaflet-container{
+  background:#020605 !important;
+}
+.live-location-label{
+  pointer-events:none !important;
+}
+.live-location-label > div{
+  display:inline-block;
+  padding:6px 10px;
+  border:1px solid #ffffff;
+  border-radius:6px;
+  background:rgba(0,10,7,.90);
+  color:#39ff88;
+  font-family:monospace;
+  font-weight:700;
+  font-size:12px;
+  line-height:1.2;
+  white-space:nowrap;
+  box-shadow:0 0 10px rgba(57,255,136,.25);
+}
+.leaflet-tooltip{
+  background:#020605 !important;
+  border:1px solid #ffffff !important;
+  color:#39ff88 !important;
+  font-family:monospace !important;
+  box-shadow:0 0 12px rgba(57,255,136,.22) !important;
+}
+.leaflet-tooltip:before{
+  border-top-color:#ffffff !important;
+}
 </style>
 </head>
 
@@ -1716,12 +1748,59 @@ const map =
   );
 
 L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
   {
     maxZoom:20,
-    attribution:"© OpenStreetMap contributors"
+    attribution:"© Esri — Dark Gray Canvas"
   }
 ).addTo(map);
+
+// Dynamic administrative/location boundary for the detected live place.
+let liveBoundaryLayer = null;
+let liveLocationLabel = null;
+
+function clearLiveBoundary(){
+  if(liveBoundaryLayer){
+    map.removeLayer(liveBoundaryLayer);
+    liveBoundaryLayer = null;
+  }
+  if(liveLocationLabel){
+    map.removeLayer(liveLocationLabel);
+    liveLocationLabel = null;
+  }
+}
+
+function showLiveLocationOverlay(details, geojson){
+  clearLiveBoundary();
+
+  if(geojson && geojson.type){
+    try{
+      liveBoundaryLayer = L.geoJSON(geojson, {
+        style:{
+          color:"#ffffff",
+          weight:2.5,
+          opacity:.95,
+          fillColor:"#0b2419",
+          fillOpacity:.12
+        }
+      }).addTo(map);
+    }catch(error){
+      console.warn("Boundary draw failed", error);
+    }
+  }
+
+  const label = details?.placeName || "Live Location";
+  liveLocationLabel = L.marker([details.lat, details.lng], {
+    icon:L.divIcon({
+      className:"live-location-label",
+      html:`<div>${String(label).replace(/[&<>\"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",\"":"&quot;", "'":"&#39;"}[c]))}</div>`,
+      iconSize:null,
+      iconAnchor:[0,36]
+    }),
+    interactive:false
+  }).addTo(map);
+}
+
 
 const snapLayer =
   L.layerGroup().addTo(map);
@@ -2235,6 +2314,25 @@ async function detectLiveLocation(
   details.accuracy =
     coords.accuracy;
 
+  // Ask Nominatim for the real OSM geometry of the detected feature when available.
+  let boundaryGeoJSON = null;
+  try{
+    const boundaryResponse = await fetch(
+      "https://nominatim.openstreetmap.org/reverse" +
+      "?format=jsonv2" +
+      "&lat=" + encodeURIComponent(coords.lat) +
+      "&lon=" + encodeURIComponent(coords.lng) +
+      "&zoom=18" +
+      "&addressdetails=1" +
+      "&polygon_geojson=1",
+      {headers:{"Accept":"application/json"}}
+    );
+    const boundaryJSON = await boundaryResponse.json();
+    boundaryGeoJSON = boundaryJSON.geojson || null;
+  }catch(error){
+    console.warn("Live boundary unavailable", error);
+  }
+
   currentLocation =
     coords;
 
@@ -2244,6 +2342,8 @@ async function detectLiveLocation(
   updateLocationUI(
     details
   );
+
+  showLiveLocationOverlay(details, boundaryGeoJSON);
 
   if(options.centerMap){
 
@@ -2706,10 +2806,11 @@ $("traceBtn").onclick =
     playHackerClick();
 
     setDetectFlash(
-      "LOCATION DETECTING...",
+      "⚠ HACKER DETECTING LOCATION...",
       true
     );
 
+    playHackerClick();
     playTraceSiren(
       3000
     );
@@ -4224,8 +4325,6 @@ async function uploadMedia(
       .insert({
         image_url:
           publicUrl,
-        lat,
-        lng,
         latitude:lat,
         longitude:lng,
         description
@@ -4704,6 +4803,10 @@ async function loadSnaps(){
         snapLayer
       );
 
+
+    marker.on("click", () => {
+      playHackerClick();
+    });
 
     marker.bindTooltip(
       label,
