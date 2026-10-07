@@ -1,11 +1,11 @@
 {
-  "name": "cyber-map-viewer",
-  "version": "2.1.0",
-  "private": true,
-  "description": "Cyber Map Viewer with permanent room IDs, WebRTC calling, room chat and GPS snaps",
+  "name": "past-snap",
+  "version": "1.0.0",
+  "description": "Past Snap",
   "main": "server.js",
-  "scripts": { "start": "node server.js" },
-  "engines": { "node": ">=18" },
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "express": "^4.21.2",
     "socket.io": "^4.8.1"
