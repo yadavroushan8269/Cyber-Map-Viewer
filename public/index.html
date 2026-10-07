@@ -630,6 +630,337 @@ input[type=text]{
     );
   }
 }
+
+
+/* =========================================================
+   CYBER GREEN UI — MOCKUP STYLE OVERRIDE
+   Keeps existing functionality; changes presentation only.
+========================================================= */
+:root{
+  --bg:#000000;
+  --panel:rgba(0,8,4,.97);
+  --line:#0b5f3d;
+  --cyan:#39ff9a;
+  --green:#39ff9a;
+  --red:#ff334d;
+  --muted:#83bda4;
+}
+
+html,body{
+  background:#000;
+  color:#39ff9a;
+}
+
+body{
+  font-family:"Courier New",Consolas,monospace;
+}
+
+#map{
+  background:#000;
+}
+
+.leaflet-tile{
+  filter:brightness(.38) contrast(1.45) saturate(.65) hue-rotate(65deg);
+}
+
+.leaflet-control-attribution{
+  background:#000b!important;
+  color:#3d9a70!important;
+}
+.leaflet-control-attribution a{color:#45c98b!important}
+
+/* Top header */
+.topbar{
+  height:58px;
+  padding:8px 10px;
+  background:linear-gradient(#000 0%,#000e 72%,transparent 100%);
+  border-bottom:1px solid #0a754a;
+  grid-template-columns:1fr auto 1fr;
+}
+
+.topbar button,
+.bottom button{
+  border:1px solid #15945d;
+  background:#010905eF;
+  color:#39ff9a;
+  border-radius:5px;
+  padding:8px 10px;
+  font-family:"Courier New",Consolas,monospace;
+  font-weight:900;
+  letter-spacing:.2px;
+  text-shadow:0 0 7px #39ff9a55;
+  box-shadow:0 0 9px #39ff9a18,inset 0 0 7px #39ff9a08;
+}
+
+.topbar button:hover,
+.bottom button:hover{
+  border-color:#54ffad;
+  color:#baffd9;
+  box-shadow:0 0 13px #39ff9a3b,inset 0 0 8px #39ff9a12;
+}
+
+.notif-dot{
+  width:6px;
+  height:6px;
+  background:#ff334d;
+  box-shadow:0 0 7px #ff334d;
+}
+
+/* Live HUD */
+.hud{
+  top:68px;
+  left:10px;
+  right:10px;
+}
+.hud-card{
+  width:min(650px,90vw);
+  border:1px solid #0b7449;
+  border-radius:5px;
+  background:#000b;
+  box-shadow:0 0 14px #39ff9a0d;
+}
+.hud-title{color:#39ff9a}
+.hud-place{color:#baffd9}
+.hud-coords{color:#5da985}
+
+/* Trace */
+.trace{
+  border:1px solid #ff334d;
+  border-radius:5px;
+  background:#170207eF;
+  color:#ff6a7b;
+  box-shadow:0 0 14px #ff334d24;
+  font-family:"Courier New",monospace;
+}
+
+/* Bottom navigation */
+.bottom{
+  width:min(680px,calc(100% - 10px));
+  gap:3px;
+  padding:5px;
+  border:1px solid #0b7449;
+  border-radius:7px;
+  background:#000e;
+  box-shadow:0 0 18px #39ff9a14,inset 0 0 12px #39ff9a08;
+}
+.bottom button{
+  border-radius:4px;
+  padding:9px 4px;
+  font-size:10px;
+}
+.bottom .plus{
+  border:1px solid #39ff9a!important;
+  color:#39ff9a!important;
+  background:#03170d!important;
+  border-radius:50%!important;
+  font-size:23px!important;
+  line-height:1!important;
+  box-shadow:0 0 13px #39ff9a45!important;
+}
+
+/* Full-screen app-like panels on small screens */
+.modal{
+  align-items:flex-start;
+  justify-content:center;
+  padding:58px 0 68px;
+  background:#000;
+  backdrop-filter:none;
+}
+.modal.show{display:flex}
+
+.panel{
+  position:relative;
+  width:min(680px,100vw);
+  height:100%;
+  max-height:none;
+  overflow:auto;
+  padding:12px 12px 22px;
+  border:0;
+  border-top:1px solid #0b7449;
+  border-radius:0;
+  background:#000;
+  box-shadow:none;
+  scrollbar-color:#15945d #000;
+}
+
+.panel::before{
+  content:"";
+  position:sticky;
+  top:0;
+  display:block;
+  height:1px;
+  background:#0b7449;
+  margin-bottom:9px;
+  z-index:2;
+}
+
+.panel h2{
+  margin:0 0 12px;
+  padding:0 0 10px 28px;
+  border-bottom:1px solid #0b7449;
+  color:#39ff9a;
+  font-size:18px;
+  font-family:"Courier New",monospace;
+  text-shadow:0 0 8px #39ff9a2e;
+}
+
+.close{
+  position:absolute;
+  top:9px;
+  left:8px;
+  float:none;
+  z-index:5;
+  width:25px;
+  height:25px;
+  border:0;
+  color:#39ff9a;
+  font-size:26px;
+  line-height:22px;
+  padding:0;
+  transform:none;
+}
+
+.row{
+  padding:9px 0;
+  border-bottom:1px solid #08452d;
+  color:#7eeab2;
+}
+.row b{color:#39ff9a}
+.row span{color:#b6ffd3}
+
+.actions{gap:7px;margin-top:10px}
+
+.primary,.secondary,.danger{
+  border:1px solid #14945c;
+  border-radius:5px;
+  padding:10px;
+  color:#39ff9a;
+  background:#011108;
+  font-family:"Courier New",monospace;
+  font-weight:900;
+  box-shadow:inset 0 0 8px #39ff9a08;
+}
+.primary{
+  background:#06381f;
+  border-color:#39ff9a;
+  color:#baffd9;
+}
+.danger{
+  background:#24050a;
+  border-color:#ff334d;
+  color:#ff7180;
+}
+
+input[type=text]{
+  border:1px solid #15945d;
+  border-radius:5px;
+  background:#010703;
+  color:#baffd9;
+  font-family:"Courier New",monospace;
+}
+input[type=text]::placeholder{color:#4e9472}
+
+.qrbox{
+  background:#fff;
+  border:1px solid #39ff9a;
+  box-shadow:0 0 16px #39ff9a28;
+}
+.scanbox{
+  border:1px dashed #15945d;
+  border-radius:5px;
+  background:#020805;
+}
+
+/* Profile */
+.avatar{
+  border:1px solid #39ff9a;
+  background:#020805;
+  box-shadow:0 0 12px #39ff9a22;
+}
+
+/* Camera / Post */
+.camera-video{
+  border:1px solid #15945d;
+  border-radius:4px;
+  box-shadow:0 0 14px #39ff9a15;
+}
+.media-mode button,
+.filter-row button{
+  border:1px solid #0f7048;
+  border-radius:4px;
+  background:#010a05;
+  color:#70c99b;
+  font-family:"Courier New",monospace;
+}
+.media-mode button.active,
+.filter-row button.active{
+  border-color:#39ff9a;
+  color:#39ff9a;
+  background:#062b19;
+  box-shadow:0 0 9px #39ff9a22;
+}
+.record-timer{color:#ff334d}
+.upload-preview{
+  border:1px solid #0f7048;
+  border-radius:5px;
+  background:#010805;
+}
+.preview-media{border:1px solid #0f7048}
+.info-title{color:#39ff9a}
+.upload-status{color:#7ec59f}
+.progress-shell{border-color:#0f7048;background:#000}
+.progress-bar{background:linear-gradient(90deg,#39ff9a,#0b8f55);box-shadow:0 0 9px #39ff9a55}
+
+/* Snap detector */
+.detector{
+  border-color:#ff334d;
+  box-shadow:0 0 15px #ff334dcc;
+}
+.detector:after{background:#ff334d}
+
+/* Notification list */
+.notification-item{
+  border:0;
+  border-bottom:1px solid #0b7449;
+  border-radius:0;
+  margin:0;
+  padding:11px 4px;
+  background:#000;
+}
+.notification-title{color:#39ff9a}
+.notification-time{color:#70c99b}
+.notification-detail{color:#83bda4}
+
+/* Detect flash */
+.flash-box{
+  border-color:#ff334d;
+  background:#160207;
+  box-shadow:0 0 35px #ff334d40;
+}
+
+/* Toast */
+.toast{
+  border-color:#15945d;
+  border-radius:4px;
+  background:#010a05f5;
+  color:#39ff9a;
+  font-family:"Courier New",monospace;
+}
+
+/* App-like content cards */
+.panel .qrbox + .actions{margin-top:8px}
+.panel .profile-head{padding:5px 0 9px}
+
+@media(max-width:650px){
+  .topbar{height:54px;padding:7px 8px}
+  .topbar button{padding:7px 7px;font-size:10px}
+  .hud{top:61px}
+  .modal{padding-top:54px;padding-bottom:64px}
+  .panel{padding:10px 10px 18px}
+  .panel h2{font-size:17px}
+  .bottom{bottom:max(7px,env(safe-area-inset-bottom));}
+}
+
 </style>
 </head>
 
@@ -715,7 +1046,7 @@ input[type=text]{
 
   <div class="panel">
 
-    <button class="close" data-close="roomModal">×</button>
+    <button class="close" data-close="roomModal">←</button>
 
     <h2>My Room ID</h2>
 
@@ -742,7 +1073,7 @@ input[type=text]{
 
   <div class="panel">
 
-    <button class="close" data-close="joinModal">×</button>
+    <button class="close" data-close="joinModal">←</button>
 
     <h2>Join Call</h2>
 
@@ -780,7 +1111,7 @@ input[type=text]{
 
   <div class="panel">
 
-    <button class="close" data-close="youModal">×</button>
+    <button class="close" data-close="youModal">←</button>
 
     <h2>You</h2>
 
@@ -894,7 +1225,7 @@ input[type=text]{
       class="close"
       data-close="notificationModal"
     >
-      ×
+      ←
     </button>
 
     <h2>Notifications</h2>
@@ -924,10 +1255,10 @@ input[type=text]{
       class="close"
       data-close="adminModal"
     >
-      ×
+      ←
     </button>
 
-    <h2>Admin</h2>
+    <h2>Admin Panel</h2>
 
     <div class="row">
       <b>Name</b>
@@ -958,10 +1289,10 @@ input[type=text]{
       class="close"
       data-close="cameraModal"
     >
-      ×
+      ←
     </button>
 
-    <h2>Camera</h2>
+    <h2>Post / Camera</h2>
 
     <div class="media-mode">
 
@@ -1019,14 +1350,6 @@ input[type=text]{
         class="secondary"
       >
         Switch
-      </button>
-
-      <button
-        id="mirrorBtn"
-        class="secondary"
-        type="button"
-      >
-        Mirror OFF
       </button>
 
       <button
@@ -1590,7 +1913,6 @@ let currentDetails = null;
 
 let cameraStream = null;
 let currentFacing = "environment";
-let cameraMirror = false;
 let zoomTrack = null;
 let currentZoom = 1;
 
@@ -2794,8 +3116,45 @@ if(firstFilter){
 
 function applyCameraFilter(){
 
-  $("cameraVideo").style.filter =
-    getCameraFilter();
+  const filterMap = {
+
+    normal:"none",
+
+    contrast:
+      "contrast(1.35)",
+
+    mono:
+      "grayscale(1)",
+
+    sepia:
+      "sepia(1)",
+
+    cyan:
+      "hue-rotate(120deg) saturate(1.4)",
+
+    invert:
+      "invert(1)",
+
+    bright:
+      "brightness(1.35)",
+
+    dark:
+      "brightness(.65)",
+
+    red:
+      "hue-rotate(315deg) saturate(1.8)",
+
+    night:
+      "brightness(.55) contrast(1.2)"
+
+  };
+
+  $("cameraVideo")
+    .style.filter =
+    filterMap[
+      activeFilter
+    ] ||
+    "none";
 
 }
 
@@ -2803,74 +3162,6 @@ function applyCameraFilter(){
 /* =========================================================
    CAMERA HELPERS
 ========================================================= */
-
-function applyCameraMirror(){
-
-  const video = $("cameraVideo");
-
-  if(!video){
-    return;
-  }
-
-  video.style.transform =
-    cameraMirror
-      ? "scaleX(-1)"
-      : "scaleX(1)";
-
-  const button = $("mirrorBtn");
-
-  if(button){
-    button.textContent =
-      cameraMirror
-        ? "Mirror ON"
-        : "Mirror OFF";
-
-    button.classList.toggle(
-      "active",
-      cameraMirror
-    );
-  }
-}
-
-function getCameraFilter(){
-
-  const filterMap = {
-    normal:"none",
-    contrast:"contrast(1.35)",
-    mono:"grayscale(1)",
-    sepia:"sepia(1)",
-    cyan:"hue-rotate(120deg) saturate(1.4)",
-    invert:"invert(1)",
-    bright:"brightness(1.35)",
-    dark:"brightness(.65)",
-    red:"hue-rotate(315deg) saturate(1.8)",
-    night:"brightness(.55) contrast(1.2)"
-  };
-
-  return filterMap[activeFilter] || "none";
-}
-
-function drawVideoFrame(ctx, video, width, height){
-
-  ctx.save();
-
-  ctx.filter = getCameraFilter();
-
-  if(cameraMirror){
-    ctx.translate(width, 0);
-    ctx.scale(-1, 1);
-  }
-
-  ctx.drawImage(
-    video,
-    0,
-    0,
-    width,
-    height
-  );
-
-  ctx.restore();
-}
 
 function stopCamera(){
 
@@ -2989,7 +3280,6 @@ async function openCameraStream(){
   setupZoom();
 
   applyCameraFilter();
-  applyCameraMirror();
 
 }
 
@@ -3321,24 +3611,6 @@ $("switchCameraBtn").onclick =
       );
 
     }
-
-  };
-
-
-$("mirrorBtn").onclick =
-  () => {
-
-    cameraMirror = !cameraMirror;
-
-    applyCameraMirror();
-
-    playHackerClick();
-
-    toast(
-      cameraMirror
-        ? "Mirror ON"
-        : "Mirror OFF"
-    );
 
   };
 
@@ -3718,9 +3990,20 @@ async function capturePhoto(){
         "2d"
       );
 
-    drawVideoFrame(
-      context,
+    context.filter =
+      video.style.filter ||
+      "none";
+
+    /*
+      Front camera preview is often mirrored
+      by the browser only visually. We leave
+      the actual captured image natural.
+    */
+
+    context.drawImage(
       video,
+      0,
+      0,
       canvas.width,
       canvas.height
     );
@@ -3886,62 +4169,18 @@ function startVideoRecording(){
   const mime =
     chooseRecorderMime();
 
-  let recorderStream = cameraStream;
-  let mirrorCanvas = null;
-  let mirrorContext = null;
-  let mirrorAnimation = null;
-
-  /*
-    When Mirror is ON, record the same mirrored/filter-processed
-    view that the user sees. Fall back to the original camera
-    stream on browsers that do not support canvas.captureStream().
-  */
-  if(
-    cameraMirror &&
-    typeof HTMLCanvasElement !== "undefined" &&
-    typeof HTMLCanvasElement.prototype.captureStream === "function"
-  ){
-
-    const video = $("cameraVideo");
-
-    mirrorCanvas = document.createElement("canvas");
-    mirrorCanvas.width = video.videoWidth || 1280;
-    mirrorCanvas.height = video.videoHeight || 720;
-    mirrorContext = mirrorCanvas.getContext("2d");
-
-    const fps = 30;
-    recorderStream = mirrorCanvas.captureStream(fps);
-
-    const draw = () => {
-      if(!mediaRecorder || mediaRecorder.state === "inactive"){
-        return;
-      }
-
-      drawVideoFrame(
-        mirrorContext,
-        video,
-        mirrorCanvas.width,
-        mirrorCanvas.height
-      );
-
-      mirrorAnimation =
-        requestAnimationFrame(draw);
-    };
-
-  }
-
   try{
 
     mediaRecorder =
       mime
         ? new MediaRecorder(
-            recorderStream,
+            cameraStream,
             {
               mimeType:mime
             }
           )
         : new MediaRecorder(
-            recorderStream
+            cameraStream
           );
 
   }catch(error){
@@ -4087,47 +4326,6 @@ function startVideoRecording(){
 
   mediaRecorder.start(
     250
-  );
-
-  if(mirrorCanvas && mirrorContext){
-    const video = $("cameraVideo");
-    const drawMirroredFrame = () => {
-      if(
-        !mediaRecorder ||
-        mediaRecorder.state === "inactive"
-      ){
-        return;
-      }
-
-      drawVideoFrame(
-        mirrorContext,
-        video,
-        mirrorCanvas.width,
-        mirrorCanvas.height
-      );
-
-      mirrorAnimation =
-        requestAnimationFrame(drawMirroredFrame);
-    };
-
-    mirrorAnimation =
-      requestAnimationFrame(drawMirroredFrame);
-  }
-
-  mediaRecorder.addEventListener(
-    "stop",
-    () => {
-      if(mirrorAnimation){
-        cancelAnimationFrame(mirrorAnimation);
-        mirrorAnimation = null;
-      }
-
-      if(mirrorCanvas){
-        mirrorCanvas.width = 1;
-        mirrorCanvas.height = 1;
-      }
-    },
-    {once:true}
   );
 
   recordingTimer =
