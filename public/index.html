@@ -553,7 +553,11 @@ input[type=text]{
 
 /* ================= DETECT FLASH ================= */
 
+.camera-actions{position:sticky;bottom:0;z-index:20;padding:8px 0;background:linear-gradient(to bottom,transparent,#050b10 30%)}
+.filter-row{max-height:190px;overflow-y:auto}
+
 .flash-box{
+  width:min(92vw,420px);
   padding:28px;
   text-align:center;
   border:1px solid var(--red);
@@ -630,337 +634,6 @@ input[type=text]{
     );
   }
 }
-
-
-/* =========================================================
-   CYBER GREEN UI — MOCKUP STYLE OVERRIDE
-   Keeps existing functionality; changes presentation only.
-========================================================= */
-:root{
-  --bg:#000000;
-  --panel:rgba(0,8,4,.97);
-  --line:#0b5f3d;
-  --cyan:#39ff9a;
-  --green:#39ff9a;
-  --red:#ff334d;
-  --muted:#83bda4;
-}
-
-html,body{
-  background:#000;
-  color:#39ff9a;
-}
-
-body{
-  font-family:"Courier New",Consolas,monospace;
-}
-
-#map{
-  background:#000;
-}
-
-.leaflet-tile{
-  filter:brightness(.38) contrast(1.45) saturate(.65) hue-rotate(65deg);
-}
-
-.leaflet-control-attribution{
-  background:#000b!important;
-  color:#3d9a70!important;
-}
-.leaflet-control-attribution a{color:#45c98b!important}
-
-/* Top header */
-.topbar{
-  height:58px;
-  padding:8px 10px;
-  background:linear-gradient(#000 0%,#000e 72%,transparent 100%);
-  border-bottom:1px solid #0a754a;
-  grid-template-columns:1fr auto 1fr;
-}
-
-.topbar button,
-.bottom button{
-  border:1px solid #15945d;
-  background:#010905eF;
-  color:#39ff9a;
-  border-radius:5px;
-  padding:8px 10px;
-  font-family:"Courier New",Consolas,monospace;
-  font-weight:900;
-  letter-spacing:.2px;
-  text-shadow:0 0 7px #39ff9a55;
-  box-shadow:0 0 9px #39ff9a18,inset 0 0 7px #39ff9a08;
-}
-
-.topbar button:hover,
-.bottom button:hover{
-  border-color:#54ffad;
-  color:#baffd9;
-  box-shadow:0 0 13px #39ff9a3b,inset 0 0 8px #39ff9a12;
-}
-
-.notif-dot{
-  width:6px;
-  height:6px;
-  background:#ff334d;
-  box-shadow:0 0 7px #ff334d;
-}
-
-/* Live HUD */
-.hud{
-  top:68px;
-  left:10px;
-  right:10px;
-}
-.hud-card{
-  width:min(650px,90vw);
-  border:1px solid #0b7449;
-  border-radius:5px;
-  background:#000b;
-  box-shadow:0 0 14px #39ff9a0d;
-}
-.hud-title{color:#39ff9a}
-.hud-place{color:#baffd9}
-.hud-coords{color:#5da985}
-
-/* Trace */
-.trace{
-  border:1px solid #ff334d;
-  border-radius:5px;
-  background:#170207eF;
-  color:#ff6a7b;
-  box-shadow:0 0 14px #ff334d24;
-  font-family:"Courier New",monospace;
-}
-
-/* Bottom navigation */
-.bottom{
-  width:min(680px,calc(100% - 10px));
-  gap:3px;
-  padding:5px;
-  border:1px solid #0b7449;
-  border-radius:7px;
-  background:#000e;
-  box-shadow:0 0 18px #39ff9a14,inset 0 0 12px #39ff9a08;
-}
-.bottom button{
-  border-radius:4px;
-  padding:9px 4px;
-  font-size:10px;
-}
-.bottom .plus{
-  border:1px solid #39ff9a!important;
-  color:#39ff9a!important;
-  background:#03170d!important;
-  border-radius:50%!important;
-  font-size:23px!important;
-  line-height:1!important;
-  box-shadow:0 0 13px #39ff9a45!important;
-}
-
-/* Full-screen app-like panels on small screens */
-.modal{
-  align-items:flex-start;
-  justify-content:center;
-  padding:58px 0 68px;
-  background:#000;
-  backdrop-filter:none;
-}
-.modal.show{display:flex}
-
-.panel{
-  position:relative;
-  width:min(680px,100vw);
-  height:100%;
-  max-height:none;
-  overflow:auto;
-  padding:12px 12px 22px;
-  border:0;
-  border-top:1px solid #0b7449;
-  border-radius:0;
-  background:#000;
-  box-shadow:none;
-  scrollbar-color:#15945d #000;
-}
-
-.panel::before{
-  content:"";
-  position:sticky;
-  top:0;
-  display:block;
-  height:1px;
-  background:#0b7449;
-  margin-bottom:9px;
-  z-index:2;
-}
-
-.panel h2{
-  margin:0 0 12px;
-  padding:0 0 10px 28px;
-  border-bottom:1px solid #0b7449;
-  color:#39ff9a;
-  font-size:18px;
-  font-family:"Courier New",monospace;
-  text-shadow:0 0 8px #39ff9a2e;
-}
-
-.close{
-  position:absolute;
-  top:9px;
-  left:8px;
-  float:none;
-  z-index:5;
-  width:25px;
-  height:25px;
-  border:0;
-  color:#39ff9a;
-  font-size:26px;
-  line-height:22px;
-  padding:0;
-  transform:none;
-}
-
-.row{
-  padding:9px 0;
-  border-bottom:1px solid #08452d;
-  color:#7eeab2;
-}
-.row b{color:#39ff9a}
-.row span{color:#b6ffd3}
-
-.actions{gap:7px;margin-top:10px}
-
-.primary,.secondary,.danger{
-  border:1px solid #14945c;
-  border-radius:5px;
-  padding:10px;
-  color:#39ff9a;
-  background:#011108;
-  font-family:"Courier New",monospace;
-  font-weight:900;
-  box-shadow:inset 0 0 8px #39ff9a08;
-}
-.primary{
-  background:#06381f;
-  border-color:#39ff9a;
-  color:#baffd9;
-}
-.danger{
-  background:#24050a;
-  border-color:#ff334d;
-  color:#ff7180;
-}
-
-input[type=text]{
-  border:1px solid #15945d;
-  border-radius:5px;
-  background:#010703;
-  color:#baffd9;
-  font-family:"Courier New",monospace;
-}
-input[type=text]::placeholder{color:#4e9472}
-
-.qrbox{
-  background:#fff;
-  border:1px solid #39ff9a;
-  box-shadow:0 0 16px #39ff9a28;
-}
-.scanbox{
-  border:1px dashed #15945d;
-  border-radius:5px;
-  background:#020805;
-}
-
-/* Profile */
-.avatar{
-  border:1px solid #39ff9a;
-  background:#020805;
-  box-shadow:0 0 12px #39ff9a22;
-}
-
-/* Camera / Post */
-.camera-video{
-  border:1px solid #15945d;
-  border-radius:4px;
-  box-shadow:0 0 14px #39ff9a15;
-}
-.media-mode button,
-.filter-row button{
-  border:1px solid #0f7048;
-  border-radius:4px;
-  background:#010a05;
-  color:#70c99b;
-  font-family:"Courier New",monospace;
-}
-.media-mode button.active,
-.filter-row button.active{
-  border-color:#39ff9a;
-  color:#39ff9a;
-  background:#062b19;
-  box-shadow:0 0 9px #39ff9a22;
-}
-.record-timer{color:#ff334d}
-.upload-preview{
-  border:1px solid #0f7048;
-  border-radius:5px;
-  background:#010805;
-}
-.preview-media{border:1px solid #0f7048}
-.info-title{color:#39ff9a}
-.upload-status{color:#7ec59f}
-.progress-shell{border-color:#0f7048;background:#000}
-.progress-bar{background:linear-gradient(90deg,#39ff9a,#0b8f55);box-shadow:0 0 9px #39ff9a55}
-
-/* Snap detector */
-.detector{
-  border-color:#ff334d;
-  box-shadow:0 0 15px #ff334dcc;
-}
-.detector:after{background:#ff334d}
-
-/* Notification list */
-.notification-item{
-  border:0;
-  border-bottom:1px solid #0b7449;
-  border-radius:0;
-  margin:0;
-  padding:11px 4px;
-  background:#000;
-}
-.notification-title{color:#39ff9a}
-.notification-time{color:#70c99b}
-.notification-detail{color:#83bda4}
-
-/* Detect flash */
-.flash-box{
-  border-color:#ff334d;
-  background:#160207;
-  box-shadow:0 0 35px #ff334d40;
-}
-
-/* Toast */
-.toast{
-  border-color:#15945d;
-  border-radius:4px;
-  background:#010a05f5;
-  color:#39ff9a;
-  font-family:"Courier New",monospace;
-}
-
-/* App-like content cards */
-.panel .qrbox + .actions{margin-top:8px}
-.panel .profile-head{padding:5px 0 9px}
-
-@media(max-width:650px){
-  .topbar{height:54px;padding:7px 8px}
-  .topbar button{padding:7px 7px;font-size:10px}
-  .hud{top:61px}
-  .modal{padding-top:54px;padding-bottom:64px}
-  .panel{padding:10px 10px 18px}
-  .panel h2{font-size:17px}
-  .bottom{bottom:max(7px,env(safe-area-inset-bottom));}
-}
-
 </style>
 </head>
 
@@ -1046,7 +719,7 @@ input[type=text]::placeholder{color:#4e9472}
 
   <div class="panel">
 
-    <button class="close" data-close="roomModal">←</button>
+    <button class="close" data-close="roomModal">×</button>
 
     <h2>My Room ID</h2>
 
@@ -1073,7 +746,7 @@ input[type=text]::placeholder{color:#4e9472}
 
   <div class="panel">
 
-    <button class="close" data-close="joinModal">←</button>
+    <button class="close" data-close="joinModal">×</button>
 
     <h2>Join Call</h2>
 
@@ -1111,7 +784,7 @@ input[type=text]::placeholder{color:#4e9472}
 
   <div class="panel">
 
-    <button class="close" data-close="youModal">←</button>
+    <button class="close" data-close="youModal">×</button>
 
     <h2>You</h2>
 
@@ -1225,7 +898,7 @@ input[type=text]::placeholder{color:#4e9472}
       class="close"
       data-close="notificationModal"
     >
-      ←
+      ×
     </button>
 
     <h2>Notifications</h2>
@@ -1255,10 +928,10 @@ input[type=text]::placeholder{color:#4e9472}
       class="close"
       data-close="adminModal"
     >
-      ←
+      ×
     </button>
 
-    <h2>Admin Panel</h2>
+    <h2>Admin</h2>
 
     <div class="row">
       <b>Name</b>
@@ -1289,10 +962,10 @@ input[type=text]::placeholder{color:#4e9472}
       class="close"
       data-close="cameraModal"
     >
-      ←
+      ×
     </button>
 
-    <h2>Post / Camera</h2>
+    <h2>Camera</h2>
 
     <div class="media-mode">
 
@@ -1343,7 +1016,14 @@ input[type=text]::placeholder{color:#4e9472}
 
     <div id="filterRow" class="filter-row"></div>
 
-    <div class="actions">
+    <div class="actions camera-actions">
+
+      <button
+        id="mirrorBtn"
+        class="secondary"
+      >
+        Mirror
+      </button>
 
       <button
         id="switchCameraBtn"
@@ -1917,6 +1597,7 @@ let zoomTrack = null;
 let currentZoom = 1;
 
 let activeFilter = "normal";
+let mirrorCamera = false;
 
 let qrScanner = null;
 
@@ -3043,121 +2724,54 @@ $("mapBtn").onclick =
 ========================================================= */
 
 const filters = [
-  ["normal","Normal"],
-  ["contrast","Contrast"],
-  ["mono","Mono"],
-  ["sepia","Sepia"],
-  ["cyan","Cyber"],
-  ["invert","Invert"],
-  ["bright","Bright"],
-  ["dark","Dark"],
-  ["red","Red"],
-  ["night","Night"]
+  ["normal","Normal","none"],
+  ["colour-pop","Colour Pop","saturate(1.9) contrast(1.12)"],
+  ["cool","Cool","saturate(1.15) hue-rotate(12deg) contrast(1.05)"],
+  ["warm","Warm","sepia(.22) saturate(1.25)"],
+  ["vintage","Vintage","sepia(.38) contrast(1.05) saturate(.9)"],
+  ["cinematic","Cinematic","contrast(1.25) saturate(.9) brightness(.94)"],
+  ["vivid","Vivid","saturate(1.7) contrast(1.12)"],
+  ["soft","Soft","brightness(1.08) saturate(.82) contrast(.94)"],
+  ["mono","Mono","grayscale(1)"],
+  ["sepia","Sepia","sepia(1)"],
+  ["cyber","Cyber","hue-rotate(120deg) saturate(1.4) contrast(1.15)"],
+  ["neon","Neon","saturate(2.1) contrast(1.25) brightness(1.06)"],
+  ["dream","Dream","brightness(1.08) saturate(.8) contrast(.88)"],
+  ["sunset","Sunset","sepia(.25) hue-rotate(-10deg) saturate(1.45)"],
+  ["ocean","Ocean","hue-rotate(165deg) saturate(1.3) contrast(1.05)"],
+  ["forest","Forest","hue-rotate(70deg) saturate(1.35) contrast(1.05)"],
+  ["rose","Rose","hue-rotate(320deg) saturate(1.35)"],
+  ["red","Red","hue-rotate(315deg) saturate(1.8)"],
+  ["blue","Blue","hue-rotate(185deg) saturate(1.5)"],
+  ["purple","Purple","hue-rotate(255deg) saturate(1.5)"],
+  ["green","Green","hue-rotate(75deg) saturate(1.6)"],
+  ["golden","Golden","sepia(.28) hue-rotate(350deg) saturate(1.45) brightness(1.05)"],
+  ["contrast","Contrast","contrast(1.35)"],
+  ["bright","Bright","brightness(1.35)"],
+  ["dark","Dark","brightness(.65)"],
+  ["night","Night","brightness(.55) contrast(1.2) saturate(.85)"],
+  ["invert","Invert","invert(1)"],
+  ["fade","Fade","opacity(.82) contrast(.88) saturate(.78)"],
+  ["noir","Noir","grayscale(1) contrast(1.55) brightness(.9)"],
+  ["glitch","Glitch","contrast(1.35) saturate(1.65) hue-rotate(18deg)"]
 ];
 
-filters.forEach(
-  ([id,label]) => {
-
-    const button =
-      document.createElement(
-        "button"
-      );
-
-    button.textContent =
-      label;
-
-    button.dataset.filter =
-      id;
-
-    button.onclick =
-      () => {
-
-        activeFilter =
-          id;
-
-        document
-          .querySelectorAll(
-            "#filterRow button"
-          )
-          .forEach(
-            element =>
-              element.classList.remove(
-                "active"
-              )
-          );
-
-        button.classList.add(
-          "active"
-        );
-
-        applyCameraFilter();
-
-      };
-
-    $("filterRow")
-      .appendChild(
-        button
-      );
-
-  }
-);
-
-const firstFilter =
-  document.querySelector(
-    "#filterRow button"
-  );
-
-if(firstFilter){
-  firstFilter.classList.add(
-    "active"
-  );
-}
-
-
-function applyCameraFilter(){
-
-  const filterMap = {
-
-    normal:"none",
-
-    contrast:
-      "contrast(1.35)",
-
-    mono:
-      "grayscale(1)",
-
-    sepia:
-      "sepia(1)",
-
-    cyan:
-      "hue-rotate(120deg) saturate(1.4)",
-
-    invert:
-      "invert(1)",
-
-    bright:
-      "brightness(1.35)",
-
-    dark:
-      "brightness(.65)",
-
-    red:
-      "hue-rotate(315deg) saturate(1.8)",
-
-    night:
-      "brightness(.55) contrast(1.2)"
-
+filters.forEach(([id,label])=>{
+  const button=document.createElement("button");
+  button.type="button"; button.textContent=label; button.dataset.filter=id;
+  button.onclick=()=>{
+    activeFilter=id;
+    document.querySelectorAll("#filterRow button").forEach(x=>x.classList.remove("active"));
+    button.classList.add("active"); applyCameraFilter();
   };
-
-  $("cameraVideo")
-    .style.filter =
-    filterMap[
-      activeFilter
-    ] ||
-    "none";
-
+  $("filterRow").appendChild(button);
+});
+const firstFilter=document.querySelector("#filterRow button");
+if(firstFilter) firstFilter.classList.add("active");
+function applyCameraFilter(){
+  const filterMap=Object.fromEntries(filters.map(([id,,css])=>[id,css]));
+  $("cameraVideo").style.filter=filterMap[activeFilter]||"none";
 }
-
 
 /* =========================================================
    CAMERA HELPERS
@@ -3334,19 +2948,7 @@ function setupZoom(){
 
 
 async function prepareCamera(){
-
-  /*
-    FIX:
-    + button now centers map on
-    actual live GPS before camera.
-  */
-
-  await detectLiveLocation({
-    centerMap:true
-  });
-
   await openCameraStream();
-
 }
 
 
@@ -3433,6 +3035,25 @@ $("videoModeBtn").onclick =
 
 
 /* =========================================================
+   LIVE LOCATION BLINK
+========================================================= */
+async function blinkLiveLocationMarker(duration=2000){
+  if(!currentLocation) return;
+  const marker=L.circleMarker([currentLocation.lat,currentLocation.lng],{radius:12,color:"#39ff88",weight:3,fillColor:"#39ff88",fillOpacity:.55}).addTo(map);
+  map.setView([currentLocation.lat,currentLocation.lng],17,{animate:true});
+  const start=performance.now();
+  await new Promise(resolve=>{
+    const tick=now=>{
+      const t=now-start, pulse=.35+((Math.sin(t/110)+1)/2)*.65;
+      marker.setStyle({opacity:pulse,fillOpacity:.18+pulse*.45});
+      if(t<duration) requestAnimationFrame(tick); else resolve();
+    };
+    requestAnimationFrame(tick);
+  });
+  map.removeLayer(marker);
+}
+
+/* =========================================================
    PLUS BUTTON
 ========================================================= */
 
@@ -3445,10 +3066,6 @@ $("plusBtn").onclick =
       to user's real live location.
     */
 
-    showModal(
-      "cameraModal"
-    );
-
     $("uploadPreview")
       .classList.remove(
         "show"
@@ -3460,6 +3077,9 @@ $("plusBtn").onclick =
         .textContent =
         "Detecting live location...";
 
+      await detectLiveLocation({centerMap:true});
+      await blinkLiveLocationMarker(2000);
+      showModal("cameraModal");
       await prepareCamera();
 
       $("uploadStatus")
@@ -3614,6 +3234,16 @@ $("switchCameraBtn").onclick =
 
   };
 
+
+/* =========================================================
+   MIRROR CAMERA
+========================================================= */
+$("mirrorBtn").onclick=()=>{
+  mirrorCamera=!mirrorCamera;
+  $("cameraVideo").style.transform=mirrorCamera?"scaleX(-1)":"none";
+  $("mirrorBtn").textContent=mirrorCamera?"Mirror On":"Mirror";
+  playHackerClick();
+};
 
 /* =========================================================
    MEDIA UTILITIES
@@ -4000,13 +3630,15 @@ async function capturePhoto(){
       the actual captured image natural.
     */
 
-    context.drawImage(
-      video,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
+    if(mirrorCamera){
+      context.save();
+      context.translate(canvas.width,0);
+      context.scale(-1,1);
+      context.drawImage(video,0,0,canvas.width,canvas.height);
+      context.restore();
+    }else{
+      context.drawImage(video,0,0,canvas.width,canvas.height);
+    }
 
     const blob =
       await new Promise(
