@@ -5315,238 +5315,357 @@ $("copyRoomBtn").onclick =
    CALL
 ========================================================= */
 
-let incomingCallerId = null;
-let incomingCallerRoom = null;
-let incomingCallerName = "USER";
-let currentCallPeerId = null;
+$("callRoomBtn").onclick =
+  () => {
 
-$("callRoomBtn").onclick = () => {
-  const targetRoom = $("joinRoomInput").value.trim().toUpperCase();
-  if(!targetRoom){
-    toast("Enter Room ID");
-    return;
-  }
+    const targetRoom =
+      $("joinRoomInput")
+        .value
+        .trim();
 
-  currentCallRoom = targetRoom;
-  $("callTitle").textContent = "Calling...";
-  $("incomingActions").style.display = "none";
-  $("callVideoArea").style.display = "none";
-  showModal("callModal");
+    if(!targetRoom){
 
-  // IMPORTANT: do NOT join the other user's permanent room.
-  // The server uses the permanent Room ID only to locate the callee.
-  socket.emit("call-user", {
-    targetRoom,
-    callerRoom: permanentRoomId,
-    callerName: currentProfile?.display_name || "USER"
-  });
-};
+      toast(
+        "Enter Room ID"
+      );
+
+      return;
+    }
+
+    currentCallRoom =
+      targetRoom;
+
+    socket.emit(
+      "join-room",
+      targetRoom
+    );
+
+    socket.emit(
+      "call-user",
+      {
+        roomId:
+          targetRoom,
+        from:
+          permanentRoomId
+      }
+    );
+
+    $("callTitle")
+      .textContent =
+      "Calling...";
+
+    $("incomingActions")
+      .style.display =
+      "none";
+
+    showModal(
+      "callModal"
+    );
+
+  };
+
 
 /* =========================================================
    SOCKET EVENTS
 ========================================================= */
 
-socket.on("connect", () => {
-  // Register this socket against its own permanent Room ID.
-  socket.emit("join-room", {
-    room: permanentRoomId,
-    displayName: currentProfile?.display_name || "USER"
-  });
-});
+socket.on(
+  "connect",
+  () => {
 
-socket.on("call-ringing", data => {
-  $("callTitle").textContent = "Calling...";
-  status?.("RINGING " + (data?.targetRoom || "") + "...");
-});
+    socket.emit(
+      "join-room",
+      permanentRoomId
+    );
 
-socket.on("incoming-call", data => {
-  incomingCallerId = data?.callerId || null;
-  incomingCallerRoom = data?.callerRoom || "";
-  incomingCallerName = data?.callerName || "USER";
-  currentCallRoom = data?.callRoom || incomingCallerRoom || null;
-
-  $("callTitle").textContent =
-    "Incoming Call · " + incomingCallerName;
-
-  $("incomingActions").style.display = "flex";
-  $("callVideoArea").style.display = "none";
-  showModal("callModal");
-
-  playHackerConfirm();
-});
-
-socket.on("call-unavailable", () => {
-  hideModal("callModal");
-  toast("User offline");
-});
-
-socket.on("call-accepted", async data => {
-  currentCallRoom = data?.callRoom || currentCallRoom;
-  currentCallPeerId = data?.acceptedBy || data?.accepterId || null;
-  $("callTitle").textContent = "Call Connected";
-
-  try{
-    await beginCall(true, currentCallPeerId);
-  }catch(error){
-    console.error(error);
-    toast("Unable to start call");
   }
-});
+);
 
-socket.on("call-rejected", () => {
-  endCall(false);
-  toast("Call rejected");
-});
 
-socket.on("call-ended", () => {
-  endCall(false);
-});
+socket.on(
+  "incoming-call",
+  data => {
+
+    currentCallRoom =
+      data.roomId ||
+      data.from;
+
+    $("callTitle")
+      .textContent =
+      "Incoming Call";
+
+    $("incomingActions")
+      .style.display =
+      "flex";
+
+    showModal(
+      "callModal"
+    );
+
+    playHackerConfirm();
+
+  }
+);
+
+
+socket.on(
+  "call-rejected",
+  () => {
+
+    hideModal(
+      "callModal"
+    );
+
+    toast(
+      "Call rejected"
+    );
+
+  }
+);
+
+
+socket.on(
+  "call-ended",
+  () => {
+    endCall(false);
+  }
+);
+
 
 /* =========================================================
    WEBRTC
 ========================================================= */
 
-async function beginCall(initiator, peerId){
+async function beginCall(
+  initiator
+){
+
   try{
-    if(localCallStream){
-      localCallStream.getTracks().forEach(t => t.stop());
-    }
 
-    localCallStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true
-    });
-
-    $("localVideo").srcObject = localCallStream;
-    $("incomingActions").style.display = "none";
-    $("callVideoArea").style.display = "block";
-
-    if(callPeer){
-      try{ callPeer.close(); }catch(e){}
-    }
-
-    callPeer = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" }
-      ]
-    });
-
-    localCallStream.getTracks().forEach(track =>
-      callPeer.addTrack(track, localCallStream)
-    );
-
-    callPeer.ontrack = event => {
-      if(event.streams?.[0]){
-        $("remoteVideo").srcObject = event.streams[0];
-      }
-    };
-
-    callPeer.onicecandidate = event => {
-      if(event.candidate){
-        socket.emit("webrtc-signal", {
-          targetId: peerId || currentCallPeerId || incomingCallerId || null,
-          signal: { candidate: event.candidate }
+    localCallStream =
+      await navigator
+        .mediaDevices
+        .getUserMedia({
+          video:true,
+          audio:true
         });
-      }
-    };
+
+    $("localVideo")
+      .srcObject =
+      localCallStream;
+
+    $("incomingActions")
+      .style.display =
+      "none";
+
+    $("callVideoArea")
+      .style.display =
+      "block";
+
+    callPeer =
+      new RTCPeerConnection({
+        iceServers:[
+          {
+            urls:
+              "stun:stun.l.google.com:19302"
+          }
+        ]
+      });
+
+    localCallStream
+      .getTracks()
+      .forEach(
+        track =>
+          callPeer.addTrack(
+            track,
+            localCallStream
+          )
+      );
+
+    callPeer.ontrack =
+      event => {
+
+        $("remoteVideo")
+          .srcObject =
+          event.streams[0];
+
+      };
+
+    callPeer.onicecandidate =
+      event => {
+
+        if(
+          event.candidate
+        ){
+
+          socket.emit(
+            "webrtc-signal",
+            {
+              roomId:
+                currentCallRoom,
+              data:{
+                candidate:
+                  event.candidate
+              }
+            }
+          );
+
+        }
+
+      };
+
 
     if(initiator){
-      const offer = await callPeer.createOffer();
-      await callPeer.setLocalDescription(offer);
-      socket.emit("webrtc-signal", {
-        targetId: incomingCallerId || null,
-        signal: { offer: callPeer.localDescription }
-      });
+
+      const offer =
+        await callPeer
+          .createOffer();
+
+      await callPeer
+        .setLocalDescription(
+          offer
+        );
+
+      socket.emit(
+        "webrtc-signal",
+        {
+          roomId:
+            currentCallRoom,
+          data:{
+            description:
+              callPeer.localDescription
+          }
+        }
+      );
+
     }
 
   }catch(error){
-    console.error("Call media error:", error);
-    toast("Camera/microphone permission required");
-    throw error;
+
+    console.error(
+      error
+    );
+
+    toast(
+      "Call camera/microphone permission required"
+    );
+
   }
+
 }
 
-socket.on("webrtc-signal", async data => {
-  try{
-    const signal = data?.signal || {};
 
-    // Caller may receive signals from the accepted callee.
-    if(!callPeer && signal.answer){
+socket.on(
+  "webrtc-signal",
+  async data => {
+
+    if(!callPeer){
       return;
     }
 
-    if(!callPeer) return;
+    try{
 
-    if(signal.offer){
-      await callPeer.setRemoteDescription(
-        new RTCSessionDescription(signal.offer)
+      if(
+        data.data?.candidate
+      ){
+
+        await callPeer
+          .addIceCandidate(
+            data.data.candidate
+          );
+
+      }
+
+      if(
+        data.data?.description
+      ){
+
+        await callPeer
+          .setRemoteDescription(
+            data.data.description
+          );
+
+        if(
+          data.data.description.type ===
+          "offer"
+        ){
+
+          const answer =
+            await callPeer
+              .createAnswer();
+
+          await callPeer
+            .setLocalDescription(
+              answer
+            );
+
+          socket.emit(
+            "webrtc-signal",
+            {
+              roomId:
+                currentCallRoom,
+              data:{
+                description:
+                  callPeer.localDescription
+              }
+            }
+          );
+
+        }
+
+      }
+
+    }catch(error){
+
+      console.error(
+        error
       );
 
-      const answer = await callPeer.createAnswer();
-      await callPeer.setLocalDescription(answer);
-
-      socket.emit("webrtc-signal", {
-        targetId: data.senderId,
-        signal: { answer: callPeer.localDescription }
-      });
-      return;
     }
 
-    if(signal.answer){
-      await callPeer.setRemoteDescription(
-        new RTCSessionDescription(signal.answer)
-      );
-    }
-
-    if(signal.candidate){
-      await callPeer.addIceCandidate(
-        new RTCIceCandidate(signal.candidate)
-      );
-    }
-  }catch(error){
-    console.error("WebRTC signal error:", error);
   }
-});
+);
+
 
 /* =========================================================
    ACCEPT / REJECT / END CALL
 ========================================================= */
 
-$("acceptCallBtn").onclick = async () => {
-  if(!incomingCallerId){
-    toast("Caller information missing");
-    return;
-  }
+$("acceptCallBtn").onclick =
+  async () => {
 
-  $("incomingActions").style.display = "none";
-  $("callTitle").textContent = "Connecting...";
+    socket.emit(
+      "accept-call",
+      {
+        roomId:
+          currentCallRoom
+      }
+    );
 
-  // Server tells the caller that this specific socket accepted.
-  socket.emit("accept-call", {
-    callerId: incomingCallerId,
-    callRoom: currentCallRoom || incomingCallerRoom
-  });
+    await beginCall(
+      false
+    );
 
-  try{
-    currentCallPeerId = incomingCallerId;
-    await beginCall(false, currentCallPeerId);
-  }catch(error){
-    socket.emit("reject-call", { callerId: incomingCallerId });
-  }
-};
+  };
 
-$("rejectCallBtn").onclick = () => {
-  if(incomingCallerId){
-    socket.emit("reject-call", {
-      callerId: incomingCallerId
-    });
-  }
 
-  incomingCallerId = null;
-  incomingCallerRoom = null;
-  hideModal("callModal");
-};
+$("rejectCallBtn").onclick =
+  () => {
+
+    socket.emit(
+      "reject-call",
+      {
+        roomId:
+          currentCallRoom
+      }
+    );
+
+    hideModal(
+      "callModal"
+    );
+
+  };
+
 
 function endCall(
   sendSignal=true
@@ -5589,9 +5708,6 @@ function endCall(
 
   callPeer =
     null;
-  currentCallPeerId = null;
-  incomingCallerId = null;
-  incomingCallerRoom = null;
 
   $("localVideo")
     .srcObject =
