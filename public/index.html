@@ -707,7 +707,7 @@ input[type=text]{
   background:#020605 !important;
 }
 .leaflet-tile-pane{
-  filter:brightness(.20) contrast(1.38) saturate(.35);
+  filter:brightness(.48) contrast(1.22) saturate(.72);
 }
 .live-location-label{
   pointer-events:none !important;
@@ -737,71 +737,6 @@ input[type=text]{
   border-top-color:#ffffff !important;
 }
 </style>
-/* ===== REFERENCE UI PASS ===== */
-.modal{
-  align-items:flex-start;
-  justify-content:center;
-  padding:58px 0 78px;
-  background:rgba(0,0,0,.82);
-  backdrop-filter:blur(2px);
-}
-.modal .panel{
-  width:min(680px,100vw);
-  max-width:680px;
-  height:calc(100vh - 136px);
-  max-height:none;
-  overflow:auto;
-  padding:18px 16px 22px;
-  border:1px solid rgba(0,255,157,.52);
-  border-radius:0;
-  background:linear-gradient(180deg,rgba(2,12,10,.98),rgba(1,7,8,.98));
-  box-shadow:0 0 28px rgba(0,255,157,.10),inset 0 0 24px rgba(0,255,157,.025);
-}
-.modal .panel h2{
-  margin:0 0 16px;
-  padding:0 0 12px 34px;
-  border-bottom:1px solid rgba(0,255,157,.38);
-  color:#55ffb8;
-  font-size:18px;
-  text-shadow:0 0 8px rgba(0,255,157,.28);
-}
-.modal .close{
-  float:none;
-  position:absolute;
-  margin:0;
-  width:28px;
-  height:28px;
-  color:#55ffb8;
-  font-size:25px;
-  line-height:24px;
-  z-index:3;
-}
-#roomModal .close,#joinModal .close,#youModal .close,#notificationModal .close,#adminModal .close,#cameraModal .close,#snapModal .close{
-  left:calc(50% - min(340px,50vw) + 10px);
-}
-#cameraModal .panel{
-  padding-top:12px;
-}
-#cameraModal .camera-video{
-  max-height:56vh;
-  border:1px solid rgba(0,255,157,.35);
-}
-#cameraModal .camera-actions{
-  background:linear-gradient(to bottom,transparent,rgba(1,7,8,.98) 28%);
-}
-@media(max-width:680px){
-  .modal{padding-top:58px;padding-bottom:78px;}
-  .modal .panel{height:calc(100vh - 136px);}
-  #roomModal .close,#joinModal .close,#youModal .close,#notificationModal .close,#adminModal .close,#cameraModal .close,#snapModal .close{left:10px;}
-}
-
-/* Reference-style green location detector ring */
-.live-ring{
-  width:46px;height:46px;border:2px solid #fff;border-radius:50%;
-  background:rgba(0,255,110,.16);
-  box-shadow:0 0 8px #fff,0 0 22px rgba(0,255,110,.48),inset 0 0 12px rgba(0,255,110,.35);
-}
-
 </head>
 
 <body>
@@ -813,13 +748,13 @@ input[type=text]{
 <div class="topbar">
 
   <div class="top-left">
-    <button id="notificationBtn">
-      🔔 Notification<span id="notifDot" class="notif-dot"></span>
-    </button>
+    <button id="adminBtn">Admin</button>
   </div>
 
   <div class="top-center">
-    <button id="adminBtn">Admin</button>
+    <button id="notificationBtn">
+      🔔 Notification<span id="notifDot" class="notif-dot"></span>
+    </button>
   </div>
 
   <div class="top-right">
@@ -1750,9 +1685,6 @@ document.addEventListener(
 );
 
 
-// Reference UI uses a back arrow instead of an X on page panels.
-document.querySelectorAll(".close").forEach(btn=>{ btn.textContent="←"; });
-
 /* =========================================================
    STATE
 ========================================================= */
@@ -1850,19 +1782,14 @@ function showLiveLocationOverlay(details, geojson){
         style:{
           color:"#ffffff",
           weight:2.5,
-          opacity:.98,
+          opacity:.95,
           fillColor:"#0b2419",
-          fillOpacity:.10
+          fillOpacity:.12
         }
       }).addTo(map);
     }catch(error){
       console.warn("Boundary draw failed", error);
     }
-  } else {
-    // Fallback: show the live GPS area as a white 50m boundary.
-    liveBoundaryLayer = L.circle([details.lat, details.lng], {
-      radius:50, color:"#ffffff", weight:2, opacity:.95, fillColor:"#0b2419", fillOpacity:.08
-    }).addTo(map);
   }
 
   const label = details?.placeName || "Live Location";
@@ -2407,20 +2334,6 @@ async function detectLiveLocation(
     boundaryGeoJSON = boundaryJSON.geojson || null;
   }catch(error){
     console.warn("Live boundary unavailable", error);
-  }
-
-  if(!boundaryGeoJSON){
-    try{
-      const query = [details.placeName, details.district, details.state, details.country].filter(Boolean).join(", ");
-      const searchResponse = await fetch(
-        "https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&limit=1&q=" + encodeURIComponent(query),
-        {headers:{"Accept":"application/json"}}
-      );
-      const searchJSON = await searchResponse.json();
-      boundaryGeoJSON = searchJSON?.[0]?.geojson || null;
-    }catch(error){
-      console.warn("Place boundary search unavailable", error);
-    }
   }
 
   currentLocation =
