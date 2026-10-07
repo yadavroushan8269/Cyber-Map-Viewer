@@ -4182,7 +4182,7 @@ async function uploadMedia(
   const upload =
     await supabaseClient
       .storage
-      .from("snaps")
+      .from("past-snaps")
       .upload(
         fileName,
         blob,
@@ -4211,7 +4211,7 @@ async function uploadMedia(
   const publicUrl =
     supabaseClient
       .storage
-      .from("snaps")
+      .from("past-snaps")
       .getPublicUrl(
         fileName
       )
