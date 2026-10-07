@@ -553,11 +553,7 @@ input[type=text]{
 
 /* ================= DETECT FLASH ================= */
 
-.camera-actions{position:sticky;bottom:0;z-index:20;padding:8px 0;background:linear-gradient(to bottom,transparent,#050b10 30%)}
-.filter-row{max-height:190px;overflow-y:auto}
-
 .flash-box{
-  width:min(92vw,420px);
   padding:28px;
   text-align:center;
   border:1px solid var(--red);
@@ -1016,20 +1012,21 @@ input[type=text]{
 
     <div id="filterRow" class="filter-row"></div>
 
-    <div class="actions camera-actions">
-
-      <button
-        id="mirrorBtn"
-        class="secondary"
-      >
-        Mirror
-      </button>
+    <div class="actions">
 
       <button
         id="switchCameraBtn"
         class="secondary"
       >
         Switch
+      </button>
+
+      <button
+        id="mirrorBtn"
+        class="secondary"
+        type="button"
+      >
+        Mirror OFF
       </button>
 
       <button
@@ -1593,11 +1590,11 @@ let currentDetails = null;
 
 let cameraStream = null;
 let currentFacing = "environment";
+let cameraMirror = false;
 let zoomTrack = null;
 let currentZoom = 1;
 
 let activeFilter = "normal";
-let mirrorCamera = false;
 
 let qrScanner = null;
 
@@ -2724,58 +2721,156 @@ $("mapBtn").onclick =
 ========================================================= */
 
 const filters = [
-  ["normal","Normal","none"],
-  ["colour-pop","Colour Pop","saturate(1.9) contrast(1.12)"],
-  ["cool","Cool","saturate(1.15) hue-rotate(12deg) contrast(1.05)"],
-  ["warm","Warm","sepia(.22) saturate(1.25)"],
-  ["vintage","Vintage","sepia(.38) contrast(1.05) saturate(.9)"],
-  ["cinematic","Cinematic","contrast(1.25) saturate(.9) brightness(.94)"],
-  ["vivid","Vivid","saturate(1.7) contrast(1.12)"],
-  ["soft","Soft","brightness(1.08) saturate(.82) contrast(.94)"],
-  ["mono","Mono","grayscale(1)"],
-  ["sepia","Sepia","sepia(1)"],
-  ["cyber","Cyber","hue-rotate(120deg) saturate(1.4) contrast(1.15)"],
-  ["neon","Neon","saturate(2.1) contrast(1.25) brightness(1.06)"],
-  ["dream","Dream","brightness(1.08) saturate(.8) contrast(.88)"],
-  ["sunset","Sunset","sepia(.25) hue-rotate(-10deg) saturate(1.45)"],
-  ["ocean","Ocean","hue-rotate(165deg) saturate(1.3) contrast(1.05)"],
-  ["forest","Forest","hue-rotate(70deg) saturate(1.35) contrast(1.05)"],
-  ["rose","Rose","hue-rotate(320deg) saturate(1.35)"],
-  ["red","Red","hue-rotate(315deg) saturate(1.8)"],
-  ["blue","Blue","hue-rotate(185deg) saturate(1.5)"],
-  ["purple","Purple","hue-rotate(255deg) saturate(1.5)"],
-  ["green","Green","hue-rotate(75deg) saturate(1.6)"],
-  ["golden","Golden","sepia(.28) hue-rotate(350deg) saturate(1.45) brightness(1.05)"],
-  ["contrast","Contrast","contrast(1.35)"],
-  ["bright","Bright","brightness(1.35)"],
-  ["dark","Dark","brightness(.65)"],
-  ["night","Night","brightness(.55) contrast(1.2) saturate(.85)"],
-  ["invert","Invert","invert(1)"],
-  ["fade","Fade","opacity(.82) contrast(.88) saturate(.78)"],
-  ["noir","Noir","grayscale(1) contrast(1.55) brightness(.9)"],
-  ["glitch","Glitch","contrast(1.35) saturate(1.65) hue-rotate(18deg)"]
+  ["normal","Normal"],
+  ["contrast","Contrast"],
+  ["mono","Mono"],
+  ["sepia","Sepia"],
+  ["cyan","Cyber"],
+  ["invert","Invert"],
+  ["bright","Bright"],
+  ["dark","Dark"],
+  ["red","Red"],
+  ["night","Night"]
 ];
 
-filters.forEach(([id,label])=>{
-  const button=document.createElement("button");
-  button.type="button"; button.textContent=label; button.dataset.filter=id;
-  button.onclick=()=>{
-    activeFilter=id;
-    document.querySelectorAll("#filterRow button").forEach(x=>x.classList.remove("active"));
-    button.classList.add("active"); applyCameraFilter();
-  };
-  $("filterRow").appendChild(button);
-});
-const firstFilter=document.querySelector("#filterRow button");
-if(firstFilter) firstFilter.classList.add("active");
-function applyCameraFilter(){
-  const filterMap=Object.fromEntries(filters.map(([id,,css])=>[id,css]));
-  $("cameraVideo").style.filter=filterMap[activeFilter]||"none";
+filters.forEach(
+  ([id,label]) => {
+
+    const button =
+      document.createElement(
+        "button"
+      );
+
+    button.textContent =
+      label;
+
+    button.dataset.filter =
+      id;
+
+    button.onclick =
+      () => {
+
+        activeFilter =
+          id;
+
+        document
+          .querySelectorAll(
+            "#filterRow button"
+          )
+          .forEach(
+            element =>
+              element.classList.remove(
+                "active"
+              )
+          );
+
+        button.classList.add(
+          "active"
+        );
+
+        applyCameraFilter();
+
+      };
+
+    $("filterRow")
+      .appendChild(
+        button
+      );
+
+  }
+);
+
+const firstFilter =
+  document.querySelector(
+    "#filterRow button"
+  );
+
+if(firstFilter){
+  firstFilter.classList.add(
+    "active"
+  );
 }
+
+
+function applyCameraFilter(){
+
+  $("cameraVideo").style.filter =
+    getCameraFilter();
+
+}
+
 
 /* =========================================================
    CAMERA HELPERS
 ========================================================= */
+
+function applyCameraMirror(){
+
+  const video = $("cameraVideo");
+
+  if(!video){
+    return;
+  }
+
+  video.style.transform =
+    cameraMirror
+      ? "scaleX(-1)"
+      : "scaleX(1)";
+
+  const button = $("mirrorBtn");
+
+  if(button){
+    button.textContent =
+      cameraMirror
+        ? "Mirror ON"
+        : "Mirror OFF";
+
+    button.classList.toggle(
+      "active",
+      cameraMirror
+    );
+  }
+}
+
+function getCameraFilter(){
+
+  const filterMap = {
+    normal:"none",
+    contrast:"contrast(1.35)",
+    mono:"grayscale(1)",
+    sepia:"sepia(1)",
+    cyan:"hue-rotate(120deg) saturate(1.4)",
+    invert:"invert(1)",
+    bright:"brightness(1.35)",
+    dark:"brightness(.65)",
+    red:"hue-rotate(315deg) saturate(1.8)",
+    night:"brightness(.55) contrast(1.2)"
+  };
+
+  return filterMap[activeFilter] || "none";
+}
+
+function drawVideoFrame(ctx, video, width, height){
+
+  ctx.save();
+
+  ctx.filter = getCameraFilter();
+
+  if(cameraMirror){
+    ctx.translate(width, 0);
+    ctx.scale(-1, 1);
+  }
+
+  ctx.drawImage(
+    video,
+    0,
+    0,
+    width,
+    height
+  );
+
+  ctx.restore();
+}
 
 function stopCamera(){
 
@@ -2894,6 +2989,7 @@ async function openCameraStream(){
   setupZoom();
 
   applyCameraFilter();
+  applyCameraMirror();
 
 }
 
@@ -2948,7 +3044,19 @@ function setupZoom(){
 
 
 async function prepareCamera(){
+
+  /*
+    FIX:
+    + button now centers map on
+    actual live GPS before camera.
+  */
+
+  await detectLiveLocation({
+    centerMap:true
+  });
+
   await openCameraStream();
+
 }
 
 
@@ -3035,25 +3143,6 @@ $("videoModeBtn").onclick =
 
 
 /* =========================================================
-   LIVE LOCATION BLINK
-========================================================= */
-async function blinkLiveLocationMarker(duration=2000){
-  if(!currentLocation) return;
-  const marker=L.circleMarker([currentLocation.lat,currentLocation.lng],{radius:12,color:"#39ff88",weight:3,fillColor:"#39ff88",fillOpacity:.55}).addTo(map);
-  map.setView([currentLocation.lat,currentLocation.lng],17,{animate:true});
-  const start=performance.now();
-  await new Promise(resolve=>{
-    const tick=now=>{
-      const t=now-start, pulse=.35+((Math.sin(t/110)+1)/2)*.65;
-      marker.setStyle({opacity:pulse,fillOpacity:.18+pulse*.45});
-      if(t<duration) requestAnimationFrame(tick); else resolve();
-    };
-    requestAnimationFrame(tick);
-  });
-  map.removeLayer(marker);
-}
-
-/* =========================================================
    PLUS BUTTON
 ========================================================= */
 
@@ -3066,6 +3155,10 @@ $("plusBtn").onclick =
       to user's real live location.
     */
 
+    showModal(
+      "cameraModal"
+    );
+
     $("uploadPreview")
       .classList.remove(
         "show"
@@ -3077,9 +3170,6 @@ $("plusBtn").onclick =
         .textContent =
         "Detecting live location...";
 
-      await detectLiveLocation({centerMap:true});
-      await blinkLiveLocationMarker(2000);
-      showModal("cameraModal");
       await prepareCamera();
 
       $("uploadStatus")
@@ -3235,15 +3325,23 @@ $("switchCameraBtn").onclick =
   };
 
 
-/* =========================================================
-   MIRROR CAMERA
-========================================================= */
-$("mirrorBtn").onclick=()=>{
-  mirrorCamera=!mirrorCamera;
-  $("cameraVideo").style.transform=mirrorCamera?"scaleX(-1)":"none";
-  $("mirrorBtn").textContent=mirrorCamera?"Mirror On":"Mirror";
-  playHackerClick();
-};
+$("mirrorBtn").onclick =
+  () => {
+
+    cameraMirror = !cameraMirror;
+
+    applyCameraMirror();
+
+    playHackerClick();
+
+    toast(
+      cameraMirror
+        ? "Mirror ON"
+        : "Mirror OFF"
+    );
+
+  };
+
 
 /* =========================================================
    MEDIA UTILITIES
@@ -3620,25 +3718,12 @@ async function capturePhoto(){
         "2d"
       );
 
-    context.filter =
-      video.style.filter ||
-      "none";
-
-    /*
-      Front camera preview is often mirrored
-      by the browser only visually. We leave
-      the actual captured image natural.
-    */
-
-    if(mirrorCamera){
-      context.save();
-      context.translate(canvas.width,0);
-      context.scale(-1,1);
-      context.drawImage(video,0,0,canvas.width,canvas.height);
-      context.restore();
-    }else{
-      context.drawImage(video,0,0,canvas.width,canvas.height);
-    }
+    drawVideoFrame(
+      context,
+      video,
+      canvas.width,
+      canvas.height
+    );
 
     const blob =
       await new Promise(
@@ -3801,18 +3886,62 @@ function startVideoRecording(){
   const mime =
     chooseRecorderMime();
 
+  let recorderStream = cameraStream;
+  let mirrorCanvas = null;
+  let mirrorContext = null;
+  let mirrorAnimation = null;
+
+  /*
+    When Mirror is ON, record the same mirrored/filter-processed
+    view that the user sees. Fall back to the original camera
+    stream on browsers that do not support canvas.captureStream().
+  */
+  if(
+    cameraMirror &&
+    typeof HTMLCanvasElement !== "undefined" &&
+    typeof HTMLCanvasElement.prototype.captureStream === "function"
+  ){
+
+    const video = $("cameraVideo");
+
+    mirrorCanvas = document.createElement("canvas");
+    mirrorCanvas.width = video.videoWidth || 1280;
+    mirrorCanvas.height = video.videoHeight || 720;
+    mirrorContext = mirrorCanvas.getContext("2d");
+
+    const fps = 30;
+    recorderStream = mirrorCanvas.captureStream(fps);
+
+    const draw = () => {
+      if(!mediaRecorder || mediaRecorder.state === "inactive"){
+        return;
+      }
+
+      drawVideoFrame(
+        mirrorContext,
+        video,
+        mirrorCanvas.width,
+        mirrorCanvas.height
+      );
+
+      mirrorAnimation =
+        requestAnimationFrame(draw);
+    };
+
+  }
+
   try{
 
     mediaRecorder =
       mime
         ? new MediaRecorder(
-            cameraStream,
+            recorderStream,
             {
               mimeType:mime
             }
           )
         : new MediaRecorder(
-            cameraStream
+            recorderStream
           );
 
   }catch(error){
@@ -3958,6 +4087,47 @@ function startVideoRecording(){
 
   mediaRecorder.start(
     250
+  );
+
+  if(mirrorCanvas && mirrorContext){
+    const video = $("cameraVideo");
+    const drawMirroredFrame = () => {
+      if(
+        !mediaRecorder ||
+        mediaRecorder.state === "inactive"
+      ){
+        return;
+      }
+
+      drawVideoFrame(
+        mirrorContext,
+        video,
+        mirrorCanvas.width,
+        mirrorCanvas.height
+      );
+
+      mirrorAnimation =
+        requestAnimationFrame(drawMirroredFrame);
+    };
+
+    mirrorAnimation =
+      requestAnimationFrame(drawMirroredFrame);
+  }
+
+  mediaRecorder.addEventListener(
+    "stop",
+    () => {
+      if(mirrorAnimation){
+        cancelAnimationFrame(mirrorAnimation);
+        mirrorAnimation = null;
+      }
+
+      if(mirrorCanvas){
+        mirrorCanvas.width = 1;
+        mirrorCanvas.height = 1;
+      }
+    },
+    {once:true}
   );
 
   recordingTimer =
@@ -5315,238 +5485,357 @@ $("copyRoomBtn").onclick =
    CALL
 ========================================================= */
 
-let incomingCallerId = null;
-let incomingCallerRoom = null;
-let incomingCallerName = "USER";
-let currentCallPeerId = null;
+$("callRoomBtn").onclick =
+  () => {
 
-$("callRoomBtn").onclick = () => {
-  const targetRoom = $("joinRoomInput").value.trim().toUpperCase();
-  if(!targetRoom){
-    toast("Enter Room ID");
-    return;
-  }
+    const targetRoom =
+      $("joinRoomInput")
+        .value
+        .trim();
 
-  currentCallRoom = targetRoom;
-  $("callTitle").textContent = "Calling...";
-  $("incomingActions").style.display = "none";
-  $("callVideoArea").style.display = "none";
-  showModal("callModal");
+    if(!targetRoom){
 
-  // IMPORTANT: do NOT join the other user's permanent room.
-  // The server uses the permanent Room ID only to locate the callee.
-  socket.emit("call-user", {
-    targetRoom,
-    callerRoom: permanentRoomId,
-    callerName: currentProfile?.display_name || "USER"
-  });
-};
+      toast(
+        "Enter Room ID"
+      );
+
+      return;
+    }
+
+    currentCallRoom =
+      targetRoom;
+
+    socket.emit(
+      "join-room",
+      targetRoom
+    );
+
+    socket.emit(
+      "call-user",
+      {
+        roomId:
+          targetRoom,
+        from:
+          permanentRoomId
+      }
+    );
+
+    $("callTitle")
+      .textContent =
+      "Calling...";
+
+    $("incomingActions")
+      .style.display =
+      "none";
+
+    showModal(
+      "callModal"
+    );
+
+  };
+
 
 /* =========================================================
    SOCKET EVENTS
 ========================================================= */
 
-socket.on("connect", () => {
-  // Register this socket against its own permanent Room ID.
-  socket.emit("join-room", {
-    room: permanentRoomId,
-    displayName: currentProfile?.display_name || "USER"
-  });
-});
+socket.on(
+  "connect",
+  () => {
 
-socket.on("call-ringing", data => {
-  $("callTitle").textContent = "Calling...";
-  status?.("RINGING " + (data?.targetRoom || "") + "...");
-});
+    socket.emit(
+      "join-room",
+      permanentRoomId
+    );
 
-socket.on("incoming-call", data => {
-  incomingCallerId = data?.callerId || null;
-  incomingCallerRoom = data?.callerRoom || "";
-  incomingCallerName = data?.callerName || "USER";
-  currentCallRoom = data?.callRoom || incomingCallerRoom || null;
-
-  $("callTitle").textContent =
-    "Incoming Call · " + incomingCallerName;
-
-  $("incomingActions").style.display = "flex";
-  $("callVideoArea").style.display = "none";
-  showModal("callModal");
-
-  playHackerConfirm();
-});
-
-socket.on("call-unavailable", () => {
-  hideModal("callModal");
-  toast("User offline");
-});
-
-socket.on("call-accepted", async data => {
-  currentCallRoom = data?.callRoom || currentCallRoom;
-  currentCallPeerId = data?.acceptedBy || data?.accepterId || null;
-  $("callTitle").textContent = "Call Connected";
-
-  try{
-    await beginCall(true, currentCallPeerId);
-  }catch(error){
-    console.error(error);
-    toast("Unable to start call");
   }
-});
+);
 
-socket.on("call-rejected", () => {
-  endCall(false);
-  toast("Call rejected");
-});
 
-socket.on("call-ended", () => {
-  endCall(false);
-});
+socket.on(
+  "incoming-call",
+  data => {
+
+    currentCallRoom =
+      data.roomId ||
+      data.from;
+
+    $("callTitle")
+      .textContent =
+      "Incoming Call";
+
+    $("incomingActions")
+      .style.display =
+      "flex";
+
+    showModal(
+      "callModal"
+    );
+
+    playHackerConfirm();
+
+  }
+);
+
+
+socket.on(
+  "call-rejected",
+  () => {
+
+    hideModal(
+      "callModal"
+    );
+
+    toast(
+      "Call rejected"
+    );
+
+  }
+);
+
+
+socket.on(
+  "call-ended",
+  () => {
+    endCall(false);
+  }
+);
+
 
 /* =========================================================
    WEBRTC
 ========================================================= */
 
-async function beginCall(initiator, peerId){
+async function beginCall(
+  initiator
+){
+
   try{
-    if(localCallStream){
-      localCallStream.getTracks().forEach(t => t.stop());
-    }
 
-    localCallStream = await navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true
-    });
-
-    $("localVideo").srcObject = localCallStream;
-    $("incomingActions").style.display = "none";
-    $("callVideoArea").style.display = "block";
-
-    if(callPeer){
-      try{ callPeer.close(); }catch(e){}
-    }
-
-    callPeer = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" }
-      ]
-    });
-
-    localCallStream.getTracks().forEach(track =>
-      callPeer.addTrack(track, localCallStream)
-    );
-
-    callPeer.ontrack = event => {
-      if(event.streams?.[0]){
-        $("remoteVideo").srcObject = event.streams[0];
-      }
-    };
-
-    callPeer.onicecandidate = event => {
-      if(event.candidate){
-        socket.emit("webrtc-signal", {
-          targetId: peerId || currentCallPeerId || incomingCallerId || null,
-          signal: { candidate: event.candidate }
+    localCallStream =
+      await navigator
+        .mediaDevices
+        .getUserMedia({
+          video:true,
+          audio:true
         });
-      }
-    };
+
+    $("localVideo")
+      .srcObject =
+      localCallStream;
+
+    $("incomingActions")
+      .style.display =
+      "none";
+
+    $("callVideoArea")
+      .style.display =
+      "block";
+
+    callPeer =
+      new RTCPeerConnection({
+        iceServers:[
+          {
+            urls:
+              "stun:stun.l.google.com:19302"
+          }
+        ]
+      });
+
+    localCallStream
+      .getTracks()
+      .forEach(
+        track =>
+          callPeer.addTrack(
+            track,
+            localCallStream
+          )
+      );
+
+    callPeer.ontrack =
+      event => {
+
+        $("remoteVideo")
+          .srcObject =
+          event.streams[0];
+
+      };
+
+    callPeer.onicecandidate =
+      event => {
+
+        if(
+          event.candidate
+        ){
+
+          socket.emit(
+            "webrtc-signal",
+            {
+              roomId:
+                currentCallRoom,
+              data:{
+                candidate:
+                  event.candidate
+              }
+            }
+          );
+
+        }
+
+      };
+
 
     if(initiator){
-      const offer = await callPeer.createOffer();
-      await callPeer.setLocalDescription(offer);
-      socket.emit("webrtc-signal", {
-        targetId: incomingCallerId || null,
-        signal: { offer: callPeer.localDescription }
-      });
+
+      const offer =
+        await callPeer
+          .createOffer();
+
+      await callPeer
+        .setLocalDescription(
+          offer
+        );
+
+      socket.emit(
+        "webrtc-signal",
+        {
+          roomId:
+            currentCallRoom,
+          data:{
+            description:
+              callPeer.localDescription
+          }
+        }
+      );
+
     }
 
   }catch(error){
-    console.error("Call media error:", error);
-    toast("Camera/microphone permission required");
-    throw error;
+
+    console.error(
+      error
+    );
+
+    toast(
+      "Call camera/microphone permission required"
+    );
+
   }
+
 }
 
-socket.on("webrtc-signal", async data => {
-  try{
-    const signal = data?.signal || {};
 
-    // Caller may receive signals from the accepted callee.
-    if(!callPeer && signal.answer){
+socket.on(
+  "webrtc-signal",
+  async data => {
+
+    if(!callPeer){
       return;
     }
 
-    if(!callPeer) return;
+    try{
 
-    if(signal.offer){
-      await callPeer.setRemoteDescription(
-        new RTCSessionDescription(signal.offer)
+      if(
+        data.data?.candidate
+      ){
+
+        await callPeer
+          .addIceCandidate(
+            data.data.candidate
+          );
+
+      }
+
+      if(
+        data.data?.description
+      ){
+
+        await callPeer
+          .setRemoteDescription(
+            data.data.description
+          );
+
+        if(
+          data.data.description.type ===
+          "offer"
+        ){
+
+          const answer =
+            await callPeer
+              .createAnswer();
+
+          await callPeer
+            .setLocalDescription(
+              answer
+            );
+
+          socket.emit(
+            "webrtc-signal",
+            {
+              roomId:
+                currentCallRoom,
+              data:{
+                description:
+                  callPeer.localDescription
+              }
+            }
+          );
+
+        }
+
+      }
+
+    }catch(error){
+
+      console.error(
+        error
       );
 
-      const answer = await callPeer.createAnswer();
-      await callPeer.setLocalDescription(answer);
-
-      socket.emit("webrtc-signal", {
-        targetId: data.senderId,
-        signal: { answer: callPeer.localDescription }
-      });
-      return;
     }
 
-    if(signal.answer){
-      await callPeer.setRemoteDescription(
-        new RTCSessionDescription(signal.answer)
-      );
-    }
-
-    if(signal.candidate){
-      await callPeer.addIceCandidate(
-        new RTCIceCandidate(signal.candidate)
-      );
-    }
-  }catch(error){
-    console.error("WebRTC signal error:", error);
   }
-});
+);
+
 
 /* =========================================================
    ACCEPT / REJECT / END CALL
 ========================================================= */
 
-$("acceptCallBtn").onclick = async () => {
-  if(!incomingCallerId){
-    toast("Caller information missing");
-    return;
-  }
+$("acceptCallBtn").onclick =
+  async () => {
 
-  $("incomingActions").style.display = "none";
-  $("callTitle").textContent = "Connecting...";
+    socket.emit(
+      "accept-call",
+      {
+        roomId:
+          currentCallRoom
+      }
+    );
 
-  // Server tells the caller that this specific socket accepted.
-  socket.emit("accept-call", {
-    callerId: incomingCallerId,
-    callRoom: currentCallRoom || incomingCallerRoom
-  });
+    await beginCall(
+      false
+    );
 
-  try{
-    currentCallPeerId = incomingCallerId;
-    await beginCall(false, currentCallPeerId);
-  }catch(error){
-    socket.emit("reject-call", { callerId: incomingCallerId });
-  }
-};
+  };
 
-$("rejectCallBtn").onclick = () => {
-  if(incomingCallerId){
-    socket.emit("reject-call", {
-      callerId: incomingCallerId
-    });
-  }
 
-  incomingCallerId = null;
-  incomingCallerRoom = null;
-  hideModal("callModal");
-};
+$("rejectCallBtn").onclick =
+  () => {
+
+    socket.emit(
+      "reject-call",
+      {
+        roomId:
+          currentCallRoom
+      }
+    );
+
+    hideModal(
+      "callModal"
+    );
+
+  };
+
 
 function endCall(
   sendSignal=true
@@ -5589,9 +5878,6 @@ function endCall(
 
   callPeer =
     null;
-  currentCallPeerId = null;
-  incomingCallerId = null;
-  incomingCallerRoom = null;
 
   $("localVideo")
     .srcObject =
