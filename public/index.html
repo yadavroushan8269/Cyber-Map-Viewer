@@ -791,20 +791,6 @@ input[type=text]{
 
 <!-- ================= BOTTOM BAR ================= -->
 
-<div class="bottom">
-
-  <button id="roomBtn">
-    My Room ID
-  </button>
-
-  <button id="joinBtn">
-    Join Call
-  </button>
-
-  <button id="plusBtn" class="plus">
-    +
-  </button>
-
   <button id="mapBtn">
     Map
   </button>
@@ -812,57 +798,6 @@ input[type=text]{
   <button id="youBtn">
     You
   </button>
-
-</div>
-
-<!-- ================= ROOM ID ================= -->
-
-<div id="roomModal" class="modal">
-
-  <div class="panel">
-
-    <button class="close" data-close="roomModal">×</button>
-
-    <h2>My Room ID</h2>
-
-    <div class="row">
-      <b>Permanent Room ID</b>
-      <span id="roomIdText">--</span>
-    </div>
-
-    <div id="roomQr" class="qrbox"></div>
-
-    <div class="actions">
-      <button id="copyRoomBtn" class="primary">
-        Copy Room ID
-      </button>
-    </div>
-
-  </div>
-
-</div>
-
-<!-- ================= JOIN CALL ================= -->
-
-<div id="joinModal" class="modal">
-
-  <div class="panel">
-
-    <button class="close" data-close="joinModal">×</button>
-
-    <h2>Join Call</h2>
-
-    <input
-      id="joinRoomInput"
-      type="text"
-      placeholder="Enter Room ID"
-    >
-
-    <div class="actions">
-
-      <button id="callRoomBtn" class="primary">
-        Call
-      </button>
 
       <button id="scanQrBtn" class="secondary">
         Scan QR
@@ -1110,7 +1045,7 @@ input[type=text]{
       id="zoomSlider"
       type="range"
       min=".5"
-      max="20"
+      max="100"
       step=".1"
       value="1"
       style="width:100%"
@@ -1145,7 +1080,7 @@ input[type=text]{
         id="captureBtn"
         class="primary"
       >
-        Capture Photo
+        🔘
       </button>
 
     </div>
