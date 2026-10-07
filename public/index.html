@@ -630,6 +630,347 @@ input[type=text]{
     );
   }
 }
+
+
+/* =========================================================
+   CYBER GREEN UI — MOCKUP STYLE OVERRIDE
+   Keeps existing functionality; changes presentation only.
+========================================================= */
+:root{
+  --bg:#000000;
+  --panel:rgba(0,8,4,.97);
+  --line:#0b5f3d;
+  --cyan:#39ff9a;
+  --green:#39ff9a;
+  --red:#ff334d;
+  --muted:#83bda4;
+}
+
+html,body{
+  background:#000;
+  color:#39ff9a;
+}
+
+body{
+  font-family:"Courier New",Consolas,monospace;
+}
+
+#map{
+  background:#000;
+}
+
+.leaflet-tile{
+  filter:brightness(.38) contrast(1.45) saturate(.65) hue-rotate(65deg);
+}
+
+.leaflet-control-attribution{
+  background:#000b!important;
+  color:#3d9a70!important;
+}
+.leaflet-control-attribution a{color:#45c98b!important}
+
+/* Top header */
+.topbar{
+  height:58px;
+  padding:8px 10px;
+  background:linear-gradient(#000 0%,#000e 72%,transparent 100%);
+  border-bottom:1px solid #0a754a;
+  grid-template-columns:1fr auto 1fr;
+}
+
+.topbar button,
+.bottom button{
+  border:1px solid #15945d;
+  background:#010905eF;
+  color:#39ff9a;
+  border-radius:5px;
+  padding:8px 10px;
+  font-family:"Courier New",Consolas,monospace;
+  font-weight:900;
+  letter-spacing:.2px;
+  text-shadow:0 0 7px #39ff9a55;
+  box-shadow:0 0 9px #39ff9a18,inset 0 0 7px #39ff9a08;
+}
+
+.topbar button:hover,
+.bottom button:hover{
+  border-color:#54ffad;
+  color:#baffd9;
+  box-shadow:0 0 13px #39ff9a3b,inset 0 0 8px #39ff9a12;
+}
+
+.notif-dot{
+  width:6px;
+  height:6px;
+  background:#ff334d;
+  box-shadow:0 0 7px #ff334d;
+}
+
+/* Live HUD */
+.hud{
+  top:68px;
+  left:10px;
+  right:10px;
+}
+.hud-card{
+  width:min(650px,90vw);
+  border:1px solid #0b7449;
+  border-radius:5px;
+  background:#000b;
+  box-shadow:0 0 14px #39ff9a0d;
+}
+.hud-title{color:#39ff9a}
+.hud-place{color:#baffd9}
+.hud-coords{color:#5da985}
+
+/* Trace */
+.trace{
+  border:1px solid #ff334d;
+  border-radius:5px;
+  background:#170207eF;
+  color:#ff6a7b;
+  box-shadow:0 0 14px #ff334d24;
+  font-family:"Courier New",monospace;
+}
+
+/* Bottom navigation */
+.bottom{
+  width:min(680px,calc(100% - 10px));
+  gap:3px;
+  padding:5px;
+  border:1px solid #0b7449;
+  border-radius:7px;
+  background:#000e;
+  box-shadow:0 0 18px #39ff9a14,inset 0 0 12px #39ff9a08;
+}
+.bottom button{
+  border-radius:4px;
+  padding:9px 4px;
+  font-size:10px;
+}
+.bottom .plus{
+  border:1px solid #39ff9a!important;
+  color:#39ff9a!important;
+  background:#03170d!important;
+  border-radius:50%!important;
+  font-size:23px!important;
+  line-height:1!important;
+  box-shadow:0 0 13px #39ff9a45!important;
+}
+
+/* Full-screen app-like panels on small screens */
+.modal{
+  align-items:flex-start;
+  justify-content:center;
+  padding:58px 0 68px;
+  background:#000;
+  backdrop-filter:none;
+}
+.modal.show{display:flex}
+
+.panel{
+  position:relative;
+  width:min(680px,100vw);
+  height:100%;
+  max-height:none;
+  overflow:auto;
+  padding:12px 12px 22px;
+  border:0;
+  border-top:1px solid #0b7449;
+  border-radius:0;
+  background:#000;
+  box-shadow:none;
+  scrollbar-color:#15945d #000;
+}
+
+.panel::before{
+  content:"";
+  position:sticky;
+  top:0;
+  display:block;
+  height:1px;
+  background:#0b7449;
+  margin-bottom:9px;
+  z-index:2;
+}
+
+.panel h2{
+  margin:0 0 12px;
+  padding:0 0 10px 28px;
+  border-bottom:1px solid #0b7449;
+  color:#39ff9a;
+  font-size:18px;
+  font-family:"Courier New",monospace;
+  text-shadow:0 0 8px #39ff9a2e;
+}
+
+.close{
+  position:absolute;
+  top:9px;
+  left:8px;
+  float:none;
+  z-index:5;
+  width:25px;
+  height:25px;
+  border:0;
+  color:#39ff9a;
+  font-size:26px;
+  line-height:22px;
+  padding:0;
+  transform:none;
+}
+
+.row{
+  padding:9px 0;
+  border-bottom:1px solid #08452d;
+  color:#7eeab2;
+}
+.row b{color:#39ff9a}
+.row span{color:#b6ffd3}
+
+.actions{gap:7px;margin-top:10px}
+
+.primary,.secondary,.danger{
+  border:1px solid #14945c;
+  border-radius:5px;
+  padding:10px;
+  color:#39ff9a;
+  background:#011108;
+  font-family:"Courier New",monospace;
+  font-weight:900;
+  box-shadow:inset 0 0 8px #39ff9a08;
+}
+.primary{
+  background:#06381f;
+  border-color:#39ff9a;
+  color:#baffd9;
+}
+.danger{
+  background:#24050a;
+  border-color:#ff334d;
+  color:#ff7180;
+}
+
+input[type=text]{
+  border:1px solid #15945d;
+  border-radius:5px;
+  background:#010703;
+  color:#baffd9;
+  font-family:"Courier New",monospace;
+}
+input[type=text]::placeholder{color:#4e9472}
+
+.qrbox{
+  background:#fff;
+  border:1px solid #39ff9a;
+  box-shadow:0 0 16px #39ff9a28;
+}
+.scanbox{
+  border:1px dashed #15945d;
+  border-radius:5px;
+  background:#020805;
+}
+
+/* Profile */
+.avatar{
+  border:1px solid #39ff9a;
+  background:#020805;
+  box-shadow:0 0 12px #39ff9a22;
+}
+
+/* Camera / Post */
+.camera-video{
+  border:1px solid #15945d;
+  border-radius:4px;
+  box-shadow:0 0 14px #39ff9a15;
+}
+.media-mode button,
+.filter-row button{
+  border:1px solid #0f7048;
+  border-radius:4px;
+  background:#010a05;
+  color:#70c99b;
+  font-family:"Courier New",monospace;
+}
+.media-mode button.active,
+.filter-row button.active{
+  border-color:#39ff9a;
+  color:#39ff9a;
+  background:#062b19;
+  box-shadow:0 0 9px #39ff9a22;
+}
+.record-timer{color:#ff334d}
+.upload-preview{
+  border:1px solid #0f7048;
+  border-radius:5px;
+  background:#010805;
+}
+.preview-media{border:1px solid #0f7048}
+.info-title{color:#39ff9a}
+.upload-status{color:#7ec59f}
+.progress-shell{border-color:#0f7048;background:#000}
+.progress-bar{background:linear-gradient(90deg,#39ff9a,#0b8f55);box-shadow:0 0 9px #39ff9a55}
+
+/* Snap detector */
+.detector{
+  border-color:#ff334d;
+  box-shadow:0 0 15px #ff334dcc;
+}
+.detector:after{background:#ff334d}
+
+/* Notification list */
+.notification-item{
+  border:0;
+  border-bottom:1px solid #0b7449;
+  border-radius:0;
+  margin:0;
+  padding:11px 4px;
+  background:#000;
+}
+.notification-title{color:#39ff9a}
+.notification-time{color:#70c99b}
+.notification-detail{color:#83bda4}
+
+/* Detect flash */
+.flash-box{
+  border-color:#ff334d;
+  background:#160207;
+  box-shadow:0 0 35px #ff334d40;
+}
+
+/* Toast */
+.toast{
+  border-color:#15945d;
+  border-radius:4px;
+  background:#010a05f5;
+  color:#39ff9a;
+  font-family:"Courier New",monospace;
+}
+
+/* App-like content cards */
+.panel .qrbox + .actions{margin-top:8px}
+.panel .profile-head{padding:5px 0 9px}
+
+@media(max-width:650px){
+  .topbar{height:54px;padding:7px 8px}
+  .topbar button{padding:7px 7px;font-size:10px}
+  .hud{top:61px}
+  .modal{padding-top:54px;padding-bottom:64px}
+  .panel{padding:10px 10px 18px}
+  .panel h2{font-size:17px}
+  .bottom{bottom:max(7px,env(safe-area-inset-bottom));}
+}
+
+
+/* ===== FINAL CYBER UI OVERRIDES ===== */
+.filter-row{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-flow:column!important;grid-template-rows:repeat(15,minmax(0,1fr))!important;gap:5px!important;max-height:520px!important;overflow:auto!important}
+.filter-row button{min-height:30px!important;font-size:10px!important}
+.snap-count-marker{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid #ff304f;background:#160208;color:#fff;font-weight:900;font-family:monospace;font-size:12px;box-shadow:0 0 8px #ff304f,0 0 24px #ff304f88;position:relative;animation:snapPulse 1.25s infinite}
+.snap-count-marker:before{content:"";position:absolute;inset:-7px;border-radius:50%;border:1px solid #ff304f66;box-shadow:0 0 18px #ff304f66}
+@keyframes snapPulse{50%{transform:scale(1.08);box-shadow:0 0 12px #ff304f,0 0 30px #ff304faa}}
+#callVideoArea video#remoteVideo{width:100%;max-height:52vh;border:1px solid #00ff9d;border-radius:8px;background:#000}
+#callVideoArea video#localVideo{border:1px solid #00ff9d;border-radius:8px;background:#000}
+
 </style>
 </head>
 
@@ -715,7 +1056,7 @@ input[type=text]{
 
   <div class="panel">
 
-    <button class="close" data-close="roomModal">×</button>
+    <button class="close" data-close="roomModal">←</button>
 
     <h2>My Room ID</h2>
 
@@ -742,7 +1083,7 @@ input[type=text]{
 
   <div class="panel">
 
-    <button class="close" data-close="joinModal">×</button>
+    <button class="close" data-close="joinModal">←</button>
 
     <h2>Join Call</h2>
 
@@ -780,7 +1121,7 @@ input[type=text]{
 
   <div class="panel">
 
-    <button class="close" data-close="youModal">×</button>
+    <button class="close" data-close="youModal">←</button>
 
     <h2>You</h2>
 
@@ -894,7 +1235,7 @@ input[type=text]{
       class="close"
       data-close="notificationModal"
     >
-      ×
+      ←
     </button>
 
     <h2>Notifications</h2>
@@ -924,10 +1265,10 @@ input[type=text]{
       class="close"
       data-close="adminModal"
     >
-      ×
+      ←
     </button>
 
-    <h2>Admin</h2>
+    <h2>Admin Panel</h2>
 
     <div class="row">
       <b>Name</b>
@@ -958,10 +1299,10 @@ input[type=text]{
       class="close"
       data-close="cameraModal"
     >
-      ×
+      ←
     </button>
 
-    <h2>Camera</h2>
+    <h2>Post / Camera</h2>
 
     <div class="media-mode">
 
@@ -1019,14 +1360,6 @@ input[type=text]{
         class="secondary"
       >
         Switch
-      </button>
-
-      <button
-        id="mirrorBtn"
-        class="secondary"
-        type="button"
-      >
-        Mirror OFF
       </button>
 
       <button
@@ -1590,7 +1923,6 @@ let currentDetails = null;
 
 let cameraStream = null;
 let currentFacing = "environment";
-let cameraMirror = false;
 let zoomTrack = null;
 let currentZoom = 1;
 
@@ -2721,16 +3053,12 @@ $("mapBtn").onclick =
 ========================================================= */
 
 const filters = [
-  ["normal","Normal"],
-  ["contrast","Contrast"],
-  ["mono","Mono"],
-  ["sepia","Sepia"],
-  ["cyan","Cyber"],
-  ["invert","Invert"],
-  ["bright","Bright"],
-  ["dark","Dark"],
-  ["red","Red"],
-  ["night","Night"]
+  ["normal","Normal"],["contrast","Contrast"],["mono","Mono"],["sepia","Sepia"],["cyber","Cyber"],
+  ["invert","Invert"],["bright","Bright"],["dark","Dark"],["red","Red"],["night","Night"],
+  ["warm","Warm"],["cool","Cool"],["vintage","Vintage"],["fade","Fade"],["vivid","Vivid"],
+  ["soft","Soft"],["sharp","Sharp"],["film","Film"],["mist","Mist"],["sunset","Sunset"],
+  ["ocean","Ocean"],["forest","Forest"],["purple","Purple"],["gold","Gold"],["ice","Ice"],
+  ["neon","Neon"],["noir","Noir"],["retro","Retro"],["dream","Dream"],["hacker","Hacker"]
 ];
 
 filters.forEach(
@@ -2794,8 +3122,21 @@ if(firstFilter){
 
 function applyCameraFilter(){
 
-  $("cameraVideo").style.filter =
-    getCameraFilter();
+  const filterMap = {
+    normal:"none", contrast:"contrast(1.35)", mono:"grayscale(1)", sepia:"sepia(1)", cyber:"hue-rotate(120deg) saturate(1.4)",
+    invert:"invert(1)", bright:"brightness(1.35)", dark:"brightness(.65)", red:"hue-rotate(315deg) saturate(1.8)", night:"brightness(.55) contrast(1.2)",
+    warm:"sepia(.35) saturate(1.25)", cool:"hue-rotate(25deg) saturate(1.1)", vintage:"sepia(.45) contrast(1.08)", fade:"contrast(.82) brightness(1.08)", vivid:"saturate(1.75) contrast(1.12)",
+    soft:"brightness(1.06) contrast(.9) saturate(.9)", sharp:"contrast(1.35) saturate(1.1)", film:"contrast(1.15) saturate(.85) sepia(.12)", mist:"brightness(1.16) contrast(.78)", sunset:"sepia(.28) hue-rotate(335deg) saturate(1.35)",
+    ocean:"hue-rotate(165deg) saturate(1.45)", forest:"hue-rotate(75deg) saturate(1.35)", purple:"hue-rotate(285deg) saturate(1.4)", gold:"sepia(.65) saturate(1.55)", ice:"hue-rotate(185deg) brightness(1.12) saturate(1.15)",
+    neon:"saturate(2) contrast(1.3) brightness(1.08)", noir:"grayscale(1) contrast(1.55) brightness(.9)", retro:"sepia(.55) contrast(1.2) saturate(1.1)", dream:"brightness(1.1) saturate(1.2) blur(.15px)", hacker:"hue-rotate(90deg) saturate(1.8) contrast(1.2)"
+  };
+
+  $("cameraVideo")
+    .style.filter =
+    filterMap[
+      activeFilter
+    ] ||
+    "none";
 
 }
 
@@ -2803,74 +3144,6 @@ function applyCameraFilter(){
 /* =========================================================
    CAMERA HELPERS
 ========================================================= */
-
-function applyCameraMirror(){
-
-  const video = $("cameraVideo");
-
-  if(!video){
-    return;
-  }
-
-  video.style.transform =
-    cameraMirror
-      ? "scaleX(-1)"
-      : "scaleX(1)";
-
-  const button = $("mirrorBtn");
-
-  if(button){
-    button.textContent =
-      cameraMirror
-        ? "Mirror ON"
-        : "Mirror OFF";
-
-    button.classList.toggle(
-      "active",
-      cameraMirror
-    );
-  }
-}
-
-function getCameraFilter(){
-
-  const filterMap = {
-    normal:"none",
-    contrast:"contrast(1.35)",
-    mono:"grayscale(1)",
-    sepia:"sepia(1)",
-    cyan:"hue-rotate(120deg) saturate(1.4)",
-    invert:"invert(1)",
-    bright:"brightness(1.35)",
-    dark:"brightness(.65)",
-    red:"hue-rotate(315deg) saturate(1.8)",
-    night:"brightness(.55) contrast(1.2)"
-  };
-
-  return filterMap[activeFilter] || "none";
-}
-
-function drawVideoFrame(ctx, video, width, height){
-
-  ctx.save();
-
-  ctx.filter = getCameraFilter();
-
-  if(cameraMirror){
-    ctx.translate(width, 0);
-    ctx.scale(-1, 1);
-  }
-
-  ctx.drawImage(
-    video,
-    0,
-    0,
-    width,
-    height
-  );
-
-  ctx.restore();
-}
 
 function stopCamera(){
 
@@ -2989,7 +3262,6 @@ async function openCameraStream(){
   setupZoom();
 
   applyCameraFilter();
-  applyCameraMirror();
 
 }
 
@@ -3321,24 +3593,6 @@ $("switchCameraBtn").onclick =
       );
 
     }
-
-  };
-
-
-$("mirrorBtn").onclick =
-  () => {
-
-    cameraMirror = !cameraMirror;
-
-    applyCameraMirror();
-
-    playHackerClick();
-
-    toast(
-      cameraMirror
-        ? "Mirror ON"
-        : "Mirror OFF"
-    );
 
   };
 
@@ -3718,9 +3972,20 @@ async function capturePhoto(){
         "2d"
       );
 
-    drawVideoFrame(
-      context,
+    context.filter =
+      video.style.filter ||
+      "none";
+
+    /*
+      Front camera preview is often mirrored
+      by the browser only visually. We leave
+      the actual captured image natural.
+    */
+
+    context.drawImage(
       video,
+      0,
+      0,
       canvas.width,
       canvas.height
     );
@@ -3886,62 +4151,18 @@ function startVideoRecording(){
   const mime =
     chooseRecorderMime();
 
-  let recorderStream = cameraStream;
-  let mirrorCanvas = null;
-  let mirrorContext = null;
-  let mirrorAnimation = null;
-
-  /*
-    When Mirror is ON, record the same mirrored/filter-processed
-    view that the user sees. Fall back to the original camera
-    stream on browsers that do not support canvas.captureStream().
-  */
-  if(
-    cameraMirror &&
-    typeof HTMLCanvasElement !== "undefined" &&
-    typeof HTMLCanvasElement.prototype.captureStream === "function"
-  ){
-
-    const video = $("cameraVideo");
-
-    mirrorCanvas = document.createElement("canvas");
-    mirrorCanvas.width = video.videoWidth || 1280;
-    mirrorCanvas.height = video.videoHeight || 720;
-    mirrorContext = mirrorCanvas.getContext("2d");
-
-    const fps = 30;
-    recorderStream = mirrorCanvas.captureStream(fps);
-
-    const draw = () => {
-      if(!mediaRecorder || mediaRecorder.state === "inactive"){
-        return;
-      }
-
-      drawVideoFrame(
-        mirrorContext,
-        video,
-        mirrorCanvas.width,
-        mirrorCanvas.height
-      );
-
-      mirrorAnimation =
-        requestAnimationFrame(draw);
-    };
-
-  }
-
   try{
 
     mediaRecorder =
       mime
         ? new MediaRecorder(
-            recorderStream,
+            cameraStream,
             {
               mimeType:mime
             }
           )
         : new MediaRecorder(
-            recorderStream
+            cameraStream
           );
 
   }catch(error){
@@ -4087,47 +4308,6 @@ function startVideoRecording(){
 
   mediaRecorder.start(
     250
-  );
-
-  if(mirrorCanvas && mirrorContext){
-    const video = $("cameraVideo");
-    const drawMirroredFrame = () => {
-      if(
-        !mediaRecorder ||
-        mediaRecorder.state === "inactive"
-      ){
-        return;
-      }
-
-      drawVideoFrame(
-        mirrorContext,
-        video,
-        mirrorCanvas.width,
-        mirrorCanvas.height
-      );
-
-      mirrorAnimation =
-        requestAnimationFrame(drawMirroredFrame);
-    };
-
-    mirrorAnimation =
-      requestAnimationFrame(drawMirroredFrame);
-  }
-
-  mediaRecorder.addEventListener(
-    "stop",
-    () => {
-      if(mirrorAnimation){
-        cancelAnimationFrame(mirrorAnimation);
-        mirrorAnimation = null;
-      }
-
-      if(mirrorCanvas){
-        mirrorCanvas.width = 1;
-        mirrorCanvas.height = 1;
-      }
-    },
-    {once:true}
   );
 
   recordingTimer =
@@ -4766,14 +4946,14 @@ async function loadSnaps(){
       L.divIcon({
         className:"",
         html:
-          '<div class="detector"></div>',
+          `<div class="snap-count-marker">${group.snaps.length > 99 ? "99+" : group.snaps.length}</div>`,
         iconSize:[
-          30,
-          30
+          34,
+          34
         ],
         iconAnchor:[
-          15,
-          15
+          17,
+          17
         ]
       });
 
@@ -5482,480 +5662,161 @@ $("copyRoomBtn").onclick =
 
 
 /* =========================================================
-   CALL
+   REAL 1-TO-1 WEBRTC CALLING
 ========================================================= */
+let incomingCallerId = null;
+let incomingCallRoom = null;
+let outgoingCallRoom = null;
+let outgoingTargetId = null;
+let callRole = null;
+let pendingIce = [];
 
-$("callRoomBtn").onclick =
-  () => {
+function resetCallState(){
+  incomingCallerId=null; incomingCallRoom=null; outgoingCallRoom=null; outgoingTargetId=null; callRole=null; pendingIce=[];
+}
 
-    const targetRoom =
-      $("joinRoomInput")
-        .value
-        .trim();
+async function openCallMedia(){
+  if(localCallStream) return localCallStream;
+  localCallStream = await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+  $("localVideo").srcObject=localCallStream;
+  return localCallStream;
+}
 
-    if(!targetRoom){
-
-      toast(
-        "Enter Room ID"
-      );
-
-      return;
-    }
-
-    currentCallRoom =
-      targetRoom;
-
-    socket.emit(
-      "join-room",
-      targetRoom
-    );
-
-    socket.emit(
-      "call-user",
-      {
-        roomId:
-          targetRoom,
-        from:
-          permanentRoomId
-      }
-    );
-
-    $("callTitle")
-      .textContent =
-      "Calling...";
-
-    $("incomingActions")
-      .style.display =
-      "none";
-
-    showModal(
-      "callModal"
-    );
-
+function createPeer(targetId, initiator){
+  callPeer = new RTCPeerConnection({iceServers:[
+    {urls:"stun:stun.l.google.com:19302"},
+    {urls:"stun:stun1.l.google.com:19302"},
+    {urls:"stun:stun.cloudflare.com:3478"}
+  ]});
+  localCallStream.getTracks().forEach(t=>callPeer.addTrack(t,localCallStream));
+  callPeer.ontrack=e=>{ if(e.streams[0]) $("remoteVideo").srcObject=e.streams[0]; };
+  callPeer.onicecandidate=e=>{ if(e.candidate && targetId) socket.emit("webrtc-signal",{targetId,signal:{candidate:e.candidate}}); };
+  callPeer.onconnectionstatechange=()=>{
+    if(["failed","disconnected","closed"].includes(callPeer?.connectionState)){ status("CALL CONNECTION "+callPeer.connectionState.toUpperCase()); }
   };
-
-
-/* =========================================================
-   SOCKET EVENTS
-========================================================= */
-
-socket.on(
-  "connect",
-  () => {
-
-    socket.emit(
-      "join-room",
-      permanentRoomId
-    );
-
+  if(initiator){
+    callPeer.createOffer().then(async offer=>{
+      await callPeer.setLocalDescription(offer);
+      socket.emit("webrtc-signal",{targetId,signal:{offer:callPeer.localDescription}});
+    }).catch(e=>console.error("offer",e));
   }
-);
+  return callPeer;
+}
 
+async function showActiveCall(title){
+  $("callTitle").textContent=title;
+  $("incomingActions").style.display="none";
+  $("callVideoArea").style.display="block";
+  showModal("callModal");
+}
 
-socket.on(
-  "incoming-call",
-  data => {
-
-    currentCallRoom =
-      data.roomId ||
-      data.from;
-
-    $("callTitle")
-      .textContent =
-      "Incoming Call";
-
-    $("incomingActions")
-      .style.display =
-      "flex";
-
-    showModal(
-      "callModal"
-    );
-
-    playHackerConfirm();
-
-  }
-);
-
-
-socket.on(
-  "call-rejected",
-  () => {
-
-    hideModal(
-      "callModal"
-    );
-
-    toast(
-      "Call rejected"
-    );
-
-  }
-);
-
-
-socket.on(
-  "call-ended",
-  () => {
-    endCall(false);
-  }
-);
-
-
-/* =========================================================
-   WEBRTC
-========================================================= */
-
-async function beginCall(
-  initiator
-){
-
+async function startOutgoingCall(targetRoom){
+  targetRoom=String(targetRoom||"").trim().toUpperCase();
+  if(!targetRoom){toast("Enter Room ID");return;}
   try{
-
-    localCallStream =
-      await navigator
-        .mediaDevices
-        .getUserMedia({
-          video:true,
-          audio:true
-        });
-
-    $("localVideo")
-      .srcObject =
-      localCallStream;
-
-    $("incomingActions")
-      .style.display =
-      "none";
-
-    $("callVideoArea")
-      .style.display =
-      "block";
-
-    callPeer =
-      new RTCPeerConnection({
-        iceServers:[
-          {
-            urls:
-              "stun:stun.l.google.com:19302"
-          }
-        ]
-      });
-
-    localCallStream
-      .getTracks()
-      .forEach(
-        track =>
-          callPeer.addTrack(
-            track,
-            localCallStream
-          )
-      );
-
-    callPeer.ontrack =
-      event => {
-
-        $("remoteVideo")
-          .srcObject =
-          event.streams[0];
-
-      };
-
-    callPeer.onicecandidate =
-      event => {
-
-        if(
-          event.candidate
-        ){
-
-          socket.emit(
-            "webrtc-signal",
-            {
-              roomId:
-                currentCallRoom,
-              data:{
-                candidate:
-                  event.candidate
-              }
-            }
-          );
-
-        }
-
-      };
-
-
-    if(initiator){
-
-      const offer =
-        await callPeer
-          .createOffer();
-
-      await callPeer
-        .setLocalDescription(
-          offer
-        );
-
-      socket.emit(
-        "webrtc-signal",
-        {
-          roomId:
-            currentCallRoom,
-          data:{
-            description:
-              callPeer.localDescription
-          }
-        }
-      );
-
-    }
-
-  }catch(error){
-
-    console.error(
-      error
-    );
-
-    toast(
-      "Call camera/microphone permission required"
-    );
-
-  }
-
+    await openCallMedia();
+    outgoingCallRoom=targetRoom;
+    callRole="caller";
+    $("callTitle").textContent="Calling…";
+    $("incomingActions").style.display="none";
+    $("callVideoArea").style.display="none";
+    showModal("callModal");
+    socket.emit("call-user",{targetRoom});
+  }catch(e){console.error(e);toast("Camera/Microphone permission required");}
 }
 
+$("callRoomBtn").onclick=()=>startOutgoingCall($("joinRoomInput").value);
 
-socket.on(
-  "webrtc-signal",
-  async data => {
+socket.on("connect",()=>{
+  socket.emit("join-room",{room:permanentRoomId,displayName:currentUser?.user_metadata?.display_name||"USER"});
+});
 
-    if(!callPeer){
-      return;
+socket.on("call-ringing",d=>{ $("callTitle").textContent="Calling… "+(d.targetRoom||""); status("RINGING "+(d.targetRoom||"")); });
+socket.on("call-unavailable",()=>{toast("User is offline / Room ID not found");endCall(false);});
+
+socket.on("incoming-call",async d=>{
+  incomingCallerId=d.callerId;
+  incomingCallRoom=d.callRoom;
+  $("callTitle").textContent="Incoming Call";
+  $("incomingActions").style.display="flex";
+  $("callVideoArea").style.display="none";
+  showModal("callModal");
+  playHackerConfirm();
+});
+
+$("acceptCallBtn").onclick=async()=>{
+  try{
+    await openCallMedia();
+    callRole="callee";
+    outgoingTargetId=incomingCallerId;
+    outgoingCallRoom=incomingCallRoom;
+    socket.emit("accept-call",{callerId:incomingCallerId,callRoom:incomingCallRoom});
+    await showActiveCall("Connected…");
+  }catch(e){console.error(e);toast("Camera/Microphone permission required");}
+};
+
+$("rejectCallBtn").onclick=()=>{
+  if(incomingCallerId) socket.emit("reject-call",{callerId:incomingCallerId});
+  hideModal("callModal"); resetCallState();
+};
+
+socket.on("call-accepted",async d=>{
+  try{
+    outgoingTargetId=d.accepterId||d.acceptedBy;
+    outgoingCallRoom=d.callRoom||outgoingCallRoom;
+    await openCallMedia();
+    callRole="caller";
+    await showActiveCall("Connected…");
+    createPeer(outgoingTargetId,true);
+  }catch(e){console.error(e);toast("Could not start call");endCall(false);}
+});
+
+socket.on("call-rejected",()=>{toast("Call rejected");endCall(false);});
+
+socket.on("webrtc-signal",async d=>{
+  try{
+    const s=d.signal||{};
+    if(s.offer){
+      if(!callPeer) createPeer(d.senderId,false);
+      await callPeer.setRemoteDescription(new RTCSessionDescription(s.offer));
+      const answer=await callPeer.createAnswer();
+      await callPeer.setLocalDescription(answer);
+      socket.emit("webrtc-signal",{targetId:d.senderId,signal:{answer:callPeer.localDescription}});
+    }else if(s.answer && callPeer){
+      await callPeer.setRemoteDescription(new RTCSessionDescription(s.answer));
+    }else if(s.candidate){
+      if(callPeer) await callPeer.addIceCandidate(new RTCIceCandidate(s.candidate));
+      else pendingIce.push({from:d.senderId,candidate:s.candidate});
     }
+  }catch(e){console.error("WebRTC signal",e);}
+});
 
-    try{
+socket.on("call-ended",()=>endCall(false));
 
-      if(
-        data.data?.candidate
-      ){
-
-        await callPeer
-          .addIceCandidate(
-            data.data.candidate
-          );
-
-      }
-
-      if(
-        data.data?.description
-      ){
-
-        await callPeer
-          .setRemoteDescription(
-            data.data.description
-          );
-
-        if(
-          data.data.description.type ===
-          "offer"
-        ){
-
-          const answer =
-            await callPeer
-              .createAnswer();
-
-          await callPeer
-            .setLocalDescription(
-              answer
-            );
-
-          socket.emit(
-            "webrtc-signal",
-            {
-              roomId:
-                currentCallRoom,
-              data:{
-                description:
-                  callPeer.localDescription
-              }
-            }
-          );
-
-        }
-
-      }
-
-    }catch(error){
-
-      console.error(
-        error
-      );
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   ACCEPT / REJECT / END CALL
-========================================================= */
-
-$("acceptCallBtn").onclick =
-  async () => {
-
-    socket.emit(
-      "accept-call",
-      {
-        roomId:
-          currentCallRoom
-      }
-    );
-
-    await beginCall(
-      false
-    );
-
-  };
-
-
-$("rejectCallBtn").onclick =
-  () => {
-
-    socket.emit(
-      "reject-call",
-      {
-        roomId:
-          currentCallRoom
-      }
-    );
-
-    hideModal(
-      "callModal"
-    );
-
-  };
-
-
-function endCall(
-  sendSignal=true
-){
-
-  if(
-    sendSignal &&
-    currentCallRoom
-  ){
-
-    socket.emit(
-      "end-call",
-      {
-        roomId:
-          currentCallRoom
-      }
-    );
-
-  }
-
-  if(localCallStream){
-
-    localCallStream
-      .getTracks()
-      .forEach(
-        track =>
-          track.stop()
-      );
-
-  }
-
-  localCallStream =
-    null;
-
-  if(callPeer){
-
-    callPeer.close();
-
-  }
-
-  callPeer =
-    null;
-
-  $("localVideo")
-    .srcObject =
-    null;
-
-  $("remoteVideo")
-    .srcObject =
-    null;
-
-  $("callVideoArea")
-    .style.display =
-    "none";
-
-  hideModal(
-    "callModal"
-  );
-
+function endCall(sendSignal=true){
+  if(sendSignal && outgoingTargetId) socket.emit("end-call",{targetId:outgoingTargetId});
+  if(localCallStream) localCallStream.getTracks().forEach(t=>t.stop());
+  localCallStream=null;
+  if(callPeer){try{callPeer.close()}catch(e){}}
+  callPeer=null;
+  $("localVideo").srcObject=null;
+  $("remoteVideo").srcObject=null;
+  $("callVideoArea").style.display="none";
+  hideModal("callModal");
+  resetCallState();
 }
 
-
-$("endCallBtn").onclick =
-  () =>
-    endCall(true);
-
-
-$("muteBtn").onclick =
-  () => {
-
-    callMuted =
-      !callMuted;
-
-    if(localCallStream){
-
-      localCallStream
-        .getAudioTracks()
-        .forEach(
-          track =>
-            track.enabled =
-              !callMuted
-        );
-
-    }
-
-    $("muteBtn")
-      .textContent =
-      callMuted
-        ? "Unmute"
-        : "Mute";
-
-  };
-
-
-$("camBtn").onclick =
-  () => {
-
-    callCamera =
-      !callCamera;
-
-    if(localCallStream){
-
-      localCallStream
-        .getVideoTracks()
-        .forEach(
-          track =>
-            track.enabled =
-              callCamera
-        );
-
-    }
-
-    $("camBtn")
-      .textContent =
-      callCamera
-        ? "Camera"
-        : "Camera Off";
-
-  };
-
+$("endCallBtn").onclick=()=>endCall(true);
+$("muteBtn").onclick=()=>{
+  callMuted=!callMuted;
+  localCallStream?.getAudioTracks().forEach(t=>t.enabled=!callMuted);
+  $("muteBtn").textContent=callMuted?"Unmute":"Mute";
+};
+$("camBtn").onclick=()=>{
+  callCamera=!callCamera;
+  localCallStream?.getVideoTracks().forEach(t=>t.enabled=callCamera);
+  $("camBtn").textContent=callCamera?"Camera":"Camera Off";
+};
 
 /* =========================================================
    TOP/BOTTOM BUTTON TOGGLES
