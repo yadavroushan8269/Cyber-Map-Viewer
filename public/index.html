@@ -144,28 +144,19 @@ button{
 
 /* ================= TRACE ================= */
 
-/*
-   Bottom-right.
-   Aligned with the right side of the bottom bar
-   and placed directly above You.
-*/
-
 .trace{
   position:fixed;
   z-index:25;
-
   right:max(
     12px,
     calc(
       (100vw - min(680px, calc(100vw - 10px))) / 2 + 7px
     )
   );
-
   bottom:max(
     78px,
     calc(env(safe-area-inset-bottom) + 78px)
   );
-
   border:1px solid var(--red);
   border-radius:11px;
   background:#3b0710e8;
@@ -207,7 +198,7 @@ button{
   border-color:#216b55!important;
 }
 
-/* ================= BUTTON ACTIVE EFFECT ================= */
+/* ================= BUTTON EFFECT ================= */
 
 .cyber-pressed{
   transform:scale(.94)!important;
@@ -366,9 +357,9 @@ input[type=text]{
 
 /* ================= CAMERA ================= */
 
-video{
+.camera-video{
   width:100%;
-  max-height:57vh;
+  max-height:52vh;
   object-fit:cover;
   background:#000;
   border-radius:13px;
@@ -393,6 +384,97 @@ video{
 .filter-row button.active{
   border-color:var(--cyan);
   color:var(--cyan);
+}
+
+.media-mode{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+  margin:8px 0;
+}
+
+.media-mode button{
+  border:1px solid #263e48;
+  border-radius:9px;
+  padding:9px;
+  background:#091318;
+  color:#d8f5fa;
+  font-weight:800;
+}
+
+.media-mode button.active{
+  border-color:var(--cyan);
+  color:var(--cyan);
+  box-shadow:0 0 10px #00e5ff1f;
+}
+
+.record-timer{
+  text-align:center;
+  min-height:20px;
+  margin:4px 0;
+  color:var(--red);
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:1px;
+}
+
+.upload-preview{
+  display:none;
+  margin-top:10px;
+  border:1px solid #29444f;
+  border-radius:12px;
+  padding:10px;
+  background:#040b10;
+}
+
+.upload-preview.show{
+  display:block;
+}
+
+.preview-media{
+  width:100%;
+  max-height:34vh;
+  object-fit:contain;
+  background:#000;
+  border-radius:10px;
+  margin-bottom:8px;
+}
+
+.info-title{
+  color:var(--green);
+  font-size:11px;
+  letter-spacing:1px;
+  font-weight:900;
+  margin-bottom:5px;
+}
+
+.upload-status{
+  min-height:20px;
+  margin-top:8px;
+  color:#b7d0d7;
+  font-size:11px;
+}
+
+.progress-shell{
+  width:100%;
+  height:9px;
+  overflow:hidden;
+  border:1px solid #29444f;
+  border-radius:99px;
+  background:#05090d;
+  margin-top:8px;
+}
+
+.progress-bar{
+  width:0%;
+  height:100%;
+  background:linear-gradient(
+    90deg,
+    var(--cyan),
+    var(--green)
+  );
+  transition:width .25s ease;
+  box-shadow:0 0 10px #00e5ff66;
 }
 
 /* ================= DETECTOR ================= */
@@ -424,7 +506,8 @@ video{
 
 /* ================= SNAP VIEWER ================= */
 
-.snap-card img{
+.snap-card img,
+.snap-card video{
   width:100%;
   max-height:55vh;
   object-fit:contain;
@@ -437,6 +520,35 @@ video{
   align-items:center;
   justify-content:space-between;
   margin-top:10px;
+}
+
+/* ================= NOTIFICATION ================= */
+
+.notification-item{
+  padding:11px;
+  margin-bottom:7px;
+  border:1px solid #1b343f;
+  border-radius:11px;
+  background:#071117;
+}
+
+.notification-title{
+  color:var(--cyan);
+  font-weight:900;
+  font-size:12px;
+}
+
+.notification-time{
+  margin-top:3px;
+  color:var(--green);
+  font-size:11px;
+}
+
+.notification-detail{
+  margin-top:4px;
+  color:#b7cbd1;
+  font-size:11px;
+  line-height:1.45;
 }
 
 /* ================= DETECT FLASH ================= */
@@ -788,12 +900,14 @@ video{
     <h2>Notifications</h2>
 
     <div id="notificationList">
-
-      <div class="row">
-        <b>System</b>
-        <span>Ready.</span>
+      <div class="notification-item">
+        <div class="notification-title">
+          SYSTEM
+        </div>
+        <div class="notification-detail">
+          Loading activity...
+        </div>
       </div>
-
     </div>
 
   </div>
@@ -849,12 +963,35 @@ video{
 
     <h2>Camera</h2>
 
+    <div class="media-mode">
+
+      <button
+        id="photoModeBtn"
+        class="active"
+      >
+        📷 Photo
+      </button>
+
+      <button
+        id="videoModeBtn"
+      >
+        🎥 Video
+      </button>
+
+    </div>
+
     <video
       id="cameraVideo"
+      class="camera-video"
       autoplay
       playsinline
       muted
     ></video>
+
+    <div
+      id="recordTimer"
+      class="record-timer"
+    ></div>
 
     <div
       style="font-size:11px;color:var(--muted);margin-top:6px"
@@ -888,8 +1025,98 @@ video{
         id="captureBtn"
         class="primary"
       >
-        Capture & Post
+        Capture Photo
       </button>
+
+    </div>
+
+    <!-- PRE-UPLOAD INFORMATION -->
+
+    <div
+      id="uploadPreview"
+      class="upload-preview"
+    >
+
+      <div class="info-title">
+        MEDIA READY — CHECK BEFORE UPLOAD
+      </div>
+
+      <img
+        id="previewImage"
+        class="preview-media"
+        style="display:none"
+        alt="Preview"
+      >
+
+      <video
+        id="previewVideo"
+        class="preview-media"
+        style="display:none"
+        controls
+        playsinline
+      ></video>
+
+      <div class="row">
+        <b>Type</b>
+        <span id="previewType">--</span>
+      </div>
+
+      <div class="row">
+        <b>File</b>
+        <span id="previewFile">--</span>
+      </div>
+
+      <div class="row">
+        <b>Size</b>
+        <span id="previewSize">--</span>
+      </div>
+
+      <div class="row">
+        <b>Recorded</b>
+        <span id="previewDate">--</span>
+      </div>
+
+      <div class="row">
+        <b>Location</b>
+        <span id="previewLocation">--</span>
+      </div>
+
+      <div class="row">
+        <b>GPS</b>
+        <span id="previewGps">--</span>
+      </div>
+
+      <div
+        id="uploadStatus"
+        class="upload-status"
+      >
+        Ready to upload.
+      </div>
+
+      <div class="progress-shell">
+        <div
+          id="uploadProgress"
+          class="progress-bar"
+        ></div>
+      </div>
+
+      <div class="actions">
+
+        <button
+          id="retakeBtn"
+          class="secondary"
+        >
+          Retake
+        </button>
+
+        <button
+          id="uploadMediaBtn"
+          class="primary"
+        >
+          Upload
+        </button>
+
+      </div>
 
     </div>
 
@@ -1107,8 +1334,6 @@ function getAudioContext(){
 }
 
 
-/* Hacker click / typing sound */
-
 function playHackerClick(){
 
   const context =
@@ -1168,7 +1393,6 @@ function playHackerClick(){
     );
 
     oscillator.start(now);
-
     oscillator.stop(
       now + .075
     );
@@ -1177,8 +1401,6 @@ function playHackerClick(){
 
 }
 
-
-/* Slightly longer cyber confirmation */
 
 function playHackerConfirm(){
 
@@ -1248,11 +1470,66 @@ function playHackerConfirm(){
 }
 
 
-/*
-  IMPORTANT:
-  Use pointerdown so Android touch
-  gets the sound immediately.
-*/
+function playUploadTick(){
+
+  const context =
+    getAudioContext();
+
+  if(!context){
+    return;
+  }
+
+  try{
+
+    const now =
+      context.currentTime;
+
+    const oscillator =
+      context.createOscillator();
+
+    const gain =
+      context.createGain();
+
+    oscillator.type =
+      "square";
+
+    oscillator.frequency
+      .setValueAtTime(
+        980,
+        now
+      );
+
+    gain.gain
+      .setValueAtTime(
+        .0001,
+        now
+      );
+
+    gain.gain
+      .linearRampToValueAtTime(
+        .022,
+        now + .005
+      );
+
+    gain.gain.exponentialRampToValueAtTime(
+      .0001,
+      now + .045
+    );
+
+    oscillator.connect(gain);
+    gain.connect(
+      context.destination
+    );
+
+    oscillator.start(now);
+    oscillator.stop(
+      now + .05
+    );
+
+  }catch(error){}
+
+}
+
 
 document.addEventListener(
   "pointerdown",
@@ -1323,6 +1600,23 @@ let callMuted = false;
 let callCamera = true;
 
 
+/* MEDIA STATE */
+
+let mediaMode = "photo";
+let mediaRecorder = null;
+let recordedChunks = [];
+let recordingStartedAt = null;
+let recordingTimer = null;
+
+let pendingMediaBlob = null;
+let pendingMediaType = null;
+let pendingMediaName = null;
+let pendingMediaMime = null;
+let pendingCaptureLocation = null;
+let pendingCaptureDetails = null;
+let pendingMediaDate = null;
+
+
 /* =========================================================
    MAP
 ========================================================= */
@@ -1345,12 +1639,6 @@ L.tileLayer(
 
 const snapLayer =
   L.layerGroup().addTo(map);
-
-
-/*
-  Hacker sound when user taps
-  empty map area.
-*/
 
 map.on(
   "click",
@@ -1397,17 +1685,16 @@ function hideModal(id){
 
   if(id === "cameraModal"){
 
-    if(cameraStream){
+    stopCamera();
 
-      cameraStream
-        .getTracks()
-        .forEach(
-          track =>
-            track.stop()
-        );
+    if(
+      mediaRecorder &&
+      mediaRecorder.state !== "inactive"
+    ){
 
-      cameraStream =
-        null;
+      try{
+        mediaRecorder.stop();
+      }catch(error){}
 
     }
 
@@ -1492,7 +1779,7 @@ function toast(message){
         el.classList.remove(
           "show"
         ),
-      2600
+      2800
     );
 
 }
@@ -1879,7 +2166,10 @@ async function detectLiveLocation(
         coords.lat,
         coords.lng
       ],
-      17
+      17,
+      {
+        animate:true
+      }
     );
 
   }
@@ -1890,16 +2180,10 @@ async function detectLiveLocation(
 
 
 /* =========================================================
-   PERMANENT ROOM ID
-   SAFE FALLBACK
+   ROOM ID
 ========================================================= */
 
 function makeSafeId(){
-
-  /*
-    Do NOT rely only on crypto.randomUUID().
-    Some browsers/WebViews can fail here.
-  */
 
   try{
 
@@ -2487,15 +2771,15 @@ filters.forEach(
   }
 );
 
-if(
-  $("filterRow button")
-){
+const firstFilter =
+  document.querySelector(
+    "#filterRow button"
+  );
 
-  $("filterRow button")
-    .classList.add(
-      "active"
-    );
-
+if(firstFilter){
+  firstFilter.classList.add(
+    "active"
+  );
 }
 
 
@@ -2545,77 +2829,320 @@ function applyCameraFilter(){
 
 
 /* =========================================================
-   CAMERA
+   CAMERA HELPERS
 ========================================================= */
 
-async function prepareCamera(){
+function stopCamera(){
 
-  await detectLiveLocation({
-    centerMap:false
-  });
+  if(cameraStream){
+
+    cameraStream
+      .getTracks()
+      .forEach(
+        track =>
+          track.stop()
+      );
+
+  }
 
   cameraStream =
-    await navigator.mediaDevices
-      .getUserMedia({
-        video:{
-          facingMode:
-            currentFacing,
-          width:{
-            ideal:1920
-          },
-          height:{
-            ideal:1080
-          }
-        },
-        audio:false
-      });
+    null;
+
+  zoomTrack =
+    null;
 
   $("cameraVideo")
     .srcObject =
-    cameraStream;
+    null;
+
+}
+
+
+async function openCameraStream(){
+
+  if(
+    !navigator.mediaDevices ||
+    !navigator.mediaDevices.getUserMedia
+  ){
+
+    throw new Error(
+      "Camera API unavailable"
+    );
+
+  }
+
+  stopCamera();
+
+  const common = {
+    width:{
+      ideal:1920
+    },
+    height:{
+      ideal:1080
+    }
+  };
+
+  let stream = null;
+
+  /*
+    exact facingMode first.
+    This fixes many Android front-camera
+    switching problems.
+  */
+
+  try{
+
+    stream =
+      await navigator.mediaDevices
+        .getUserMedia({
+          video:{
+            ...common,
+            facingMode:{
+              exact:
+                currentFacing
+            }
+          },
+          audio:false
+        });
+
+  }catch(firstError){
+
+    stream =
+      await navigator.mediaDevices
+        .getUserMedia({
+          video:{
+            ...common,
+            facingMode:
+              currentFacing
+          },
+          audio:false
+        });
+
+  }
+
+  cameraStream =
+    stream;
+
+  const video =
+    $("cameraVideo");
+
+  video.srcObject =
+    stream;
+
+  video.setAttribute(
+    "playsinline",
+    ""
+  );
+
+  video.muted =
+    true;
+
+  try{
+    await video.play();
+  }catch(error){}
 
   zoomTrack =
-    cameraStream
-      .getVideoTracks()[0];
+    stream
+      .getVideoTracks()[0] ||
+      null;
 
-  const capabilities =
-    zoomTrack
-      .getCapabilities?.();
+  setupZoom();
+
+  applyCameraFilter();
+
+}
+
+
+function setupZoom(){
+
+  const slider =
+    $("zoomSlider");
+
+  const value =
+    $("zoomValue");
+
+  let initial =
+    1;
+
+  try{
+
+    const capabilities =
+      zoomTrack
+        ?.getCapabilities?.();
+
+    if(
+      capabilities?.zoom
+    ){
+
+      initial =
+        Math.max(
+          .5,
+          Math.min(
+            20,
+            Number(
+              capabilities.zoom.min
+            )
+          )
+        );
+
+    }
+
+  }catch(error){}
 
   currentZoom =
-    capabilities?.zoom
-      ? Math.max(
-          .5,
-          capabilities.zoom.min
-        )
-      : 1;
+    initial;
 
-  $("zoomSlider")
-    .value =
-    currentZoom;
+  slider.value =
+    initial;
 
-  $("zoomValue")
-    .textContent =
-    currentZoom.toFixed(1) +
+  value.textContent =
+    initial.toFixed(1) +
     "x";
 
 }
 
 
+async function prepareCamera(){
+
+  /*
+    FIX:
+    + button now centers map on
+    actual live GPS before camera.
+  */
+
+  await detectLiveLocation({
+    centerMap:true
+  });
+
+  await openCameraStream();
+
+}
+
+
+/* =========================================================
+   MEDIA MODE
+========================================================= */
+
+function setMediaMode(
+  mode
+){
+
+  mediaMode =
+    mode;
+
+  $("photoModeBtn")
+    .classList.toggle(
+      "active",
+      mode === "photo"
+    );
+
+  $("videoModeBtn")
+    .classList.toggle(
+      "active",
+      mode === "video"
+    );
+
+  $("captureBtn")
+    .textContent =
+    mode === "photo"
+      ? "Capture Photo"
+      : "Start Video";
+
+  $("recordTimer")
+    .textContent =
+    "";
+
+}
+
+
+$("photoModeBtn").onclick =
+  () => {
+
+    if(
+      mediaRecorder &&
+      mediaRecorder.state !==
+      "inactive"
+    ){
+
+      toast(
+        "Stop video first"
+      );
+
+      return;
+    }
+
+    setMediaMode(
+      "photo"
+    );
+
+  };
+
+
+$("videoModeBtn").onclick =
+  () => {
+
+    if(
+      mediaRecorder &&
+      mediaRecorder.state !==
+      "inactive"
+    ){
+
+      toast(
+        "Video is recording"
+      );
+
+      return;
+    }
+
+    setMediaMode(
+      "video"
+    );
+
+  };
+
+
+/* =========================================================
+   PLUS BUTTON
+========================================================= */
+
 $("plusBtn").onclick =
   async () => {
+
+    /*
+      Camera opens immediately.
+      Then GPS is detected and map moves
+      to user's real live location.
+    */
 
     showModal(
       "cameraModal"
     );
 
+    $("uploadPreview")
+      .classList.remove(
+        "show"
+      );
+
     try{
 
+      $("uploadStatus")
+        .textContent =
+        "Detecting live location...";
+
       await prepareCamera();
+
+      $("uploadStatus")
+        .textContent =
+        "Camera ready. Live location locked.";
+
+      toast(
+        "Live location detected"
+      );
 
     }catch(error){
 
       console.error(
+        "Camera preparation error",
         error
       );
 
@@ -2623,14 +3150,33 @@ $("plusBtn").onclick =
         "cameraModal"
       );
 
-      toast(
-        "Camera/GPS permission required"
-      );
+      if(
+        error?.code === 1 ||
+        error?.message
+          ?.toLowerCase()
+          .includes("permission")
+      ){
+
+        toast(
+          "Allow camera and location permission"
+        );
+
+      }else{
+
+        toast(
+          "Camera/GPS unavailable"
+        );
+
+      }
 
     }
 
   };
 
+
+/* =========================================================
+   ZOOM
+========================================================= */
 
 $("zoomSlider").oninput =
   event => {
@@ -2669,7 +3215,8 @@ $("zoomSlider").oninput =
             advanced:[
               {zoom}
             ]
-          });
+          })
+          .catch(()=>{});
 
       }
 
@@ -2678,19 +3225,15 @@ $("zoomSlider").oninput =
   };
 
 
+/* =========================================================
+   SWITCH FRONT / BACK CAMERA
+========================================================= */
+
 $("switchCameraBtn").onclick =
   async () => {
 
-    if(!cameraStream){
-      return;
-    }
-
-    cameraStream
-      .getTracks()
-      .forEach(
-        track =>
-          track.stop()
-      );
+    const oldFacing =
+      currentFacing;
 
     currentFacing =
       currentFacing ===
@@ -2700,9 +3243,37 @@ $("switchCameraBtn").onclick =
 
     try{
 
-      await prepareCamera();
+      $("uploadStatus")
+        .textContent =
+        currentFacing === "user"
+          ? "Opening front camera..."
+          : "Opening back camera...";
+
+      await openCameraStream();
+
+      playHackerConfirm();
+
+      toast(
+        currentFacing === "user"
+          ? "Front camera"
+          : "Back camera"
+      );
 
     }catch(error){
+
+      console.error(
+        "Camera switch error",
+        error
+      );
+
+      currentFacing =
+        oldFacing;
+
+      try{
+
+        await openCameraStream();
+
+      }catch(error2){}
 
       toast(
         "Unable to switch camera"
@@ -2714,26 +3285,856 @@ $("switchCameraBtn").onclick =
 
 
 /* =========================================================
-   UPLOAD SNAP
+   MEDIA UTILITIES
 ========================================================= */
 
-async function uploadSnap(
-  dataUrl,
-  lat,
-  lng
+function formatBytes(
+  bytes
 ){
 
-  const blob =
-    await (
-      await fetch(
-        dataUrl
-      )
-    ).blob();
+  if(!Number.isFinite(bytes)){
+    return "—";
+  }
 
-  const fileName =
-    `snap-${Date.now()}-${Math.random()
-      .toString(36)
-      .slice(2)}.jpg`;
+  if(bytes < 1024){
+    return bytes + " B";
+  }
+
+  if(bytes < 1024 * 1024){
+    return (
+      bytes / 1024
+    ).toFixed(1) +
+    " KB";
+  }
+
+  return (
+    bytes /
+    (1024 * 1024)
+  ).toFixed(2) +
+  " MB";
+
+}
+
+
+function formatDateTime(
+  value
+){
+
+  if(!value){
+    return "Date/time unavailable";
+  }
+
+  const date =
+    new Date(value);
+
+  if(
+    Number.isNaN(
+      date.getTime()
+    )
+  ){
+
+    return "Date/time unavailable";
+
+  }
+
+  return date.toLocaleString(
+    undefined,
+    {
+      dateStyle:"medium",
+      timeStyle:"medium"
+    }
+  );
+
+}
+
+
+function escapeHtml(
+  value
+){
+
+  return String(
+    value ?? ""
+  )
+  .replaceAll(
+    "&",
+    "&amp;"
+  )
+  .replaceAll(
+    "<",
+    "&lt;"
+  )
+  .replaceAll(
+    ">",
+    "&gt;"
+  )
+  .replaceAll(
+    '"',
+    "&quot;"
+  )
+  .replaceAll(
+    "'",
+    "&#039;"
+  );
+
+}
+
+
+function mediaIsVideo(
+  snap
+){
+
+  const description =
+    String(
+      snap?.description ||
+      ""
+    )
+    .toLowerCase();
+
+  const url =
+    String(
+      snap?.image_url ||
+      snap?.url ||
+      ""
+    )
+    .toLowerCase();
+
+  return (
+    description.includes(
+      "video"
+    ) ||
+    /\.(webm|mp4|mov|m4v|ogg)(\?|$)/i
+      .test(url)
+  );
+
+}
+
+
+/* =========================================================
+   PRE-UPLOAD PREVIEW
+========================================================= */
+
+function resetUploadPreview(){
+
+  pendingMediaBlob =
+    null;
+
+  pendingMediaType =
+    null;
+
+  pendingMediaName =
+    null;
+
+  pendingMediaMime =
+    null;
+
+  pendingCaptureLocation =
+    null;
+
+  pendingCaptureDetails =
+    null;
+
+  pendingMediaDate =
+    null;
+
+  $("uploadPreview")
+    .classList.remove(
+      "show"
+    );
+
+  $("previewImage")
+    .style.display =
+    "none";
+
+  $("previewVideo")
+    .style.display =
+    "none";
+
+  $("previewImage")
+    .removeAttribute(
+      "src"
+    );
+
+  $("previewVideo")
+    .removeAttribute(
+      "src"
+    );
+
+  $("uploadProgress")
+    .style.width =
+    "0%";
+
+  $("uploadStatus")
+    .textContent =
+    "";
+
+}
+
+
+async function prepareMediaForUpload(
+  blob,
+  type,
+  name,
+  mime,
+  location,
+  details
+){
+
+  pendingMediaBlob =
+    blob;
+
+  pendingMediaType =
+    type;
+
+  pendingMediaName =
+    name;
+
+  pendingMediaMime =
+    mime;
+
+  pendingCaptureLocation = {
+    lat:
+      location.lat,
+    lng:
+      location.lng
+  };
+
+  pendingCaptureDetails =
+    details;
+
+  pendingMediaDate =
+    new Date();
+
+  const preview =
+    $("uploadPreview");
+
+  preview.classList.add(
+    "show"
+  );
+
+  $("previewType")
+    .textContent =
+    type === "video"
+      ? "🎥 Video"
+      : "📷 Photo";
+
+  $("previewFile")
+    .textContent =
+    name;
+
+  $("previewSize")
+    .textContent =
+    formatBytes(
+      blob.size
+    );
+
+  $("previewDate")
+    .textContent =
+    formatDateTime(
+      pendingMediaDate
+    );
+
+  $("previewLocation")
+    .textContent =
+    details?.fullLocation ||
+    details?.placeName ||
+    "GPS location";
+
+  $("previewGps")
+    .textContent =
+    `${location.lat.toFixed(6)}, ` +
+    `${location.lng.toFixed(6)} ` +
+    `±${Math.round(
+      details?.accuracy || 0
+    )}m`;
+
+  $("uploadProgress")
+    .style.width =
+    "0%";
+
+  $("uploadStatus")
+    .textContent =
+    "Media ready. Review information before upload.";
+
+  const objectUrl =
+    URL.createObjectURL(
+      blob
+    );
+
+  if(type === "video"){
+
+    $("previewImage")
+      .style.display =
+      "none";
+
+    $("previewVideo")
+      .style.display =
+      "block";
+
+    $("previewVideo")
+      .src =
+      objectUrl;
+
+    $("previewVideo")
+      .load();
+
+  }else{
+
+    $("previewVideo")
+      .style.display =
+      "none";
+
+    $("previewImage")
+      .style.display =
+      "block";
+
+    $("previewImage")
+      .src =
+      objectUrl;
+
+  }
+
+}
+
+
+/* =========================================================
+   PHOTO CAPTURE
+========================================================= */
+
+async function capturePhoto(){
+
+  if(!cameraStream){
+
+    toast(
+      "Camera not ready"
+    );
+
+    return;
+
+  }
+
+  if(!currentLocation){
+
+    toast(
+      "Live location not ready"
+    );
+
+    return;
+
+  }
+
+  const captureLocation = {
+    lat:
+      currentLocation.lat,
+    lng:
+      currentLocation.lng
+  };
+
+  const captureDetails =
+    currentDetails
+      ? {
+          ...currentDetails
+        }
+      : null;
+
+  try{
+
+    const canvas =
+      document.createElement(
+        "canvas"
+      );
+
+    const video =
+      $("cameraVideo");
+
+    canvas.width =
+      video.videoWidth ||
+      1280;
+
+    canvas.height =
+      video.videoHeight ||
+      720;
+
+    const context =
+      canvas.getContext(
+        "2d"
+      );
+
+    context.filter =
+      video.style.filter ||
+      "none";
+
+    /*
+      Front camera preview is often mirrored
+      by the browser only visually. We leave
+      the actual captured image natural.
+    */
+
+    context.drawImage(
+      video,
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    const blob =
+      await new Promise(
+        resolve =>
+          canvas.toBlob(
+            resolve,
+            "image/jpeg",
+            .88
+          )
+      );
+
+    if(!blob){
+      throw new Error(
+        "Could not create image"
+      );
+    }
+
+    await prepareMediaForUpload(
+      blob,
+      "photo",
+      `snap-${Date.now()}.jpg`,
+      "image/jpeg",
+      captureLocation,
+      captureDetails
+    );
+
+    playHackerConfirm();
+
+    $("uploadStatus")
+      .textContent =
+      "Photo captured. Check details, then upload.";
+
+  }catch(error){
+
+    console.error(
+      error
+    );
+
+    toast(
+      "Photo could not be prepared"
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   VIDEO RECORDER
+========================================================= */
+
+function chooseRecorderMime(){
+
+  const candidates = [
+    "video/webm;codecs=vp9,opus",
+    "video/webm;codecs=vp8,opus",
+    "video/webm",
+    "video/mp4"
+  ];
+
+  for(
+    const mime of candidates
+  ){
+
+    try{
+
+      if(
+        window.MediaRecorder &&
+        MediaRecorder.isTypeSupported(
+          mime
+        )
+      ){
+
+        return mime;
+
+      }
+
+    }catch(error){}
+
+  }
+
+  return "";
+
+}
+
+
+function updateRecordingTimer(){
+
+  if(!recordingStartedAt){
+    return;
+  }
+
+  const seconds =
+    Math.floor(
+      (
+        Date.now() -
+        recordingStartedAt
+      ) / 1000
+    );
+
+  const mm =
+    String(
+      Math.floor(
+        seconds / 60
+      )
+    ).padStart(
+      2,
+      "0"
+    );
+
+  const ss =
+    String(
+      seconds % 60
+    ).padStart(
+      2,
+      "0"
+    );
+
+  $("recordTimer")
+    .textContent =
+    `● REC ${mm}:${ss}`;
+
+}
+
+
+function startVideoRecording(){
+
+  if(!cameraStream){
+
+    toast(
+      "Camera not ready"
+    );
+
+    return;
+
+  }
+
+  if(
+    !window.MediaRecorder
+  ){
+
+    toast(
+      "Video recording is not supported by this browser"
+    );
+
+    return;
+
+  }
+
+  if(!currentLocation){
+
+    toast(
+      "Live location not ready"
+    );
+
+    return;
+
+  }
+
+  const mime =
+    chooseRecorderMime();
+
+  try{
+
+    mediaRecorder =
+      mime
+        ? new MediaRecorder(
+            cameraStream,
+            {
+              mimeType:mime
+            }
+          )
+        : new MediaRecorder(
+            cameraStream
+          );
+
+  }catch(error){
+
+    console.error(
+      error
+    );
+
+    toast(
+      "Video recording unavailable"
+    );
+
+    return;
+
+  }
+
+  recordedChunks =
+    [];
+
+  pendingCaptureLocation = {
+    lat:
+      currentLocation.lat,
+    lng:
+      currentLocation.lng
+  };
+
+  pendingCaptureDetails =
+    currentDetails
+      ? {
+          ...currentDetails
+        }
+      : null;
+
+  recordingStartedAt =
+    Date.now();
+
+  mediaRecorder.ondataavailable =
+    event => {
+
+      if(
+        event.data &&
+        event.data.size > 0
+      ){
+
+        recordedChunks.push(
+          event.data
+        );
+
+      }
+
+    };
+
+  mediaRecorder.onstop =
+    async () => {
+
+      clearInterval(
+        recordingTimer
+      );
+
+      recordingTimer =
+        null;
+
+      $("recordTimer")
+        .textContent =
+        "Video prepared";
+
+      try{
+
+        const actualMime =
+          mediaRecorder.mimeType ||
+          mime ||
+          "video/webm";
+
+        const extension =
+          actualMime
+            .includes("mp4")
+            ? "mp4"
+            : "webm";
+
+        const blob =
+          new Blob(
+            recordedChunks,
+            {
+              type:
+                actualMime
+            }
+          );
+
+        if(!blob.size){
+
+          throw new Error(
+            "Empty video"
+          );
+
+        }
+
+        await prepareMediaForUpload(
+          blob,
+          "video",
+          `snap-${Date.now()}.${extension}`,
+          actualMime,
+          pendingCaptureLocation,
+          pendingCaptureDetails
+        );
+
+        playHackerConfirm();
+
+        $("uploadStatus")
+          .textContent =
+          "Video prepared. Check details, then upload.";
+
+      }catch(error){
+
+        console.error(
+          "Video preparation error",
+          error
+        );
+
+        toast(
+          "Video could not be prepared"
+        );
+
+      }
+
+      mediaRecorder =
+        null;
+
+    };
+
+  mediaRecorder.onerror =
+    event => {
+
+      console.error(
+        "MediaRecorder error",
+        event
+      );
+
+      toast(
+        "Video recording error"
+      );
+
+    };
+
+  mediaRecorder.start(
+    250
+  );
+
+  recordingTimer =
+    setInterval(
+      updateRecordingTimer,
+      250
+    );
+
+  $("captureBtn")
+    .textContent =
+    "■ Stop Video";
+
+  $("uploadStatus")
+    .textContent =
+    "Video recording started...";
+
+  playHackerConfirm();
+
+}
+
+
+function stopVideoRecording(){
+
+  if(
+    !mediaRecorder ||
+    mediaRecorder.state ===
+    "inactive"
+  ){
+
+    return;
+
+  }
+
+  mediaRecorder.stop();
+
+  $("captureBtn")
+    .textContent =
+    "Preparing Video...";
+
+  $("captureBtn")
+    .disabled =
+    true;
+
+  setTimeout(
+    () => {
+      $("captureBtn")
+        .disabled =
+        false;
+
+      if(mediaMode === "video"){
+        $("captureBtn")
+          .textContent =
+          "Start Video";
+      }
+    },
+    700
+  );
+
+}
+
+
+/* =========================================================
+   CAPTURE BUTTON
+========================================================= */
+
+$("captureBtn").onclick =
+  async () => {
+
+    if(mediaMode === "photo"){
+
+      await capturePhoto();
+
+      return;
+
+    }
+
+    if(
+      mediaRecorder &&
+      mediaRecorder.state !==
+      "inactive"
+    ){
+
+      stopVideoRecording();
+
+    }else{
+
+      startVideoRecording();
+
+    }
+
+  };
+
+
+/* =========================================================
+   RETAKE
+========================================================= */
+
+$("retakeBtn").onclick =
+  () => {
+
+    resetUploadPreview();
+
+    if(cameraStream){
+
+      $("uploadStatus")
+        .textContent =
+        "Camera ready.";
+
+    }
+
+    playHackerClick();
+
+  };
+
+
+/* =========================================================
+   UPLOAD SNAP / MEDIA
+========================================================= */
+
+async function uploadMedia(
+  blob,
+  fileName,
+  contentType,
+  lat,
+  lng,
+  description,
+  progressCallback
+){
+
+  if(
+    typeof progressCallback ===
+    "function"
+  ){
+
+    progressCallback(
+      15,
+      "Preparing media..."
+    );
+
+  }
 
   const upload =
     await supabaseClient
@@ -2743,14 +4144,25 @@ async function uploadSnap(
         fileName,
         blob,
         {
-          contentType:
-            "image/jpeg",
+          contentType,
           upsert:false
         }
       );
 
   if(upload.error){
     throw upload.error;
+  }
+
+  if(
+    typeof progressCallback ===
+    "function"
+  ){
+
+    progressCallback(
+      72,
+      "Media uploaded. Saving snap information..."
+    );
+
   }
 
   const publicUrl =
@@ -2773,146 +4185,329 @@ async function uploadSnap(
         lng,
         latitude:lat,
         longitude:lng,
-        description:
-          "Past Snap"
+        description
       });
 
   if(insert.error){
     throw insert.error;
   }
 
+  if(
+    typeof progressCallback ===
+    "function"
+  ){
+
+    progressCallback(
+      100,
+      "Upload complete."
+    );
+
+  }
+
+  return {
+    publicUrl,
+    fileName
+  };
+
 }
 
 
 /* =========================================================
-   CAPTURE + 50M CHECK
+   LOCAL NOTIFICATION HISTORY
 ========================================================= */
 
-$("captureBtn").onclick =
+function getLocalNotifications(){
+
+  try{
+
+    const raw =
+      localStorage.getItem(
+        "past_snap_notifications"
+      );
+
+    const parsed =
+      raw
+        ? JSON.parse(raw)
+        : [];
+
+    return Array.isArray(
+      parsed
+    )
+      ? parsed
+      : [];
+
+  }catch(error){
+
+    return [];
+
+  }
+
+}
+
+
+function saveLocalNotification(
+  notification
+){
+
+  try{
+
+    const list =
+      getLocalNotifications();
+
+    list.unshift(
+      notification
+    );
+
+    localStorage.setItem(
+      "past_snap_notifications",
+      JSON.stringify(
+        list.slice(
+          0,
+          50
+        )
+      )
+    );
+
+  }catch(error){}
+
+}
+
+
+/* =========================================================
+   UPLOAD BUTTON
+========================================================= */
+
+$("uploadMediaBtn").onclick =
   async () => {
 
-    if(!currentLocation){
+    if(!pendingMediaBlob){
 
       toast(
-        "Detecting location..."
+        "No media ready"
       );
 
       return;
+
     }
 
-    const captureLocation = {
-      lat:
-        currentLocation.lat,
-      lng:
-        currentLocation.lng
-    };
+    if(!pendingCaptureLocation){
+
+      toast(
+        "Capture location missing"
+      );
+
+      return;
+
+    }
+
+    const button =
+      $("uploadMediaBtn");
+
+    button.disabled =
+      true;
+
+    $("retakeBtn")
+      .disabled =
+      true;
 
     try{
 
-      const canvas =
-        document.createElement(
-          "canvas"
-        );
+      $("uploadStatus")
+        .textContent =
+        "Checking current live location...";
 
-      const video =
-        $("cameraVideo");
-
-      canvas.width =
-        video.videoWidth ||
-        1280;
-
-      canvas.height =
-        video.videoHeight ||
-        720;
-
-      const context =
-        canvas.getContext(
-          "2d"
-        );
-
-      context.filter =
-        video.style.filter ||
-        "none";
-
-      context.drawImage(
-        video,
-        0,
-        0,
-        canvas.width,
-        canvas.height
-      );
+      $("uploadProgress")
+        .style.width =
+        "5%";
 
       const latest =
         await detectLiveLocation({
-          centerMap:false
+          centerMap:true
         });
+
+      const latestLocation = {
+        lat:
+          latest.lat,
+        lng:
+          latest.lng
+      };
 
       const movement =
         distanceMeters(
-          captureLocation,
-          {
-            lat:
-              latest.lat,
-            lng:
-              latest.lng
-          }
+          pendingCaptureLocation,
+          latestLocation
         );
 
       if(
         movement > 50
       ){
 
-        toast(
+        $("uploadProgress")
+          .style.width =
+          "0%";
+
+        throw new Error(
           `Post blocked: moved ${Math.round(movement)}m. Must be within 50m.`
         );
 
-        return;
       }
 
-      await uploadSnap(
-        canvas.toDataURL(
-          "image/jpeg",
-          .88
-        ),
-        captureLocation.lat,
-        captureLocation.lng
-      );
+      /*
+        Stage-based progress is used because
+        Supabase browser upload does not expose
+        a simple byte-progress callback here.
+      */
+
+      $("uploadStatus")
+        .textContent =
+        "Location verified. Starting upload...";
+
+      $("uploadProgress")
+        .style.width =
+        "10%";
+
+      playUploadTick();
+
+      const description =
+        pendingMediaType === "video"
+          ? "Past Snap • Video"
+          : "Past Snap • Photo";
+
+      const result =
+        await uploadMedia(
+          pendingMediaBlob,
+          pendingMediaName,
+          pendingMediaMime,
+          pendingCaptureLocation.lat,
+          pendingCaptureLocation.lng,
+          description,
+          (
+            percent,
+            status
+          ) => {
+
+            $("uploadProgress")
+              .style.width =
+              percent + "%";
+
+            $("uploadStatus")
+              .textContent =
+              status;
+
+            if(
+              percent === 72 ||
+              percent === 100
+            ){
+
+              playUploadTick();
+
+            }
+
+          }
+        );
+
+      saveLocalNotification({
+        id:
+          "local-" +
+          Date.now(),
+        type:
+          pendingMediaType === "video"
+            ? "video"
+            : "photo",
+        title:
+          pendingMediaType === "video"
+            ? "Your video snap uploaded"
+            : "Your photo snap uploaded",
+        date:
+          new Date().toISOString(),
+        location:
+          pendingCaptureDetails
+            ?.fullLocation ||
+          pendingCaptureDetails
+            ?.placeName ||
+          "GPS location",
+        lat:
+          pendingCaptureLocation.lat,
+        lng:
+          pendingCaptureLocation.lng,
+        size:
+          pendingMediaBlob.size,
+        url:
+          result.publicUrl
+      });
 
       playHackerConfirm();
 
+      $("uploadProgress")
+        .style.width =
+        "100%";
+
+      $("uploadStatus")
+        .textContent =
+        "✓ Upload complete — snap saved.";
+
       toast(
-        "Snap posted at live location"
+        "Snap uploaded at live location"
       );
-
-      hideModal(
-        "cameraModal"
-      );
-
-      if(cameraStream){
-
-        cameraStream
-          .getTracks()
-          .forEach(
-            track =>
-              track.stop()
-          );
-
-        cameraStream =
-          null;
-
-      }
 
       await loadSnaps();
+
+      await loadNotifications();
+
+      setTimeout(
+        () => {
+
+          resetUploadPreview();
+
+          hideModal(
+            "cameraModal"
+          );
+
+        },
+        900
+      );
 
     }catch(error){
 
       console.error(
+        "Upload error",
         error
       );
 
-      toast(
-        "Snap could not be posted"
-      );
+      $("uploadStatus")
+        .textContent =
+        error?.message ||
+        "Upload failed.";
+
+      if(
+        String(
+          error?.message ||
+          ""
+        ).includes(
+          "within 50m"
+        )
+      ){
+
+        toast(
+          error.message
+        );
+
+      }else{
+
+        toast(
+          "Media could not be uploaded"
+        );
+
+      }
+
+    }finally{
+
+      button.disabled =
+        false;
+
+      $("retakeBtn")
+        .disabled =
+        false;
 
     }
 
@@ -2946,6 +4541,7 @@ async function loadSnaps(){
     );
 
     return;
+
   }
 
   snapGroups = [];
@@ -2970,7 +4566,9 @@ async function loadSnaps(){
       !Number.isFinite(lat) ||
       !Number.isFinite(lng)
     ){
+
       continue;
+
     }
 
     let group =
@@ -3074,11 +4672,6 @@ async function loadSnaps(){
       "click",
       event => {
 
-        /*
-          Prevent the normal map click
-          from being the only feedback.
-        */
-
         if(
           event.originalEvent
         ){
@@ -3145,16 +4738,43 @@ function renderSnap(){
         snapIndex
       ];
 
-  const imageUrl =
+  const mediaUrl =
     snap.image_url ||
     snap.url ||
     "";
 
-  $("snapContent")
-    .innerHTML =
-    imageUrl
-      ? `<img src="${imageUrl}" alt="Snap">`
-      : "<div>No image</div>";
+  const isVideo =
+    mediaIsVideo(
+      snap
+    );
+
+  if(!mediaUrl){
+
+    $("snapContent")
+      .innerHTML =
+      "<div>No media</div>";
+
+  }else if(isVideo){
+
+    $("snapContent")
+      .innerHTML =
+      `<video
+        src="${escapeHtml(mediaUrl)}"
+        controls
+        autoplay
+        playsinline
+        class="preview-media">
+      </video>`;
+
+  }else{
+
+    $("snapContent")
+      .innerHTML =
+      `<img
+        src="${escapeHtml(mediaUrl)}"
+        alt="Snap">`;
+
+  }
 
   $("snapCounter")
     .textContent =
@@ -3205,6 +4825,409 @@ $("nextSnap").onclick =
     renderSnap();
 
   };
+
+
+/* =========================================================
+   NOTIFICATION HELPERS
+========================================================= */
+
+function findDateField(
+  item
+){
+
+  return (
+    item?.created_at ||
+    item?.inserted_at ||
+    item?.updated_at ||
+    item?.createdAt ||
+    item?.timestamp ||
+    null
+  );
+
+}
+
+
+function getLikeInfo(
+  item
+){
+
+  const count =
+    item?.like_count ??
+    item?.likes_count ??
+    (
+      Array.isArray(
+        item?.likes
+      )
+        ? item.likes.length
+        : null
+    );
+
+  let people = [];
+
+  if(
+    Array.isArray(
+      item?.liked_by
+    )
+  ){
+
+    people =
+      item.liked_by
+        .map(
+          person => {
+
+            if(
+              typeof person ===
+              "string"
+            ){
+
+              return person;
+
+            }
+
+            return (
+              person?.display_name ||
+              person?.name ||
+              person?.email ||
+              person?.user_email ||
+              ""
+            );
+
+          }
+        )
+        .filter(Boolean);
+
+  }
+
+  return {
+    count,
+    people
+  };
+
+}
+
+
+function createNotificationHtml(
+  title,
+  date,
+  details
+){
+
+  return `
+    <div class="notification-item">
+
+      <div class="notification-title">
+        ${escapeHtml(title)}
+      </div>
+
+      <div class="notification-time">
+        ${escapeHtml(date)}
+      </div>
+
+      <div class="notification-detail">
+        ${details}
+      </div>
+
+    </div>
+  `;
+
+}
+
+
+async function loadNotifications(){
+
+  const list =
+    $("notificationList");
+
+  list.innerHTML =
+    `
+      <div class="notification-item">
+        <div class="notification-title">
+          🔄 ACTIVITY
+        </div>
+        <div class="notification-detail">
+          Loading...
+        </div>
+      </div>
+    `;
+
+  const notifications = [];
+
+  /*
+    Own uploads are stored locally so notification
+    still works even if the existing table does not
+    have created_at/user_id columns.
+  */
+
+  getLocalNotifications()
+    .forEach(
+      item => {
+
+        notifications.push({
+          sort:
+            new Date(
+              item.date || 0
+            ).getTime() || 0,
+          html:
+            createNotificationHtml(
+              item.title ||
+                "Your Snap",
+              formatDateTime(
+                item.date
+              ),
+              `
+                <b>Media:</b>
+                ${escapeHtml(
+                  item.type === "video"
+                    ? "Video"
+                    : "Photo"
+                )}
+                <br>
+                <b>Location:</b>
+                ${escapeHtml(
+                  item.location ||
+                  "GPS location"
+                )}
+                <br>
+                <b>GPS:</b>
+                ${Number(
+                  item.lat
+                ).toFixed(6)},
+                ${Number(
+                  item.lng
+                ).toFixed(6)}
+                <br>
+                <b>Size:</b>
+                ${escapeHtml(
+                  formatBytes(
+                    item.size
+                  )
+                )}
+              `
+            )
+        });
+
+      }
+    );
+
+
+  /*
+    Existing database data.
+    select("*") avoids assuming any particular
+    notification/likes columns.
+  */
+
+  try{
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("snaps")
+        .select("*");
+
+    if(
+      !error &&
+      Array.isArray(data)
+    ){
+
+      data.forEach(
+        snap => {
+
+          const date =
+            findDateField(
+              snap
+            );
+
+          const dateText =
+            date
+              ? formatDateTime(
+                  date
+                )
+              : "Date/time unavailable";
+
+          const lat =
+            Number(
+              snap.lat ??
+              snap.latitude
+            );
+
+          const lng =
+            Number(
+              snap.lng ??
+              snap.longitude
+            );
+
+          const likes =
+            getLikeInfo(
+              snap
+            );
+
+          let likeText =
+            "";
+
+          if(
+            likes.count !==
+            null &&
+            likes.count !==
+            undefined
+          ){
+
+            likeText +=
+              `<br><b>Likes:</b> ${
+                escapeHtml(
+                  likes.count
+                )
+              }`;
+
+          }
+
+          if(
+            likes.people.length
+          ){
+
+            likeText +=
+              `<br><b>Liked by:</b> ${
+                escapeHtml(
+                  likes.people.join(
+                    ", "
+                  )
+                )
+              }`;
+
+          }
+
+          const type =
+            mediaIsVideo(
+              snap
+            )
+              ? "Video"
+              : "Photo";
+
+          const description =
+            snap.description ||
+            "Past Snap";
+
+          notifications.push({
+            sort:
+              date
+                ? (
+                    new Date(
+                      date
+                    ).getTime() || 0
+                  )
+                : 0,
+            html:
+              createNotificationHtml(
+                "Snap activity",
+                dateText,
+                `
+                  <b>Media:</b>
+                  ${escapeHtml(type)}
+                  <br>
+                  <b>Info:</b>
+                  ${escapeHtml(
+                    description
+                  )}
+                  <br>
+                  <b>GPS:</b>
+                  ${
+                    Number.isFinite(lat)
+                      ? lat.toFixed(6)
+                      : "—"
+                  },
+                  ${
+                    Number.isFinite(lng)
+                      ? lng.toFixed(6)
+                      : "—"
+                  }
+                  ${likeText}
+                `
+              )
+          });
+
+        }
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Notification load error",
+      error
+    );
+
+  }
+
+
+  notifications.sort(
+    (a,b) =>
+      b.sort -
+      a.sort
+  );
+
+
+  /*
+    Remove exact duplicate-looking
+    local/database entries only when
+    they share same title/time.
+  */
+
+  const seen =
+    new Set();
+
+  const unique =
+    notifications.filter(
+      item => {
+
+        const key =
+          item.html;
+
+        if(seen.has(key)){
+          return false;
+        }
+
+        seen.add(key);
+
+        return true;
+
+      }
+    );
+
+
+  if(!unique.length){
+
+    list.innerHTML =
+      `
+        <div class="notification-item">
+          <div class="notification-title">
+            🔔 NO ACTIVITY
+          </div>
+          <div class="notification-detail">
+            Abhi koi snap activity available nahi hai.
+          </div>
+        </div>
+      `;
+
+    return;
+
+  }
+
+
+  list.innerHTML =
+    unique
+      .slice(
+        0,
+        50
+      )
+      .map(
+        item =>
+          item.html
+      )
+      .join("");
+
+}
 
 
 /* =========================================================
@@ -3816,11 +5839,13 @@ $("notificationBtn").onclick =
   () =>
     togglePanel(
       "notificationModal",
-      () => {
+      async () => {
 
         $("notifDot")
           .style.display =
           "none";
+
+        await loadNotifications();
 
       }
     );
@@ -3951,6 +5976,19 @@ $("logoutBtn").onclick =
 
     console.error(
       "Snap initialization error",
+      error
+    );
+
+  }
+
+  try{
+
+    await loadNotifications();
+
+  }catch(error){
+
+    console.error(
+      "Notification initialization error",
       error
     );
 
