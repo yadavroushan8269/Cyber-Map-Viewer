@@ -706,6 +706,9 @@ input[type=text]{
 .leaflet-container{
   background:#020605 !important;
 }
+.leaflet-tile-pane{
+  filter:brightness(.48) contrast(1.22) saturate(.72);
+}
 .live-location-label{
   pointer-events:none !important;
 }
@@ -1747,11 +1750,11 @@ const map =
     5
   );
 
-L.tileLayer(
-  "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+const mapTiles = L.tileLayer(
+  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
   {
-    maxZoom:20,
-    attribution:"© Esri — Dark Gray Canvas"
+    maxZoom:19,
+    attribution:"© OpenStreetMap contributors"
   }
 ).addTo(map);
 
@@ -1793,7 +1796,7 @@ function showLiveLocationOverlay(details, geojson){
   liveLocationLabel = L.marker([details.lat, details.lng], {
     icon:L.divIcon({
       className:"live-location-label",
-      html:`<div>${String(label).replace(/[&<>\"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",\"":"&quot;", "'":"&#39;"}[c]))}</div>`,
+      html:`<div>${String(label).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]))}</div>`,
       iconSize:null,
       iconAnchor:[0,36]
     }),
