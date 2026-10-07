@@ -37,6 +37,8 @@ button,input{
 
 button{
   cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
 }
 
 #map{
@@ -142,17 +144,36 @@ button{
 
 /* ================= TRACE ================= */
 
+/*
+   Bottom-right.
+   Aligned with the right side of the bottom bar
+   and placed directly above You.
+*/
+
 .trace{
   position:fixed;
-  z-index:12;
-  right:12px;
-  top:122px;
+  z-index:25;
+
+  right:max(
+    12px,
+    calc(
+      (100vw - min(680px, calc(100vw - 10px))) / 2 + 7px
+    )
+  );
+
+  bottom:max(
+    78px,
+    calc(env(safe-area-inset-bottom) + 78px)
+  );
+
   border:1px solid var(--red);
   border-radius:11px;
   background:#3b0710e8;
   color:#fff;
   padding:10px 13px;
   font-weight:900;
+  box-shadow:0 0 14px #ff304f25;
+  touch-action:manipulation;
 }
 
 /* ================= BOTTOM BAR ================= */
@@ -184,6 +205,16 @@ button{
   font-size:25px!important;
   color:var(--green)!important;
   border-color:#216b55!important;
+}
+
+/* ================= BUTTON ACTIVE EFFECT ================= */
+
+.cyber-pressed{
+  transform:scale(.94)!important;
+  border-color:var(--cyan)!important;
+  box-shadow:
+    0 0 8px #00e5ff55,
+    inset 0 0 10px #00e5ff15!important;
 }
 
 /* ================= MODALS ================= */
@@ -478,6 +509,14 @@ video{
   .row{
     font-size:12px;
   }
+
+  .trace{
+    right:12px;
+    bottom:max(
+      78px,
+      calc(env(safe-area-inset-bottom) + 78px)
+    );
+  }
 }
 </style>
 </head>
@@ -526,6 +565,8 @@ video{
   </div>
 </div>
 
+<!-- ================= TRACE ================= -->
+
 <button id="traceBtn" class="trace">
   ⚠ TRACE
 </button>
@@ -562,13 +603,9 @@ video{
 
   <div class="panel">
 
-    <button class="close" data-close="roomModal">
-      ×
-    </button>
+    <button class="close" data-close="roomModal">×</button>
 
-    <h2>
-      My Room ID
-    </h2>
+    <h2>My Room ID</h2>
 
     <div class="row">
       <b>Permanent Room ID</b>
@@ -593,13 +630,9 @@ video{
 
   <div class="panel">
 
-    <button class="close" data-close="joinModal">
-      ×
-    </button>
+    <button class="close" data-close="joinModal">×</button>
 
-    <h2>
-      Join Call
-    </h2>
+    <h2>Join Call</h2>
 
     <input
       id="joinRoomInput"
@@ -635,13 +668,9 @@ video{
 
   <div class="panel">
 
-    <button class="close" data-close="youModal">
-      ×
-    </button>
+    <button class="close" data-close="youModal">×</button>
 
-    <h2>
-      You
-    </h2>
+    <h2>You</h2>
 
     <div class="profile-head">
 
@@ -654,9 +683,7 @@ video{
 
       <div>
 
-        <b id="profileName">
-          User
-        </b>
+        <b id="profileName">User</b>
 
         <div
           id="profileEmail"
@@ -671,17 +698,11 @@ video{
 
     <div class="actions">
 
-      <button
-        id="galleryBtn"
-        class="secondary"
-      >
+      <button id="galleryBtn" class="secondary">
         Set from Gallery
       </button>
 
-      <button
-        id="cameraProfileBtn"
-        class="secondary"
-      >
+      <button id="cameraProfileBtn" class="secondary">
         Set from Camera
       </button>
 
@@ -764,9 +785,7 @@ video{
       ×
     </button>
 
-    <h2>
-      Notifications
-    </h2>
+    <h2>Notifications</h2>
 
     <div id="notificationList">
 
@@ -794,9 +813,7 @@ video{
       ×
     </button>
 
-    <h2>
-      Admin
-    </h2>
+    <h2>Admin</h2>
 
     <div class="row">
       <b>Name</b>
@@ -830,9 +847,7 @@ video{
       ×
     </button>
 
-    <h2>
-      Camera
-    </h2>
+    <h2>Camera</h2>
 
     <video
       id="cameraVideo"
@@ -845,9 +860,7 @@ video{
       style="font-size:11px;color:var(--muted);margin-top:6px"
     >
       Zoom:
-      <span id="zoomValue">
-        1.0x
-      </span>
+      <span id="zoomValue">1.0x</span>
     </div>
 
     <input
@@ -860,10 +873,7 @@ video{
       style="width:100%"
     >
 
-    <div
-      id="filterRow"
-      class="filter-row"
-    ></div>
+    <div id="filterRow" class="filter-row"></div>
 
     <div class="actions">
 
@@ -900,14 +910,9 @@ video{
       ×
     </button>
 
-    <h2>
-      Detected Snaps
-    </h2>
+    <h2>Detected Snaps</h2>
 
-    <div
-      id="snapContent"
-      class="snap-card"
-    ></div>
+    <div id="snapContent" class="snap-card"></div>
 
     <div class="snap-nav">
 
@@ -918,9 +923,7 @@ video{
         ‹
       </button>
 
-      <span id="snapCounter">
-        1/1
-      </span>
+      <span id="snapCounter">1/1</span>
 
       <button
         id="nextSnap"
@@ -941,14 +944,9 @@ video{
 
   <div class="panel">
 
-    <h2 id="callTitle">
-      Incoming Call
-    </h2>
+    <h2 id="callTitle">Incoming Call</h2>
 
-    <div
-      id="incomingActions"
-      class="actions"
-    >
+    <div id="incomingActions" class="actions">
 
       <button
         id="acceptCallBtn"
@@ -987,24 +985,15 @@ video{
 
       <div class="actions">
 
-        <button
-          id="muteBtn"
-          class="secondary"
-        >
+        <button id="muteBtn" class="secondary">
           Mute
         </button>
 
-        <button
-          id="camBtn"
-          class="secondary"
-        >
+        <button id="camBtn" class="secondary">
           Camera
         </button>
 
-        <button
-          id="endCallBtn"
-          class="danger"
-        >
+        <button id="endCallBtn" class="danger">
           End
         </button>
 
@@ -1049,6 +1038,7 @@ video{
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
+
 /* =========================================================
    SUPABASE
 ========================================================= */
@@ -1067,7 +1057,236 @@ const supabaseClient =
 
 const socket = io();
 
-const $ = id => document.getElementById(id);
+const $ = id =>
+  document.getElementById(id);
+
+
+/* =========================================================
+   HACKER SOUND ENGINE
+========================================================= */
+
+let hackerAudioContext = null;
+
+function getAudioContext(){
+
+  try{
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if(!AudioContext){
+      return null;
+    }
+
+    if(!hackerAudioContext){
+
+      hackerAudioContext =
+        new AudioContext();
+
+    }
+
+    if(
+      hackerAudioContext.state ===
+      "suspended"
+    ){
+
+      hackerAudioContext.resume()
+        .catch(()=>{});
+
+    }
+
+    return hackerAudioContext;
+
+  }catch(error){
+
+    return null;
+
+  }
+
+}
+
+
+/* Hacker click / typing sound */
+
+function playHackerClick(){
+
+  const context =
+    getAudioContext();
+
+  if(!context){
+    return;
+  }
+
+  try{
+
+    const now =
+      context.currentTime;
+
+    const oscillator =
+      context.createOscillator();
+
+    const gain =
+      context.createGain();
+
+    oscillator.type =
+      "square";
+
+    oscillator.frequency
+      .setValueAtTime(
+        680,
+        now
+      );
+
+    oscillator.frequency
+      .exponentialRampToValueAtTime(
+        210,
+        now + .055
+      );
+
+    gain.gain
+      .setValueAtTime(
+        .0001,
+        now
+      );
+
+    gain.gain
+      .exponentialRampToValueAtTime(
+        .045,
+        now + .006
+      );
+
+    gain.gain
+      .exponentialRampToValueAtTime(
+        .0001,
+        now + .07
+      );
+
+    oscillator.connect(gain);
+    gain.connect(
+      context.destination
+    );
+
+    oscillator.start(now);
+
+    oscillator.stop(
+      now + .075
+    );
+
+  }catch(error){}
+
+}
+
+
+/* Slightly longer cyber confirmation */
+
+function playHackerConfirm(){
+
+  const context =
+    getAudioContext();
+
+  if(!context){
+    return;
+  }
+
+  try{
+
+    const now =
+      context.currentTime;
+
+    const oscillator =
+      context.createOscillator();
+
+    const gain =
+      context.createGain();
+
+    oscillator.type =
+      "square";
+
+    oscillator.frequency
+      .setValueAtTime(
+        420,
+        now
+      );
+
+    oscillator.frequency
+      .linearRampToValueAtTime(
+        850,
+        now + .09
+      );
+
+    gain.gain
+      .setValueAtTime(
+        .0001,
+        now
+      );
+
+    gain.gain
+      .linearRampToValueAtTime(
+        .035,
+        now + .01
+      );
+
+    gain.gain
+      .exponentialRampToValueAtTime(
+        .0001,
+        now + .12
+      );
+
+    oscillator.connect(gain);
+    gain.connect(
+      context.destination
+    );
+
+    oscillator.start(now);
+    oscillator.stop(
+      now + .13
+    );
+
+  }catch(error){}
+
+}
+
+
+/*
+  IMPORTANT:
+  Use pointerdown so Android touch
+  gets the sound immediately.
+*/
+
+document.addEventListener(
+  "pointerdown",
+  event => {
+
+    const button =
+      event.target.closest(
+        "button"
+      );
+
+    if(button){
+
+      playHackerClick();
+
+      button.classList.add(
+        "cyber-pressed"
+      );
+
+      setTimeout(
+        () =>
+          button.classList.remove(
+            "cyber-pressed"
+          ),
+        90
+      );
+
+    }
+
+  },
+  {
+    passive:true
+  }
+);
+
 
 /* =========================================================
    STATE
@@ -1103,16 +1322,18 @@ let localCallStream = null;
 let callMuted = false;
 let callCamera = true;
 
+
 /* =========================================================
    MAP
 ========================================================= */
 
-const map = L.map("map", {
-  zoomControl:false
-}).setView(
-  [20.5937,78.9629],
-  5
-);
+const map =
+  L.map("map", {
+    zoomControl:false
+  }).setView(
+    [20.5937,78.9629],
+    5
+  );
 
 L.tileLayer(
   "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -1125,45 +1346,102 @@ L.tileLayer(
 const snapLayer =
   L.layerGroup().addTo(map);
 
+
+/*
+  Hacker sound when user taps
+  empty map area.
+*/
+
+map.on(
+  "click",
+  () => {
+    playHackerClick();
+  }
+);
+
+
 /* =========================================================
    MODALS
 ========================================================= */
 
 function showModal(id){
-  $(id).classList.add("show");
+
+  const element =
+    $(id);
+
+  if(element){
+    element.classList.add(
+      "show"
+    );
+  }
+
 }
+
 
 function hideModal(id){
 
-  $(id).classList.remove("show");
+  const element =
+    $(id);
+
+  if(!element){
+    return;
+  }
+
+  element.classList.remove(
+    "show"
+  );
 
   if(id === "joinModal"){
     stopQRScanner();
   }
 
   if(id === "cameraModal"){
+
     if(cameraStream){
+
       cameraStream
         .getTracks()
-        .forEach(track => track.stop());
+        .forEach(
+          track =>
+            track.stop()
+        );
 
-      cameraStream = null;
+      cameraStream =
+        null;
+
     }
+
   }
+
 }
 
-function togglePanel(id, callback){
+
+function togglePanel(
+  id,
+  callback
+){
+
+  const element =
+    $(id);
+
+  if(!element){
+    return;
+  }
 
   const alreadyOpen =
-    $(id).classList.contains("show");
+    element.classList.contains(
+      "show"
+    );
 
-  panelIds.forEach(panel => {
+  panelIds.forEach(
+    panel => {
 
-    if(panel !== id){
-      hideModal(panel);
+      if(panel !== id){
+        hideModal(panel);
+      }
+
     }
-
-  });
+  );
 
   if(alreadyOpen){
 
@@ -1172,12 +1450,21 @@ function togglePanel(id, callback){
   }else{
 
     if(callback){
-      callback();
+
+      try{
+        callback();
+      }catch(error){
+        console.error(error);
+      }
+
     }
 
     showModal(id);
+
   }
+
 }
+
 
 /* =========================================================
    TOAST
@@ -1185,56 +1472,95 @@ function togglePanel(id, callback){
 
 function toast(message){
 
-  const el = $("toast");
+  const el =
+    $("toast");
 
-  el.textContent = message;
+  el.textContent =
+    message;
 
-  el.classList.add("show");
+  el.classList.add(
+    "show"
+  );
 
-  clearTimeout(toast.timer);
+  clearTimeout(
+    toast.timer
+  );
 
   toast.timer =
-    setTimeout(() => {
-      el.classList.remove("show");
-    },2600);
+    setTimeout(
+      () =>
+        el.classList.remove(
+          "show"
+        ),
+      2600
+    );
+
 }
+
 
 /* =========================================================
    TRACE FLASH
 ========================================================= */
 
-function setDetectFlash(text,show=true){
+function setDetectFlash(
+  text,
+  show=true
+){
 
-  $("flashText").textContent = text;
+  $("flashText")
+    .textContent =
+    text;
 
   if(show){
-    showModal("detectFlash");
+
+    showModal(
+      "detectFlash"
+    );
+
   }else{
-    hideModal("detectFlash");
+
+    hideModal(
+      "detectFlash"
+    );
+
   }
+
 }
+
 
 /* =========================================================
    GEO DISTANCE
 ========================================================= */
 
-function distanceMeters(a,b){
+function distanceMeters(
+  a,
+  b
+){
 
   const R = 6371000;
 
   const rad =
-    value => value * Math.PI / 180;
+    value =>
+      value * Math.PI / 180;
 
   const dLat =
-    rad(b.lat - a.lat);
+    rad(
+      b.lat - a.lat
+    );
 
   const dLng =
-    rad(b.lng - a.lng);
+    rad(
+      b.lng - a.lng
+    );
 
   const q =
     Math.sin(dLat/2) ** 2 +
-    Math.cos(rad(a.lat)) *
-    Math.cos(rad(b.lat)) *
+    Math.cos(
+      rad(a.lat)
+    ) *
+    Math.cos(
+      rad(b.lat)
+    ) *
     Math.sin(dLng/2) ** 2;
 
   return 2 * R *
@@ -1242,7 +1568,9 @@ function distanceMeters(a,b){
       Math.sqrt(q),
       Math.sqrt(1-q)
     );
+
 }
+
 
 /* =========================================================
    GPS
@@ -1253,25 +1581,43 @@ function getLivePosition(){
   return new Promise(
     (resolve,reject) => {
 
-      navigator.geolocation.getCurrentPosition(
-        resolve,
-        reject,
-        {
-          enableHighAccuracy:true,
-          maximumAge:0,
-          timeout:15000
-        }
-      );
+      if(
+        !navigator.geolocation
+      ){
+
+        reject(
+          new Error(
+            "Geolocation unavailable"
+          )
+        );
+
+        return;
+      }
+
+      navigator.geolocation
+        .getCurrentPosition(
+          resolve,
+          reject,
+          {
+            enableHighAccuracy:true,
+            maximumAge:0,
+            timeout:15000
+          }
+        );
 
     }
   );
+
 }
+
 
 /* =========================================================
    FULL LOCATION
 ========================================================= */
 
-function buildFullLocation(details){
+function buildFullLocation(
+  details
+){
 
   const parts = [
     details.locality,
@@ -1289,7 +1635,9 @@ function buildFullLocation(details){
   details.placeName
   ||
   "Unknown location";
+
 }
+
 
 /* =========================================================
    REVERSE GEOCODING
@@ -1306,13 +1654,16 @@ async function reverseGeocodeDetails(
       await fetch(
         "https://nominatim.openstreetmap.org/reverse" +
         "?format=jsonv2" +
-        "&lat=" + encodeURIComponent(lat) +
-        "&lon=" + encodeURIComponent(lng) +
+        "&lat=" +
+        encodeURIComponent(lat) +
+        "&lon=" +
+        encodeURIComponent(lng) +
         "&zoom=18" +
         "&addressdetails=1",
         {
           headers:{
-            "Accept":"application/json"
+            "Accept":
+              "application/json"
           }
         }
       );
@@ -1383,7 +1734,9 @@ async function reverseGeocodeDetails(
     };
 
     details.fullLocation =
-      buildFullLocation(details);
+      buildFullLocation(
+        details
+      );
 
     return details;
 
@@ -1409,65 +1762,95 @@ async function reverseGeocodeDetails(
 
 }
 
+
 /* =========================================================
    LOCATION UI
 ========================================================= */
 
-function updateLocationUI(details){
+function updateLocationUI(
+  details
+){
 
-  $("hudPlace").textContent =
+  $("hudPlace")
+    .textContent =
     details.fullLocation ||
     details.placeName;
 
-  $("hudCoords").textContent =
+  $("hudCoords")
+    .textContent =
     `GPS: ${details.lat.toFixed(6)}, ` +
     `${details.lng.toFixed(6)} • ` +
     `±${Math.round(details.accuracy || 0)}m`;
 
-  $("pPlace").textContent =
+  $("pPlace")
+    .textContent =
     details.fullLocation ||
     details.placeName;
 
-  $("pLocality").textContent =
-    details.locality || "—";
+  $("pLocality")
+    .textContent =
+    details.locality ||
+    "—";
 
-  $("pVillage").textContent =
-    details.village || "—";
+  $("pVillage")
+    .textContent =
+    details.village ||
+    "—";
 
-  $("pCity").textContent =
-    details.city || "—";
+  $("pCity")
+    .textContent =
+    details.city ||
+    "—";
 
-  $("pDistrict").textContent =
-    details.district || "—";
+  $("pDistrict")
+    .textContent =
+    details.district ||
+    "—";
 
-  $("pState").textContent =
-    details.state || "—";
+  $("pState")
+    .textContent =
+    details.state ||
+    "—";
 
-  $("pPin").textContent =
-    details.pin || "—";
+  $("pPin")
+    .textContent =
+    details.pin ||
+    "—";
 
-  $("pCountry").textContent =
-    details.country || "—";
+  $("pCountry")
+    .textContent =
+    details.country ||
+    "—";
 
-  $("pAccuracy").textContent =
+  $("pAccuracy")
+    .textContent =
     details.accuracy
-      ? Math.round(details.accuracy) + " m"
+      ? Math.round(
+          details.accuracy
+        ) + " m"
       : "—";
+
 }
+
 
 /* =========================================================
    DETECT LIVE LOCATION
 ========================================================= */
 
-async function detectLiveLocation(options={}){
+async function detectLiveLocation(
+  options={}
+){
 
   const position =
     await getLivePosition();
 
   const coords = {
-    lat:position.coords.latitude,
-    lng:position.coords.longitude,
-    accuracy:position.coords.accuracy
+    lat:
+      position.coords.latitude,
+    lng:
+      position.coords.longitude,
+    accuracy:
+      position.coords.accuracy
   };
 
   const details =
@@ -1485,23 +1868,76 @@ async function detectLiveLocation(options={}){
   currentDetails =
     details;
 
-  updateLocationUI(details);
+  updateLocationUI(
+    details
+  );
 
   if(options.centerMap){
 
     map.setView(
-      [coords.lat,coords.lng],
+      [
+        coords.lat,
+        coords.lng
+      ],
       17
     );
 
   }
 
   return details;
+
 }
+
 
 /* =========================================================
    PERMANENT ROOM ID
+   SAFE FALLBACK
 ========================================================= */
+
+function makeSafeId(){
+
+  /*
+    Do NOT rely only on crypto.randomUUID().
+    Some browsers/WebViews can fail here.
+  */
+
+  try{
+
+    if(
+      window.crypto &&
+      typeof window.crypto.randomUUID ===
+      "function"
+    ){
+
+      return window.crypto
+        .randomUUID()
+        .replaceAll("-","")
+        .slice(0,10)
+        .toUpperCase();
+
+    }
+
+  }catch(error){}
+
+  const randomPart =
+    Math.random()
+      .toString(36)
+      .slice(2,12)
+      .toUpperCase();
+
+  const timePart =
+    Date.now()
+      .toString(36)
+      .slice(-5)
+      .toUpperCase();
+
+  return (
+    randomPart +
+    timePart
+  ).slice(0,10);
+
+}
+
 
 function getPermanentRoomId(){
 
@@ -1510,44 +1946,67 @@ function getPermanentRoomId(){
       "past_snap_permanent_room_id"
     );
 
-  if(!id){
+  if(
+    !id ||
+    id === "undefined" ||
+    id === "null"
+  ){
 
     id =
       "PS-" +
-      crypto.randomUUID()
-        .replaceAll("-","")
-        .slice(0,10)
-        .toUpperCase();
+      makeSafeId();
 
-    localStorage.setItem(
-      "past_snap_permanent_room_id",
-      id
-    );
+    try{
+
+      localStorage.setItem(
+        "past_snap_permanent_room_id",
+        id
+      );
+
+    }catch(error){}
+
   }
 
   return id;
+
 }
+
 
 const permanentRoomId =
   getPermanentRoomId();
 
-$("roomIdText").textContent =
+$("roomIdText")
+  .textContent =
   permanentRoomId;
+
 
 /* =========================================================
    ROOM QR
 ========================================================= */
 
-new QRCode(
-  $("roomQr"),
-  {
-    text:permanentRoomId,
-    width:190,
-    height:190,
-    colorDark:"#000000",
-    colorLight:"#ffffff"
-  }
-);
+try{
+
+  new QRCode(
+    $("roomQr"),
+    {
+      text:
+        permanentRoomId,
+      width:190,
+      height:190,
+      colorDark:"#000000",
+      colorLight:"#ffffff"
+    }
+  );
+
+}catch(error){
+
+  console.error(
+    "QR generation error",
+    error
+  );
+
+}
+
 
 /* =========================================================
    PROFILE
@@ -1555,58 +2014,85 @@ new QRCode(
 
 async function loadProfile(){
 
-  const {
-    data
-  } =
-    await supabaseClient.auth.getUser();
+  try{
 
-  const user =
-    data?.user;
+    const {
+      data
+    } =
+      await supabaseClient
+        .auth
+        .getUser();
 
-  const name =
-    user?.user_metadata?.display_name ||
-    user?.user_metadata?.name ||
-    user?.email?.split("@")[0] ||
-    "User";
+    const user =
+      data?.user;
 
-  $("profileName").textContent =
-    name;
+    const name =
+      user?.user_metadata?.display_name ||
+      user?.user_metadata?.name ||
+      user?.email?.split("@")[0] ||
+      "User";
 
-  $("profileEmail").textContent =
-    user?.email || "—";
+    $("profileName")
+      .textContent =
+      name;
 
-  const savedPhoto =
-    localStorage.getItem(
-      "past_snap_profile_photo"
+    $("profileEmail")
+      .textContent =
+      user?.email ||
+      "—";
+
+    const savedPhoto =
+      localStorage.getItem(
+        "past_snap_profile_photo"
+      );
+
+    const avatar =
+      savedPhoto ||
+      user?.user_metadata?.avatar_url;
+
+    if(avatar){
+
+      $("avatarWrap")
+        .innerHTML =
+        `<img class="avatar"
+              src="${avatar}"
+              alt="Profile">`;
+
+    }else{
+
+      $("avatarWrap")
+        .textContent =
+        "👤";
+
+    }
+
+    if(currentDetails){
+
+      updateLocationUI(
+        currentDetails
+      );
+
+    }
+
+  }catch(error){
+
+    console.error(
+      "Profile load error",
+      error
     );
 
-  const avatar =
-    savedPhoto ||
-    user?.user_metadata?.avatar_url;
-
-  if(avatar){
-
-    $("avatarWrap").innerHTML =
-      `<img class="avatar"
-            src="${avatar}"
-            alt="Profile">`;
-
-  }else{
-
-    $("avatarWrap").textContent =
-      "👤";
   }
 
-  if(currentDetails){
-    updateLocationUI(currentDetails);
-  }
 }
+
 
 /* =========================================================
    PROFILE IMAGE
 ========================================================= */
 
-function compressProfileImage(file){
+function compressProfileImage(
+  file
+){
 
   return new Promise(
     (resolve,reject) => {
@@ -1638,16 +2124,20 @@ function compressProfileImage(file){
 
           canvas.width =
             Math.round(
-              image.width * scale
+              image.width *
+              scale
             );
 
           canvas.height =
             Math.round(
-              image.height * scale
+              image.height *
+              scale
             );
 
           const context =
-            canvas.getContext("2d");
+            canvas.getContext(
+              "2d"
+            );
 
           context.drawImage(
             image,
@@ -1666,21 +2156,30 @@ function compressProfileImage(file){
 
         };
 
-        image.onerror = reject;
+        image.onerror =
+          reject;
 
         image.src =
           reader.result;
+
       };
 
       reader.onerror =
         reject;
 
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(
+        file
+      );
+
     }
   );
+
 }
 
-async function setProfilePhoto(file){
+
+async function setProfilePhoto(
+  file
+){
 
   if(!file){
     return;
@@ -1689,7 +2188,9 @@ async function setProfilePhoto(file){
   try{
 
     const image =
-      await compressProfileImage(file);
+      await compressProfileImage(
+        file
+      );
 
     localStorage.setItem(
       "past_snap_profile_photo",
@@ -1697,6 +2198,8 @@ async function setProfilePhoto(file){
     );
 
     await loadProfile();
+
+    playHackerConfirm();
 
     toast(
       "Profile picture updated"
@@ -1707,14 +2210,21 @@ async function setProfilePhoto(file){
     toast(
       "Could not set profile picture"
     );
+
   }
+
 }
 
+
 $("galleryBtn").onclick =
-  () => $("profileGalleryInput").click();
+  () =>
+    $("profileGalleryInput")
+      .click();
 
 $("cameraProfileBtn").onclick =
-  () => $("profileCameraInput").click();
+  () =>
+    $("profileCameraInput")
+      .click();
 
 $("profileGalleryInput").onchange =
   event =>
@@ -1728,8 +2238,9 @@ $("profileCameraInput").onchange =
       event.target.files[0]
     );
 
+
 /* =========================================================
-   3 SECOND SIREN
+   TRACE SIREN
 ========================================================= */
 
 function playTraceSiren(
@@ -1738,12 +2249,12 @@ function playTraceSiren(
 
   try{
 
-    const AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
     const context =
-      new AudioContext();
+      getAudioContext();
+
+    if(!context){
+      return;
+    }
 
     const oscillator =
       context.createOscillator();
@@ -1757,7 +2268,9 @@ function playTraceSiren(
     gain.gain.value =
       .035;
 
-    oscillator.connect(gain);
+    oscillator.connect(
+      gain
+    );
 
     gain.connect(
       context.destination
@@ -1771,11 +2284,14 @@ function playTraceSiren(
       setInterval(
         () => {
 
-          high = !high;
+          high =
+            !high;
 
           oscillator.frequency
             .setTargetAtTime(
-              high ? 1000 : 620,
+              high
+                ? 1000
+                : 620,
               context.currentTime,
               .04
             );
@@ -1787,7 +2303,9 @@ function playTraceSiren(
     setTimeout(
       () => {
 
-        clearInterval(timer);
+        clearInterval(
+          timer
+        );
 
         gain.gain
           .exponentialRampToValueAtTime(
@@ -1799,17 +2317,14 @@ function playTraceSiren(
           context.currentTime + .13
         );
 
-        setTimeout(
-          () => context.close(),
-          300
-        );
-
       },
       duration
     );
 
   }catch(error){}
+
 }
+
 
 /* =========================================================
    TRACE
@@ -1818,18 +2333,25 @@ function playTraceSiren(
 $("traceBtn").onclick =
   async () => {
 
+    playHackerClick();
+
     setDetectFlash(
       "LOCATION DETECTING...",
       true
     );
 
-    playTraceSiren(3000);
+    playTraceSiren(
+      3000
+    );
 
     try{
 
       await new Promise(
         resolve =>
-          setTimeout(resolve,3000)
+          setTimeout(
+            resolve,
+            3000
+          )
       );
 
       await detectLiveLocation({
@@ -1841,11 +2363,17 @@ $("traceBtn").onclick =
         false
       );
 
+      playHackerConfirm();
+
       toast(
         "Live location detected"
       );
 
     }catch(error){
+
+      console.error(
+        error
+      );
 
       setDetectFlash(
         "",
@@ -1855,9 +2383,11 @@ $("traceBtn").onclick =
       toast(
         "GPS unavailable"
       );
+
     }
 
   };
+
 
 /* =========================================================
    MAP BUTTON
@@ -1865,6 +2395,8 @@ $("traceBtn").onclick =
 
 $("mapBtn").onclick =
   () => {
+
+    playHackerClick();
 
     if(currentLocation){
 
@@ -1879,13 +2411,17 @@ $("mapBtn").onclick =
     }else{
 
       map.setView(
-        [20.5937,78.9629],
+        [
+          20.5937,
+          78.9629
+        ],
         5
       );
 
     }
 
   };
+
 
 /* =========================================================
    CAMERA FILTERS
@@ -1940,15 +2476,28 @@ filters.forEach(
         );
 
         applyCameraFilter();
+
       };
 
     $("filterRow")
-      .appendChild(button);
+      .appendChild(
+        button
+      );
+
   }
 );
 
-$("filterRow button")
-  .classList.add("active");
+if(
+  $("filterRow button")
+){
+
+  $("filterRow button")
+    .classList.add(
+      "active"
+    );
+
+}
+
 
 function applyCameraFilter(){
 
@@ -1982,12 +2531,18 @@ function applyCameraFilter(){
 
     night:
       "brightness(.55) contrast(1.2)"
+
   };
 
-  $("cameraVideo").style.filter =
-    filterMap[activeFilter] ||
+  $("cameraVideo")
+    .style.filter =
+    filterMap[
+      activeFilter
+    ] ||
     "none";
+
 }
+
 
 /* =========================================================
    CAMERA
@@ -2000,16 +2555,23 @@ async function prepareCamera(){
   });
 
   cameraStream =
-    await navigator.mediaDevices.getUserMedia({
-      video:{
-        facingMode:currentFacing,
-        width:{ideal:1920},
-        height:{ideal:1080}
-      },
-      audio:false
-    });
+    await navigator.mediaDevices
+      .getUserMedia({
+        video:{
+          facingMode:
+            currentFacing,
+          width:{
+            ideal:1920
+          },
+          height:{
+            ideal:1080
+          }
+        },
+        audio:false
+      });
 
-  $("cameraVideo").srcObject =
+  $("cameraVideo")
+    .srcObject =
     cameraStream;
 
   zoomTrack =
@@ -2017,7 +2579,8 @@ async function prepareCamera(){
       .getVideoTracks()[0];
 
   const capabilities =
-    zoomTrack.getCapabilities?.();
+    zoomTrack
+      .getCapabilities?.();
 
   currentZoom =
     capabilities?.zoom
@@ -2027,12 +2590,17 @@ async function prepareCamera(){
         )
       : 1;
 
-  $("zoomSlider").value =
+  $("zoomSlider")
+    .value =
     currentZoom;
 
-  $("zoomValue").textContent =
-    currentZoom.toFixed(1) + "x";
+  $("zoomValue")
+    .textContent =
+    currentZoom.toFixed(1) +
+    "x";
+
 }
+
 
 $("plusBtn").onclick =
   async () => {
@@ -2047,6 +2615,10 @@ $("plusBtn").onclick =
 
     }catch(error){
 
+      console.error(
+        error
+      );
+
       hideModal(
         "cameraModal"
       );
@@ -2059,14 +2631,19 @@ $("plusBtn").onclick =
 
   };
 
+
 $("zoomSlider").oninput =
   event => {
 
     currentZoom =
-      Number(event.target.value);
+      Number(
+        event.target.value
+      );
 
-    $("zoomValue").textContent =
-      currentZoom.toFixed(1) + "x";
+    $("zoomValue")
+      .textContent =
+      currentZoom.toFixed(1) +
+      "x";
 
     try{
 
@@ -2087,15 +2664,19 @@ $("zoomSlider").oninput =
             )
           );
 
-        zoomTrack.applyConstraints({
-          advanced:[
-            {zoom}
-          ]
-        });
+        zoomTrack
+          .applyConstraints({
+            advanced:[
+              {zoom}
+            ]
+          });
+
       }
 
     }catch(error){}
+
   };
+
 
 $("switchCameraBtn").onclick =
   async () => {
@@ -2112,7 +2693,8 @@ $("switchCameraBtn").onclick =
       );
 
     currentFacing =
-      currentFacing === "environment"
+      currentFacing ===
+      "environment"
         ? "user"
         : "environment";
 
@@ -2125,9 +2707,11 @@ $("switchCameraBtn").onclick =
       toast(
         "Unable to switch camera"
       );
+
     }
 
   };
+
 
 /* =========================================================
    UPLOAD SNAP
@@ -2141,7 +2725,9 @@ async function uploadSnap(
 
   const blob =
     await (
-      await fetch(dataUrl)
+      await fetch(
+        dataUrl
+      )
     ).blob();
 
   const fileName =
@@ -2174,24 +2760,29 @@ async function uploadSnap(
       .getPublicUrl(
         fileName
       )
-      .data.publicUrl;
+      .data
+      .publicUrl;
 
   const insert =
     await supabaseClient
       .from("snaps")
       .insert({
-        image_url:publicUrl,
+        image_url:
+          publicUrl,
         lat,
         lng,
         latitude:lat,
         longitude:lng,
-        description:"Past Snap"
+        description:
+          "Past Snap"
       });
 
   if(insert.error){
     throw insert.error;
   }
+
 }
+
 
 /* =========================================================
    CAPTURE + 50M CHECK
@@ -2209,16 +2800,11 @@ $("captureBtn").onclick =
       return;
     }
 
-    /*
-      IMPORTANT:
-      Store the location BEFORE
-      checking again so the 50m
-      movement calculation is real.
-    */
-
     const captureLocation = {
-      lat:currentLocation.lat,
-      lng:currentLocation.lng
+      lat:
+        currentLocation.lat,
+      lng:
+        currentLocation.lng
     };
 
     try{
@@ -2232,13 +2818,17 @@ $("captureBtn").onclick =
         $("cameraVideo");
 
       canvas.width =
-        video.videoWidth || 1280;
+        video.videoWidth ||
+        1280;
 
       canvas.height =
-        video.videoHeight || 720;
+        video.videoHeight ||
+        720;
 
       const context =
-        canvas.getContext("2d");
+        canvas.getContext(
+          "2d"
+        );
 
       context.filter =
         video.style.filter ||
@@ -2261,12 +2851,16 @@ $("captureBtn").onclick =
         distanceMeters(
           captureLocation,
           {
-            lat:latest.lat,
-            lng:latest.lng
+            lat:
+              latest.lat,
+            lng:
+              latest.lng
           }
         );
 
-      if(movement > 50){
+      if(
+        movement > 50
+      ){
 
         toast(
           `Post blocked: moved ${Math.round(movement)}m. Must be within 50m.`
@@ -2283,6 +2877,8 @@ $("captureBtn").onclick =
         captureLocation.lat,
         captureLocation.lng
       );
+
+      playHackerConfirm();
 
       toast(
         "Snap posted at live location"
@@ -2303,20 +2899,25 @@ $("captureBtn").onclick =
 
         cameraStream =
           null;
+
       }
 
       await loadSnaps();
 
     }catch(error){
 
-      console.error(error);
+      console.error(
+        error
+      );
 
       toast(
         "Snap could not be posted"
       );
+
     }
 
   };
+
 
 /* =========================================================
    LOAD EXISTING SNAPS
@@ -2334,13 +2935,24 @@ async function loadSnaps(){
       .from("snaps")
       .select("*");
 
-  if(error || !data){
+  if(
+    error ||
+    !data
+  ){
+
+    console.error(
+      "Snap load error",
+      error
+    );
+
     return;
   }
 
   snapGroups = [];
 
-  for(const snap of data){
+  for(
+    const snap of data
+  ){
 
     const lat =
       Number(
@@ -2384,15 +2996,22 @@ async function loadSnaps(){
         snaps:[]
       };
 
-      snapGroups.push(group);
+      snapGroups.push(
+        group
+      );
+
     }
 
     group.snaps.push(
       snap
     );
+
   }
 
-  for(const group of snapGroups){
+
+  for(
+    const group of snapGroups
+  ){
 
     let label =
       "Detected location";
@@ -2411,50 +3030,91 @@ async function loadSnaps(){
 
     }catch(error){}
 
+
     const icon =
       L.divIcon({
         className:"",
         html:
           '<div class="detector"></div>',
-        iconSize:[30,30],
-        iconAnchor:[15,15]
+        iconSize:[
+          30,
+          30
+        ],
+        iconAnchor:[
+          15,
+          15
+        ]
       });
 
-    L.marker(
-      [
-        group.lat,
-        group.lng
-      ],
-      {
-        icon
-      }
-    )
-    .addTo(snapLayer)
-    .bindTooltip(
+
+    const marker =
+      L.marker(
+        [
+          group.lat,
+          group.lng
+        ],
+        {
+          icon
+        }
+      )
+      .addTo(
+        snapLayer
+      );
+
+
+    marker.bindTooltip(
       label,
       {
         direction:"top"
       }
-    )
-    .on(
-      "click",
-      () =>
-        openSnapGroup(group)
     );
+
+
+    marker.on(
+      "click",
+      event => {
+
+        /*
+          Prevent the normal map click
+          from being the only feedback.
+        */
+
+        if(
+          event.originalEvent
+        ){
+
+          event.originalEvent
+            .stopPropagation();
+
+        }
+
+        playHackerClick();
+
+        openSnapGroup(
+          group
+        );
+
+      }
+    );
+
   }
 
 }
+
 
 /* =========================================================
    SNAP CAROUSEL
 ========================================================= */
 
-function openSnapGroup(group){
+function openSnapGroup(
+  group
+){
 
   activeSnapGroup =
     group;
 
-  snapIndex = 0;
+  snapIndex =
+    0;
 
   renderSnap();
 
@@ -2469,7 +3129,9 @@ function openSnapGroup(group){
     ],
     17
   );
+
 }
+
 
 function renderSnap(){
 
@@ -2479,21 +3141,27 @@ function renderSnap(){
 
   const snap =
     activeSnapGroup
-      .snaps[snapIndex];
+      .snaps[
+        snapIndex
+      ];
 
   const imageUrl =
     snap.image_url ||
     snap.url ||
     "";
 
-  $("snapContent").innerHTML =
+  $("snapContent")
+    .innerHTML =
     imageUrl
       ? `<img src="${imageUrl}" alt="Snap">`
       : "<div>No image</div>";
 
-  $("snapCounter").textContent =
+  $("snapCounter")
+    .textContent =
     `${snapIndex + 1}/${activeSnapGroup.snaps.length}`;
+
 }
+
 
 $("prevSnap").onclick =
   () => {
@@ -2506,13 +3174,17 @@ $("prevSnap").onclick =
       (
         snapIndex -
         1 +
-        activeSnapGroup.snaps.length
+        activeSnapGroup
+          .snaps.length
       )
       %
-      activeSnapGroup.snaps.length;
+      activeSnapGroup
+        .snaps.length;
 
     renderSnap();
+
   };
+
 
 $("nextSnap").onclick =
   () => {
@@ -2523,13 +3195,17 @@ $("nextSnap").onclick =
 
     snapIndex =
       (
-        snapIndex + 1
+        snapIndex +
+        1
       )
       %
-      activeSnapGroup.snaps.length;
+      activeSnapGroup
+        .snaps.length;
 
     renderSnap();
+
   };
+
 
 /* =========================================================
    QR SCANNER
@@ -2541,7 +3217,8 @@ async function startQRScanner(){
     return;
   }
 
-  $("qrReader").style.display =
+  $("qrReader")
+    .style.display =
     "block";
 
   qrScanner =
@@ -2553,7 +3230,8 @@ async function startQRScanner(){
 
     await qrScanner.start(
       {
-        facingMode:"environment"
+        facingMode:
+          "environment"
       },
       {
         fps:10,
@@ -2566,6 +3244,8 @@ async function startQRScanner(){
           decodedText;
 
         stopQRScanner();
+
+        playHackerConfirm();
 
         toast(
           "Room ID scanned"
@@ -2581,9 +3261,11 @@ async function startQRScanner(){
     );
 
     stopQRScanner();
+
   }
 
 }
+
 
 async function stopQRScanner(){
 
@@ -2601,12 +3283,16 @@ async function stopQRScanner(){
   qrScanner =
     null;
 
-  $("qrReader").style.display =
+  $("qrReader")
+    .style.display =
     "none";
+
 }
+
 
 $("scanQrBtn").onclick =
   startQRScanner;
+
 
 /* =========================================================
    COPY ROOM ID
@@ -2617,9 +3303,12 @@ $("copyRoomBtn").onclick =
 
     try{
 
-      await navigator.clipboard.writeText(
-        permanentRoomId
-      );
+      await navigator.clipboard
+        .writeText(
+          permanentRoomId
+        );
+
+      playHackerConfirm();
 
       toast(
         "Room ID copied"
@@ -2634,6 +3323,7 @@ $("copyRoomBtn").onclick =
     }
 
   };
+
 
 /* =========================================================
    CALL
@@ -2667,12 +3357,15 @@ $("callRoomBtn").onclick =
     socket.emit(
       "call-user",
       {
-        roomId:targetRoom,
-        from:permanentRoomId
+        roomId:
+          targetRoom,
+        from:
+          permanentRoomId
       }
     );
 
-    $("callTitle").textContent =
+    $("callTitle")
+      .textContent =
       "Calling...";
 
     $("incomingActions")
@@ -2682,7 +3375,9 @@ $("callRoomBtn").onclick =
     showModal(
       "callModal"
     );
+
   };
+
 
 /* =========================================================
    SOCKET EVENTS
@@ -2700,6 +3395,7 @@ socket.on(
   }
 );
 
+
 socket.on(
   "incoming-call",
   data => {
@@ -2708,7 +3404,8 @@ socket.on(
       data.roomId ||
       data.from;
 
-    $("callTitle").textContent =
+    $("callTitle")
+      .textContent =
       "Incoming Call";
 
     $("incomingActions")
@@ -2719,8 +3416,11 @@ socket.on(
       "callModal"
     );
 
+    playHackerConfirm();
+
   }
 );
+
 
 socket.on(
   "call-rejected",
@@ -2737,12 +3437,14 @@ socket.on(
   }
 );
 
+
 socket.on(
   "call-ended",
   () => {
     endCall(false);
   }
 );
+
 
 /* =========================================================
    WEBRTC
@@ -2755,13 +3457,15 @@ async function beginCall(
   try{
 
     localCallStream =
-      await navigator.mediaDevices
+      await navigator
+        .mediaDevices
         .getUserMedia({
           video:true,
           audio:true
         });
 
-    $("localVideo").srcObject =
+    $("localVideo")
+      .srcObject =
       localCallStream;
 
     $("incomingActions")
@@ -2824,14 +3528,17 @@ async function beginCall(
 
       };
 
+
     if(initiator){
 
       const offer =
-        await callPeer.createOffer();
+        await callPeer
+          .createOffer();
 
-      await callPeer.setLocalDescription(
-        offer
-      );
+      await callPeer
+        .setLocalDescription(
+          offer
+        );
 
       socket.emit(
         "webrtc-signal",
@@ -2849,7 +3556,9 @@ async function beginCall(
 
   }catch(error){
 
-    console.error(error);
+    console.error(
+      error
+    );
 
     toast(
       "Call camera/microphone permission required"
@@ -2859,9 +3568,7 @@ async function beginCall(
 
 }
 
-/*
-  Keep the existing socket signalling path.
-*/
+
 socket.on(
   "webrtc-signal",
   async data => {
@@ -2872,19 +3579,25 @@ socket.on(
 
     try{
 
-      if(data.data?.candidate){
+      if(
+        data.data?.candidate
+      ){
 
-        await callPeer.addIceCandidate(
-          data.data.candidate
-        );
+        await callPeer
+          .addIceCandidate(
+            data.data.candidate
+          );
 
       }
 
-      if(data.data?.description){
+      if(
+        data.data?.description
+      ){
 
-        await callPeer.setRemoteDescription(
-          data.data.description
-        );
+        await callPeer
+          .setRemoteDescription(
+            data.data.description
+          );
 
         if(
           data.data.description.type ===
@@ -2892,11 +3605,13 @@ socket.on(
         ){
 
           const answer =
-            await callPeer.createAnswer();
+            await callPeer
+              .createAnswer();
 
-          await callPeer.setLocalDescription(
-            answer
-          );
+          await callPeer
+            .setLocalDescription(
+              answer
+            );
 
           socket.emit(
             "webrtc-signal",
@@ -2916,12 +3631,15 @@ socket.on(
 
     }catch(error){
 
-      console.error(error);
+      console.error(
+        error
+      );
 
     }
 
   }
 );
+
 
 /* =========================================================
    ACCEPT / REJECT / END CALL
@@ -2944,6 +3662,7 @@ $("acceptCallBtn").onclick =
 
   };
 
+
 $("rejectCallBtn").onclick =
   () => {
 
@@ -2960,6 +3679,7 @@ $("rejectCallBtn").onclick =
     );
 
   };
+
 
 function endCall(
   sendSignal=true
@@ -3018,10 +3738,14 @@ function endCall(
   hideModal(
     "callModal"
   );
+
 }
 
+
 $("endCallBtn").onclick =
-  () => endCall(true);
+  () =>
+    endCall(true);
+
 
 $("muteBtn").onclick =
   () => {
@@ -3041,11 +3765,14 @@ $("muteBtn").onclick =
 
     }
 
-    $("muteBtn").textContent =
+    $("muteBtn")
+      .textContent =
       callMuted
         ? "Unmute"
         : "Mute";
+
   };
+
 
 $("camBtn").onclick =
   () => {
@@ -3065,11 +3792,14 @@ $("camBtn").onclick =
 
     }
 
-    $("camBtn").textContent =
+    $("camBtn")
+      .textContent =
       callCamera
         ? "Camera"
         : "Camera Off";
+
   };
+
 
 /* =========================================================
    TOP/BOTTOM BUTTON TOGGLES
@@ -3081,16 +3811,20 @@ $("adminBtn").onclick =
       "adminModal"
     );
 
+
 $("notificationBtn").onclick =
   () =>
     togglePanel(
       "notificationModal",
       () => {
+
         $("notifDot")
           .style.display =
           "none";
+
       }
     );
+
 
 $("roomBtn").onclick =
   () =>
@@ -3098,11 +3832,13 @@ $("roomBtn").onclick =
       "roomModal"
     );
 
+
 $("joinBtn").onclick =
   () =>
     togglePanel(
       "joinModal"
     );
+
 
 $("youBtn").onclick =
   () =>
@@ -3122,6 +3858,7 @@ $("youBtn").onclick =
 
       }
     );
+
 
 /* =========================================================
    CLOSE BUTTONS
@@ -3143,6 +3880,7 @@ document
     }
   );
 
+
 /* =========================================================
    LOGOUT
 ========================================================= */
@@ -3155,6 +3893,7 @@ $("logoutBtn").onclick =
         "Logout?"
       )
     ){
+
       return;
     }
 
@@ -3167,7 +3906,9 @@ $("logoutBtn").onclick =
     }catch(error){}
 
     location.reload();
+
   };
+
 
 /* =========================================================
    INITIALIZE
@@ -3175,7 +3916,18 @@ $("logoutBtn").onclick =
 
 (async () => {
 
-  await loadProfile();
+  try{
+
+    await loadProfile();
+
+  }catch(error){
+
+    console.error(
+      "Profile initialization error",
+      error
+    );
+
+  }
 
   try{
 
@@ -3191,9 +3943,21 @@ $("logoutBtn").onclick =
 
   }
 
-  await loadSnaps();
+  try{
+
+    await loadSnaps();
+
+  }catch(error){
+
+    console.error(
+      "Snap initialization error",
+      error
+    );
+
+  }
 
 })();
+
 </script>
 
 </body>
