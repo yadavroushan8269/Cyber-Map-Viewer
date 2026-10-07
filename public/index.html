@@ -2,6728 +2,1217 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Past Snap — Cyber Map</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Cyber Map Viewer</title>
 
-<link rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
 :root{
-  --bg:#05070b;
-  --panel:rgba(6,12,19,.97);
-  --line:#21404c;
-  --cyan:#00e5ff;
-  --green:#00ff9d;
-  --red:#ff304f;
-  --muted:#91a9b3;
+  --bg:#050805;
+  --panel:#0a100a;
+  --panel2:#0d160d;
+  --green:#39ff14;
+  --green2:#8aff6b;
+  --line:#1d6b1d;
+  --text:#eaffea;
+  --muted:#79a879;
+  --danger:#ff4545;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body,#app{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:monospace}
+button,input,textarea{font:inherit}
+button{cursor:pointer}
+#app{position:relative}
+#map{position:absolute;inset:0;z-index:1;background:#101710}
+.leaflet-container{background:#101710}
+.leaflet-control-attribution{font-size:9px}
+.leaflet-control-zoom{display:none}
+.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#071007;color:#eaffea;border:1px solid #238c23}
+.leaflet-popup-content{font-family:monospace}
+.leaflet-popup-content a{color:var(--green)}
+
+#scanlines{pointer-events:none;position:absolute;inset:0;z-index:5000;background:repeating-linear-gradient(to bottom,rgba(57,255,20,.018) 0,rgba(57,255,20,.018) 1px,transparent 1px,transparent 4px);mix-blend-mode:screen}
+
+#topBar{
+ position:absolute;top:0;left:0;right:0;z-index:1000;
+ padding:10px 10px 8px;display:flex;gap:7px;align-items:center;
+ background:linear-gradient(180deg,rgba(3,8,3,.96),rgba(3,8,3,.72),transparent);
+}
+#searchInput{
+ flex:1;min-width:0;height:42px;border:1px solid var(--line);border-radius:9px;
+ background:#061006e8;color:var(--text);outline:none;padding:0 12px;
+ box-shadow:0 0 12px #39ff1420 inset;
+}
+.topBtn,.iconBtn{
+ height:42px;border:1px solid var(--line);border-radius:9px;
+ color:var(--green);background:#061006e8;padding:0 11px;font-weight:700;
+}
+.topBtn:active,.iconBtn:active,.navBtn:active,.actionBtn:active{transform:scale(.96)}
+#notificationBtn{font-size:18px;padding:0 10px;position:relative}
+#notificationCount{position:absolute;right:3px;top:2px;min-width:15px;height:15px;border-radius:10px;background:#ff3030;color:white;font-size:9px;display:none;align-items:center;justify-content:center}
+
+#status{
+ position:absolute;top:62px;left:50%;transform:translateX(-50%);z-index:1000;
+ background:#020702e8;border:1px solid var(--line);color:var(--green);
+ border-radius:20px;padding:7px 13px;font-size:11px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
 }
 
-*{box-sizing:border-box}
-
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:var(--bg);
-  color:#eefcff;
-  font-family:Arial,Helvetica,sans-serif;
+#locBtn{display:none!important;
+ position:absolute;z-index:1000;right:15px;bottom:94px;width:54px;height:54px;border-radius:50%;
+ border:1px solid var(--green);background:#061006f2;color:var(--green);font-size:23px;
+ box-shadow:0 0 18px #39ff1440;
 }
 
-button,input{
-  font:inherit;
+#bottomNav{
+ position:absolute;left:0;right:0;bottom:0;height:78px;z-index:1100;
+ display:flex;align-items:stretch;justify-content:space-around;
+ background:rgba(3,8,3,.97);border-top:1px solid var(--line);
+ box-shadow:0 -8px 25px #000;
+ padding-bottom:env(safe-area-inset-bottom);
 }
-
-button{
-  cursor:pointer;
-  -webkit-tap-highlight-color:transparent;
-  touch-action:manipulation;
+.navBtn{
+ flex:1;border:0;background:transparent;color:#6d966d;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;gap:3px;font-size:10px;max-width:110px;
 }
-
-#map{
-  position:fixed;
-  inset:0;
-  z-index:1;
+.navBtn .navIcon{font-size:23px;line-height:24px}
+.navBtn.active{color:var(--green);text-shadow:0 0 10px #39ff1460}
+.navBtn.cameraNav{
+ margin:-16px 8px 7px;width:62px;max-width:62px;flex:0 0 62px;height:62px;
+ border:1px solid var(--green);border-radius:50%;background:#071207;
+ box-shadow:0 0 20px #39ff1440;
 }
+#bottomNav .navBtn{max-width:none}
+#bottomNav .plusNav{margin:-16px 8px 7px;width:62px;max-width:62px;flex:0 0 62px;height:62px;border:1px solid var(--green);border-radius:50%;background:#071207;box-shadow:0 0 20px #39ff1440}
+#bottomNav .plusNav .navIcon{font-size:34px;line-height:32px}
+.infoGrid{display:grid;gap:10px;margin-top:12px}
+.infoItem{border:1px solid #163516;background:#030803;padding:11px;border-radius:10px}
+.infoLabel{font-size:9px;color:#5d895d;letter-spacing:1px}
+.infoValue{margin-top:4px;color:var(--green);font-size:13px;word-break:break-word}
+.qrBox{width:220px;height:220px;margin:12px auto;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.qrBox:empty{display:none}
+.scanRoomBtn{width:100%;margin-top:5px}
+.savedRooms{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.savedRoom{border:1px solid var(--line);background:#071007;color:var(--green);border-radius:7px;padding:7px 9px;font-size:10px}
+#qrScannerModal,#callRecordModal{position:absolute;inset:0;z-index:6000;background:#000c;display:flex;align-items:center;justify-content:center;padding:12px}
+.qrScannerVideo{width:100%;max-height:65vh;background:#000;border:1px solid var(--green);border-radius:10px;object-fit:cover}
+.recordText{white-space:pre-wrap;border:1px solid var(--line);border-radius:10px;padding:12px;color:var(--green);line-height:1.6}
+#adminBtn{padding:0 9px;font-size:10px}
 
-.leaflet-control-zoom{
-  display:none;
-}
-
-.leaflet-control-attribution{
-  font-size:9px;
-}
-
-/* ================= TOP BAR ================= */
-
-.topbar{
-  position:fixed;
-  z-index:20;
-  top:0;
-  left:0;
-  right:0;
-  height:62px;
-  padding:9px 12px;
-  display:grid;
-  grid-template-columns:1fr auto 1fr;
-  align-items:center;
-  pointer-events:none;
-  background:linear-gradient(#000c,transparent);
-}
-
-.top-left{justify-self:start}
-.top-center{justify-self:center}
-.top-right{justify-self:end}
-
-.topbar button,
-.bottom button{
-  pointer-events:auto;
-  border:1px solid #294652;
-  background:#071219e8;
-  color:#e9fbff;
-  border-radius:11px;
-  padding:10px 13px;
-  font-weight:800;
-  box-shadow:0 0 12px #00e5ff12;
-}
-
-.topbar button:hover,
-.bottom button:hover{
-  border-color:var(--cyan);
-}
-
-.notif-dot{
-  display:inline-block;
-  width:7px;
-  height:7px;
-  margin-left:4px;
-  vertical-align:top;
-  border-radius:50%;
-  background:var(--red);
-  box-shadow:0 0 8px var(--red);
-}
-
-/* ================= HUD ================= */
-
-.hud{
-  position:fixed;
-  z-index:10;
-  top:69px;
-  left:10px;
-  right:10px;
-  pointer-events:none;
-}
-
-.hud-card{
-  width:min(650px,90vw);
-  padding:8px 11px;
-  border:1px solid #1a3540;
-  border-radius:11px;
-  background:#040b10c9;
-  backdrop-filter:blur(7px);
-}
-
-.hud-title{
-  font-size:10px;
-  letter-spacing:2px;
-  color:var(--green);
-}
-
-.hud-place{
-  font-size:13px;
-  font-weight:800;
-  line-height:1.35;
-}
-
-.hud-coords{
-  font-size:10px;
-  color:var(--muted);
-  margin-top:2px;
-}
-
-/* ================= TRACE ================= */
-
-.trace{
-  position:fixed;
-  z-index:25;
-  right:max(
-    12px,
-    calc(
-      (100vw - min(680px, calc(100vw - 10px))) / 2 + 7px
-    )
-  );
-  bottom:max(
-    78px,
-    calc(env(safe-area-inset-bottom) + 78px)
-  );
-  border:1px solid var(--red);
-  border-radius:11px;
-  background:#3b0710e8;
-  color:#fff;
-  padding:10px 13px;
-  font-weight:900;
-  box-shadow:0 0 14px #ff304f25;
-  touch-action:manipulation;
-}
-
-/* ================= BOTTOM BAR ================= */
-
-.bottom{
-  position:fixed;
-  z-index:20;
-  left:50%;
-  bottom:max(10px,env(safe-area-inset-bottom));
-  transform:translateX(-50%);
-  width:min(680px,calc(100% - 10px));
-  display:grid;
-  grid-template-columns:1fr 1fr 62px 1fr 1fr;
-  gap:5px;
-  padding:7px;
-  border:1px solid #1a303c;
-  border-radius:16px;
-  background:#03070be8;
-  backdrop-filter:blur(10px);
-}
-
-.bottom button{
-  min-width:0;
-  padding:11px 5px;
-  font-size:11px;
-}
-
-.plus{
-  font-size:25px!important;
-  color:var(--green)!important;
-  border-color:#216b55!important;
-}
-
-/* ================= BUTTON EFFECT ================= */
-
-.cyber-pressed{
-  transform:scale(.94)!important;
-  border-color:var(--cyan)!important;
-  box-shadow:
-    0 0 8px #00e5ff55,
-    inset 0 0 10px #00e5ff15!important;
-}
-
-/* ================= MODALS ================= */
-
-.modal{
-  position:fixed;
-  z-index:50;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:15px;
-  background:#0009;
-  backdrop-filter:blur(4px);
-}
-
-.modal.show{
-  display:flex;
+.markerGhost{
+ width:50px;height:50px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+ color:#001500;background:var(--green);border:2px solid #d8ffd0;
+ font-weight:900;font-size:12px;box-shadow:0 0 18px #39ff1490;
 }
 
 .panel{
-  width:min(530px,94vw);
-  max-height:88vh;
-  overflow:auto;
-  padding:17px;
-  border:1px solid #29444f;
-  border-radius:17px;
-  background:var(--panel);
-  box-shadow:0 0 35px #000b;
+ position:absolute;z-index:3000;left:10px;right:10px;bottom:88px;max-height:75vh;overflow:auto;
+ background:#061006f8;border:1px solid var(--line);border-radius:14px;padding:14px;
+ box-shadow:0 15px 50px #000;
 }
+.panel.hidden,.modal.hidden{display:none!important}
+.panelHeader{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.panelTitle{color:var(--green);font-weight:900;font-size:16px}
+.closeX{background:none;border:0;color:#9fc99f;font-size:23px}
 
-.panel h2{
-  margin:0 0 14px;
-  color:var(--cyan);
-  font-size:18px;
+.field{
+ width:100%;height:43px;border:1px solid var(--line);border-radius:8px;
+ background:#020702;color:var(--text);padding:0 11px;outline:none;margin:5px 0 9px;
 }
-
-.close{
-  float:right;
-  border:0;
-  background:transparent;
-  color:#9eb2ba;
-  font-size:23px;
-}
-
-.row{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  padding:9px 0;
-  border-bottom:1px solid #172b34;
-  font-size:13px;
-}
-
-.row b{
-  color:#9db5bd;
-}
-
-.row span{
-  text-align:right;
-  max-width:68%;
-  overflow-wrap:anywhere;
-}
-
-.actions{
-  display:flex;
-  gap:8px;
-  flex-wrap:wrap;
-  margin-top:11px;
-}
-
-.actions>*{
-  flex:1;
-}
-
-.primary,
-.secondary,
-.danger{
-  border:1px solid #31535e;
-  border-radius:10px;
-  padding:11px;
-  color:#fff;
-  background:#0b181e;
-  font-weight:800;
-}
-
+textarea.field{height:80px;padding-top:10px;resize:none}
 .primary{
-  background:#07343b;
-  border-color:#008797;
+ width:100%;min-height:43px;border:1px solid var(--green);border-radius:8px;
+ background:#0a250a;color:var(--green);font-weight:900;margin:4px 0;
 }
-
-.danger{
-  background:#350b14;
-  border-color:#842238;
+.secondary{
+ border:1px solid var(--line);border-radius:8px;background:#071007;color:#a8dca8;padding:9px 12px;
 }
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1}
+.muted{color:var(--muted);font-size:11px}
+.roomCode{font-size:23px;letter-spacing:3px;color:var(--green);text-align:center;border:1px dashed var(--line);padding:13px;border-radius:9px;margin:10px 0}
 
-input[type=text]{
-  width:100%;
-  padding:12px;
-  border:1px solid #29434e;
-  border-radius:10px;
-  background:#050b10;
-  color:#fff;
-  outline:none;
+#authModal,#cameraModal,#previewModal,#viewerModal,#callModal,#incomingModal{
+ position:absolute;inset:0;z-index:4000;background:#000b;display:flex;align-items:center;justify-content:center;padding:12px;
 }
-
-.qrbox{
-  display:flex;
-  justify-content:center;
-  background:#fff;
-  width:max-content;
-  margin:14px auto;
-  padding:9px;
-  border-radius:11px;
+.modalCard{
+ width:min(520px,100%);max-height:94vh;overflow:auto;background:#061006;
+ border:1px solid var(--line);border-radius:16px;padding:15px;box-shadow:0 0 50px #000;
 }
+.modalTitle{font-size:18px;color:var(--green);font-weight:900;margin-bottom:10px}
 
-.scanbox{
-  height:210px;
-  margin-top:12px;
-  border:1px dashed #31505d;
-  border-radius:11px;
-  overflow:hidden;
-}
+#cameraModal{align-items:center;justify-content:center;padding:0;background:#000}
+.cameraCard{width:100%;height:100%;background:#000;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.cameraViewport{position:relative;width:min(92vw, calc(70vh * .25));aspect-ratio:4/16;background:#000;border:1px solid var(--green);box-shadow:0 0 25px rgba(57,255,20,.18);overflow:hidden;flex:0 0 auto}
+#cameraVideo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cameraShade{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 70px #000}
+.cameraTop{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;padding:10px}
+.cameraBottom{position:relative;left:auto;right:auto;bottom:auto;width:100%;z-index:6;display:flex;align-items:center;justify-content:center;gap:7px;padding:10px 6px calc(8px + env(safe-area-inset-bottom));background:#020702;border-top:1px solid var(--line)}
+.cameraControls{display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:nowrap}
+.camRound{width:42px;height:42px;border-radius:8px;border:1px solid var(--green);background:#061006;color:var(--green);font-weight:900}
+#captureBtn{width:58px;height:42px;border-radius:8px;border:1px solid var(--green);background:#071707;color:var(--green);box-shadow:0 0 14px rgba(57,255,20,.25);font-size:11px;font-weight:900}
+#recordTimer{position:absolute;top:7px;left:50%;transform:translateX(-50%);color:#ff5555;font-weight:900;font-size:9px;pointer-events:none}
+.cameraModes,.filterRow{display:contents}
+.cameraModes button,.filterRow button{border:1px solid var(--green);background:#061006;color:var(--green);border-radius:7px;padding:9px 7px;font-size:9px;font-weight:900;min-width:48px;white-space:nowrap}
+.cameraModes button.active,.filterRow button.active{color:var(--green);border-color:var(--green);background:#0b210b;box-shadow:0 0 8px rgba(57,255,20,.2)}
+.cameraModes button:active,.filterRow button:active,.camRound:active,#captureBtn:active{transform:scale(.94);box-shadow:0 0 14px rgba(57,255,20,.45)}
+#filterCycleBtn{display:inline-flex!important}
+#zoomControl{position:absolute;right:8px;top:50%;transform:translateY(-50%) rotate(-90deg);width:130px;z-index:7;background:#020702d9;padding:4px;border:1px solid #1d6b1d;border-radius:6px}
+@media(max-width:430px){.cameraModes button,.filterRow button{min-width:42px;padding:8px 4px;font-size:8px}.cameraBottom{gap:4px;padding-left:3px;padding-right:3px}.camRound{width:40px}.cameraControls{gap:4px}#captureBtn{width:54px}}
 
-/* ================= PROFILE ================= */
+#previewMedia,#viewerMedia{max-width:100%;max-height:52vh;display:block;margin:auto;border-radius:9px}
+.previewFrame{width:min(92vw,320px);height:min(70vh,560px);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:#020402;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+#previewImage,#previewVideo{width:100%;height:100%;object-fit:contain;background:#000}
+#zoomControl{display:flex;align-items:center;gap:8px;width:min(92vw,420px)}
+#zoomRange{flex:1;accent-color:var(--green)}
+#zoomValue{min-width:45px;text-align:center;color:var(--green);font-weight:900}
+#viewerModal{background:#000f}
+.viewerCard{width:100%;height:100%;position:relative;display:flex;flex-direction:column;justify-content:center}
+.viewerTop{position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:2}
+.viewerInfo{margin-top:10px;background:#061006e8;border:1px solid var(--line);border-radius:10px;padding:10px;max-height:28vh;overflow:auto}
+.viewerActions{display:flex;gap:6px;margin-top:8px}
+.viewerActions button{flex:1}
+.comments{margin-top:9px}
+.commentItem{padding:7px 0;border-bottom:1px solid #173117;font-size:12px}
+.commentReply{margin-left:20px;border-left:1px solid var(--line);padding-left:8px}
+.commentMeta{color:var(--muted);font-size:10px}
+.likeUsers{font-size:10px;color:#9fd99f;margin-top:4px}
 
-.profile-head{
-  display:flex;
-  gap:12px;
-  align-items:center;
-  margin-bottom:8px;
-}
+#notificationList{display:flex;flex-direction:column;gap:7px}
+.notice{padding:10px;border:1px solid #194619;border-radius:9px;background:#071007}
+.notice.unread{border-color:var(--green)}
+.notice small{color:var(--muted)}
 
-.avatar{
-  width:64px;
-  height:64px;
-  border-radius:50%;
-  object-fit:cover;
-  border:1px solid #31515c;
-  background:#071017;
-}
+#incomingModal{z-index:5000}
+.incomingCard{text-align:center}
+.callerBig{font-size:32px;color:var(--green);margin:15px 0}
+.accept{background:#0b410b!important}.reject{background:#410b0b!important;border-color:#ff4545!important;color:#ff8b8b!important}
 
-.avatar-fallback{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:26px;
-}
+#callModal{z-index:4900;background:#000}
+.callCard{width:100%;height:100%;position:relative;background:#000;overflow:hidden}
+#callGrid{position:absolute;inset:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr);gap:5px;padding:48px 5px 92px;overflow:auto;background:#000}
+.callTile{position:relative;min-height:0;background:#050805;border:1px solid #174817;border-radius:7px;overflow:hidden;aspect-ratio:4/16;display:flex;align-items:center;justify-content:center}
+.callTile video{width:100%;height:100%;object-fit:cover;background:#000}
+.callTile .tileName{position:absolute;left:5px;bottom:5px;padding:3px 6px;border:1px solid #1d6b1d;background:#020702d9;color:var(--green);font-size:9px;z-index:2}
+.callTile .tileStatus{position:absolute;right:5px;top:5px;color:var(--green);font-size:9px;z-index:2}
+.callLocalTile{position:absolute;right:10px;top:48px;width:76px;height:118px;z-index:8;border:1px solid var(--green);border-radius:7px;overflow:hidden;background:#000}
+.callLocalTile video{width:100%;height:100%;object-fit:cover}
+.callLocalTile .tileName{position:absolute;bottom:3px;left:3px;color:var(--green);font-size:8px}
+.callHeader{position:absolute;top:0;left:0;right:0;height:44px;z-index:9;display:flex;align-items:center;justify-content:space-between;padding:0 10px;background:#020702e8;border-bottom:1px solid var(--line)}
+.callHeaderTitle{color:var(--green);font-weight:900;font-size:11px}
+#callMemberCount{color:#8fd68f;font-size:10px}
+.callControls{position:absolute;left:0;right:0;bottom:0;height:82px;display:flex;justify-content:center;align-items:center;gap:10px;z-index:10;background:linear-gradient(transparent,#020702f5 35%)}
+.callControls button{width:48px;height:48px;border-radius:50%;border:1px solid var(--green);background:#071007e8;color:var(--green)}
+.callControls .end{background:#4a0909;color:#ff7777;border-color:#ff4545}
+#addFriendCallBtn{border-color:#8aff6b}
+#chatBox{position:absolute;left:8px;right:8px;bottom:78px;z-index:20;background:#061006f5;border:1px solid var(--line);border-radius:12px;padding:9px;display:none;max-height:55vh}
+#chatMessages{height:170px;overflow:auto;margin-bottom:7px}
+.chatMsg{padding:6px 8px;margin:4px 0;border-radius:7px;background:#0b170b;font-size:11px}
+.chatMine{text-align:right;color:var(--green)}
+.chatMedia{max-width:180px;max-height:180px;border:1px solid var(--line);border-radius:7px;margin-top:4px}
+#callChatFile{display:none}
+#uploadProgress{margin-top:10px;border:1px solid var(--line);border-radius:10px;background:#020702;padding:10px;display:none}
+#uploadProgressBar{height:8px;background:#0b240b;border:1px solid #194619;border-radius:8px;overflow:hidden}
+#uploadProgressFill{height:100%;width:0;background:var(--green);box-shadow:0 0 12px #39ff14;transition:width .12s}
+#uploadProgressText{margin-top:7px;color:var(--green);font-size:10px;line-height:1.5;white-space:pre-wrap}
 
-/* ================= LOCATION PREVIEW ================= */
-
-.location-preview-head{
-  display:flex;
-  align-items:center;
-  gap:14px;
-  margin-bottom:13px;
-}
-
-.location-preview-avatar{
-  width:72px;
-  height:72px;
-  min-width:72px;
-  border-radius:50%;
-  object-fit:cover;
-  border:2px solid var(--cyan);
-  background:#071017;
-  box-shadow:0 0 18px #00e5ff22;
-}
-
-.location-status{
-  padding:9px 11px;
-  margin-bottom:10px;
-  border:1px solid #17604e;
-  border-radius:10px;
-  background:#031712;
-  color:var(--green);
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.6px;
-}
-
-.location-main-place{
-  font-size:17px;
-  line-height:1.35;
-  font-weight:900;
-  color:#fff;
-  margin-bottom:4px;
-}
-
-.location-subplace{
-  color:var(--muted);
-  font-size:11px;
-  line-height:1.45;
-  margin-bottom:10px;
-}
-
-.location-time{
-  color:var(--cyan);
-  font-size:12px;
-  font-weight:800;
-  margin-bottom:5px;
-}
-
-/* ================= CAMERA ================= */
-
-.camera-video{
-  width:100%;
-  max-height:52vh;
-  object-fit:cover;
-  background:#000;
-  border-radius:13px;
-  transition:filter .15s ease;
-}
-
-.camera-controls{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:7px;
-  margin-top:8px;
-}
-
-.camera-control-button{
-  border:1px solid #31515c;
-  border-radius:9px;
-  padding:9px;
-  background:#09151a;
-  color:#dffaff;
-  font-weight:800;
-}
-
-.camera-control-button.active{
-  border-color:var(--cyan);
-  color:var(--cyan);
-}
-
-.filter-row{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:5px;
-  margin-top:8px;
-}
-
-.filter-row button{
-  padding:8px 2px;
-  border:1px solid #263e48;
-  border-radius:8px;
-  background:#0a1318;
-  color:#cfe8ee;
-  font-size:10px;
-}
-
-.filter-row button.active{
-  border-color:var(--cyan);
-  color:var(--cyan);
-  box-shadow:0 0 8px #00e5ff18;
-}
-
-.media-mode{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:6px;
-  margin:8px 0;
-}
-
-.media-mode button{
-  border:1px solid #263e48;
-  border-radius:9px;
-  padding:9px;
-  background:#091318;
-  color:#d8f5fa;
-  font-weight:800;
-}
-
-.media-mode button.active{
-  border-color:var(--cyan);
-  color:var(--cyan);
-  box-shadow:0 0 10px #00e5ff1f;
-}
-
-.record-timer{
-  text-align:center;
-  min-height:20px;
-  margin:4px 0;
-  color:var(--red);
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:1px;
-}
-
-.upload-preview{
-  display:none;
-  margin-top:10px;
-  border:1px solid #29444f;
-  border-radius:12px;
-  padding:10px;
-  background:#040b10;
-}
-
-.upload-preview.show{
-  display:block;
-}
-
-.preview-media{
-  width:100%;
-  max-height:34vh;
-  object-fit:contain;
-  background:#000;
-  border-radius:10px;
-  margin-bottom:8px;
-}
-
-.info-title{
-  color:var(--green);
-  font-size:11px;
-  letter-spacing:1px;
-  font-weight:900;
-  margin-bottom:5px;
-}
-
-.upload-status{
-  min-height:20px;
-  margin-top:8px;
-  color:#b7d0d7;
-  font-size:11px;
-}
-
-.progress-shell{
-  width:100%;
-  height:9px;
-  overflow:hidden;
-  border:1px solid #29444f;
-  border-radius:99px;
-  background:#05090d;
-  margin-top:8px;
-}
-
-.progress-bar{
-  width:0%;
-  height:100%;
-  background:linear-gradient(
-    90deg,
-    var(--cyan),
-    var(--green)
-  );
-  transition:width .25s ease;
-  box-shadow:0 0 10px #00e5ff66;
-}
-
-/* ================= DETECTOR ================= */
-
-.detector{
-  width:30px;
-  height:30px;
-  border:2px solid var(--red);
-  border-radius:50%;
-  box-shadow:0 0 14px #ff304fcc;
-  animation:det 1s infinite;
-  position:relative;
-}
-
-.detector:after{
-  content:"";
-  position:absolute;
-  inset:6px;
-  border-radius:50%;
-  background:var(--red);
-}
-
-@keyframes det{
-  50%{
-    transform:scale(1.28);
-    opacity:.45;
-  }
-}
-
-/* ================= SNAP VIEWER ================= */
-
-.snap-card img,
-.snap-card video{
-  width:100%;
-  max-height:55vh;
-  object-fit:contain;
-  border-radius:12px;
-  background:#000;
-}
-
-.snap-nav{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-top:10px;
-}
-
-/* ================= NOTIFICATION ================= */
-
-.notification-item{
-  padding:11px;
-  margin-bottom:7px;
-  border:1px solid #1b343f;
-  border-radius:11px;
-  background:#071117;
-}
-
-.notification-title{
-  color:var(--cyan);
-  font-weight:900;
-  font-size:12px;
-}
-
-.notification-time{
-  margin-top:3px;
-  color:var(--green);
-  font-size:11px;
-}
-
-.notification-detail{
-  margin-top:4px;
-  color:#b7cbd1;
-  font-size:11px;
-  line-height:1.45;
-}
-
-/* ================= DETECT FLASH ================= */
-
-.flash-box{
-  padding:28px;
-  text-align:center;
-  border:1px solid var(--red);
-  border-radius:18px;
-  background:#230008eb;
-  box-shadow:0 0 35px #ff304f59;
-}
-
-.flash-text{
-  font-size:20px;
-  font-weight:900;
-  letter-spacing:2px;
-}
-
-.pulse{
-  animation:pulse .55s infinite alternate;
-}
-
-@keyframes pulse{
-  to{
-    transform:scale(1.025);
-    box-shadow:0 0 45px #ff304f8c;
-  }
-}
-
-/* ================= TOAST ================= */
-
-.toast{
-  position:fixed;
-  z-index:120;
-  left:50%;
-  bottom:100px;
-  transform:translate(-50%,20px);
-  opacity:0;
-  pointer-events:none;
-  padding:10px 14px;
-  border:1px solid #284650;
-  border-radius:10px;
-  background:#07141aef;
-  font-size:12px;
-  transition:.2s;
-}
-
-.toast.show{
-  opacity:1;
-  transform:translate(-50%,0);
-}
-
-@media(max-width:650px){
-
-  .bottom{
-    gap:3px;
-    padding:5px;
-  }
-
-  .bottom button{
-    font-size:10px;
-    padding:10px 2px;
-  }
-
-  .panel{
-    padding:14px;
-  }
-
-  .row{
-    font-size:12px;
-  }
-
-  .filter-row button{
-    font-size:9px;
-  }
-
-  .trace{
-    right:12px;
-    bottom:max(
-      78px,
-      calc(env(safe-area-inset-bottom) + 78px)
-    );
-  }
-}
+.hidden{display:none!important}
+.spin{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 
 <body>
+<div id="app">
+  <div id="map"></div>
+  <div id="scanlines"></div>
 
-<div id="map"></div>
-
-<!-- ================= TOP BAR ================= -->
-
-<div class="topbar">
-
-  <div class="top-left">
-    <button id="adminBtn">Admin</button>
+  <div id="topBar">
+    <input id="searchInput" placeholder="🔍 Search location">
+    <button class="topBtn" id="searchBtn">SEARCH</button>
+    <button class="topBtn" id="adminBtn">ADMIN</button>
+    <button class="iconBtn" id="notificationBtn">🔔<span id="notificationCount"></span></button>
   </div>
 
-  <div class="top-center">
-    <button id="notificationBtn">
-      🔔<span id="notifDot" class="notif-dot"></span>
-    </button>
+  <div id="status">SYSTEM ONLINE</div>
+
+  <button id="locBtn" title="My Location">⌖</button>
+
+  <div id="bottomNav">
+    <button class="navBtn active" id="chatNav"><span class="navIcon">💬</span><span>CHAT</span></button>
+    <button class="navBtn" id="joinNav"><span class="navIcon">🛡️</span><span>JOIN ROOM</span></button>
+    <button class="navBtn plusNav" id="cameraNav"><span class="navIcon">＋</span><span>SNAPS</span></button>
+    <button class="navBtn" id="myRoomNav"><span class="navIcon">🆔</span><span>MY ROOM ID</span></button>
+    <button class="navBtn" id="youNav"><span class="navIcon">👤</span><span>YOU</span></button>
   </div>
 
-  <div class="top-right">
-    <button id="logoutBtn">Logout</button>
+  <div id="roomPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">🆔 MY PERMANENT ROOM ID</div><button class="closeX" data-close="roomPanel">×</button></div>
+    <div class="muted">Ye ID account ke saath permanently linked hai. Refresh se nahi badlega.</div>
+    <div id="myRoomCode" class="roomCode">LOGIN REQUIRED</div>
+    <div id="myRoomQr" class="qrBox"></div>
+    <div class="row"><button class="secondary" id="copyRoomBtn">COPY ID</button><button class="secondary" id="shareRoomBtn">SHARE</button></div>
   </div>
 
-</div>
-
-<!-- ================= LIVE LOCATION HUD ================= -->
-
-<div class="hud">
-  <div class="hud-card">
-
-    <div class="hud-title">
-      LIVE LOCATION
-    </div>
-
-    <div id="hudPlace" class="hud-place">
-      Detecting current location...
-    </div>
-
-    <div id="hudCoords" class="hud-coords">
-      GPS: --
-    </div>
-
-  </div>
-</div>
-
-<!-- ================= TRACE ================= -->
-
-<button id="traceBtn" class="trace">
-  ⚠ TRACE
-</button>
-
-<!-- ================= BOTTOM BAR ================= -->
-
-<div class="bottom">
-
-  <button id="roomBtn">
-    My Room ID
-  </button>
-
-  <button id="joinBtn">
-    Join Call
-  </button>
-
-  <button id="plusBtn" class="plus">
-    +
-  </button>
-
-  <button id="mapBtn">
-    Map
-  </button>
-
-  <button id="youBtn">
-    You
-  </button>
-
-</div>
-
-<!-- ================= ROOM ID ================= -->
-
-<div id="roomModal" class="modal">
-
-  <div class="panel">
-
-    <button class="close" data-close="roomModal">×</button>
-
-    <h2>My Room ID</h2>
-
-    <div class="row">
-      <b>Permanent Room ID</b>
-      <span id="roomIdText">--</span>
-    </div>
-
-    <div id="roomQr" class="qrbox"></div>
-
-    <div class="actions">
-      <button id="copyRoomBtn" class="primary">
-        Copy Room ID
-      </button>
-    </div>
-
+  <div id="joinPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">🛡️ JOIN ROOM / CALL</div><button class="closeX" data-close="joinPanel">×</button></div>
+    <div class="muted">Kisi user ka permanent Room ID dalo. User online hua to incoming call jayega.</div>
+    <input class="field" id="targetRoomInput" placeholder="Enter target Room ID" autocomplete="off">
+    <button class="primary" id="callUserBtn">📞 CALL USER</button>
+    <button class="secondary scanRoomBtn" id="scanRoomBtn">▣ SCAN QR</button>
+    <div id="savedRoomsList" class="savedRooms"></div>
   </div>
 
-</div>
-
-<!-- ================= JOIN CALL ================= -->
-
-<div id="joinModal" class="modal">
-
-  <div class="panel">
-
-    <button class="close" data-close="joinModal">×</button>
-
-    <h2>Join Call</h2>
-
-    <input
-      id="joinRoomInput"
-      type="text"
-      placeholder="Enter Room ID"
-    >
-
-    <div class="actions">
-
-      <button id="callRoomBtn" class="primary">
-        Call
-      </button>
-
-      <button id="scanQrBtn" class="secondary">
-        Scan QR
-      </button>
-
-    </div>
-
-    <div
-      id="qrReader"
-      class="scanbox"
-      style="display:none"
-    ></div>
-
+  <div id="chatPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">💬 CHAT BY ROOM ID</div><button class="closeX" data-close="chatPanel">×</button></div>
+    <div class="muted">Room ID dalo aur direct chat karo. Saved Room IDs neeche milenge.</div>
+    <input class="field" id="chatTargetRoom" placeholder="Target Room ID" autocomplete="off">
+    <div id="roomChatMessages" style="max-height:240px;overflow:auto;margin:6px 0"></div>
+    <div class="row"><input class="field" id="roomChatInput" placeholder="Message" style="margin:0"><button class="primary" id="sendRoomChatBtn">SEND</button></div>
   </div>
 
-</div>
+  <div id="notificationPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">🔔 NOTIFICATIONS</div><button class="closeX" data-close="notificationPanel">×</button></div>
+    <div id="notificationList"></div>
+  </div>
 
-<!-- ================= YOU ================= -->
+  <div id="youPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">👤 YOU</div><button class="closeX" data-close="youPanel">×</button></div>
+    <div class="infoGrid">
+      <div class="infoItem"><div class="infoLabel">DISPLAY NAME</div><div class="infoValue" id="youName">NOT LOGGED IN</div></div>
+      <div class="infoItem"><div class="infoLabel">EMAIL</div><div class="infoValue" id="youEmail">NOT LOGGED IN</div></div>
+      <div class="infoItem"><div class="infoLabel">PERMANENT ROOM ID</div><div class="infoValue" id="youRoom">LOGIN REQUIRED</div></div>
+      <div class="infoItem"><div class="infoLabel">LIVE PLACE</div><div class="infoValue" id="youLivePlace">CURRENT GPS LOCATION</div></div>
+      <div class="infoItem"><div class="infoLabel">LOCALITY / AREA</div><div class="infoValue" id="youLocality">—</div></div>
+      <div class="infoItem"><div class="infoLabel">VILLAGE</div><div class="infoValue" id="youVillage">—</div></div>
+      <div class="infoItem"><div class="infoLabel">CITY / TOWN</div><div class="infoValue" id="youCity">—</div></div>
+      <div class="infoItem"><div class="infoLabel">DISTRICT</div><div class="infoValue" id="youDistrict">—</div></div>
+      <div class="infoItem"><div class="infoLabel">STATE</div><div class="infoValue" id="youState">—</div></div>
+      <div class="infoItem"><div class="infoLabel">PIN</div><div class="infoValue" id="youPin">—</div></div>
+      <div class="infoItem"><div class="infoLabel">COUNTRY</div><div class="infoValue" id="youCountry">—</div></div>
+      <div class="infoItem"><div class="infoLabel">LATITUDE</div><div class="infoValue" id="youLatitude">—</div></div>
+      <div class="infoItem"><div class="infoLabel">LONGITUDE</div><div class="infoValue" id="youLongitude">—</div></div>
+      <div class="infoItem"><div class="infoLabel">GPS ACCURACY</div><div class="infoValue" id="youAccuracy">—</div></div>
+      <div class="infoItem"><div class="infoLabel">DATE</div><div class="infoValue" id="youDate">—</div></div>
+      <div class="infoItem"><div class="infoLabel">TIME</div><div class="infoValue" id="youTime">—</div></div>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="secondary" id="youCancelBtn">CANCEL</button><button class="primary" id="youLogoutBtn">LOGOUT</button></div>
+  </div>
 
-<div id="youModal" class="modal">
+  <div id="adminPanel" class="panel hidden">
+    <div class="panelHeader"><div class="panelTitle">⚡ ADMIN</div><button class="closeX" data-close="adminPanel">×</button></div>
+    <div class="infoGrid">
+      <div class="infoItem"><div class="infoLabel">NAME</div><div class="infoValue">ROUSHAN YADAV</div></div>
+      <div class="infoItem"><div class="infoLabel">CONTACT</div><div class="infoValue">+91 91535 76962</div></div>
+      <div class="infoItem"><div class="infoLabel">NOTE</div><div class="infoValue">Website banwane ke liye WhatsApp pe message kre</div></div>
+      <div class="infoItem"><div class="infoLabel">MY ROOM ID</div><div class="infoValue" id="adminRoomId">LOADING...</div></div>
+    </div>
+    <button class="primary" id="adminWhatsAppBtn">WHATSAPP ADMIN</button>
+  </div>
 
-  <div class="panel">
+  <div id="qrScannerModal" class="hidden">
+    <div class="modalCard">
+      <div class="panelHeader"><div class="modalTitle">▣ SCAN ROOM QR</div><button class="closeX" id="scanClose">×</button></div>
+      <video id="qrScannerVideo" autoplay playsinline muted class="qrScannerVideo"></video>
+      <div id="scanStatus" class="muted" style="margin-top:8px">QR SCAN READY</div>
+    </div>
+  </div>
 
-    <button class="close" data-close="youModal">×</button>
+  <div id="callRecordModal" class="hidden">
+    <div class="modalCard">
+      <div class="modalTitle">▣ CALLING RECORD</div>
+      <div id="callRecordText" class="recordText">CALL ENDED</div>
+      <div class="row" style="margin-top:12px"><button class="primary" id="shareCallRecordBtn">SHARE</button><button class="secondary" id="shareWhatsAppBtn">WHATSAPP</button></div>
+      <div class="row" style="margin-top:8px"><button class="secondary" id="shareFacebookBtn">FACEBOOK</button><button class="secondary" id="shareInstagramBtn">INSTAGRAM</button><button class="secondary" id="closeCallRecordBtn">CLOSE</button></div>
+    </div>
+  </div>
 
-    <h2>You</h2>
+  <div id="authModal" class="hidden">
+    <div class="modalCard">
+      <div class="panelHeader"><div class="modalTitle" id="authTitle">LOGIN</div><button class="closeX" id="authClose">×</button></div>
+      <input class="field" id="authEmail" type="email" placeholder="Email">
+      <input class="field" id="authPassword" type="password" placeholder="Password">
+      <input class="field" id="authName" placeholder="Display name" style="display:none">
+      <button class="primary" id="authSubmit">LOGIN</button>
+      <button class="secondary" id="authSwitch">Create account</button>
+    </div>
+  </div>
 
-    <div class="profile-head">
-
-      <div
-        id="avatarWrap"
-        class="avatar avatar-fallback"
-      >
-        👤
-      </div>
-
-      <div>
-
-        <b id="profileName">User</b>
-
-        <div
-          id="profileEmail"
-          style="color:var(--muted);font-size:12px"
-        >
-          --
+  <div id="cameraModal" class="hidden">
+    <div class="cameraCard">
+      <div class="cameraViewport">
+        <video id="cameraVideo" autoplay playsinline muted></video>
+        <div class="cameraShade"></div>
+        <div class="cameraTop">
+          <button class="camRound" id="cameraClose">×</button>
+          <span id="cameraGpsText" style="color:var(--green);font-size:9px">GPS LOCK</span>
         </div>
-
-      </div>
-
-    </div>
-
-    <div class="actions">
-
-      <button id="galleryBtn" class="secondary">
-        Set from Gallery
-      </button>
-
-      <button id="cameraProfileBtn" class="secondary">
-        Set from Camera
-      </button>
-
-    </div>
-
-    <input
-      id="profileGalleryInput"
-      type="file"
-      accept="image/*"
-      hidden
-    >
-
-    <input
-      id="profileCameraInput"
-      type="file"
-      accept="image/*"
-      capture="user"
-      hidden
-    >
-
-    <div class="row">
-      <b>Live Place</b>
-      <span id="pPlace">--</span>
-    </div>
-
-    <div class="row">
-      <b>Locality / Area</b>
-      <span id="pLocality">--</span>
-    </div>
-
-    <div class="row">
-      <b>Village</b>
-      <span id="pVillage">--</span>
-    </div>
-
-    <div class="row">
-      <b>City / Town</b>
-      <span id="pCity">--</span>
-    </div>
-
-    <div class="row">
-      <b>District</b>
-      <span id="pDistrict">--</span>
-    </div>
-
-    <div class="row">
-      <b>State</b>
-      <span id="pState">--</span>
-    </div>
-
-    <div class="row">
-      <b>PIN</b>
-      <span id="pPin">--</span>
-    </div>
-
-    <div class="row">
-      <b>Country</b>
-      <span id="pCountry">--</span>
-    </div>
-
-    <div class="row">
-      <b>Latitude</b>
-      <span id="pLat">--</span>
-    </div>
-
-    <div class="row">
-      <b>Longitude</b>
-      <span id="pLng">--</span>
-    </div>
-
-    <div class="row">
-      <b>GPS Accuracy</b>
-      <span id="pAccuracy">--</span>
-    </div>
-
-    <div class="row">
-      <b>Date</b>
-      <span id="pDate">--</span>
-    </div>
-
-    <div class="row">
-      <b>Time</b>
-      <span id="pTime">--</span>
-    </div>
-
-  </div>
-
-</div>
-
-<!-- ================= LOCATION BEFORE CAMERA ================= -->
-
-<div id="locationPreviewModal" class="modal">
-
-  <div class="panel">
-
-    <button
-      class="close"
-      data-close="locationPreviewModal"
-    >
-      ×
-    </button>
-
-    <h2>Live Location</h2>
-
-    <div class="location-preview-head">
-
-      <div id="locationPreviewAvatar">
-        <div class="location-preview-avatar"
-             style="display:flex;align-items:center;justify-content:center;font-size:30px">
-          👤
+        <div id="recordTimer"></div>
+        <div id="zoomControl">
+          <span id="zoomValue">1×</span>
+          <input id="zoomRange" type="range" min="0.5" max="20" step="0.1" value="1">
         </div>
       </div>
-
-      <div>
-
-        <div
-          id="locationPreviewName"
-          style="font-size:16px;font-weight:900"
-        >
-          User
+      <div class="cameraBottom">
+        <div class="cameraModes">
+          <button data-mode="video">VIDEO</button>
+          <button class="active" data-mode="photo">PHOTO</button>
         </div>
-
-        <div
-          id="locationPreviewEmail"
-          style="font-size:11px;color:var(--muted);margin-top:3px"
-        >
-          --
+        <button id="mirrorBtn">MIRROR</button>
+        <button id="filterCycleBtn">FILTER</button>
+        <div class="cameraControls">
+          <button id="captureBtn">CLICK</button>
         </div>
-
+        <button class="camRound" id="switchCamera">SWITCH</button>
       </div>
-
     </div>
-
-    <div class="location-status">
-      ✓ LIVE LOCATION DETECTED
-    </div>
-
-    <div
-      id="locationPreviewMain"
-      class="location-main-place"
-    >
-      Detecting...
-    </div>
-
-    <div
-      id="locationPreviewSub"
-      class="location-subplace"
-    >
-      --
-    </div>
-
-    <div
-      id="locationPreviewDate"
-      class="location-time"
-    >
-      Date: --
-    </div>
-
-    <div
-      id="locationPreviewTime"
-      class="location-time"
-    >
-      Time: --
-    </div>
-
-    <div class="row">
-      <b>Locality / Area</b>
-      <span id="lpLocality">--</span>
-    </div>
-
-    <div class="row">
-      <b>Village</b>
-      <span id="lpVillage">--</span>
-    </div>
-
-    <div class="row">
-      <b>City / Town</b>
-      <span id="lpCity">--</span>
-    </div>
-
-    <div class="row">
-      <b>District</b>
-      <span id="lpDistrict">--</span>
-    </div>
-
-    <div class="row">
-      <b>State</b>
-      <span id="lpState">--</span>
-    </div>
-
-    <div class="row">
-      <b>PIN</b>
-      <span id="lpPin">--</span>
-    </div>
-
-    <div class="row">
-      <b>Country</b>
-      <span id="lpCountry">--</span>
-    </div>
-
-    <div class="row">
-      <b>Latitude</b>
-      <span id="lpLat">--</span>
-    </div>
-
-    <div class="row">
-      <b>Longitude</b>
-      <span id="lpLng">--</span>
-    </div>
-
-    <div class="row">
-      <b>GPS Accuracy</b>
-      <span id="lpAccuracy">--</span>
-    </div>
-
-    <div class="actions">
-
-      <button
-        id="locationRetryBtn"
-        class="secondary"
-      >
-        Detect Again
-      </button>
-
-      <button
-        id="continueCameraBtn"
-        class="primary"
-      >
-        Continue to Camera
-      </button>
-
-    </div>
-
   </div>
 
-</div>
+  <div id="previewModal" class="modal hidden">
+    <div class="modalCard">
+      <div class="panelHeader"><div class="modalTitle">SNAP PREVIEW · 4:16</div><button class="closeX" id="previewClose">×</button></div>
+      <div class="previewFrame"><img id="previewImage" class="hidden" alt=""><video id="previewVideo" class="hidden" controls playsinline></video></div>
+      <textarea class="field" id="descriptionInput" placeholder="Description"></textarea>
+      <div id="uploadProgress">
+        <div id="uploadProgressBar"><div id="uploadProgressFill"></div></div>
+        <div id="uploadProgressText">UPLOAD READY</div>
+      </div>
+      <div class="row">
+        <button class="secondary" id="retakeBtn">RETAKE</button>
+        <button class="primary" id="postBtn">POST SNAP</button>
+      </div>
+    </div>
+  </div>
 
-<!-- ================= NOTIFICATIONS ================= -->
-
-<div id="notificationModal" class="modal">
-
-  <div class="panel">
-
-    <button
-      class="close"
-      data-close="notificationModal"
-    >
-      ×
-    </button>
-
-    <h2>Notifications</h2>
-
-    <div id="notificationList">
-      <div class="notification-item">
-        <div class="notification-title">
-          SYSTEM
+  <div id="viewerModal" class="hidden">
+    <div class="viewerCard">
+      <div class="viewerTop">
+        <button class="secondary" id="prevSnap">‹</button>
+        <span id="viewerCounter" style="color:var(--green);padding:10px">1/1</span>
+        <button class="secondary" id="closeViewer">×</button>
+        <button class="secondary" id="nextSnap">›</button>
+      </div>
+      <div id="viewerMediaWrap"></div>
+      <div class="viewerInfo">
+        <div id="viewerAuthor"></div>
+        <div id="viewerLocation"></div>
+        <div id="viewerTime"></div>
+        <div id="viewerDescription"></div>
+        <div class="viewerActions">
+          <button class="secondary" id="likeBtn">♡ LIKE</button>
+          <button class="secondary" id="commentFocusBtn">💬 COMMENT</button>
+          <button class="secondary" id="viewCountBtn">👁 VIEW</button>
         </div>
-        <div class="notification-detail">
-          Loading activity...
+        <div id="likeUsers" class="likeUsers"></div>
+        <div class="comments" id="commentsList"></div>
+        <div class="row">
+          <input class="field" id="commentInput" placeholder="Comment / reply" style="margin-bottom:0">
+          <button class="primary" id="sendCommentBtn">SEND</button>
         </div>
       </div>
     </div>
-
   </div>
 
-</div>
-
-<!-- ================= ADMIN ================= -->
-
-<div id="adminModal" class="modal">
-
-  <div class="panel">
-
-    <button
-      class="close"
-      data-close="adminModal"
-    >
-      ×
-    </button>
-
-    <h2>Admin</h2>
-
-    <div class="row">
-      <b>Name</b>
-      <span>ROUSHAN YADAV</span>
+  <div id="incomingModal" class="hidden">
+    <div class="modalCard incomingCard">
+      <div class="modalTitle">📞 INCOMING CALL</div>
+      <div id="incomingCaller" class="callerBig">UNKNOWN</div>
+      <div class="muted">Someone is calling your permanent room.</div>
+      <div class="row" style="margin-top:20px">
+        <button class="primary accept" id="acceptCallBtn">ACCEPT</button>
+        <button class="primary reject" id="rejectCallBtn">REJECT</button>
+      </div>
     </div>
-
-    <div class="row">
-      <b>Phone</b>
-      <span>+91 91535 76962</span>
-    </div>
-
-    <div class="row">
-      <b>Email</b>
-      <span>yadavroushan8269@gmail.com</span>
-    </div>
-
   </div>
 
-</div>
-
-<!-- ================= CAMERA ================= -->
-
-<div id="cameraModal" class="modal">
-
-  <div class="panel">
-
-    <button
-      class="close"
-      data-close="cameraModal"
-    >
-      ×
-    </button>
-
-    <h2>Camera</h2>
-
-    <div class="media-mode">
-
-      <button
-        id="photoModeBtn"
-        class="active"
-      >
-        📷 Photo
-      </button>
-
-      <button
-        id="videoModeBtn"
-      >
-        🎥 Video
-      </button>
-
+  <div id="callModal" class="hidden">
+    <div class="callCard">
+      <div class="callHeader">
+        <div class="callHeaderTitle">● CCTV // SECURE GROUP CALL</div>
+        <div id="callMemberCount">0/6 USERS</div>
+      </div>
+      <div id="callGrid"></div>
+      <div class="callLocalTile">
+        <video id="localVideo" autoplay playsinline muted></video>
+        <div class="tileName">YOU</div>
+      </div>
+      <div class="callControls">
+        <button id="muteCallBtn">🎙</button>
+        <button id="cameraCallBtn">📷</button>
+        <button id="chatCallBtn">💬</button>
+        <button id="addFriendCallBtn">👥+</button>
+        <button class="end" id="endCallBtn">☎</button>
+      </div>
+      <div id="chatBox">
+        <div style="color:var(--green);font-size:11px;margin-bottom:5px">CALL CHAT // TEXT + MEDIA</div>
+        <div id="chatMessages"></div>
+        <div class="row">
+          <button class="secondary" id="callChatFileBtn" style="flex:0 0 48px">＋</button>
+          <input type="file" id="callChatFile" accept="image/*,video/*">
+          <input class="field" id="chatInput" placeholder="Message" style="margin:0">
+          <button class="primary" id="sendChatBtn">SEND</button>
+        </div>
+      </div>
     </div>
-
-    <video
-      id="cameraVideo"
-      class="camera-video"
-      autoplay
-      playsinline
-      muted
-    ></video>
-
-    <div
-      id="recordTimer"
-      class="record-timer"
-    ></div>
-
-    <div
-      style="font-size:11px;color:var(--muted);margin-top:6px"
-    >
-      Zoom:
-      <span id="zoomValue">1.0x</span>
-    </div>
-
-    <input
-      id="zoomSlider"
-      type="range"
-      min=".5"
-      max="20"
-      step=".1"
-      value="1"
-      style="width:100%"
-    >
-
-    <!-- 10 ORIGINAL FILTERS -->
-
-    <div
-      style="font-size:11px;color:var(--muted);margin-top:8px"
-    >
-      Filters
-    </div>
-
-    <div id="filterRow" class="filter-row"></div>
-
-    <!-- CAMERA CONTROLS -->
-
-    <div class="camera-controls">
-
-      <button
-        id="switchCameraBtn"
-        class="camera-control-button"
-      >
-        🔄 Switch Camera
-      </button>
-
-      <button
-        id="mirrorBtn"
-        class="camera-control-button"
-      >
-        🪞 Mirror: OFF
-      </button>
-
-    </div>
-
-    <div class="actions">
-
-      <button
-        id="captureBtn"
-        class="primary"
-      >
-        Capture Photo
-      </button>
-
-    </div>
-
-    <!-- PRE-UPLOAD INFORMATION -->
-
-    <div
-      id="uploadPreview"
-      class="upload-preview"
-    >
-
-      <div class="info-title">
-        MEDIA READY — CHECK BEFORE UPLOAD
-      </div>
-
-      <img
-        id="previewImage"
-        class="preview-media"
-        style="display:none"
-        alt="Preview"
-      >
-
-      <video
-        id="previewVideo"
-        class="preview-media"
-        style="display:none"
-        controls
-        playsinline
-      ></video>
-
-      <div class="row">
-        <b>Type</b>
-        <span id="previewType">--</span>
-      </div>
-
-      <div class="row">
-        <b>File</b>
-        <span id="previewFile">--</span>
-      </div>
-
-      <div class="row">
-        <b>Size</b>
-        <span id="previewSize">--</span>
-      </div>
-
-      <div class="row">
-        <b>Recorded</b>
-        <span id="previewDate">--</span>
-      </div>
-
-      <div class="row">
-        <b>Location</b>
-        <span id="previewLocation">--</span>
-      </div>
-
-      <div class="row">
-        <b>GPS</b>
-        <span id="previewGps">--</span>
-      </div>
-
-      <div
-        id="uploadStatus"
-        class="upload-status"
-      >
-        Ready to upload.
-      </div>
-
-      <div class="progress-shell">
-        <div
-          id="uploadProgress"
-          class="progress-bar"
-        ></div>
-      </div>
-
-      <div class="actions">
-
-        <button
-          id="retakeBtn"
-          class="secondary"
-        >
-          Retake
-        </button>
-
-        <button
-          id="uploadMediaBtn"
-          class="primary"
-        >
-          Upload
-        </button>
-
-      </div>
-
-    </div>
-
   </div>
 
-</div>
-
-<!-- ================= SNAP VIEWER ================= -->
-
-<div id="snapModal" class="modal">
-
-  <div class="panel">
-
-    <button
-      class="close"
-      data-close="snapModal"
-    >
-      ×
-    </button>
-
-    <h2>Detected Snaps</h2>
-
-    <div id="snapContent" class="snap-card"></div>
-
-    <div class="snap-nav">
-
-      <button
-        id="prevSnap"
-        class="secondary"
-      >
-        ‹
-      </button>
-
-      <span id="snapCounter">1/1</span>
-
-      <button
-        id="nextSnap"
-        class="secondary"
-      >
-        ›
-      </button>
-
+  <div id="addFriendModal" class="hidden">
+    <div class="modalCard">
+      <div class="panelHeader"><div class="modalTitle">👥 ADD FRIEND TO CALL</div><button class="closeX" data-close="addFriendModal">×</button></div>
+      <div class="muted">Friend ka permanent Room ID dalo. Maximum 6 users.</div>
+      <input class="field" id="callFriendRoomInput" placeholder="FRIEND ROOM ID" autocomplete="off">
+      <button class="primary" id="inviteFriendBtn">📞 INVITE FRIEND</button>
     </div>
-
   </div>
-
 </div>
-
-<!-- ================= CALL ================= -->
-
-<div id="callModal" class="modal">
-
-  <div class="panel">
-
-    <h2 id="callTitle">Incoming Call</h2>
-
-    <div id="incomingActions" class="actions">
-
-      <button
-        id="acceptCallBtn"
-        class="primary"
-      >
-        Accept
-      </button>
-
-      <button
-        id="rejectCallBtn"
-        class="danger"
-      >
-        Reject
-      </button>
-
-    </div>
-
-    <div
-      id="callVideoArea"
-      style="display:none"
-    >
-
-      <video
-        id="remoteVideo"
-        autoplay
-        playsinline
-        style="width:100%;background:#000;border-radius:12px"
-      ></video>
-
-      <video
-        id="localVideo"
-        autoplay
-        playsinline
-        muted
-        style="width:38%;margin-top:8px;border-radius:10px"
-      ></video>
-
-      <div class="actions">
-
-        <button id="muteBtn" class="secondary">
-          Mute
-        </button>
-
-        <button id="camBtn" class="secondary">
-          Camera
-        </button>
-
-        <button id="endCallBtn" class="danger">
-          End
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</div>
-
-<!-- ================= TRACE WARNING ================= -->
-
-<div id="detectFlash" class="modal">
-
-  <div class="flash-box pulse">
-
-    <div
-      id="flashText"
-      class="flash-text"
-    >
-      LOCATION DETECTING...
-    </div>
-
-  </div>
-
-</div>
-
-<div id="toast" class="toast"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
-<script
-  src="https://unpkg.com/html5-qrcode"
-  type="text/javascript"
-></script>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
+"use strict";
 
-/* =========================================================
-   SUPABASE
-========================================================= */
+/* ================= SUPABASE ================= */
+const SUPABASE_URL="https://zzxhymydsvwpjbyaslde.supabase.co";
+const SUPABASE_KEY="sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
-const SUPABASE_URL =
-  "https://zzxhymydsvwpjbyaslde.supabase.co";
+/* ================= SOCKET ================= */
+const socket=io({transports:["websocket","polling"]});
+socket.on("connect",async()=>{if(currentUser)await ensureRoom()});
 
-const SUPABASE_KEY =
-  "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
+/* ================= STATE ================= */
+let currentUser=null,currentProfile=null,authMode="login";
+let map=null,userMarker=null,userCircle=null;
+let markerGroups=[];
+let cameraStream=null,currentFacing="environment",mirror=false,currentFilter="none",cameraTrack=null,zoomMin=0.5,zoomMax=20,currentZoom=1;
+let capturedBlob=null,capturedType=null,capturedLatitude=null,capturedLongitude=null;
+let mediaRecorder=null,recordedChunks=[],recording=false;
+let galleryItems=[],galleryIndex=0,currentGallerySnap=null;
+let myRoom=null;
+let incomingCallerId=null,incomingCallerRoom=null,incomingCallerName="USER";
+let localCallStream=null,callRoom=null,callActive=false,callStartedAt=0,lastCallRecord="";
+let muted=false,cameraOff=false,callPeers=new Map();
+let replyingTo=null;
+let roomPromise=null;
+const peers={};
 
-const supabaseClient =
-  window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-  );
+/* ================= HELPERS ================= */
+const $=id=>document.getElementById(id);
+function show(el){el.classList.remove("hidden")}
+function hide(el){el.classList.add("hidden")}
+function status(t){$("status").textContent=t}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function formatBytes(bytes){const n=Number(bytes)||0;if(n<1024)return n+" B";if(n<1048576)return (n/1024).toFixed(1)+" KB";if(n<1073741824)return (n/1048576).toFixed(2)+" MB";return (n/1073741824).toFixed(2)+" GB";}
 
-const socket = io();
+function beep(freq=650,dur=.045){
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;
+  if(!C)return;
+  const a=new C(),o=a.createOscillator(),g=a.createGain();
+  o.frequency.value=freq;o.type="square";g.gain.value=.025;o.connect(g);g.connect(a.destination);
+  o.start();o.stop(a.currentTime+dur);
+ }catch(e){}
+}
+document.addEventListener("click",e=>{if(e.target.closest("button"))beep()},true);
 
-const $ = id =>
-  document.getElementById(id);
-
-
-/* =========================================================
-   HACKER SOUND ENGINE
-========================================================= */
-
-let hackerAudioContext = null;
-
-function getAudioContext(){
-
-  try{
-
-    const AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-    if(!AudioContext){
-      return null;
-    }
-
-    if(!hackerAudioContext){
-      hackerAudioContext =
-        new AudioContext();
-    }
-
-    if(
-      hackerAudioContext.state ===
-      "suspended"
-    ){
-      hackerAudioContext.resume()
-        .catch(()=>{});
-    }
-
-    return hackerAudioContext;
-
-  }catch(error){
-
-    return null;
-
-  }
-
+function setActiveNav(id){
+ document.querySelectorAll(".navBtn").forEach(x=>x.classList.remove("active"));
+ $(id)?.classList.add("active");
 }
 
+/* ================= MAP ================= */
+function initMap(){
+ map=L.map("map",{zoomControl:false,attributionControl:true}).setView([20.5937,78.9629],5);
+ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+   maxZoom:20,
+   attribution:"© OpenStreetMap contributors"
+ }).addTo(map);
 
-function playHackerClick(){
-
-  const context =
-    getAudioContext();
-
-  if(!context){
-    return;
-  }
-
-  try{
-
-    const now =
-      context.currentTime;
-
-    const oscillator =
-      context.createOscillator();
-
-    const gain =
-      context.createGain();
-
-    oscillator.type =
-      "square";
-
-    oscillator.frequency
-      .setValueAtTime(
-        680,
-        now
-      );
-
-    oscillator.frequency
-      .exponentialRampToValueAtTime(
-        210,
-        now + .055
-      );
-
-    gain.gain
-      .setValueAtTime(
-        .0001,
-        now
-      );
-
-    gain.gain
-      .exponentialRampToValueAtTime(
-        .045,
-        now + .006
-      );
-
-    gain.gain
-      .exponentialRampToValueAtTime(
-        .0001,
-        now + .07
-      );
-
-    oscillator.connect(gain);
-    gain.connect(
-      context.destination
-    );
-
-    oscillator.start(now);
-    oscillator.stop(
-      now + .075
-    );
-
-  }catch(error){}
-
+ map.on("click",()=>{}); // Map click NEVER opens camera.
+ setTimeout(()=>map.invalidateSize(),300);
 }
 
-
-function playHackerConfirm(){
-
-  const context =
-    getAudioContext();
-
-  if(!context){
-    return;
-  }
-
-  try{
-
-    const now =
-      context.currentTime;
-
-    const oscillator =
-      context.createOscillator();
-
-    const gain =
-      context.createGain();
-
-    oscillator.type =
-      "square";
-
-    oscillator.frequency
-      .setValueAtTime(
-        420,
-        now
-      );
-
-    oscillator.frequency
-      .linearRampToValueAtTime(
-        850,
-        now + .09
-      );
-
-    gain.gain
-      .setValueAtTime(
-        .0001,
-        now
-      );
-
-    gain.gain
-      .linearRampToValueAtTime(
-        .035,
-        now + .01
-      );
-
-    gain.gain
-      .exponentialRampToValueAtTime(
-        .0001,
-        now + .12
-      );
-
-    oscillator.connect(gain);
-    gain.connect(
-      context.destination
-    );
-
-    oscillator.start(now);
-    oscillator.stop(
-      now + .13
-    );
-
-  }catch(error){}
-
+function haversine(a,b,c,d){
+ const R=6371000,rad=Math.PI/180;
+ const x=(c-a)*rad,y=(d-b)*rad;
+ const q=Math.sin(x/2)**2+Math.cos(a*rad)*Math.cos(c*rad)*Math.sin(y/2)**2;
+ return 2*R*Math.asin(Math.sqrt(q));
 }
 
-
-function playUploadTick(){
-
-  const context =
-    getAudioContext();
-
-  if(!context){
-    return;
-  }
-
-  try{
-
-    const now =
-      context.currentTime;
-
-    const oscillator =
-      context.createOscillator();
-
-    const gain =
-      context.createGain();
-
-    oscillator.type =
-      "square";
-
-    oscillator.frequency
-      .setValueAtTime(
-        980,
-        now
-      );
-
-    gain.gain
-      .setValueAtTime(
-        .0001,
-        now
-      );
-
-    gain.gain
-      .linearRampToValueAtTime(
-        .022,
-        now + .005
-      );
-
-    gain.gain.exponentialRampToValueAtTime(
-      .0001,
-      now + .045
-    );
-
-    oscillator.connect(gain);
-    gain.connect(
-      context.destination
-    );
-
-    oscillator.start(now);
-    oscillator.stop(
-      now + .05
-    );
-
-  }catch(error){}
-
+function groupSnaps(snaps){
+ const groups=[];
+ for(const snap of snaps){
+  let g=groups.find(x=>haversine(x.lat,x.lng,snap.latitude,snap.longitude)<=50);
+  if(!g){g={lat:snap.latitude,lng:snap.longitude,items:[]};groups.push(g)}
+  g.items.push(snap);
+ }
+ return groups;
 }
 
-
-document.addEventListener(
-  "pointerdown",
-  event => {
-
-    const button =
-      event.target.closest(
-        "button"
-      );
-
-    if(button){
-
-      playHackerClick();
-
-      button.classList.add(
-        "cyber-pressed"
-      );
-
-      setTimeout(
-        () =>
-          button.classList.remove(
-            "cyber-pressed"
-          ),
-        90
-      );
-
-    }
-
-  },
-  {
-    passive:true
-  }
-);
-
-
-/* =========================================================
-   STATE
-========================================================= */
-
-const panelIds = [
-  "roomModal",
-  "joinModal",
-  "youModal",
-  "notificationModal",
-  "adminModal"
-];
-
-let currentLocation = null;
-let currentDetails = null;
-
-let currentLocationDate = null;
-
-let cameraStream = null;
-let currentFacing = "environment";
-let zoomTrack = null;
-let currentZoom = 1;
-
-let activeFilter = "normal";
-
-/* RESTORED MIRROR */
-
-let mirrorCamera = false;
-
-let qrScanner = null;
-
-let snapGroups = [];
-let snapIndex = 0;
-let activeSnapGroup = null;
-
-let currentCallRoom = null;
-let callPeer = null;
-let localCallStream = null;
-let callMuted = false;
-let callCamera = true;
-
-/* MEDIA STATE */
-
-let mediaMode = "photo";
-let mediaRecorder = null;
-let recordedChunks = [];
-let recordingStartedAt = null;
-let recordingTimer = null;
-
-let pendingMediaBlob = null;
-let pendingMediaType = null;
-let pendingMediaName = null;
-let pendingMediaMime = null;
-let pendingCaptureLocation = null;
-let pendingCaptureDetails = null;
-let pendingMediaDate = null;
-
-
-/* =========================================================
-   MAP
-========================================================= */
-
-const map =
-  L.map("map", {
-    zoomControl:false
-  }).setView(
-    [20.5937,78.9629],
-    5
-  );
-
-L.tileLayer(
-  "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-  {
-    maxZoom:20,
-    attribution:"© OpenStreetMap"
-  }
-).addTo(map);
-
-const snapLayer =
-  L.layerGroup().addTo(map);
-
-map.on(
-  "click",
-  () => {
-    playHackerClick();
-  }
-);
-
-
-/* =========================================================
-   MODALS
-========================================================= */
-
-function showModal(id){
-
-  const element =
-    $(id);
-
-  if(element){
-    element.classList.add(
-      "show"
-    );
-  }
-
+function renderGroups(groups){
+ markerGroups.forEach(m=>map.removeLayer(m));
+ markerGroups=[];
+ groups.forEach(g=>{
+   const icon=L.divIcon({className:"",html:`<div class="markerGhost">${g.items.length} 👻</div>`,iconSize:[50,50],iconAnchor:[25,25]});
+   const m=L.marker([g.lat,g.lng],{icon}).addTo(map);
+   m.on("click",()=>openGallery(g.items));
+   markerGroups.push(m);
+ });
 }
-
-
-function hideModal(id){
-
-  const element =
-    $(id);
-
-  if(!element){
-    return;
-  }
-
-  element.classList.remove(
-    "show"
-  );
-
-  if(id === "joinModal"){
-    stopQRScanner();
-  }
-
-  if(id === "cameraModal"){
-
-    stopCamera();
-
-    if(
-      mediaRecorder &&
-      mediaRecorder.state !== "inactive"
-    ){
-
-      try{
-        mediaRecorder.stop();
-      }catch(error){}
-
-    }
-
-  }
-
-}
-
-
-function togglePanel(
-  id,
-  callback
-){
-
-  const element =
-    $(id);
-
-  if(!element){
-    return;
-  }
-
-  const alreadyOpen =
-    element.classList.contains(
-      "show"
-    );
-
-  panelIds.forEach(
-    panel => {
-
-      if(panel !== id){
-        hideModal(panel);
-      }
-
-    }
-  );
-
-  if(alreadyOpen){
-
-    hideModal(id);
-
-  }else{
-
-    if(callback){
-
-      try{
-        callback();
-      }catch(error){
-        console.error(error);
-      }
-
-    }
-
-    showModal(id);
-
-  }
-
-}
-
-
-/* =========================================================
-   TOAST
-========================================================= */
-
-function toast(message){
-
-  const el =
-    $("toast");
-
-  el.textContent =
-    message;
-
-  el.classList.add(
-    "show"
-  );
-
-  clearTimeout(
-    toast.timer
-  );
-
-  toast.timer =
-    setTimeout(
-      () =>
-        el.classList.remove(
-          "show"
-        ),
-      2800
-    );
-
-}
-
-
-/* =========================================================
-   TRACE FLASH
-========================================================= */
-
-function setDetectFlash(
-  text,
-  show=true
-){
-
-  $("flashText")
-    .textContent =
-    text;
-
-  if(show){
-    showModal(
-      "detectFlash"
-    );
-  }else{
-    hideModal(
-      "detectFlash"
-    );
-  }
-
-}
-
-
-/* =========================================================
-   GEO DISTANCE
-========================================================= */
-
-function distanceMeters(
-  a,
-  b
-){
-
-  const R = 6371000;
-
-  const rad =
-    value =>
-      value * Math.PI / 180;
-
-  const dLat =
-    rad(
-      b.lat - a.lat
-    );
-
-  const dLng =
-    rad(
-      b.lng - a.lng
-    );
-
-  const q =
-    Math.sin(dLat/2) ** 2 +
-    Math.cos(
-      rad(a.lat)
-    ) *
-    Math.cos(
-      rad(b.lat)
-    ) *
-    Math.sin(dLng/2) ** 2;
-
-  return 2 * R *
-    Math.atan2(
-      Math.sqrt(q),
-      Math.sqrt(1-q)
-    );
-
-}
-
-
-/* =========================================================
-   GPS
-========================================================= */
-
-function getLivePosition(){
-
-  return new Promise(
-    (resolve,reject) => {
-
-      if(
-        !navigator.geolocation
-      ){
-
-        reject(
-          new Error(
-            "Geolocation unavailable"
-          )
-        );
-
-        return;
-      }
-
-      navigator.geolocation
-        .getCurrentPosition(
-          resolve,
-          reject,
-          {
-            enableHighAccuracy:true,
-            maximumAge:0,
-            timeout:15000
-          }
-        );
-
-    }
-  );
-
-}
-
-
-/* =========================================================
-   LOCATION HELPERS
-========================================================= */
-
-function buildFullLocation(
-  details
-){
-
-  const parts = [
-    details.locality,
-    details.village,
-    details.city,
-    details.district,
-    details.state,
-    details.country
-  ].filter(Boolean);
-
-  return [
-    ...new Set(parts)
-  ].join(", ")
-  ||
-  details.placeName
-  ||
-  "Unknown location";
-
-}
-
-
-function getLocationMainName(
-  details
-){
-
-  return (
-    details.locality ||
-    details.village ||
-    details.city ||
-    details.district ||
-    details.state ||
-    details.country ||
-    details.placeName ||
-    "Current location"
-  );
-
-}
-
-
-function getLocationSecondary(
-  details
-){
-
-  const parts = [
-    details.village,
-    details.city,
-    details.district,
-    details.state,
-    details.country
-  ].filter(Boolean);
-
-  return [
-    ...new Set(parts)
-  ].join(" • ");
-
-}
-
-
-function getLocationDateTime(
-  date = new Date()
-){
-
-  return {
-    date:
-      date.toLocaleDateString(
-        undefined,
-        {
-          year:"numeric",
-          month:"long",
-          day:"numeric"
-        }
-      ),
-    time:
-      date.toLocaleTimeString(
-        undefined,
-        {
-          hour:"2-digit",
-          minute:"2-digit",
-          second:"2-digit"
-        }
-      )
-  };
-
-}
-
-
-/* =========================================================
-   REVERSE GEOCODING
-========================================================= */
-
-async function reverseGeocodeDetails(
-  lat,
-  lng
-){
-
-  try{
-
-    const response =
-      await fetch(
-        "https://nominatim.openstreetmap.org/reverse" +
-        "?format=jsonv2" +
-        "&lat=" +
-        encodeURIComponent(lat) +
-        "&lon=" +
-        encodeURIComponent(lng) +
-        "&zoom=18" +
-        "&addressdetails=1",
-        {
-          headers:{
-            "Accept":
-              "application/json"
-          }
-        }
-      );
-
-    if(!response.ok){
-      throw new Error(
-        "Reverse geocoding failed"
-      );
-    }
-
-    const json =
-      await response.json();
-
-    const a =
-      json.address || {};
-
-    /*
-      Keep actual returned location.
-      Nothing is hardcoded.
-    */
-
-    const locality =
-      a.suburb ||
-      a.neighbourhood ||
-      a.locality ||
-      a.quarter ||
-      "";
-
-    const village =
-      a.village ||
-      a.hamlet ||
-      "";
-
-    const city =
-      a.city ||
-      a.town ||
-      a.municipality ||
-      "";
-
-    const district =
-      a.county ||
-      a.district ||
-      a.state_district ||
-      "";
-
-    const state =
-      a.state ||
-      "";
-
-    const pin =
-      a.postcode ||
-      "";
-
-    const country =
-      a.country ||
-      "";
-
-    const placeName =
-      locality ||
-      village ||
-      city ||
-      district ||
-      state ||
-      country ||
-      json.display_name ||
-      "Unknown location";
-
-    const details = {
-      placeName,
-      locality,
-      village,
-      city,
-      district,
-      state,
-      pin,
-      country,
-      lat,
-      lng,
-      accuracy:null
-    };
-
-    details.fullLocation =
-      buildFullLocation(
-        details
-      );
-
-    return details;
-
-  }catch(error){
-
-    console.error(
-      "Reverse geocode error",
-      error
-    );
-
-    /*
-      Even if reverse geocoder fails,
-      don't pretend coordinates are a place name.
-    */
-
-    return {
-      placeName:
-        "Current GPS location",
-      locality:"",
-      village:"",
-      city:"",
-      district:"",
-      state:"",
-      pin:"",
-      country:"",
-      lat,
-      lng,
-      accuracy:null,
-      fullLocation:
-        "Current GPS location"
-    };
-
-  }
-
-}
-
-
-/* =========================================================
-   LOCATION UI
-========================================================= */
-
-function updateLocationUI(
-  details
-){
-
-  if(!details){
-    return;
-  }
-
-  const mainName =
-    getLocationMainName(
-      details
-    );
-
-  const full =
-    details.fullLocation ||
-    details.placeName ||
-    mainName;
-
-  /*
-    HUD:
-    Actual place hierarchy first.
-    Coordinates only secondary.
-  */
-
-  $("hudPlace")
-    .textContent =
-    full;
-
-  $("hudCoords")
-    .textContent =
-    `GPS: ${Number(details.lat).toFixed(6)}, ` +
-    `${Number(details.lng).toFixed(6)} • ` +
-    `±${Math.round(details.accuracy || 0)}m`;
-
-  $("pPlace")
-    .textContent =
-    full;
-
-  $("pLocality")
-    .textContent =
-    details.locality ||
-    "—";
-
-  $("pVillage")
-    .textContent =
-    details.village ||
-    "—";
-
-  $("pCity")
-    .textContent =
-    details.city ||
-    "—";
-
-  $("pDistrict")
-    .textContent =
-    details.district ||
-    "—";
-
-  $("pState")
-    .textContent =
-    details.state ||
-    "—";
-
-  $("pPin")
-    .textContent =
-    details.pin ||
-    "—";
-
-  $("pCountry")
-    .textContent =
-    details.country ||
-    "—";
-
-  $("pLat")
-    .textContent =
-    Number.isFinite(
-      Number(details.lat)
-    )
-      ? Number(details.lat).toFixed(6)
-      : "—";
-
-  $("pLng")
-    .textContent =
-    Number.isFinite(
-      Number(details.lng)
-    )
-      ? Number(details.lng).toFixed(6)
-      : "—";
-
-  $("pAccuracy")
-    .textContent =
-    details.accuracy
-      ? Math.round(
-          details.accuracy
-        ) + " m"
-      : "—";
-
-  const dt =
-    getLocationDateTime(
-      currentLocationDate ||
-      new Date()
-    );
-
-  $("pDate")
-    .textContent =
-    dt.date;
-
-  $("pTime")
-    .textContent =
-    dt.time;
-
-}
-
-
-/* =========================================================
-   LOCATION PREVIEW UI
-========================================================= */
-
-async function updateLocationPreview(){
-
-  await loadProfile();
-
-  if(!currentDetails){
-    return;
-  }
-
-  const details =
-    currentDetails;
-
-  const dt =
-    getLocationDateTime(
-      currentLocationDate ||
-      new Date()
-    );
-
-  $("locationPreviewMain")
-    .textContent =
-    getLocationMainName(
-      details
-    );
-
-  $("locationPreviewSub")
-    .textContent =
-    getLocationSecondary(
-      details
-    ) ||
-    details.fullLocation ||
-    "Current GPS location";
-
-  $("locationPreviewDate")
-    .textContent =
-    "Date: " + dt.date;
-
-  $("locationPreviewTime")
-    .textContent =
-    "Time: " + dt.time;
-
-  $("lpLocality")
-    .textContent =
-    details.locality ||
-    "—";
-
-  $("lpVillage")
-    .textContent =
-    details.village ||
-    "—";
-
-  $("lpCity")
-    .textContent =
-    details.city ||
-    "—";
-
-  $("lpDistrict")
-    .textContent =
-    details.district ||
-    "—";
-
-  $("lpState")
-    .textContent =
-    details.state ||
-    "—";
-
-  $("lpPin")
-    .textContent =
-    details.pin ||
-    "—";
-
-  $("lpCountry")
-    .textContent =
-    details.country ||
-    "—";
-
-  $("lpLat")
-    .textContent =
-    Number(details.lat).toFixed(6);
-
-  $("lpLng")
-    .textContent =
-    Number(details.lng).toFixed(6);
-
-  $("lpAccuracy")
-    .textContent =
-    details.accuracy
-      ? Math.round(
-          details.accuracy
-        ) + " m"
-      : "—";
-
-}
-
-
-/* =========================================================
-   DETECT LIVE LOCATION
-========================================================= */
-
-async function detectLiveLocation(
-  options={}
-){
-
-  const position =
-    await getLivePosition();
-
-  const coords = {
-    lat:
-      position.coords.latitude,
-    lng:
-      position.coords.longitude,
-    accuracy:
-      position.coords.accuracy
-  };
-
-  const details =
-    await reverseGeocodeDetails(
-      coords.lat,
-      coords.lng
-    );
-
-  details.accuracy =
-    coords.accuracy;
-
-  currentLocation =
-    coords;
-
-  currentDetails =
-    details;
-
-  currentLocationDate =
-    new Date();
-
-  updateLocationUI(
-    details
-  );
-
-  if(options.centerMap){
-
-    map.setView(
-      [
-        coords.lat,
-        coords.lng
-      ],
-      17,
-      {
-        animate:true
-      }
-    );
-
-  }
-
-  return details;
-
-}
-
-
-/* =========================================================
-   ROOM ID
-========================================================= */
-
-function makeSafeId(){
-
-  try{
-
-    if(
-      window.crypto &&
-      typeof window.crypto.randomUUID ===
-      "function"
-    ){
-
-      return window.crypto
-        .randomUUID()
-        .replaceAll("-","")
-        .slice(0,10)
-        .toUpperCase();
-
-    }
-
-  }catch(error){}
-
-  const randomPart =
-    Math.random()
-      .toString(36)
-      .slice(2,12)
-      .toUpperCase();
-
-  const timePart =
-    Date.now()
-      .toString(36)
-      .slice(-5)
-      .toUpperCase();
-
-  return (
-    randomPart +
-    timePart
-  ).slice(0,10);
-
-}
-
-
-function getPermanentRoomId(){
-
-  let id =
-    localStorage.getItem(
-      "past_snap_permanent_room_id"
-    );
-
-  if(
-    !id ||
-    id === "undefined" ||
-    id === "null"
-  ){
-
-    id =
-      "PS-" +
-      makeSafeId();
-
-    try{
-
-      localStorage.setItem(
-        "past_snap_permanent_room_id",
-        id
-      );
-
-    }catch(error){}
-
-  }
-
-  return id;
-
-}
-
-
-const permanentRoomId =
-  getPermanentRoomId();
-
-$("roomIdText")
-  .textContent =
-  permanentRoomId;
-
-
-/* =========================================================
-   ROOM QR
-========================================================= */
-
-try{
-
-  new QRCode(
-    $("roomQr"),
-    {
-      text:
-        permanentRoomId,
-      width:190,
-      height:190,
-      colorDark:"#000000",
-      colorLight:"#ffffff"
-    }
-  );
-
-}catch(error){
-
-  console.error(
-    "QR generation error",
-    error
-  );
-
-}
-
-
-/* =========================================================
-   PROFILE
-========================================================= */
-
-async function loadProfile(){
-
-  try{
-
-    const {
-      data
-    } =
-      await supabaseClient
-        .auth
-        .getUser();
-
-    const user =
-      data?.user;
-
-    const name =
-      user?.user_metadata?.display_name ||
-      user?.user_metadata?.name ||
-      user?.email?.split("@")[0] ||
-      "User";
-
-    const email =
-      user?.email ||
-      "—";
-
-    $("profileName")
-      .textContent =
-      name;
-
-    $("profileEmail")
-      .textContent =
-      email;
-
-    $("locationPreviewName")
-      .textContent =
-      name;
-
-    $("locationPreviewEmail")
-      .textContent =
-      email;
-
-    const savedPhoto =
-      localStorage.getItem(
-        "past_snap_profile_photo"
-      );
-
-    const avatar =
-      savedPhoto ||
-      user?.user_metadata?.avatar_url ||
-      "";
-
-    if(avatar){
-
-      $("avatarWrap")
-        .innerHTML =
-        `<img class="avatar"
-              src="${escapeHtml(avatar)}"
-              alt="Profile">`;
-
-      $("locationPreviewAvatar")
-        .innerHTML =
-        `<img
-          class="location-preview-avatar"
-          src="${escapeHtml(avatar)}"
-          alt="Profile">`;
-
-    }else{
-
-      $("avatarWrap")
-        .textContent =
-        "👤";
-
-      $("locationPreviewAvatar")
-        .innerHTML =
-        `<div
-          class="location-preview-avatar"
-          style="display:flex;align-items:center;justify-content:center;font-size:30px"
-        >👤</div>`;
-
-    }
-
-    if(currentDetails){
-      updateLocationUI(
-        currentDetails
-      );
-    }
-
-  }catch(error){
-
-    console.error(
-      "Profile load error",
-      error
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   PROFILE IMAGE
-========================================================= */
-
-function compressProfileImage(
-  file
-){
-
-  return new Promise(
-    (resolve,reject) => {
-
-      const reader =
-        new FileReader();
-
-      reader.onload = () => {
-
-        const image =
-          new Image();
-
-        image.onload = () => {
-
-          const canvas =
-            document.createElement(
-              "canvas"
-            );
-
-          const scale =
-            Math.min(
-              512 /
-              Math.max(
-                image.width,
-                image.height
-              ),
-              1
-            );
-
-          canvas.width =
-            Math.round(
-              image.width *
-              scale
-            );
-
-          canvas.height =
-            Math.round(
-              image.height *
-              scale
-            );
-
-          const context =
-            canvas.getContext(
-              "2d"
-            );
-
-          context.drawImage(
-            image,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-          );
-
-          resolve(
-            canvas.toDataURL(
-              "image/jpeg",
-              .82
-            )
-          );
-
-        };
-
-        image.onerror =
-          reject;
-
-        image.src =
-          reader.result;
-
-      };
-
-      reader.onerror =
-        reject;
-
-      reader.readAsDataURL(
-        file
-      );
-
-    }
-  );
-
-}
-
-
-async function setProfilePhoto(
-  file
-){
-
-  if(!file){
-    return;
-  }
-
-  try{
-
-    const image =
-      await compressProfileImage(
-        file
-      );
-
-    localStorage.setItem(
-      "past_snap_profile_photo",
-      image
-    );
-
-    await loadProfile();
-
-    playHackerConfirm();
-
-    toast(
-      "Profile picture updated"
-    );
-
-  }catch(error){
-
-    toast(
-      "Could not set profile picture"
-    );
-
-  }
-
-}
-
-
-$("galleryBtn").onclick =
-  () =>
-    $("profileGalleryInput")
-      .click();
-
-$("cameraProfileBtn").onclick =
-  () =>
-    $("profileCameraInput")
-      .click();
-
-$("profileGalleryInput").onchange =
-  event =>
-    setProfilePhoto(
-      event.target.files[0]
-    );
-
-$("profileCameraInput").onchange =
-  event =>
-    setProfilePhoto(
-      event.target.files[0]
-    );
-
-
-/* =========================================================
-   TRACE SIREN
-========================================================= */
-
-function playTraceSiren(
-  duration=3000
-){
-
-  try{
-
-    const context =
-      getAudioContext();
-
-    if(!context){
-      return;
-    }
-
-    const oscillator =
-      context.createOscillator();
-
-    const gain =
-      context.createGain();
-
-    oscillator.type =
-      "sawtooth";
-
-    gain.gain.value =
-      .035;
-
-    oscillator.connect(
-      gain
-    );
-
-    gain.connect(
-      context.destination
-    );
-
-    oscillator.start();
-
-    let high = false;
-
-    const timer =
-      setInterval(
-        () => {
-
-          high =
-            !high;
-
-          oscillator.frequency
-            .setTargetAtTime(
-              high
-                ? 1000
-                : 620,
-              context.currentTime,
-              .04
-            );
-
-        },
-        150
-      );
-
-    setTimeout(
-      () => {
-
-        clearInterval(
-          timer
-        );
-
-        gain.gain
-          .exponentialRampToValueAtTime(
-            .0001,
-            context.currentTime + .12
-          );
-
-        oscillator.stop(
-          context.currentTime + .13
-        );
-
-      },
-      duration
-    );
-
-  }catch(error){}
-
-}
-
-
-/* =========================================================
-   TRACE
-========================================================= */
-
-$("traceBtn").onclick =
-  async () => {
-
-    playHackerClick();
-
-    setDetectFlash(
-      "LOCATION DETECTING...",
-      true
-    );
-
-    playTraceSiren(
-      3000
-    );
-
-    try{
-
-      await new Promise(
-        resolve =>
-          setTimeout(
-            resolve,
-            3000
-          )
-      );
-
-      await detectLiveLocation({
-        centerMap:true
-      });
-
-      setDetectFlash(
-        "",
-        false
-      );
-
-      playHackerConfirm();
-
-      toast(
-        "Live location detected"
-      );
-
-    }catch(error){
-
-      console.error(
-        error
-      );
-
-      setDetectFlash(
-        "",
-        false
-      );
-
-      toast(
-        "GPS unavailable"
-      );
-
-    }
-
-  };
-
-
-/* =========================================================
-   MAP BUTTON
-========================================================= */
-
-$("mapBtn").onclick =
-  () => {
-
-    playHackerClick();
-
-    if(currentLocation){
-
-      map.setView(
-        [
-          currentLocation.lat,
-          currentLocation.lng
-        ],
-        5
-      );
-
-    }else{
-
-      map.setView(
-        [
-          20.5937,
-          78.9629
-        ],
-        5
-      );
-
-    }
-
-  };
-
-
-/* =========================================================
-   CAMERA FILTERS — ALL 10 RESTORED
-========================================================= */
-
-const filters = [
-  ["normal","Normal"],
-  ["contrast","Contrast"],
-  ["mono","Mono"],
-  ["sepia","Sepia"],
-  ["cyan","Cyber"],
-  ["invert","Invert"],
-  ["bright","Bright"],
-  ["dark","Dark"],
-  ["red","Red"],
-  ["night","Night"]
-];
-
-filters.forEach(
-  ([id,label]) => {
-
-    const button =
-      document.createElement(
-        "button"
-      );
-
-    button.type =
-      "button";
-
-    button.textContent =
-      label;
-
-    button.dataset.filter =
-      id;
-
-    button.onclick =
-      () => {
-
-        activeFilter =
-          id;
-
-        document
-          .querySelectorAll(
-            "#filterRow button"
-          )
-          .forEach(
-            element =>
-              element.classList.remove(
-                "active"
-              )
-          );
-
-        button.classList.add(
-          "active"
-        );
-
-        applyCameraFilter();
-
-      };
-
-    $("filterRow")
-      .appendChild(
-        button
-      );
-
-  }
-);
-
-const firstFilter =
-  document.querySelector(
-    "#filterRow button"
-  );
-
-if(firstFilter){
-  firstFilter.classList.add(
-    "active"
-  );
-}
-
-
-function getFilterCSS(){
-
-  const filterMap = {
-
-    normal:"none",
-
-    contrast:
-      "contrast(1.35)",
-
-    mono:
-      "grayscale(1)",
-
-    sepia:
-      "sepia(1)",
-
-    cyan:
-      "hue-rotate(120deg) saturate(1.4)",
-
-    invert:
-      "invert(1)",
-
-    bright:
-      "brightness(1.35)",
-
-    dark:
-      "brightness(.65)",
-
-    red:
-      "hue-rotate(315deg) saturate(1.8)",
-
-    night:
-      "brightness(.55) contrast(1.2)"
-
-  };
-
-  return (
-    filterMap[
-      activeFilter
-    ] ||
-    "none"
-  );
-
-}
-
-
-function applyCameraFilter(){
-
-  $("cameraVideo")
-    .style.filter =
-    getFilterCSS();
-
-}
-
-
-/* =========================================================
-   MIRROR CAMERA — RESTORED
-========================================================= */
-
-function applyMirror(){
-
-  $("cameraVideo")
-    .style.transform =
-    mirrorCamera
-      ? "scaleX(-1)"
-      : "scaleX(1)";
-
-  $("mirrorBtn")
-    .textContent =
-    mirrorCamera
-      ? "🪞 Mirror: ON"
-      : "🪞 Mirror: OFF";
-
-  $("mirrorBtn")
-    .classList.toggle(
-      "active",
-      mirrorCamera
-    );
-
-}
-
-
-$("mirrorBtn").onclick =
-  () => {
-
-    mirrorCamera =
-      !mirrorCamera;
-
-    applyMirror();
-
-    playHackerConfirm();
-
-  };
-
-
-/* =========================================================
-   CAMERA HELPERS
-========================================================= */
-
-function stopCamera(){
-
-  if(cameraStream){
-
-    cameraStream
-      .getTracks()
-      .forEach(
-        track =>
-          track.stop()
-      );
-
-  }
-
-  cameraStream =
-    null;
-
-  zoomTrack =
-    null;
-
-  $("cameraVideo")
-    .srcObject =
-    null;
-
-}
-
-
-async function openCameraStream(){
-
-  if(
-    !navigator.mediaDevices ||
-    !navigator.mediaDevices.getUserMedia
-  ){
-
-    throw new Error(
-      "Camera API unavailable"
-    );
-
-  }
-
-  stopCamera();
-
-  const common = {
-    width:{
-      ideal:1920
-    },
-    height:{
-      ideal:1080
-    }
-  };
-
-  let stream = null;
-
-  try{
-
-    stream =
-      await navigator.mediaDevices
-        .getUserMedia({
-          video:{
-            ...common,
-            facingMode:{
-              exact:
-                currentFacing
-            }
-          },
-          audio:false
-        });
-
-  }catch(firstError){
-
-    stream =
-      await navigator.mediaDevices
-        .getUserMedia({
-          video:{
-            ...common,
-            facingMode:{
-              ideal:
-                currentFacing
-            }
-          },
-          audio:false
-        });
-
-  }
-
-  cameraStream =
-    stream;
-
-  const video =
-    $("cameraVideo");
-
-  video.srcObject =
-    stream;
-
-  video.setAttribute(
-    "playsinline",
-    ""
-  );
-
-  video.muted =
-    true;
-
-  try{
-    await video.play();
-  }catch(error){}
-
-  zoomTrack =
-    stream
-      .getVideoTracks()[0] ||
-      null;
-
-  setupZoom();
-
-  applyCameraFilter();
-
-  applyMirror();
-
-}
-
-
-/* =========================================================
-   ZOOM
-========================================================= */
-
-function setupZoom(){
-
-  const slider =
-    $("zoomSlider");
-
-  const value =
-    $("zoomValue");
-
-  let initial =
-    1;
-
-  try{
-
-    const capabilities =
-      zoomTrack
-        ?.getCapabilities?.();
-
-    if(
-      capabilities?.zoom
-    ){
-
-      initial =
-        Math.max(
-          .5,
-          Math.min(
-            20,
-            Number(
-              capabilities.zoom.min
-            )
-          )
-        );
-
-    }
-
-  }catch(error){}
-
-  currentZoom =
-    initial;
-
-  slider.value =
-    initial;
-
-  value.textContent =
-    initial.toFixed(1) +
-    "x";
-
-}
-
-
-$("zoomSlider").oninput =
-  event => {
-
-    currentZoom =
-      Number(
-        event.target.value
-      );
-
-    $("zoomValue")
-      .textContent =
-      currentZoom.toFixed(1) +
-      "x";
-
-    try{
-
-      const capabilities =
-        zoomTrack
-          ?.getCapabilities?.();
-
-      if(
-        capabilities?.zoom
-      ){
-
-        const zoom =
-          Math.min(
-            capabilities.zoom.max,
-            Math.max(
-              capabilities.zoom.min,
-              currentZoom
-            )
-          );
-
-        zoomTrack
-          .applyConstraints({
-            advanced:[
-              {zoom}
-            ]
-          })
-          .catch(()=>{});
-
-      }
-
-    }catch(error){}
-
-  };
-
-
-/* =========================================================
-   PREPARE CAMERA
-========================================================= */
-
-async function prepareCamera(){
-
-  if(!currentDetails){
-
-    await detectLiveLocation({
-      centerMap:true
-    });
-
-  }else{
-
-    /*
-      Refresh GPS before camera.
-      This ensures camera always starts from
-      the current live location.
-    */
-
-    await detectLiveLocation({
-      centerMap:true
-    });
-
-  }
-
-  await openCameraStream();
-
-}
-
-
-/* =========================================================
-   MEDIA MODE
-========================================================= */
-
-function setMediaMode(
-  mode
-){
-
-  mediaMode =
-    mode;
-
-  $("photoModeBtn")
-    .classList.toggle(
-      "active",
-      mode === "photo"
-    );
-
-  $("videoModeBtn")
-    .classList.toggle(
-      "active",
-      mode === "video"
-    );
-
-  $("captureBtn")
-    .textContent =
-    mode === "photo"
-      ? "Capture Photo"
-      : "Start Video";
-
-  $("recordTimer")
-    .textContent =
-    "";
-
-}
-
-
-$("photoModeBtn").onclick =
-  () => {
-
-    if(
-      mediaRecorder &&
-      mediaRecorder.state !==
-      "inactive"
-    ){
-
-      toast(
-        "Stop video first"
-      );
-
-      return;
-    }
-
-    setMediaMode(
-      "photo"
-    );
-
-  };
-
-
-$("videoModeBtn").onclick =
-  () => {
-
-    if(
-      mediaRecorder &&
-      mediaRecorder.state !==
-      "inactive"
-    ){
-
-      toast(
-        "Video is recording"
-      );
-
-      return;
-    }
-
-    setMediaMode(
-      "video"
-    );
-
-  };
-
-
-/* =========================================================
-   PLUS — LOCATION FIRST
-========================================================= */
-
-$("plusBtn").onclick =
-  async () => {
-
-    playHackerClick();
-
-    /*
-      IMPORTANT:
-      Camera does NOT open here.
-
-      First detect live location.
-    */
-
-    panelIds.forEach(
-      id => hideModal(id)
-    );
-
-    showModal(
-      "locationPreviewModal"
-    );
-
-    $("locationPreviewMain")
-      .textContent =
-      "Detecting current location...";
-
-    $("locationPreviewSub")
-      .textContent =
-      "Please wait for live GPS.";
-
-    try{
-
-      await detectLiveLocation({
-        centerMap:true
-      });
-
-      await updateLocationPreview();
-
-      playHackerConfirm();
-
-    }catch(error){
-
-      console.error(
-        "Location before camera error",
-        error
-      );
-
-      $("locationPreviewMain")
-        .textContent =
-        "Location could not be detected";
-
-      $("locationPreviewSub")
-        .textContent =
-        "Please allow location permission and try again.";
-
-      toast(
-        "Live location permission required"
-      );
-
-    }
-
-  };
-
-
-/* =========================================================
-   LOCATION RETRY
-========================================================= */
-
-$("locationRetryBtn").onclick =
-  async () => {
-
-    try{
-
-      $("locationPreviewMain")
-        .textContent =
-        "Detecting current location...";
-
-      $("locationPreviewSub")
-        .textContent =
-        "Getting fresh GPS coordinates...";
-
-      await detectLiveLocation({
-        centerMap:true
-      });
-
-      await updateLocationPreview();
-
-      playHackerConfirm();
-
-      toast(
-        "Live location updated"
-      );
-
-    }catch(error){
-
-      console.error(
-        error
-      );
-
-      toast(
-        "GPS unavailable"
-      );
-
-    }
-
-  };
-
-
-/* =========================================================
-   CONTINUE TO CAMERA
-========================================================= */
-
-$("continueCameraBtn").onclick =
-  async () => {
-
-    if(!currentLocation){
-
-      toast(
-        "Live location is required first"
-      );
-
-      return;
-
-    }
-
-    try{
-
-      $("continueCameraBtn")
-        .disabled =
-        true;
-
-      $("continueCameraBtn")
-        .textContent =
-        "Opening Camera...";
-
-      hideModal(
-        "locationPreviewModal"
-      );
-
-      resetUploadPreview();
-
-      showModal(
-        "cameraModal"
-      );
-
-      $("uploadStatus")
-        .textContent =
-        "Opening camera...";
-
-      await prepareCamera();
-
-      $("uploadStatus")
-        .textContent =
-        "Camera ready. Live location locked.";
-
-      playHackerConfirm();
-
-    }catch(error){
-
-      console.error(
-        "Camera preparation error",
-        error
-      );
-
-      hideModal(
-        "cameraModal"
-      );
-
-      toast(
-        "Camera permission unavailable"
-      );
-
-    }finally{
-
-      $("continueCameraBtn")
-        .disabled =
-        false;
-
-      $("continueCameraBtn")
-        .textContent =
-        "Continue to Camera";
-
-    }
-
-  };
-
-
-/* =========================================================
-   SWITCH FRONT / BACK
-========================================================= */
-
-$("switchCameraBtn").onclick =
-  async () => {
-
-    const oldFacing =
-      currentFacing;
-
-    currentFacing =
-      currentFacing ===
-      "environment"
-        ? "user"
-        : "environment";
-
-    try{
-
-      $("uploadStatus")
-        .textContent =
-        currentFacing === "user"
-          ? "Opening front camera..."
-          : "Opening back camera...";
-
-      await openCameraStream();
-
-      playHackerConfirm();
-
-      toast(
-        currentFacing === "user"
-          ? "Front camera"
-          : "Back camera"
-      );
-
-    }catch(error){
-
-      console.error(
-        "Camera switch error",
-        error
-      );
-
-      currentFacing =
-        oldFacing;
-
-      try{
-        await openCameraStream();
-      }catch(error2){}
-
-      toast(
-        "Unable to switch camera"
-      );
-
-    }
-
-  };
-
-
-/* =========================================================
-   MEDIA UTILITIES
-========================================================= */
-
-function formatBytes(
-  bytes
-){
-
-  if(!Number.isFinite(bytes)){
-    return "—";
-  }
-
-  if(bytes < 1024){
-    return bytes + " B";
-  }
-
-  if(bytes < 1024 * 1024){
-    return (
-      bytes / 1024
-    ).toFixed(1) +
-    " KB";
-  }
-
-  return (
-    bytes /
-    (1024 * 1024)
-  ).toFixed(2) +
-  " MB";
-
-}
-
-
-function formatDateTime(
-  value
-){
-
-  if(!value){
-    return "Date/time unavailable";
-  }
-
-  const date =
-    new Date(value);
-
-  if(
-    Number.isNaN(
-      date.getTime()
-    )
-  ){
-
-    return "Date/time unavailable";
-
-  }
-
-  return date.toLocaleString(
-    undefined,
-    {
-      dateStyle:"medium",
-      timeStyle:"medium"
-    }
-  );
-
-}
-
-
-function escapeHtml(
-  value
-){
-
-  return String(
-    value ?? ""
-  )
-  .replaceAll(
-    "&",
-    "&amp;"
-  )
-  .replaceAll(
-    "<",
-    "&lt;"
-  )
-  .replaceAll(
-    ">",
-    "&gt;"
-  )
-  .replaceAll(
-    '"',
-    "&quot;"
-  )
-  .replaceAll(
-    "'",
-    "&#039;"
-  );
-
-}
-
-
-function mediaIsVideo(
-  snap
-){
-
-  const description =
-    String(
-      snap?.description ||
-      ""
-    )
-    .toLowerCase();
-
-  const url =
-    String(
-      snap?.image_url ||
-      snap?.url ||
-      ""
-    )
-    .toLowerCase();
-
-  return (
-    description.includes(
-      "video"
-    ) ||
-    /\.(webm|mp4|mov|m4v|ogg)(\?|$)/i
-      .test(url)
-  );
-
-}
-
-
-/* =========================================================
-   PRE-UPLOAD PREVIEW
-========================================================= */
-
-function resetUploadPreview(){
-
-  pendingMediaBlob =
-    null;
-
-  pendingMediaType =
-    null;
-
-  pendingMediaName =
-    null;
-
-  pendingMediaMime =
-    null;
-
-  pendingCaptureLocation =
-    null;
-
-  pendingCaptureDetails =
-    null;
-
-  pendingMediaDate =
-    null;
-
-  $("uploadPreview")
-    .classList.remove(
-      "show"
-    );
-
-  $("previewImage")
-    .style.display =
-    "none";
-
-  $("previewVideo")
-    .style.display =
-    "none";
-
-  $("previewImage")
-    .removeAttribute(
-      "src"
-    );
-
-  $("previewVideo")
-    .removeAttribute(
-      "src"
-    );
-
-  $("uploadProgress")
-    .style.width =
-    "0%";
-
-  $("uploadStatus")
-    .textContent =
-    "";
-
-}
-
-
-async function prepareMediaForUpload(
-  blob,
-  type,
-  name,
-  mime,
-  location,
-  details
-){
-
-  pendingMediaBlob =
-    blob;
-
-  pendingMediaType =
-    type;
-
-  pendingMediaName =
-    name;
-
-  pendingMediaMime =
-    mime;
-
-  pendingCaptureLocation = {
-    lat:
-      location.lat,
-    lng:
-      location.lng
-  };
-
-  pendingCaptureDetails =
-    details;
-
-  pendingMediaDate =
-    new Date();
-
-  const preview =
-    $("uploadPreview");
-
-  preview.classList.add(
-    "show"
-  );
-
-  $("previewType")
-    .textContent =
-    type === "video"
-      ? "🎥 Video"
-      : "📷 Photo";
-
-  $("previewFile")
-    .textContent =
-    name;
-
-  $("previewSize")
-    .textContent =
-    formatBytes(
-      blob.size
-    );
-
-  $("previewDate")
-    .textContent =
-    formatDateTime(
-      pendingMediaDate
-    );
-
-  $("previewLocation")
-    .textContent =
-    details?.fullLocation ||
-    details?.placeName ||
-    "GPS location";
-
-  $("previewGps")
-    .textContent =
-    `${location.lat.toFixed(6)}, ` +
-    `${location.lng.toFixed(6)} ` +
-    `±${Math.round(
-      details?.accuracy || 0
-    )}m`;
-
-  $("uploadProgress")
-    .style.width =
-    "0%";
-
-  $("uploadStatus")
-    .textContent =
-    "Media ready. Review information before upload.";
-
-  const objectUrl =
-    URL.createObjectURL(
-      blob
-    );
-
-  if(type === "video"){
-
-    $("previewImage")
-      .style.display =
-      "none";
-
-    $("previewVideo")
-      .style.display =
-      "block";
-
-    $("previewVideo")
-      .src =
-      objectUrl;
-
-    $("previewVideo")
-      .load();
-
-  }else{
-
-    $("previewVideo")
-      .style.display =
-      "none";
-
-    $("previewImage")
-      .style.display =
-      "block";
-
-    $("previewImage")
-      .src =
-      objectUrl;
-
-  }
-
-}
-
-
-/* =========================================================
-   PHOTO CAPTURE
-========================================================= */
-
-async function capturePhoto(){
-
-  if(!cameraStream){
-
-    toast(
-      "Camera not ready"
-    );
-
-    return;
-
-  }
-
-  if(!currentLocation){
-
-    toast(
-      "Live location not ready"
-    );
-
-    return;
-
-  }
-
-  /*
-    Recheck GPS immediately before capture.
-  */
-
-  try{
-
-    await detectLiveLocation({
-      centerMap:false
-    });
-
-  }catch(error){
-
-    toast(
-      "Could not refresh live location"
-    );
-
-    return;
-
-  }
-
-  const captureLocation = {
-    lat:
-      currentLocation.lat,
-    lng:
-      currentLocation.lng
-  };
-
-  const captureDetails =
-    currentDetails
-      ? {
-          ...currentDetails
-        }
-      : null;
-
-  try{
-
-    const canvas =
-      document.createElement(
-        "canvas"
-      );
-
-    const video =
-      $("cameraVideo");
-
-    canvas.width =
-      video.videoWidth ||
-      1280;
-
-    canvas.height =
-      video.videoHeight ||
-      720;
-
-    const context =
-      canvas.getContext(
-        "2d"
-      );
-
-    context.filter =
-      getFilterCSS();
-
-    /*
-      Mirror is now restored.
-      If Mirror is ON, the actual photo
-      is also mirrored.
-    */
-
-    if(mirrorCamera){
-
-      context.translate(
-        canvas.width,
-        0
-      );
-
-      context.scale(
-        -1,
-        1
-      );
-
-    }
-
-    context.drawImage(
-      video,
-      0,
-      0,
-      canvas.width,
-      canvas.height
-    );
-
-    const blob =
-      await new Promise(
-        resolve =>
-          canvas.toBlob(
-            resolve,
-            "image/jpeg",
-            .88
-          )
-      );
-
-    if(!blob){
-      throw new Error(
-        "Could not create image"
-      );
-    }
-
-    await prepareMediaForUpload(
-      blob,
-      "photo",
-      `snap-${Date.now()}.jpg`,
-      "image/jpeg",
-      captureLocation,
-      captureDetails
-    );
-
-    playHackerConfirm();
-
-    $("uploadStatus")
-      .textContent =
-      "Photo captured. Check details, then upload.";
-
-  }catch(error){
-
-    console.error(
-      error
-    );
-
-    toast(
-      "Photo could not be prepared"
-    );
-
-  }
-
-}
-
-
-/* =========================================================
-   VIDEO RECORDER
-========================================================= */
-
-function chooseRecorderMime(){
-
-  const candidates = [
-    "video/webm;codecs=vp9,opus",
-    "video/webm;codecs=vp8,opus",
-    "video/webm",
-    "video/mp4"
-  ];
-
-  for(
-    const mime of candidates
-  ){
-
-    try{
-
-      if(
-        window.MediaRecorder &&
-        MediaRecorder.isTypeSupported(
-          mime
-        )
-      ){
-
-        return mime;
-
-      }
-
-    }catch(error){}
-
-  }
-
-  return "";
-
-}
-
-
-function updateRecordingTimer(){
-
-  if(!recordingStartedAt){
-    return;
-  }
-
-  const seconds =
-    Math.floor(
-      (
-        Date.now() -
-        recordingStartedAt
-      ) / 1000
-    );
-
-  const mm =
-    String(
-      Math.floor(
-        seconds / 60
-      )
-    ).padStart(
-      2,
-      "0"
-    );
-
-  const ss =
-    String(
-      seconds % 60
-    ).padStart(
-      2,
-      "0"
-    );
-
-  $("recordTimer")
-    .textContent =
-    `● REC ${mm}:${ss}`;
-
-}
-
-
-async function startVideoRecording(){
-
-  if(!cameraStream){
-
-    toast(
-      "Camera not ready"
-    );
-
-    return;
-
-  }
-
-  if(
-    !window.MediaRecorder
-  ){
-
-    toast(
-      "Video recording is not supported by this browser"
-    );
-
-    return;
-
-  }
-
-  if(!currentLocation){
-
-    toast(
-      "Live location not ready"
-    );
-
-    return;
-
-  }
-
-  try{
-
-    await detectLiveLocation({
-      centerMap:false
-    });
-
-  }catch(error){
-
-    toast(
-      "Could not refresh live location"
-    );
-
-    return;
-
-  }
-
-  const mime =
-    chooseRecorderMime();
-
-  try{
-
-    mediaRecorder =
-      mime
-        ? new MediaRecorder(
-            cameraStream,
-            {
-              mimeType:mime
-            }
-          )
-        : new MediaRecorder(
-            cameraStream
-          );
-
-  }catch(error){
-
-    console.error(
-      error
-    );
-
-    toast(
-      "Video recording unavailable"
-    );
-
-    return;
-
-  }
-
-  recordedChunks =
-    [];
-
-  pendingCaptureLocation = {
-    lat:
-      currentLocation.lat,
-    lng:
-      currentLocation.lng
-  };
-
-  pendingCaptureDetails =
-    currentDetails
-      ? {
-          ...currentDetails
-        }
-      : null;
-
-  recordingStartedAt =
-    Date.now();
-
-  mediaRecorder.ondataavailable =
-    event => {
-
-      if(
-        event.data &&
-        event.data.size > 0
-      ){
-
-        recordedChunks.push(
-          event.data
-        );
-
-      }
-
-    };
-
-  mediaRecorder.onstop =
-    async () => {
-
-      clearInterval(
-        recordingTimer
-      );
-
-      recordingTimer =
-        null;
-
-      $("recordTimer")
-        .textContent =
-        "Video prepared";
-
-      try{
-
-        const actualMime =
-          mediaRecorder.mimeType ||
-          mime ||
-          "video/webm";
-
-        const extension =
-          actualMime
-            .includes("mp4")
-            ? "mp4"
-            : "webm";
-
-        const blob =
-          new Blob(
-            recordedChunks,
-            {
-              type:
-                actualMime
-            }
-          );
-
-        if(!blob.size){
-
-          throw new Error(
-            "Empty video"
-          );
-
-        }
-
-        await prepareMediaForUpload(
-          blob,
-          "video",
-          `snap-${Date.now()}.${extension}`,
-          actualMime,
-          pendingCaptureLocation,
-          pendingCaptureDetails
-        );
-
-        playHackerConfirm();
-
-        $("uploadStatus")
-          .textContent =
-          "Video prepared. Check details, then upload.";
-
-      }catch(error){
-
-        console.error(
-          "Video preparation error",
-          error
-        );
-
-        toast(
-          "Video could not be prepared"
-        );
-
-      }
-
-      mediaRecorder =
-        null;
-
-    };
-
-  mediaRecorder.onerror =
-    event => {
-
-      console.error(
-        "MediaRecorder error",
-        event
-      );
-
-      toast(
-        "Video recording error"
-      );
-
-    };
-
-  mediaRecorder.start(
-    250
-  );
-
-  recordingTimer =
-    setInterval(
-      updateRecordingTimer,
-      250
-    );
-
-  $("captureBtn")
-    .textContent =
-    "■ Stop Video";
-
-  $("uploadStatus")
-    .textContent =
-    "Video recording started...";
-
-  playHackerConfirm();
-
-}
-
-
-function stopVideoRecording(){
-
-  if(
-    !mediaRecorder ||
-    mediaRecorder.state ===
-    "inactive"
-  ){
-
-    return;
-
-  }
-
-  mediaRecorder.stop();
-
-  $("captureBtn")
-    .textContent =
-    "Preparing Video...";
-
-  $("captureBtn")
-    .disabled =
-    true;
-
-  setTimeout(
-    () => {
-
-      $("captureBtn")
-        .disabled =
-        false;
-
-      if(mediaMode === "video"){
-
-        $("captureBtn")
-          .textContent =
-          "Start Video";
-
-      }
-
-    },
-    700
-  );
-
-}
-
-
-/* =========================================================
-   CAPTURE BUTTON
-========================================================= */
-
-$("captureBtn").onclick =
-  async () => {
-
-    if(mediaMode === "photo"){
-
-      await capturePhoto();
-
-      return;
-
-    }
-
-    if(
-      mediaRecorder &&
-      mediaRecorder.state !==
-      "inactive"
-    ){
-
-      stopVideoRecording();
-
-    }else{
-
-      startVideoRecording();
-
-    }
-
-  };
-
-
-/* =========================================================
-   RETAKE
-========================================================= */
-
-$("retakeBtn").onclick =
-  () => {
-
-    resetUploadPreview();
-
-    if(cameraStream){
-
-      $("uploadStatus")
-        .textContent =
-        "Camera ready.";
-
-    }
-
-    playHackerClick();
-
-  };
-
-
-/* =========================================================
-   UPLOAD SNAP / MEDIA
-========================================================= */
-
-async function uploadMedia(
-  blob,
-  fileName,
-  contentType,
-  lat,
-  lng,
-  description,
-  progressCallback
-){
-
-  if(
-    typeof progressCallback ===
-    "function"
-  ){
-
-    progressCallback(
-      15,
-      "Preparing media..."
-    );
-
-  }
-
-  const upload =
-    await supabaseClient
-      .storage
-      .from("snaps")
-      .upload(
-        fileName,
-        blob,
-        {
-          contentType,
-          upsert:false
-        }
-      );
-
-  if(upload.error){
-    throw upload.error;
-  }
-
-  if(
-    typeof progressCallback ===
-    "function"
-  ){
-
-    progressCallback(
-      72,
-      "Media uploaded. Saving snap information..."
-    );
-
-  }
-
-  const publicUrl =
-    supabaseClient
-      .storage
-      .from("snaps")
-      .getPublicUrl(
-        fileName
-      )
-      .data
-      .publicUrl;
-
-  const insert =
-    await supabaseClient
-      .from("snaps")
-      .insert({
-        image_url:
-          publicUrl,
-        lat,
-        lng,
-        latitude:lat,
-        longitude:lng,
-        description
-      })
-      .select("*")
-      .maybeSingle();
-
-  if(insert.error){
-    throw insert.error;
-  }
-
-  if(
-    typeof progressCallback ===
-    "function"
-  ){
-
-    progressCallback(
-      100,
-      "Upload complete."
-    );
-
-  }
-
-  return {
-    publicUrl,
-    fileName,
-    row:
-      insert.data
-  };
-
-}
-
-
-/* =========================================================
-   LOCAL NOTIFICATION HISTORY
-========================================================= */
-
-function getLocalNotifications(){
-
-  try{
-
-    const raw =
-      localStorage.getItem(
-        "past_snap_notifications"
-      );
-
-    const parsed =
-      raw
-        ? JSON.parse(raw)
-        : [];
-
-    return Array.isArray(
-      parsed
-    )
-      ? parsed
-      : [];
-
-  }catch(error){
-
-    return [];
-
-  }
-
-}
-
-
-function saveLocalNotification(
-  notification
-){
-
-  try{
-
-    const list =
-      getLocalNotifications();
-
-    list.unshift(
-      notification
-    );
-
-    localStorage.setItem(
-      "past_snap_notifications",
-      JSON.stringify(
-        list.slice(
-          0,
-          50
-        )
-      )
-    );
-
-  }catch(error){}
-
-}
-
-
-/* =========================================================
-   UPLOAD BUTTON
-========================================================= */
-
-$("uploadMediaBtn").onclick =
-  async () => {
-
-    if(!pendingMediaBlob){
-
-      toast(
-        "No media ready"
-      );
-
-      return;
-
-    }
-
-    if(!pendingCaptureLocation){
-
-      toast(
-        "Capture location missing"
-      );
-
-      return;
-
-    }
-
-    const button =
-      $("uploadMediaBtn");
-
-    button.disabled =
-      true;
-
-    $("retakeBtn")
-      .disabled =
-      true;
-
-    try{
-
-      $("uploadStatus")
-        .textContent =
-        "Checking current live location...";
-
-      $("uploadProgress")
-        .style.width =
-        "5%";
-
-      const latest =
-        await detectLiveLocation({
-          centerMap:true
-        });
-
-      const latestLocation = {
-        lat:
-          latest.lat,
-        lng:
-          latest.lng
-      };
-
-      const movement =
-        distanceMeters(
-          pendingCaptureLocation,
-          latestLocation
-        );
-
-      if(
-        movement > 50
-      ){
-
-        $("uploadProgress")
-          .style.width =
-          "0%";
-
-        throw new Error(
-          `Post blocked: moved ${Math.round(movement)}m. Must be within 50m.`
-        );
-
-      }
-
-      $("uploadStatus")
-        .textContent =
-        "Location verified. Starting upload...";
-
-      $("uploadProgress")
-        .style.width =
-        "10%";
-
-      playUploadTick();
-
-      const description =
-        pendingMediaType === "video"
-          ? "Past Snap • Video"
-          : "Past Snap • Photo";
-
-      const result =
-        await uploadMedia(
-          pendingMediaBlob,
-          pendingMediaName,
-          pendingMediaMime,
-          pendingCaptureLocation.lat,
-          pendingCaptureLocation.lng,
-          description,
-          (
-            percent,
-            status
-          ) => {
-
-            $("uploadProgress")
-              .style.width =
-              percent + "%";
-
-            $("uploadStatus")
-              .textContent =
-              status;
-
-            if(
-              percent === 72 ||
-              percent === 100
-            ){
-
-              playUploadTick();
-
-            }
-
-          }
-        );
-
-      saveLocalNotification({
-        id:
-          "local-" +
-          Date.now(),
-        type:
-          pendingMediaType === "video"
-            ? "video"
-            : "photo",
-        title:
-          pendingMediaType === "video"
-            ? "Your video snap uploaded"
-            : "Your photo snap uploaded",
-        date:
-          new Date().toISOString(),
-        location:
-          pendingCaptureDetails
-            ?.fullLocation ||
-          pendingCaptureDetails
-            ?.placeName ||
-          "GPS location",
-        lat:
-          pendingCaptureLocation.lat,
-        lng:
-          pendingCaptureLocation.lng,
-        size:
-          pendingMediaBlob.size,
-        url:
-          result.publicUrl
-      });
-
-      playHackerConfirm();
-
-      $("uploadProgress")
-        .style.width =
-        "100%";
-
-      $("uploadStatus")
-        .textContent =
-        "✓ Upload complete — snap saved.";
-
-      toast(
-        "Snap uploaded at live location"
-      );
-
-      await loadSnaps();
-
-      await loadNotifications();
-
-      setTimeout(
-        () => {
-
-          resetUploadPreview();
-
-          hideModal(
-            "cameraModal"
-          );
-
-        },
-        900
-      );
-
-    }catch(error){
-
-      console.error(
-        "Upload error",
-        error
-      );
-
-      $("uploadStatus")
-        .textContent =
-        error?.message ||
-        "Upload failed.";
-
-      if(
-        String(
-          error?.message ||
-          ""
-        ).includes(
-          "within 50m"
-        )
-      ){
-
-        toast(
-          error.message
-        );
-
-      }else{
-
-        toast(
-          "Media could not be uploaded"
-        );
-
-      }
-
-    }finally{
-
-      button.disabled =
-        false;
-
-      $("retakeBtn")
-        .disabled =
-        false;
-
-    }
-
-  };
-
-
-/* =========================================================
-   LOAD EXISTING SNAPS
-========================================================= */
 
 async function loadSnaps(){
-
-  snapLayer.clearLayers();
-
-  const {
-    data,
-    error
-  } =
-    await supabaseClient
-      .from("snaps")
-      .select("*");
-
-  if(
-    error ||
-    !data
-  ){
-
-    console.error(
-      "Snap load error",
-      error
-    );
-
-    return;
-
-  }
-
-  snapGroups = [];
-
-  for(
-    const snap of data
-  ){
-
-    const lat =
-      Number(
-        snap.lat ??
-        snap.latitude
-      );
-
-    const lng =
-      Number(
-        snap.lng ??
-        snap.longitude
-      );
-
-    if(
-      !Number.isFinite(lat) ||
-      !Number.isFinite(lng)
-    ){
-
-      continue;
-
-    }
-
-    let group =
-      snapGroups.find(
-        item =>
-          distanceMeters(
-            {
-              lat,
-              lng
-            },
-            {
-              lat:item.lat,
-              lng:item.lng
-            }
-          ) <= 60
-      );
-
-    if(!group){
-
-      group = {
-        lat,
-        lng,
-        snaps:[]
-      };
-
-      snapGroups.push(
-        group
-      );
-
-    }
-
-    group.snaps.push(
-      snap
-    );
-
-  }
-
-  for(
-    const group of snapGroups
-  ){
-
-    let label =
-      "Detected location";
-
-    try{
-
-      const location =
-        await reverseGeocodeDetails(
-          group.lat,
-          group.lng
-        );
-
-      label =
-        getLocationMainName(
-          location
-        );
-
-    }catch(error){}
-
-    const icon =
-      L.divIcon({
-        className:"",
-        html:
-          '<div class="detector"></div>',
-        iconSize:[
-          30,
-          30
-        ],
-        iconAnchor:[
-          15,
-          15
-        ]
-      });
-
-    const marker =
-      L.marker(
-        [
-          group.lat,
-          group.lng
-        ],
-        {
-          icon
-        }
-      )
-      .addTo(
-        snapLayer
-      );
-
-    marker.bindTooltip(
-      label,
-      {
-        direction:"top"
-      }
-    );
-
-    marker.on(
-      "click",
-      event => {
-
-        if(
-          event.originalEvent
-        ){
-
-          event.originalEvent
-            .stopPropagation();
-
-        }
-
-        playHackerClick();
-
-        openSnapGroup(
-          group
-        );
-
-      }
-    );
-
-  }
-
+ const {data,error}=await supabaseClient.from("snaps").select("*").order("created_at",{ascending:false});
+ if(error){console.error(error);status("SNAPS LOAD ERROR");return}
+ renderGroups(groupSnaps(data||[]));
+ status(`${data?.length||0} SNAP(S) ONLINE`);
 }
 
-
-/* =========================================================
-   SNAP CAROUSEL
-========================================================= */
-
-function openSnapGroup(
-  group
-){
-
-  activeSnapGroup =
-    group;
-
-  snapIndex =
-    0;
-
-  renderSnap();
-
-  showModal(
-    "snapModal"
-  );
-
-  map.setView(
-    [
-      group.lat,
-      group.lng
-    ],
-    17
-  );
-
+/* ================= SEARCH ================= */
+async function searchLocation(){
+ const q=$("searchInput").value.trim();
+ if(!q)return;
+ status("SEARCHING...");
+ try{
+  const r=await fetch("https://nominatim.openstreetmap.org/search?format=jsonv2&limit=8&q="+encodeURIComponent(q),{headers:{"Accept":"application/json"}});
+  const d=await r.json();
+  if(!d.length){status("LOCATION NOT FOUND");return}
+  map.setView([+d[0].lat,+d[0].lon],16);
+  status("LOCATION FOUND");
+ }catch(e){status("SEARCH FAILED")}
 }
 
-
-function renderSnap(){
-
-  if(!activeSnapGroup){
-    return;
+/* ================= AUTH ================= */
+function openAuth(mode="login"){
+ authMode=mode;
+ $("authTitle").textContent=mode==="login"?"LOGIN":"CREATE ACCOUNT";
+ $("authSubmit").textContent=mode==="login"?"LOGIN":"REGISTER";
+ $("authName").style.display=mode==="login"?"none":"block";
+ show($("authModal"));
+}
+async function loadProfile(){
+ if(!currentUser){currentProfile=null;return}
+ const {data}=await supabaseClient.from("profiles").select("*").eq("id",currentUser.id).maybeSingle();
+ currentProfile=data||{id:currentUser.id,display_name:currentUser.email?.split("@")[0]||"User"};
+ await ensureRoom();
+ $("youName").textContent=currentProfile.display_name||"User";
+ $("youEmail").textContent=currentUser.email||"—";
+ $("youRoom").textContent=myRoom||currentProfile.call_room_id||"LOADING...";
+ await loadNotifications();
+}
+async function ensureRoom(){
+ if(!currentUser)return null;
+ if(roomPromise)return roomPromise;
+ roomPromise=(async()=>{
+  const key="cyberRoom:"+currentUser.id;
+  let room=currentProfile?.call_room_id||localStorage.getItem(key);
+  if(!room){
+   const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+   room=Array.from({length:6},()=>chars[Math.floor(Math.random()*chars.length)]).join("");
   }
-
-  const snap =
-    activeSnapGroup
-      .snaps[
-        snapIndex
-      ];
-
-  const mediaUrl =
-    snap.image_url ||
-    snap.url ||
-    "";
-
-  const isVideo =
-    mediaIsVideo(
-      snap
-    );
-
-  if(!mediaUrl){
-
-    $("snapContent")
-      .innerHTML =
-      "<div>No media</div>";
-
-  }else if(isVideo){
-
-    $("snapContent")
-      .innerHTML =
-      `<video
-        src="${escapeHtml(mediaUrl)}"
-        controls
-        autoplay
-        playsinline
-        class="preview-media">
-      </video>`;
-
-  }else{
-
-    $("snapContent")
-      .innerHTML =
-      `<img
-        src="${escapeHtml(mediaUrl)}"
-        alt="Snap">`;
-
+  room=String(room).toUpperCase();
+  if(currentProfile?.call_room_id!==room){
+   const {data,error}=await supabaseClient.from("profiles").upsert({id:currentUser.id,display_name:currentProfile?.display_name||currentUser.email?.split("@")[0]||"User",call_room_id:room},{onConflict:"id"}).select("*").maybeSingle();
+   if(error)console.error("Room save:",error);
+   if(data)currentProfile=data;
   }
-
-  $("snapCounter")
-    .textContent =
-    `${snapIndex + 1}/${activeSnapGroup.snaps.length}`;
-
+  localStorage.setItem(key,room);
+  myRoom=room;
+  $("myRoomCode").textContent=room;
+  $("youRoom").textContent=room;
+  renderMyRoomQR(room);
+  if(socket.connected)socket.emit("join-room",{room});
+  return room;
+ })().finally(()=>roomPromise=null);
+ return roomPromise;
 }
-
-
-$("prevSnap").onclick =
-  () => {
-
-    if(!activeSnapGroup){
-      return;
-    }
-
-    snapIndex =
-      (
-        snapIndex -
-        1 +
-        activeSnapGroup
-          .snaps.length
-      )
-      %
-      activeSnapGroup
-        .snaps.length;
-
-    renderSnap();
-
-  };
-
-
-$("nextSnap").onclick =
-  () => {
-
-    if(!activeSnapGroup){
-      return;
-    }
-
-    snapIndex =
-      (
-        snapIndex +
-        1
-      )
-      %
-      activeSnapGroup
-        .snaps.length;
-
-    renderSnap();
-
-  };
-
-
-/* =========================================================
-   NOTIFICATIONS
-========================================================= */
-
-function findDateField(
-  item
-){
-
-  return (
-    item?.created_at ||
-    item?.inserted_at ||
-    item?.updated_at ||
-    item?.createdAt ||
-    item?.timestamp ||
-    null
-  );
-
-}
-
-
-function getLikeInfo(
-  item
-){
-
-  const count =
-    item?.like_count ??
-    item?.likes_count ??
-    (
-      Array.isArray(
-        item?.likes
-      )
-        ? item.likes.length
-        : null
-    );
-
-  let people = [];
-
-  if(
-    Array.isArray(
-      item?.liked_by
-    )
-  ){
-
-    people =
-      item.liked_by
-        .map(
-          person => {
-
-            if(
-              typeof person ===
-              "string"
-            ){
-
-              return person;
-
-            }
-
-            return (
-              person?.display_name ||
-              person?.name ||
-              person?.email ||
-              person?.user_email ||
-              ""
-            );
-
-          }
-        )
-        .filter(Boolean);
-
+async function authSubmit(){
+ const email=$("authEmail").value.trim(),pass=$("authPassword").value,name=$("authName").value.trim();
+ if(!email||!pass)return alert("Email aur password required.");
+ if(authMode==="login"){
+  const {error}=await supabaseClient.auth.signInWithPassword({email,password:pass});
+  if(error)return alert(error.message);
+ }else{
+  const {data,error}=await supabaseClient.auth.signUp({email,password:pass});
+  if(error)return alert(error.message);
+  if(data.user){
+   const newRoom=Array.from({length:6},()=>"ABCDEFGHJKLMNPQRSTUVWXYZ23456789"[Math.floor(Math.random()*32)]).join("");
+   await supabaseClient.from("profiles").upsert({id:data.user.id,display_name:name||email.split("@")[0],call_room_id:newRoom},{onConflict:"id"});
+   localStorage.setItem("cyberRoom:"+data.user.id,newRoom);
   }
-
-  return {
-    count,
-    people
-  };
-
+  alert("Account created. Email verification may be required.");
+ }
+ hide($("authModal"));
+}
+async function logout(){
+ await supabaseClient.auth.signOut();
+ currentUser=null;currentProfile=null;myRoom=null;roomPromise=null;
+ $("myRoomCode").textContent="LOGIN REQUIRED";
+ $("youName").textContent="NOT LOGGED IN";
+ $("youEmail").textContent="NOT LOGGED IN";
+ $("youRoom").textContent="LOGIN REQUIRED";
+ $("youLocation").textContent="LOCATION NOT LOADED";
+ $("myRoomQr").innerHTML="";
+ status("LOGGED OUT");
+}
+async function initAuth(){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ currentUser=session?.user||null;
+ if(currentUser)await loadProfile();
+ supabaseClient.auth.onAuthStateChange(async(_e,session)=>{
+  currentUser=session?.user||null;
+  if(currentUser)await loadProfile();
+ });
 }
 
-
-function createNotificationHtml(
-  title,
-  date,
-  details
-){
-
-  return `
-    <div class="notification-item">
-
-      <div class="notification-title">
-        ${escapeHtml(title)}
-      </div>
-
-      <div class="notification-time">
-        ${escapeHtml(date)}
-      </div>
-
-      <div class="notification-detail">
-        ${details}
-      </div>
-
-    </div>
-  `;
-
-}
-
-
+/* ================= NOTIFICATIONS ================= */
 async function loadNotifications(){
+ if(!currentUser)return;
+ const {data,error}=await supabaseClient.from("notifications").select("*").eq("recipient_id",currentUser.id).order("created_at",{ascending:false}).limit(50);
+ if(error)return;
+ const unread=(data||[]).filter(x=>!x.is_read).length;
+ $("notificationCount").style.display=unread?"flex":"none";
+ $("notificationCount").textContent=unread>9?"9+":unread||"";
+ $("notificationList").innerHTML=(data||[]).map(n=>`
+  <div class="notice ${n.is_read?"":"unread"}" data-notice="${esc(n.id)}" data-snap="${esc(n.snap_id||"")}" data-chatroom="${esc(n.notification_type==="chat"?(n.message||"").match(/Room ([A-Z0-9]+)/)?.[1]||"":"")}">
+   <div>${esc(n.message||n.notification_type||"Notification")}</div>
+   <small>${new Date(n.created_at).toLocaleString()}</small>
+  </div>`).join("")||'<div class="muted">No notifications.</div>';
+}
+$("notificationList").onclick=async e=>{
+ const n=e.target.closest(".notice");if(!n)return;
+ if(currentUser)await supabaseClient.from("notifications").update({is_read:true}).eq("id",n.dataset.notice);
+ if(n.dataset.snap){
+  const {data}=await supabaseClient.from("snaps").select("*").eq("id",n.dataset.snap).maybeSingle();
+  if(data)openGallery([data]);
+ }
+ if(n.dataset.chatroom){
+  $("chatTargetRoom").value=n.dataset.chatroom;
+  show($("chatPanel"));
+  setActiveNav("chatNav");
+ }
+ await loadNotifications();
+};
 
-  const list =
-    $("notificationList");
+/* ================= LOCATION + CAMERA ================= */
+function getFreshPosition(){
+ return new Promise((resolve,reject)=>{
+  if(!navigator.geolocation)return reject(new Error("GPS unavailable"));
+  navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,timeout:15000,maximumAge:0});
+ });
+}
+async function openCameraFromLocation(){
+ if(!currentUser){openAuth();return}
+ status("AUTO GPS DETECTING...");
+ try{
+  const p=await getFreshPosition();
+  capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
+  if(userMarker)map.removeLayer(userMarker);
+  if(userCircle)map.removeLayer(userCircle);
+  userMarker=L.marker([capturedLatitude,capturedLongitude]).addTo(map).bindPopup("LIVE LOCATION");
+  userCircle=L.circle([capturedLatitude,capturedLongitude],{radius:50,color:"#39ff14",fillOpacity:.08}).addTo(map);
+  map.setView([capturedLatitude,capturedLongitude],17,{animate:true});
+  $("cameraGpsText").textContent=`GPS ${capturedLatitude.toFixed(5)}, ${capturedLongitude.toFixed(5)}`;
+  await startCamera();
+ }catch(e){status("GPS FAILED: "+e.message)}
+}
+async function startCamera(){
+ try{
+  stopCamera();
+  cameraStream=await navigator.mediaDevices.getUserMedia({
+   video:{facingMode:{ideal:currentFacing},width:{ideal:1920},height:{ideal:1080}},
+   audio:true
+  });
+  $("cameraVideo").srcObject=cameraStream;
+  setupRealZoom();
+  show($("cameraModal"));
+ }catch(e){alert("Camera permission required: "+e.message)}
+}
+function stopCamera(){
+ if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;cameraTrack=null}
+}
+function setupRealZoom(){
+ const range=$("zoomRange"),value=$("zoomValue");
+ cameraTrack=cameraStream?.getVideoTracks?.()[0]||null;
+ const caps=cameraTrack?.getCapabilities?.()||{};
+ zoomMin=Number.isFinite(caps.zoom)?caps.zoom.min:0.5;
+ zoomMax=Number.isFinite(caps.zoom)?caps.zoom.max:20;
+ zoomMin=Math.max(0.5,zoomMin);zoomMax=Math.min(20,zoomMax);
+ if(zoomMax<zoomMin){zoomMin=1;zoomMax=1}
+ currentZoom=Math.min(Math.max(currentZoom,zoomMin),zoomMax);
+ range.min=zoomMin;range.max=zoomMax;range.step=0.1;range.value=currentZoom;
+ value.textContent=currentZoom.toFixed(1).replace(".0","")+"×";
+ range.disabled=zoomMax<=zoomMin;
+}
+async function applyRealZoom(v){
+ currentZoom=Number(v);
+ $("zoomValue").textContent=currentZoom.toFixed(1).replace(".0","")+"×";
+ if(!cameraTrack?.applyConstraints)return;
+ try{await cameraTrack.applyConstraints({advanced:[{zoom:currentZoom}]})}catch(e){status("REAL ZOOM UNSUPPORTED ON THIS CAMERA")}
+}
+$("cameraClose").onclick=()=>{stopCamera();hide($("cameraModal"));hide($("previewModal"));document.body.style.overflow="hidden";map.invalidateSize();setActiveNav("cameraNav");status("CAMERA CLOSED")}
+$("switchCamera").onclick=async()=>{currentFacing=currentFacing==="environment"?"user":"environment";await startCamera()}
+$("zoomRange").oninput=e=>applyRealZoom(e.target.value);
+$("zoomOut").onclick=()=>applyRealZoom(Math.max(zoomMin,currentZoom-0.5));
+$("zoomIn").onclick=()=>applyRealZoom(Math.min(zoomMax,currentZoom+0.5));
+$("mirrorBtn").onclick=()=>{mirror=!mirror;$("cameraVideo").style.transform=mirror?"scaleX(-1)":"none"}
+document.querySelectorAll("[data-filter]").forEach(b=>b.onclick=()=>{
+ currentFilter=b.dataset.filter;
+ document.querySelectorAll("[data-filter]").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+ const v=$("cameraVideo");
+ v.style.filter=currentFilter==="mono"?"grayscale(1)":currentFilter==="green"?"sepia(1) hue-rotate(65deg) saturate(4)":currentFilter==="warm"?"sepia(.4) saturate(1.4)":"none";
+});
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll("[data-mode]").forEach(x=>x.classList.remove("active"));b.classList.add("active");
+ window.cameraMode=b.dataset.mode;
+});
+window.cameraMode="photo";
 
-  list.innerHTML =
-    `
-      <div class="notification-item">
-        <div class="notification-title">
-          🔄 ACTIVITY
-        </div>
-        <div class="notification-detail">
-          Loading...
-        </div>
-      </div>
-    `;
+/* HACKER TOUCH / SHUTTER SOUND */
+function hackerTouchSound(kind="tap"){
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return;
+  const ac=window.__hackAudio||(window.__hackAudio=new AC());
+  if(ac.state==="suspended")ac.resume();
+  const now=ac.currentTime;
+  const osc=ac.createOscillator(), gain=ac.createGain();
+  osc.type=kind==="shutter"?"square":"sawtooth";
+  osc.frequency.setValueAtTime(kind==="shutter"?760:240,now);
+  osc.frequency.exponentialRampToValueAtTime(kind==="shutter"?180:90,now+.07);
+  gain.gain.setValueAtTime(.0001,now);
+  gain.gain.exponentialRampToValueAtTime(kind==="shutter"?.055:.025,now+.008);
+  gain.gain.exponentialRampToValueAtTime(.0001,now+.085);
+  osc.connect(gain);gain.connect(ac.destination);osc.start(now);osc.stop(now+.09);
+ }catch(e){}
+}
+document.addEventListener("pointerdown",e=>{
+ const t=e.target.closest("button,.cameraModes button,.filterRow button");
+ if(t && (t.closest("#cameraModal")||t.id==="cameraNav")) hackerTouchSound();
+},{passive:true});
 
-  const notifications = [];
+const filterPresets=["none","mono","green","warm"];
+let filterIndex=0;
+$("filterCycleBtn").onclick=()=>{
+ filterIndex=(filterIndex+1)%filterPresets.length;
+ const f=filterPresets[filterIndex];
+ currentFilter=f;
+ const v=$("cameraVideo");
+ v.style.filter=f==="mono"?"grayscale(1)":f==="green"?"sepia(1) hue-rotate(65deg) saturate(4)":f==="warm"?"sepia(.4) saturate(1.4)":"none";
+ $("filterCycleBtn").textContent="FILTER "+f.toUpperCase();
+};
 
-  getLocalNotifications()
-    .forEach(
-      item => {
 
-        notifications.push({
-          sort:
-            new Date(
-              item.date || 0
-            ).getTime() || 0,
-          html:
-            createNotificationHtml(
-              item.title ||
-                "Your Snap",
-              formatDateTime(
-                item.date
-              ),
-              `
-                <b>Media:</b>
-                ${escapeHtml(
-                  item.type === "video"
-                    ? "Video"
-                    : "Photo"
-                )}
-                <br>
-                <b>Location:</b>
-                ${escapeHtml(
-                  item.location ||
-                  "GPS location"
-                )}
-                <br>
-                <b>GPS:</b>
-                ${Number(
-                  item.lat
-                ).toFixed(6)},
-                ${Number(
-                  item.lng
-                ).toFixed(6)
-                }
-              `
-            )
-        });
-
-      }
-    );
-
+$("captureBtn").onclick=async()=>{
+ hackerTouchSound("shutter");
+ if(window.cameraMode==="video"){
+  if(recording){mediaRecorder.stop();recording=false;return}
   try{
+   const p=await getFreshPosition();capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
+   recordedChunks=[];
+   mediaRecorder=new MediaRecorder(cameraStream,{mimeType:"video/webm"});
+   mediaRecorder.ondataavailable=e=>{if(e.data.size)recordedChunks.push(e.data)};
+   mediaRecorder.onstop=()=>{
+    capturedBlob=new Blob(recordedChunks,{type:"video/webm"});capturedType="video";
+    const u=URL.createObjectURL(capturedBlob);$("previewVideo").src=u;hide($("previewImage"));show($("previewVideo"));show($("previewModal"));
+   };
+   mediaRecorder.start();recording=true;$("recordTimer").textContent="● REC";
+  }catch(e){status("VIDEO GPS FAILED")}
+ }else{
+  try{
+   const p=await getFreshPosition();capturedLatitude=p.coords.latitude;capturedLongitude=p.coords.longitude;
+   const v=$("cameraVideo"),c=document.createElement("canvas");
+   const sw=v.videoWidth||1280,sh=v.videoHeight||720;
+   const targetRatio=4/16;
+   let cw=sw,ch=Math.round(sw/targetRatio);
+   if(ch>sh){ch=sh;cw=Math.round(sh*targetRatio)}
+   c.width=cw;c.height=ch;
+   const sx=Math.max(0,(sw-cw)/2),sy=Math.max(0,(sh-ch)/2);
+   const x=c.getContext("2d");
+   if(mirror){x.translate(c.width,0);x.scale(-1,1)}
+   x.filter=v.style.filter||"none";x.drawImage(v,sx,sy,cw,ch,0,0,cw,ch);
+   const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",.9));
+   capturedBlob=blob;capturedType="image";
+   $("previewImage").src=URL.createObjectURL(blob);show($("previewImage"));hide($("previewVideo"));show($("previewModal"));stopCamera();hide($("cameraModal"));
+  }catch(e){status("PHOTO FAILED")}
+ }
+};
 
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("snaps")
-        .select("*");
+$("retakeBtn").onclick=()=>{hide($("previewModal"));startCamera()}
+$("previewClose").onclick=()=>{hide($("previewModal"));capturedBlob=null}
+$("postBtn").onclick=postSnap;
 
-    if(
-      !error &&
-      Array.isArray(data)
-    ){
-
-      data.forEach(
-        snap => {
-
-          const date =
-            findDateField(
-              snap
-            );
-
-          const dateText =
-            date
-              ? formatDateTime(
-                  date
-                )
-              : "Date/time unavailable";
-
-          const lat =
-            Number(
-              snap.lat ??
-              snap.latitude
-            );
-
-          const lng =
-            Number(
-              snap.lng ??
-              snap.longitude
-            );
-
-          const likes =
-            getLikeInfo(
-              snap
-            );
-
-          let likeText =
-            "";
-
-          if(
-            likes.count !==
-            null &&
-            likes.count !==
-            undefined
-          ){
-
-            likeText +=
-              `<br><b>Likes:</b> ${
-                escapeHtml(
-                  likes.count
-                )
-              }`;
-
-          }
-
-          if(
-            likes.people.length
-          ){
-
-            likeText +=
-              `<br><b>Liked by:</b> ${
-                escapeHtml(
-                  likes.people.join(
-                    ", "
-                  )
-                )
-              }`;
-
-          }
-
-          const type =
-            mediaIsVideo(
-              snap
-            )
-              ? "Video"
-              : "Photo";
-
-          notifications.push({
-            sort:
-              date
-                ? (
-                    new Date(
-                      date
-                    ).getTime() || 0
-                  )
-                : 0,
-            html:
-              createNotificationHtml(
-                "Snap activity",
-                dateText,
-                `
-                  <b>Media:</b>
-                  ${escapeHtml(type)}
-                  <br>
-                  <b>Info:</b>
-                  ${escapeHtml(
-                    snap.description ||
-                    "Past Snap"
-                  )}
-                  <br>
-                  <b>GPS:</b>
-                  ${
-                    Number.isFinite(lat)
-                      ? lat.toFixed(6)
-                      : "—"
-                  },
-                  ${
-                    Number.isFinite(lng)
-                      ? lng.toFixed(6)
-                      : "—"
-                  }
-                  ${likeText}
-                `
-              )
-          });
-
-        }
-      );
-
-    }
-
-  }catch(error){
-
-    console.error(
-      "Notification load error",
-      error
-    );
-
-  }
-
-  notifications.sort(
-    (a,b) =>
-      b.sort -
-      a.sort
-  );
-
-  const seen =
-    new Set();
-
-  const unique =
-    notifications.filter(
-      item => {
-
-        const key =
-          item.html;
-
-        if(seen.has(key)){
-          return false;
-        }
-
-        seen.add(key);
-
-        return true;
-
-      }
-    );
-
-  if(!unique.length){
-
-    list.innerHTML =
-      `
-        <div class="notification-item">
-          <div class="notification-title">
-            🔔 NO ACTIVITY
-          </div>
-          <div class="notification-detail">
-            Abhi koi snap activity available nahi hai.
-          </div>
-        </div>
-      `;
-
-    return;
-
-  }
-
-  list.innerHTML =
-    unique
-      .slice(
-        0,
-        50
-      )
-      .map(
-        item =>
-          item.html
-      )
-      .join("");
-
+async function postSnap(){
+ if(!currentUser||!capturedBlob)return;
+ $("postBtn").disabled=true;status("VERIFYING FRESH GPS...");
+ try{
+  const p=await getFreshPosition();
+  const d=haversine(capturedLatitude,capturedLongitude,p.coords.latitude,p.coords.longitude);
+  if(d>50){alert(`Posting blocked. Capture se ${Math.round(d)}m door ho.`);return}
+  const ext=capturedType==="image"?"jpg":"webm";
+  const path=`${currentUser.id}/${Date.now()}.${ext}`;
+  const {data:{session}}=await supabaseClient.auth.getSession();
+  const token=session?.access_token||SUPABASE_KEY;
+  const started=performance.now();
+  show($("uploadProgress"));$("uploadProgressFill").style.width="0%";
+  $("uploadProgressText").textContent=`UPLOAD:// PAST-SNAPS\nSIZE: ${formatBytes(capturedBlob.size)}\nDURATION: 00:00\nPROGRESS: 0%`;
+  const xhr=await uploadStorage(path,capturedBlob,token,(loaded,total)=>{
+   const pct=Math.round((loaded/total)*100),sec=Math.max(0,(performance.now()-started)/1000);
+   const duration=`${String(Math.floor(sec/60)).padStart(2,"0")}:${String(Math.floor(sec%60)).padStart(2,"0")}`;
+   $("uploadProgressFill").style.width=pct+"%";
+   $("uploadProgressText").textContent=`UPLOAD:// PAST-SNAPS\nSIZE: ${formatBytes(loaded)} / ${formatBytes(total)}\nDURATION: ${duration}\nPROGRESS: ${pct}%\n${"█".repeat(Math.max(1,Math.floor(pct/5))).padEnd(20,"░")}`;
+   if(pct%10===0)beep(300+pct*4,.012);
+  });
+  const publicUrl=`${SUPABASE_URL}/storage/v1/object/public/past-snaps/${path}`;
+  const {error}=await supabaseClient.from("snaps").insert({
+   latitude:capturedLatitude,longitude:capturedLongitude,image_url:publicUrl,
+   media_type:capturedType,user_id:currentUser.id,description:$("descriptionInput").value.trim()||null
+  });
+  if(error)throw error;
+  hide($("previewModal"));$("descriptionInput").value="";hide($("uploadProgress"));
+  capturedBlob=null;status("SNAP POSTED");await loadSnaps();
+ }catch(e){console.error(e);alert("Post failed: "+e.message)}
+ finally{$("postBtn").disabled=false}
+}
+function uploadStorage(path,blob,token,progressCb=null){
+ return new Promise((resolve,reject)=>{
+  const xhr=new XMLHttpRequest();
+  xhr.open("POST",`${SUPABASE_URL}/storage/v1/object/past-snaps/${encodeURIComponent(path)}`);
+  xhr.setRequestHeader("Authorization","Bearer "+token);
+  xhr.setRequestHeader("apikey",SUPABASE_KEY);
+  xhr.setRequestHeader("Content-Type",blob.type||"application/octet-stream");
+  xhr.upload.onprogress=e=>{if(e.lengthComputable&&progressCb)progressCb(e.loaded,e.total)};
+  xhr.onload=()=>xhr.status>=200&&xhr.status<300?resolve(xhr.responseText):reject(new Error("Storage "+xhr.status+" "+xhr.responseText));
+  xhr.onerror=()=>reject(new Error("Storage network error"));
+  xhr.send(blob);
+ });
 }
 
-
-/* =========================================================
-   QR SCANNER
-========================================================= */
-
-async function startQRScanner(){
-
-  if(qrScanner){
-    return;
-  }
-
-  $("qrReader")
-    .style.display =
-    "block";
-
-  qrScanner =
-    new Html5Qrcode(
-      "qrReader"
-    );
-
-  try{
-
-    await qrScanner.start(
-      {
-        facingMode:
-          "environment"
-      },
-      {
-        fps:10,
-        qrbox:220
-      },
-      decodedText => {
-
-        $("joinRoomInput")
-          .value =
-          decodedText;
-
-        stopQRScanner();
-
-        playHackerConfirm();
-
-        toast(
-          "Room ID scanned"
-        );
-
-      }
-    );
-
-  }catch(error){
-
-    toast(
-      "QR camera unavailable"
-    );
-
-    stopQRScanner();
-
-  }
-
+/* ================= VIEWER ================= */
+let viewerHistory=false;
+function openGallery(items){
+ galleryItems=items||[];
+ galleryIndex=0;
+ show($("viewerModal"));
+ renderGallery();
+ if(!viewerHistory){
+   viewerHistory=true;
+   const base=location.pathname+location.search;
+   history.pushState({cyberViewer:true},"",base+"#snap-view");
+ }
 }
-
-
-async function stopQRScanner(){
-
-  if(!qrScanner){
-    return;
-  }
-
-  try{
-
-    await qrScanner.stop();
-    await qrScanner.clear();
-
-  }catch(error){}
-
-  qrScanner =
-    null;
-
-  $("qrReader")
-    .style.display =
-    "none";
-
+function closeViewer(fromPop=false){
+ hide($("viewerModal"));
+ if(viewerHistory&&!fromPop){
+   viewerHistory=false;
+   history.back();
+ }else{
+   viewerHistory=false;
+ }
+ setTimeout(()=>{try{map?.invalidateSize()}catch(e){}},80);
 }
-
-
-$("scanQrBtn").onclick =
-  startQRScanner;
-
-
-/* =========================================================
-   COPY ROOM ID
-========================================================= */
-
-$("copyRoomBtn").onclick =
-  async () => {
-
-    try{
-
-      await navigator.clipboard
-        .writeText(
-          permanentRoomId
-        );
-
-      playHackerConfirm();
-
-      toast(
-        "Room ID copied"
-      );
-
-    }catch(error){
-
-      toast(
-        permanentRoomId
-      );
-
-    }
-
-  };
-
-
-/* =========================================================
-   CALL
-========================================================= */
-
-$("callRoomBtn").onclick =
-  () => {
-
-    const targetRoom =
-      $("joinRoomInput")
-        .value
-        .trim();
-
-    if(!targetRoom){
-
-      toast(
-        "Enter Room ID"
-      );
-
-      return;
-    }
-
-    currentCallRoom =
-      targetRoom;
-
-    socket.emit(
-      "join-room",
-      targetRoom
-    );
-
-    socket.emit(
-      "call-user",
-      {
-        roomId:
-          targetRoom,
-        from:
-          permanentRoomId
-      }
-    );
-
-    $("callTitle")
-      .textContent =
-      "Calling...";
-
-    $("incomingActions")
-      .style.display =
-      "none";
-
-    showModal(
-      "callModal"
-    );
-
-  };
-
-
-/* =========================================================
-   SOCKET EVENTS
-========================================================= */
-
-socket.on(
-  "connect",
-  () => {
-
-    socket.emit(
-      "join-room",
-      permanentRoomId
-    );
-
-  }
-);
-
-
-socket.on(
-  "incoming-call",
-  data => {
-
-    currentCallRoom =
-      data.roomId ||
-      data.from;
-
-    $("callTitle")
-      .textContent =
-      "Incoming Call";
-
-    $("incomingActions")
-      .style.display =
-      "flex";
-
-    showModal(
-      "callModal"
-    );
-
-    playHackerConfirm();
-
-  }
-);
-
-
-socket.on(
-  "call-rejected",
-  () => {
-
-    hideModal(
-      "callModal"
-    );
-
-    toast(
-      "Call rejected"
-    );
-
-  }
-);
-
-
-socket.on(
-  "call-ended",
-  () => {
-    endCall(false);
-  }
-);
-
-
-/* =========================================================
-   WEBRTC
-========================================================= */
-
-async function beginCall(
-  initiator
-){
-
-  try{
-
-    localCallStream =
-      await navigator
-        .mediaDevices
-        .getUserMedia({
-          video:true,
-          audio:true
-        });
-
-    $("localVideo")
-      .srcObject =
-      localCallStream;
-
-    $("incomingActions")
-      .style.display =
-      "none";
-
-    $("callVideoArea")
-      .style.display =
-      "block";
-
-    callPeer =
-      new RTCPeerConnection({
-        iceServers:[
-          {
-            urls:
-              "stun:stun.l.google.com:19302"
-          }
-        ]
-      });
-
-    localCallStream
-      .getTracks()
-      .forEach(
-        track =>
-          callPeer.addTrack(
-            track,
-            localCallStream
-          )
-      );
-
-    callPeer.ontrack =
-      event => {
-
-        $("remoteVideo")
-          .srcObject =
-          event.streams[0];
-
-      };
-
-    callPeer.onicecandidate =
-      event => {
-
-        if(
-          event.candidate
-        ){
-
-          socket.emit(
-            "webrtc-signal",
-            {
-              roomId:
-                currentCallRoom,
-              data:{
-                candidate:
-                  event.candidate
-              }
-            }
-          );
-
-        }
-
-      };
-
-    if(initiator){
-
-      const offer =
-        await callPeer
-          .createOffer();
-
-      await callPeer
-        .setLocalDescription(
-          offer
-        );
-
-      socket.emit(
-        "webrtc-signal",
-        {
-          roomId:
-            currentCallRoom,
-          data:{
-            description:
-              callPeer.localDescription
-          }
-        }
-      );
-
-    }
-
-  }catch(error){
-
-    console.error(
-      error
-    );
-
-    toast(
-      "Call camera/microphone permission required"
-    );
-
-  }
-
+async function renderGallery(){
+ if(!galleryItems.length)return;
+ const snap=galleryItems[galleryIndex];currentGallerySnap=snap;
+ $("viewerCounter").textContent=`${galleryIndex+1}/${galleryItems.length}`;
+ $("viewerMediaWrap").innerHTML=snap.media_type==="video"
+  ?`<video id="viewerMedia" controls autoplay playsinline src="${esc(snap.image_url)}"></video>`
+  :`<img id="viewerMedia" src="${esc(snap.image_url)}" alt="snap">`;
+ const p=await getProfileName(snap.user_id);
+ $("viewerAuthor").innerHTML=`👤 <b>${esc(p)}</b>`;
+ $("viewerLocation").textContent=`📍 ${Number(snap.latitude).toFixed(5)}, ${Number(snap.longitude).toFixed(5)}`;
+ $("viewerTime").textContent=`🕒 ${new Date(snap.created_at).toLocaleString()}`;
+ $("viewerDescription").textContent=snap.description||"";
+ await loadEngagement(snap);
 }
-
-
-socket.on(
-  "webrtc-signal",
-  async data => {
-
-    if(!callPeer){
-      return;
-    }
-
-    try{
-
-      if(
-        data.data?.candidate
-      ){
-
-        await callPeer
-          .addIceCandidate(
-            data.data.candidate
-          );
-
-      }
-
-      if(
-        data.data?.description
-      ){
-
-        await callPeer
-          .setRemoteDescription(
-            data.data.description
-          );
-
-        if(
-          data.data.description.type ===
-          "offer"
-        ){
-
-          const answer =
-            await callPeer
-              .createAnswer();
-
-          await callPeer
-            .setLocalDescription(
-              answer
-            );
-
-          socket.emit(
-            "webrtc-signal",
-            {
-              roomId:
-                currentCallRoom,
-              data:{
-                description:
-                  callPeer.localDescription
-              }
-            }
-          );
-
-        }
-
-      }
-
-    }catch(error){
-
-      console.error(
-        error
-      );
-
-    }
-
-  }
-);
-
-
-/* =========================================================
-   ACCEPT / REJECT / END CALL
-========================================================= */
-
-$("acceptCallBtn").onclick =
-  async () => {
-
-    socket.emit(
-      "accept-call",
-      {
-        roomId:
-          currentCallRoom
-      }
-    );
-
-    await beginCall(
-      false
-    );
-
-  };
-
-
-$("rejectCallBtn").onclick =
-  () => {
-
-    socket.emit(
-      "reject-call",
-      {
-        roomId:
-          currentCallRoom
-      }
-    );
-
-    hideModal(
-      "callModal"
-    );
-
-  };
-
-
-function endCall(
-  sendSignal=true
-){
-
-  if(
-    sendSignal &&
-    currentCallRoom
-  ){
-
-    socket.emit(
-      "end-call",
-      {
-        roomId:
-          currentCallRoom
-      }
-    );
-
-  }
-
-  if(localCallStream){
-
-    localCallStream
-      .getTracks()
-      .forEach(
-        track =>
-          track.stop()
-      );
-
-  }
-
-  localCallStream =
-    null;
-
-  if(callPeer){
-    callPeer.close();
-  }
-
-  callPeer =
-    null;
-
-  $("localVideo")
-    .srcObject =
-    null;
-
-  $("remoteVideo")
-    .srcObject =
-    null;
-
-  $("callVideoArea")
-    .style.display =
-    "none";
-
-  hideModal(
-    "callModal"
-  );
-
+async function getProfileName(id){
+ if(!id)return"Unknown";
+ const {data}=await supabaseClient.from("profiles").select("display_name").eq("id",id).maybeSingle();
+ return data?.display_name||"User";
 }
-
-
-$("endCallBtn").onclick =
-  () =>
-    endCall(true);
-
-
-$("muteBtn").onclick =
-  () => {
-
-    callMuted =
-      !callMuted;
-
-    if(localCallStream){
-
-      localCallStream
-        .getAudioTracks()
-        .forEach(
-          track =>
-            track.enabled =
-              !callMuted
-        );
-
-    }
-
-    $("muteBtn")
-      .textContent =
-      callMuted
-        ? "Unmute"
-        : "Mute";
-
-  };
-
-
-$("camBtn").onclick =
-  () => {
-
-    callCamera =
-      !callCamera;
-
-    if(localCallStream){
-
-      localCallStream
-        .getVideoTracks()
-        .forEach(
-          track =>
-            track.enabled =
-              callCamera
-        );
-
-    }
-
-    $("camBtn")
-      .textContent =
-      callCamera
-        ? "Camera"
-        : "Camera Off";
-
-  };
-
-
-/* =========================================================
-   TOP/BOTTOM BUTTON TOGGLES
-========================================================= */
-
-$("adminBtn").onclick =
-  () =>
-    togglePanel(
-      "adminModal"
-    );
-
-
-$("notificationBtn").onclick =
-  () =>
-    togglePanel(
-      "notificationModal",
-      async () => {
-
-        $("notifDot")
-          .style.display =
-          "none";
-
-        await loadNotifications();
-
-      }
-    );
-
-
-$("roomBtn").onclick =
-  () =>
-    togglePanel(
-      "roomModal"
-    );
-
-
-$("joinBtn").onclick =
-  () =>
-    togglePanel(
-      "joinModal"
-    );
-
-
-$("youBtn").onclick =
-  () =>
-    togglePanel(
-      "youModal",
-      async () => {
-
-        await loadProfile();
-
-        try{
-
-          await detectLiveLocation({
-            centerMap:false
-          });
-
-          await updateLocationPreview();
-
-        }catch(error){
-
-          console.error(
-            "You location refresh error",
-            error
-          );
-
-        }
-
-      }
-    );
-
-
-/* =========================================================
-   CLOSE BUTTONS
-========================================================= */
-
-document
-  .querySelectorAll(
-    "[data-close]"
-  )
-  .forEach(
-    button => {
-
-      button.onclick =
-        () =>
-          hideModal(
-            button.dataset.close
-          );
-
-    }
-  );
-
-
-/* =========================================================
-   LOGOUT
-========================================================= */
-
-$("logoutBtn").onclick =
-  async () => {
-
-    if(
-      !confirm(
-        "Logout?"
-      )
-    ){
-
-      return;
-    }
-
-    try{
-
-      await supabaseClient
-        .auth
-        .signOut();
-
-    }catch(error){}
-
-    location.reload();
-
-  };
-
-
-/* =========================================================
-   INITIALIZE
-========================================================= */
-
-(async () => {
-
-  try{
-
-    await loadProfile();
-
-  }catch(error){
-
-    console.error(
-      "Profile initialization error",
-      error
-    );
-
-  }
-
-  try{
-
-    await detectLiveLocation({
-      centerMap:false
-    });
-
-  }catch(error){
-
-    console.log(
-      "Initial GPS unavailable"
-    );
-
-  }
-
-  try{
-
-    await loadSnaps();
-
-  }catch(error){
-
-    console.error(
-      "Snap initialization error",
-      error
-    );
-
-  }
-
-  try{
-
-    await loadNotifications();
-
-  }catch(error){
-
-    console.error(
-      "Notification initialization error",
-      error
-    );
-
-  }
-
+async function loadEngagement(snap){
+ const {data:likes}=await supabaseClient.from("snap_likes").select("user_id").eq("snap_id",snap.id);
+ const mine=currentUser&&likes?.some(x=>x.user_id===currentUser.id);
+ $("likeBtn").textContent=mine?"♥ LIKED":"♡ LIKE";
+ const names=[];
+ for(const l of (likes||[]).slice(0,8))names.push(await getProfileName(l.user_id));
+ $("likeUsers").textContent=names.length?`Liked by: ${names.join(", ")}`:"No likes yet";
+ await addView(snap);
+ await loadComments(snap);
+}
+async function addView(snap){
+ if(!currentUser)return;
+ await supabaseClient.from("snap_views").insert({snap_id:snap.id,user_id:currentUser.id}).catch(()=>{});
+}
+$("likeBtn").onclick=async()=>{
+ if(!currentUser)return openAuth();
+ if(!currentGallerySnap)return;
+ const snap=currentGallerySnap;
+ const {data}=await supabaseClient.from("snap_likes").select("id").eq("snap_id",snap.id).eq("user_id",currentUser.id).maybeSingle();
+ if(data)await supabaseClient.from("snap_likes").delete().eq("id",data.id);
+ else await supabaseClient.from("snap_likes").insert({snap_id:snap.id,user_id:currentUser.id});
+ await loadEngagement(snap);
+};
+async function loadComments(snap){
+ const {data,error}=await supabaseClient.from("snap_comments").select("*").eq("snap_id",snap.id).order("created_at",{ascending:true});
+ if(error){$("commentsList").innerHTML="Comments unavailable.";return}
+ const rows=data||[];
+ const render=(parent,depth=0)=>rows.filter(x=>(x.parent_comment_id||null)===(parent||null)).map(x=>`
+  <div class="commentItem ${depth?"commentReply":""}">
+   <div><b>${esc(x.user_id===currentUser?.id?"You":"User")}</b> ${esc(x.comment_text)}</div>
+   <div class="commentMeta">${new Date(x.created_at).toLocaleString()} <button class="secondary replyBtn" data-id="${x.id}" data-text="${esc(x.comment_text)}">REPLY</button></div>
+   ${render(x.id,depth+1)}
+  </div>`).join("");
+ $("commentsList").innerHTML=render(null)||'<div class="muted">No comments yet.</div>';
+}
+$("commentsList").onclick=e=>{
+ const b=e.target.closest(".replyBtn");if(!b)return;
+ replyingTo=b.dataset.id;$("commentInput").value="@reply ";
+ $("commentInput").focus();
+};
+$("sendCommentBtn").onclick=async()=>{
+ if(!currentUser)return openAuth();
+ if(!currentGallerySnap)return;
+ const text=$("commentInput").value.trim();if(!text)return;
+ const {error}=await supabaseClient.from("snap_comments").insert({
+  snap_id:currentGallerySnap.id,user_id:currentUser.id,parent_comment_id:replyingTo||null,comment_text:text
+ });
+ if(error)return alert(error.message);
+ $("commentInput").value="";replyingTo=null;await loadComments(currentGallerySnap);
+};
+$("commentFocusBtn").onclick=()=>$("commentInput").focus();
+$("closeViewer").onclick=()=>closeViewer();
+$("prevSnap").onclick=()=>{if(galleryIndex>0){galleryIndex--;renderGallery()}}
+$("nextSnap").onclick=()=>{if(galleryIndex<galleryItems.length-1){galleryIndex++;renderGallery()}};
+let touchX=0;
+$("viewerModal").addEventListener("touchstart",e=>touchX=e.changedTouches[0].clientX);
+$("viewerModal").addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-touchX;if(Math.abs(dx)>70){if(dx<0)$("nextSnap").click();else $("prevSnap").click()}});
+
+/* ================= CALLING + ROOM CHAT ================= */
+function openRoomPanel(){if(!currentUser)return openAuth();closePanels();ensureRoom();show($("roomPanel"))}
+function openJoinPanel(){if(!currentUser)return openAuth();closePanels();renderSavedRooms();show($("joinPanel"))}
+function openChatPanel(){if(!currentUser)return openAuth();closePanels();renderSavedRooms();show($("chatPanel"));}
+function renderMyRoomQR(room){const box=$("myRoomQr");if(!box)return;box.innerHTML="";if(!room||room==="LOGIN REQUIRED")return;try{new QRCode(box,{text:location.origin+location.pathname+"?room="+encodeURIComponent(room),width:200,height:200,colorDark:"#071007",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M})}catch(e){box.textContent="QR UNAVAILABLE"}}
+function getSavedRooms(){try{return JSON.parse(localStorage.getItem("cyberSavedRooms")||"[]")}catch(e){return[]}}
+function saveRoomId(room){room=String(room||"").trim().toUpperCase();if(!room)return;let a=getSavedRooms().filter(x=>x!==room);a.unshift(room);a=a.slice(0,20);localStorage.setItem("cyberSavedRooms",JSON.stringify(a));renderSavedRooms()}
+function renderSavedRooms(){const box=$("savedRoomsList");if(!box)return;const a=getSavedRooms();box.innerHTML=a.length?'<div class="muted" style="width:100%">SAVED ROOM IDs</div>':'';a.forEach(room=>{const b=document.createElement("button");b.className="savedRoom";b.textContent=room;b.onclick=()=>{$("targetRoomInput").value=room;$("chatTargetRoom").value=room;openChatPanel()};box.appendChild(b)})}
+$("copyRoomBtn").onclick=async()=>{if(!myRoom)return;await navigator.clipboard?.writeText(myRoom);status("ROOM ID COPIED")};
+$("shareRoomBtn").onclick=async()=>{if(!myRoom)return;try{await navigator.share({title:"My Room ID",text:myRoom})}catch(e){}};
+$("callUserBtn").onclick=()=>{
+ if(!currentUser)return openAuth();
+ const room=$("targetRoomInput").value.trim().toUpperCase();
+ if(!room)return alert("Room ID dalo.");
+ const saved=getSavedRooms();
+ if(!saved.includes(room)&&confirm("Is Room ID ko save karna hai?"))saveRoomId(room);
+ socket.emit("call-user",{targetRoom:room});
+ status("CALLING "+room+"...");
+};
+async function notifyRoomMessage(targetRoom,message){const {data:recipient}=await supabaseClient.from("profiles").select("id").eq("call_room_id",targetRoom).maybeSingle();if(!recipient||recipient.id===currentUser?.id)return;const senderName=currentProfile?.display_name||"User";await supabaseClient.from("notifications").insert({recipient_id:recipient.id,actor_id:currentUser.id,notification_type:"chat",message:`Room ${targetRoom}: ${senderName} sent a message — ${message}`})}
+function addRoomChat(msg,mine=false,from="",mediaUrl="",type="text"){const x=document.createElement("div");x.className="chatMsg "+(mine?"chatMine":"");if(mediaUrl){const m=type==="video"?document.createElement("video"):document.createElement("img");m.src=mediaUrl;m.className="chatMedia";if(type==="video"){m.controls=true;m.playsInline=true}x.appendChild(m);const l=document.createElement("div");l.textContent=(from?from+" · ":"")+type.toUpperCase();x.appendChild(l)}else x.textContent=(from?from+": ":"")+msg;$("roomChatMessages").appendChild(x);$("roomChatMessages").scrollTop=$("roomChatMessages").scrollHeight}
+$("sendRoomChatBtn").onclick=async()=>{
+ if(!currentUser)return openAuth();
+ const room=$("chatTargetRoom").value.trim().toUpperCase();
+ const msg=$("roomChatInput").value.trim();
+ if(!room||!msg)return;
+ const saved=getSavedRooms();
+ if(!saved.includes(room)&&confirm("Is Room ID ko save karna hai?"))saveRoomId(room);
+ socket.emit("room-chat",{targetRoom:room,message:msg,type:"text"});
+ addRoomChat(msg,true,"You");
+ await notifyRoomMessage(room,msg);
+ $("roomChatInput").value="";
+ status("MESSAGE SENT");
+};
+$("roomChatInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("sendRoomChatBtn").click()});
+socket.on("room-chat",d=>{addRoomChat(d.message,false,d.fromName||"User",d.mediaUrl||"",d.type||"text");show($("chatPanel"));setActiveNav("chatNav");loadNotifications();try{if(Notification.permission==="granted")new Notification("Cyber Map Viewer",{body:(d.fromName||"User")+": "+(d.message||"MEDIA")})}catch(e){}});
+
+function ensureCallTile(peerId,name="USER"){let tile=$("callTile-"+peerId);if(tile)return tile;tile=document.createElement("div");tile.className="callTile";tile.id="callTile-"+peerId;const v=document.createElement("video");v.id="callVideo-"+peerId;v.autoplay=true;v.playsInline=true;const n=document.createElement("div");n.className="tileName";n.textContent=name;const st=document.createElement("div");st.className="tileStatus";st.textContent="● LIVE";tile.append(v,n,st);$("callGrid").appendChild(tile);return tile}
+function removeCallTile(peerId){$("callTile-"+peerId)?.remove()}
+function updateCallCount(){$("callMemberCount").textContent=`${1+callPeers.size}/6 USERS`}
+async function ensureLocalCallMedia(){if(localCallStream)return localCallStream;localCallStream=await navigator.mediaDevices.getUserMedia({video:true,audio:true});$("localVideo").srcObject=localCallStream;return localCallStream}
+function resetCallUI(){$("callGrid").innerHTML="";callPeers.clear();updateCallCount();$("chatMessages").innerHTML=""}
+async function createCallPeer(peerId,isOfferer,name="USER"){if(!peerId||peerId===socket.id)return;if(callPeers.has(peerId))return callPeers.get(peerId).pc;await ensureLocalCallMedia();const pc=new RTCPeerConnection({iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:stun1.l.google.com:19302"}]});const entry={pc,name};callPeers.set(peerId,entry);ensureCallTile(peerId,name);updateCallCount();localCallStream.getTracks().forEach(t=>pc.addTrack(t,localCallStream));pc.ontrack=e=>{const v=$("callVideo-"+peerId);if(v)v.srcObject=e.streams[0]};pc.onicecandidate=e=>{if(e.candidate)socket.emit("webrtc-signal",{targetId:peerId,signal:{candidate:e.candidate}})};pc.onconnectionstatechange=()=>{if(["failed","closed","disconnected"].includes(pc.connectionState))removeCallPeer(peerId)};if(isOfferer){const offer=await pc.createOffer();await pc.setLocalDescription(offer);socket.emit("webrtc-signal",{targetId:peerId,signal:{offer}})}return pc}
+async function removeCallPeer(peerId){const e=callPeers.get(peerId);if(e){try{e.pc.close()}catch(_){}callPeers.delete(peerId)}removeCallTile(peerId);updateCallCount()}
+async function handleRoomUsers(users){if(!callActive||!Array.isArray(users))return;await ensureLocalCallMedia();for(const u of users){const id=typeof u==="string"?u:u.peerId;const name=typeof u==="string"?"USER":(u.displayName||"USER");if(id&&id!==socket.id&&!callPeers.has(id)&&socket.id<id)await createCallPeer(id,true,name)}}
+function openCallUI(){show($("callModal"));$("chatBox").style.display="none";if(!callStartedAt)callStartedAt=Date.now();beep(880,.08);beep(1200,.06)}
+async function beginCallRoom(room){callRoom=room;callActive=true;callStartedAt=Date.now();resetCallUI();await ensureLocalCallMedia();openCallUI();socket.emit("join-room",{room,displayName:currentProfile?.display_name||"USER"})}
+async function shareCallRecord(){if(!lastCallRecord)return;$("callRecordText").textContent=lastCallRecord;show($("callRecordModal"));}
+async function leaveCallRoom(){if(callRoom)socket.emit("leave-room");for(const id of [...callPeers.keys()])await removeCallPeer(id);if(localCallStream){localCallStream.getTracks().forEach(t=>t.stop());localCallStream=null}$("localVideo").srcObject=null;callRoom=null;callActive=false;hide($("callModal"));if(currentUser)setTimeout(()=>ensureRoom(),150)}
+async function endCall(send=true){const roomAtEnd=callRoom;const started=callStartedAt||Date.now();if(send&&roomAtEnd)socket.emit("end-group-call",{room:roomAtEnd});const sec=Math.max(0,Math.round((Date.now()-started)/1000));const mm=String(Math.floor(sec/60)).padStart(2,"0"),ss=String(sec%60).padStart(2,"0");lastCallRecord=`CYBER MAP VIEWER // CALLING RECORD\nROOM: ${roomAtEnd||"—"}\nDURATION: ${mm}:${ss}\nDATE: ${new Date().toLocaleString()}\nSTATUS: CALL ENDED`;callStartedAt=0;await leaveCallRoom();status("CALL ENDED");setTimeout(shareCallRecord,120)}
+
+socket.on("room-joined",async d=>{if(d.room===myRoom&&!callActive){status("ROOM ONLINE: "+d.room);return}if(callActive&&d.room===callRoom){await handleRoomUsers(d.users||[]);updateCallCount()}});
+socket.on("room-users",async d=>{if(callActive&&d.room===callRoom)await handleRoomUsers(d.users||[])});
+socket.on("peer-joined",async d=>{if(callActive&&callRoom&&d.peerId&&socket.id<d.peerId)await createCallPeer(d.peerId,true,d.displayName||"USER")});
+socket.on("peer-left",async d=>{if(callActive)await removeCallPeer(d.peerId)});
+socket.on("room-full",d=>status("CALL ROOM FULL · MAX "+(d.max||6)));
+socket.on("call-ringing",d=>status("RINGING "+(d.targetRoom||"")+"..."));
+socket.on("call-unavailable",()=>status("USER OFFLINE"));
+socket.on("invite-unavailable",()=>status("FRIEND OFFLINE"));
+socket.on("call-room-full",()=>status("CALL FULL · MAX 6"));
+socket.on("incoming-call",d=>{incomingCallerId=d.callerId;incomingCallerRoom=d.callerRoom||"";incomingCallerName=d.callerName||"USER";$("incomingCaller").textContent=(incomingCallerRoom?incomingCallerRoom+" · ":"")+incomingCallerName;show($("incomingModal"));beep(1000,.12);setTimeout(()=>beep(1000,.12),180)});
+$("acceptCallBtn").onclick=async()=>{
+ hide($("incomingModal"));
+ if(incomingCallerRoom&&!getSavedRooms().includes(incomingCallerRoom)&&confirm("Is Room ID ko save karna hai?"))saveRoomId(incomingCallerRoom);
+ socket.emit("accept-call",{callerId:incomingCallerId,callRoom:incomingCallerRoom});
+ await beginCallRoom(incomingCallerRoom);
+};
+$("rejectCallBtn").onclick=()=>{socket.emit("reject-call",{callerId:incomingCallerId});hide($("incomingModal"))};
+socket.on("call-accepted",async d=>{status("CALL ACCEPTED");if(!callActive){callActive=true;callRoom=d.callRoom||myRoom;resetCallUI();await ensureLocalCallMedia();openCallUI();socket.emit("join-room",{room:callRoom,displayName:currentProfile?.display_name||"USER"})}});
+socket.on("call-rejected",()=>status("CALL REJECTED"));socket.on("call-ended",()=>endCall(false));socket.on("group-call-ended",()=>endCall(false));
+socket.on("webrtc-signal",async d=>{if(!callActive)return;const s=d.signal||{};let entry=callPeers.get(d.senderId);if(s.offer&&!entry){const pc=await createCallPeer(d.senderId,false,d.senderName||"USER");entry=callPeers.get(d.senderId);await pc.setRemoteDescription(new RTCSessionDescription(s.offer));const answer=await pc.createAnswer();await pc.setLocalDescription(answer);socket.emit("webrtc-signal",{targetId:d.senderId,signal:{answer}});return}if(!entry)return;try{if(s.answer)await entry.pc.setRemoteDescription(new RTCSessionDescription(s.answer));if(s.candidate)await entry.pc.addIceCandidate(new RTCIceCandidate(s.candidate))}catch(e){console.warn("WebRTC signal:",e)}});
+
+function addChat(msg,mine=false,from="",mediaUrl="",type="text"){const x=document.createElement("div");x.className="chatMsg "+(mine?"chatMine":"");if(mediaUrl){const m=type==="video"?document.createElement("video"):document.createElement("img");m.src=mediaUrl;m.className="chatMedia";if(type==="video"){m.controls=true;m.playsInline=true}x.appendChild(m);const l=document.createElement("div");l.textContent=(from||"USER")+" · "+type.toUpperCase();x.appendChild(l)}else x.textContent=(from?from+": ":"")+msg;$("chatMessages").appendChild(x);$("chatMessages").scrollTop=$("chatMessages").scrollHeight}
+$("chatCallBtn").onclick=()=>{$("chatBox").style.display=$("chatBox").style.display==="none"?"block":"none"};
+$("sendChatBtn").onclick=()=>{const msg=$("chatInput").value.trim();if(!msg||!callRoom)return;socket.emit("call-room-message",{room:callRoom,message:msg,type:"text"});addChat(msg,true,"YOU");$("chatInput").value=""};
+$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("sendChatBtn").click()});socket.on("call-room-message",d=>addChat(d.message,false,d.fromName||"USER",d.mediaUrl||"",d.type||"text"));
+$("callChatFileBtn").onclick=()=>$("callChatFile").click();
+$("callChatFile").onchange=async e=>{const file=e.target.files?.[0];if(!file||!callRoom||!currentUser)return;if(file.size>50*1024*1024){alert("Media max 50 MB.");e.target.value="";return}try{status("UPLOADING CHAT MEDIA...");const {data:{session}}=await supabaseClient.auth.getSession();const token=session?.access_token||SUPABASE_KEY;const type=file.type.startsWith("video/")?"video":"image";const ext=(file.name.split(".").pop()||"bin").replace(/[^a-z0-9]/gi,"");const path=`${currentUser.id}/chat/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;const url=`${SUPABASE_URL}/storage/v1/object/public/past-snaps/${path}`;await uploadStorage(path,file,token,(loaded,total)=>status(`CHAT UPLOAD ${Math.round(loaded/total*100)}% · ${formatBytes(loaded)}/${formatBytes(total)}`));socket.emit("call-room-message",{room:callRoom,message:file.name,type,mediaUrl:url});addChat(file.name,true,"YOU",url,type);status("MEDIA SENT")}catch(err){alert("Media send failed: "+err.message)}finally{e.target.value=""}};
+$("addFriendCallBtn").onclick=()=>{if(!callActive)return;$("callFriendRoomInput").value="";show($("addFriendModal"))};
+$("inviteFriendBtn").onclick=()=>{const room=$("callFriendRoomInput").value.trim().toUpperCase();if(!room)return;socket.emit("call-user",{targetRoom:room});hide($("addFriendModal"));status("FRIEND INVITE SENT "+room)};
+$("endCallBtn").onclick=()=>endCall(true);
+$("muteCallBtn").onclick=()=>{if(!localCallStream)return;muted=!muted;localCallStream.getAudioTracks().forEach(t=>t.enabled=!muted);$("muteCallBtn").textContent=muted?"🔇":"🎙"};
+$("cameraCallBtn").onclick=()=>{if(!localCallStream)return;cameraOff=!cameraOff;localCallStream.getVideoTracks().forEach(t=>t.enabled=!cameraOff);$("cameraCallBtn").textContent=cameraOff?"🚫":"📷"};
+$("shareCallRecordBtn").onclick=async()=>{
+ if(!lastCallRecord)return;
+ try{
+   if(navigator.share){await navigator.share({title:"Cyber Map Viewer Calling Record",text:lastCallRecord})}
+   else{await navigator.clipboard?.writeText(lastCallRecord);status("CALL RECORD COPIED")}
+ }catch(e){}
+};
+$("shareWhatsAppBtn").onclick=async()=>{if(!lastCallRecord)return;await navigator.clipboard?.writeText(lastCallRecord);window.open("https://wa.me/?text="+encodeURIComponent(lastCallRecord),"_blank")};
+$("shareFacebookBtn").onclick=async()=>{if(!lastCallRecord)return;await navigator.clipboard?.writeText(lastCallRecord);window.open("https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(location.href),"_blank")};
+$("shareInstagramBtn").onclick=async()=>{if(!lastCallRecord)return;await navigator.clipboard?.writeText(lastCallRecord);status("CALL RECORD COPIED · OPEN INSTAGRAM TO SHARE")};
+$("closeCallRecordBtn").onclick=()=>hide($("callRecordModal"));
+
+/* ================= BACK BUTTON SAFETY ================= */
+window.addEventListener("popstate",()=>{
+ if(viewerHistory){
+   viewerHistory=false;
+   hide($("viewerModal"));
+   status("MAP ONLINE");
+   setTimeout(()=>{try{map?.invalidateSize()}catch(e){}},80);
+   return;
+ }
+});
+
+
+/* ================= YOU / ADMIN / QR ================= */
+function setYouLocationDefaults(){
+ ["youLocality","youVillage","youCity","youDistrict","youState","youPin","youCountry","youLatitude","youLongitude","youAccuracy","youDate","youTime"].forEach(id=>{
+  const el=$(id);
+  if(el)el.textContent="—";
+ });
+ $("youLivePlace").textContent="CURRENT GPS LOCATION";
+}
+function firstAddressValue(address,keys){
+ for(const key of keys){
+  const value=String(address?.[key]??"").trim();
+  if(value)return value;
+ }
+ return "—";
+}
+async function reverseGeocodeLivePosition(lat,lng){
+ const url="https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&accept-language=en&lat="+encodeURIComponent(lat)+"&lon="+encodeURIComponent(lng);
+ const response=await fetch(url,{headers:{"Accept":"application/json"}});
+ if(!response.ok)throw new Error("Reverse geocode "+response.status);
+ return await response.json();
+}
+function applyYouReverseGeocode(result,position){
+ const a=result?.address||{};
+ const locality=firstAddressValue(a,["suburb","neighbourhood","quarter","residential","city_district","hamlet"]);
+ const village=firstAddressValue(a,["village","hamlet","isolated_dwelling"]);
+ const city=firstAddressValue(a,["city","town","municipality","city_district"]);
+ const district=firstAddressValue(a,["county","district","state_district"]);
+ const state=firstAddressValue(a,["state","region","province"]);
+ const pin=firstAddressValue(a,["postcode"]);
+ const country=firstAddressValue(a,["country"]);
+ const livePlace=result?.display_name||[locality,village,city,district,state,country].filter(x=>x&&x!=="—").join(", ")||"CURRENT GPS LOCATION";
+ $("youLivePlace").textContent=livePlace;
+ $("youLocality").textContent=locality;
+ $("youVillage").textContent=village;
+ $("youCity").textContent=city;
+ $("youDistrict").textContent=district;
+ $("youState").textContent=state;
+ $("youPin").textContent=pin;
+ $("youCountry").textContent=country;
+ $("youLatitude").textContent=Number(position.coords.latitude).toFixed(6);
+ $("youLongitude").textContent=Number(position.coords.longitude).toFixed(6);
+ $("youAccuracy").textContent=Number.isFinite(position.coords.accuracy)?Math.round(position.coords.accuracy)+" m":"—";
+ const now=new Date();
+ $("youDate").textContent=now.toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"});
+ $("youTime").textContent=now.toLocaleTimeString(undefined,{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false});
+}
+async function openYouPanel(){
+ if(!currentUser)return openAuth();
+ closePanels();
+ $("youName").textContent=currentProfile?.display_name||"User";
+ $("youEmail").textContent=currentUser.email||"—";
+ $("youRoom").textContent=myRoom||currentProfile?.call_room_id||"LOADING...";
+ setYouLocationDefaults();
+ show($("youPanel"));
+ try{
+  const p=await getFreshPosition();
+  applyYouReverseGeocode(await reverseGeocodeLivePosition(p.coords.latitude,p.coords.longitude),p);
+ }catch(e){
+  console.warn("You location:",e);
+  $("youLivePlace").textContent="LIVE LOCATION UNAVAILABLE";
+  $("youLatitude").textContent="—";
+  $("youLongitude").textContent="—";
+  $("youAccuracy").textContent="—";
+ }
+}
+async function openAdminPanel(){
+ closePanels();show($("adminPanel"));
+ const {data}=await supabaseClient.from("profiles").select("display_name,call_room_id").eq("display_name","ROUSHAN YADAV").maybeSingle();
+ $("adminRoomId").textContent=data?.call_room_id||"ADMIN ROOM ID NOT FOUND";
+}
+$("youCancelBtn").onclick=()=>hide($("youPanel"));
+$("youLogoutBtn").onclick=async()=>{if(confirm("Logout karna hai?"))await logout()};
+$("adminBtn").onclick=openAdminPanel;
+$("adminWhatsAppBtn").onclick=()=>{window.open("https://wa.me/919153576962","_blank")};
+let qrStream=null,qrScanning=false;
+async function startQrScanner(){
+ show($("qrScannerModal"));
+ if(!("BarcodeDetector" in window)){ $("scanStatus").textContent="QR auto-scan supported nahi hai. Room ID manually enter karo.";return }
+ try{
+  const detector=new BarcodeDetector({formats:["qr_code"]});
+  qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false});
+  $("qrScannerVideo").srcObject=qrStream;qrScanning=true;$("scanStatus").textContent="SCANNING...";
+  const loop=async()=>{if(!qrScanning)return;try{const codes=await detector.detect($("qrScannerVideo"));if(codes?.[0]?.rawValue){const raw=codes[0].rawValue;let room=raw;try{const u=new URL(raw);room=u.searchParams.get("room")||raw}catch(e){}room=String(room).trim().toUpperCase();if(room){$("targetRoomInput").value=room;stopQrScanner();status("ROOM QR SCANNED");return}}}catch(e){}requestAnimationFrame(loop)};loop();
+ }catch(e){$("scanStatus").textContent="CAMERA SCAN FAILED: "+e.message}
+}
+function stopQrScanner(){qrScanning=false;if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null}$("qrScannerVideo").srcObject=null;hide($("qrScannerModal"))}
+$("scanRoomBtn").onclick=startQrScanner;$("scanClose").onclick=stopQrScanner;
+
+/* ================= UI NAV ================= */
+function closePanels(){hide($("roomPanel"));hide($("joinPanel"));hide($("chatPanel"));hide($("notificationPanel"));hide($("youPanel"));hide($("adminPanel"))}
+$("chatNav").onclick=()=>{setActiveNav("chatNav");openChatPanel();};
+$("cameraNav").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
+$("joinNav").onclick=()=>{setActiveNav("joinNav");openJoinPanel()};
+$("myRoomNav").onclick=()=>{setActiveNav("myRoomNav");openRoomPanel()};
+$("youNav").onclick=()=>{setActiveNav("youNav");openYouPanel()};
+$("notificationBtn").onclick=()=>{closePanels();show($("notificationPanel"));loadNotifications()};
+$("searchBtn").onclick=searchLocation;
+$("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter")searchLocation()});
+$("locBtn").onclick=()=>{setActiveNav("cameraNav");openCameraFromLocation()};
+document.querySelectorAll("[data-close]").forEach(b=>b.onclick=()=>hide($(b.dataset.close)));
+$("authClose").onclick=()=>hide($("authModal"));
+$("authSubmit").onclick=authSubmit;
+$("authSwitch").onclick=()=>openAuth(authMode==="login"?"register":"login");
+
+/* ================= GLOBAL BACK SAFETY ================= */
+window.addEventListener("beforeunload",()=>{try{stopCamera();if(qrStream)stopQrScanner()}catch(e){}});
+
+/* ================= START ================= */
+(async()=>{
+ initMap();
+ await initAuth();
+ await loadSnaps();
+ const roomFromUrl=new URLSearchParams(location.search).get("room");
+ if(roomFromUrl){setTimeout(()=>{if(currentUser){$("targetRoomInput").value=String(roomFromUrl).toUpperCase();openJoinPanel()}},300)}
+ window.addEventListener("resize",()=>setTimeout(()=>map.invalidateSize(),150));
 })();
-
 </script>
-
 </body>
 </html>
