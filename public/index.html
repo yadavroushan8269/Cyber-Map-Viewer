@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
 <title>Cyber Map Viewer</title>
 
@@ -18,151 +18,144 @@
 :root{
     --green:#39ff88;
     --green2:#00ff66;
-    --cyan:#28e7ff;
-    --blue:#29a9ff;
-    --red:#ff304f;
-    --dark:#030707;
-    --panel:rgba(2,10,8,.95);
-    --line:rgba(57,255,136,.45);
+    --cyan:#27e8ff;
+    --red:#ff2448;
+    --yellow:#ffe600;
+    --bg:#020605;
+    --panel:rgba(2,9,7,.97);
 }
 
 *{box-sizing:border-box}
 
 html,body{
-    margin:0;
     width:100%;
     height:100%;
+    margin:0;
     overflow:hidden;
-    background:#050707;
+    background:#000;
     color:var(--green);
     font-family:Consolas,monospace;
 }
 
-button,input{font-family:inherit}
-button{cursor:pointer}
+button,input{
+    font-family:inherit;
+}
+
+button{
+    cursor:pointer;
+}
 
 #map{
     position:absolute;
     inset:0;
     z-index:1;
-    background:#e5e5e5;
-    border:2px solid #fff;
+    border:2px solid white;
 }
 
-.leaflet-container{background:#e5e5e5}
-.leaflet-control-attribution{font-size:9px}
+.leaflet-container{
+    background:#ddd;
+}
 
 .topbar{
     position:absolute;
-    top:10px;
-    left:10px;
-    right:10px;
+    top:8px;
+    left:8px;
+    right:8px;
     z-index:1000;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    gap:10px;
-    padding:8px 10px;
-    background:rgba(0,0,0,.90);
-    border:1px solid var(--line);
+    padding:7px;
+    background:rgba(0,0,0,.92);
+    border:1px solid var(--green);
     border-radius:8px;
-    box-shadow:0 0 18px rgba(57,255,136,.12);
 }
 
 .brand{
-    font-size:14px;
     font-weight:900;
-    letter-spacing:1px;
+    font-size:13px;
 }
 
 .brand small{
     display:block;
-    margin-top:2px;
     color:var(--cyan);
-    font-size:9px;
+    font-size:8px;
 }
 
 .top-actions{
     display:flex;
-    gap:5px;
+    gap:4px;
 }
 
 .hbtn{
-    border:1px solid var(--line);
-    background:rgba(0,12,10,.9);
-    color:var(--green);
-    padding:8px 9px;
+    padding:7px 8px;
+    border:1px solid var(--green);
     border-radius:6px;
-    font-size:10px;
-    text-transform:uppercase;
-}
-
-.hbtn:hover{
-    background:rgba(57,255,136,.12);
+    color:var(--green);
+    background:#03100b;
+    font-size:9px;
 }
 
 .map-hud{
     position:absolute;
-    top:86px;
-    left:12px;
+    top:76px;
+    left:9px;
     z-index:900;
-    padding:9px 12px;
-    background:rgba(0,0,0,.84);
+    padding:8px 10px;
+    background:rgba(0,0,0,.88);
     border:1px solid var(--green);
     border-radius:7px;
+    font-size:10px;
     pointer-events:none;
 }
 
-.map-hud b{color:var(--cyan)}
-
 #locationText{
-    margin-top:4px;
-    color:#b7ffd0;
-    font-size:10px;
+    margin-top:3px;
     max-width:320px;
+    color:#b9ffd0;
+    font-size:9px;
 }
 
 #mapStatus{
+    color:var(--cyan);
     margin-top:3px;
-    color:var(--blue);
-    font-size:9px;
+    font-size:8px;
 }
 
 .trace-btn{
     position:absolute;
-    right:15px;
-    bottom:76px;
+    right:10px;
+    bottom:70px;
     z-index:1000;
-    padding:11px 16px;
-    border-radius:30px;
-    border:1px solid var(--red);
-    background:rgba(35,0,7,.93);
+    padding:10px 15px;
     color:#fff;
-    box-shadow:0 0 18px rgba(255,48,79,.30);
+    background:#27030a;
+    border:1px solid var(--red);
+    border-radius:25px;
+    box-shadow:0 0 20px rgba(255,36,72,.3);
 }
 
 .trace-btn.active{
-    animation:tracePulse 1s infinite;
+    animation:pulseRed .45s infinite alternate;
 }
 
-@keyframes tracePulse{
-    50%{
-        box-shadow:0 0 32px rgba(255,48,79,.75);
-    }
+@keyframes pulseRed{
+    from{box-shadow:0 0 10px rgba(255,36,72,.3)}
+    to{box-shadow:0 0 30px rgba(255,36,72,.9)}
 }
 
 .bottom{
     position:absolute;
+    bottom:0;
     left:0;
     right:0;
-    bottom:0;
-    height:60px;
+    height:59px;
     z-index:1000;
     display:grid;
     grid-template-columns:repeat(4,1fr);
-    gap:4px;
+    gap:3px;
     padding:4px;
-    background:rgba(0,0,0,.95);
+    background:rgba(0,0,0,.96);
     border-top:1px solid var(--green);
 }
 
@@ -170,224 +163,426 @@ button{cursor:pointer}
     border:0;
     background:transparent;
     color:var(--green);
-    border-radius:6px;
     font-size:15px;
+    border-radius:6px;
 }
 
 .navbtn span{
     display:block;
-    margin-top:2px;
-    color:#7affae;
     font-size:8px;
+    margin-top:2px;
 }
 
 .navbtn.main{
-    border:1px solid rgba(53,234,255,.35);
     color:var(--cyan);
+    border:1px solid rgba(39,232,255,.35);
 }
 
 .modal{
-    position:absolute;
-    inset:0;
-    z-index:2000;
-    display:none;
-    justify-content:center;
-    align-items:center;
-    padding:14px;
-    background:rgba(0,0,0,.68);
-    backdrop-filter:blur(3px);
-}
-
-.modal.show{display:flex}
-
-.panel{
-    width:min(470px,96vw);
-    max-height:90vh;
-    overflow:auto;
-    padding:16px;
-    background:var(--panel);
-    border:1px solid var(--green);
-    border-radius:12px;
-    box-shadow:0 0 35px rgba(57,255,136,.20);
-}
-
-.panel h2{
-    margin:0 0 12px;
-    color:var(--cyan);
-    font-size:18px;
-}
-
-.close{
-    float:right;
-    background:none;
-    border:0;
-    color:var(--red);
-    font-size:23px;
-}
-
-.field{
-    width:100%;
-    padding:11px;
-    margin-top:8px;
-    background:#020606;
-    color:#fff;
-    border:1px solid var(--line);
-    border-radius:7px;
-    outline:none;
-}
-
-.field:focus{border-color:var(--cyan)}
-
-.action{
-    width:100%;
-    margin-top:9px;
-    padding:10px;
-    background:rgba(0,15,12,.95);
-    color:var(--green);
-    border:1px solid var(--line);
-    border-radius:7px;
-    font-size:11px;
-}
-
-.action:hover{
-    background:rgba(57,255,136,.12);
-}
-
-.info{
-    color:#b8ffd0;
-    font-size:11px;
-    line-height:1.6;
-}
-
-#qrcode{
-    width:max-content;
-    margin:13px auto;
-    padding:8px;
-    background:#fff;
-}
-
-#snapVideo{
-    width:100%;
-    max-height:58vh;
-    object-fit:cover;
-    background:#000;
-    border:1px solid var(--green);
-    border-radius:9px;
-}
-
-.camera-tools{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:6px;
-    margin-top:8px;
-}
-
-.camera-tools button{
-    padding:8px 3px;
-    background:#06100d;
-    color:var(--green);
-    border:1px solid var(--line);
-    border-radius:6px;
-    font-size:9px;
-}
-
-.filter-row{
-    display:flex;
-    gap:5px;
-    overflow-x:auto;
-    margin:8px 0;
-}
-
-.filter-row button{
-    white-space:nowrap;
-    padding:6px 8px;
-    background:#06100d;
-    color:var(--green);
-    border:1px solid var(--line);
-    border-radius:5px;
-    font-size:9px;
-}
-
-#cameraCanvas{display:none}
-
-#previewImg,
-#previewVideo{
-    width:100%;
-    border-radius:8px;
-}
-
-.profile{
-    display:grid;
-    grid-template-columns:80px 1fr;
-    gap:13px;
-    align-items:center;
-}
-
-.avatar{
-    width:76px;
-    height:76px;
-    border-radius:50%;
-    object-fit:cover;
-    background:#06100d;
-    border:2px solid var(--green);
-}
-
-.incoming{
     position:absolute;
     inset:0;
     z-index:3000;
     display:none;
     justify-content:center;
     align-items:center;
-    padding:20px;
-    background:rgba(0,0,0,.82);
+    padding:12px;
+    background:rgba(0,0,0,.76);
+    backdrop-filter:blur(4px);
 }
 
-.incoming.show{display:flex}
+.modal.show{
+    display:flex;
+}
+
+.panel{
+    width:min(470px,96vw);
+    max-height:91vh;
+    overflow:auto;
+    padding:15px;
+    background:var(--panel);
+    border:1px solid var(--green);
+    border-radius:12px;
+    box-shadow:0 0 40px rgba(57,255,136,.2);
+}
+
+.panel h2{
+    margin:0 0 12px;
+    color:var(--cyan);
+    font-size:17px;
+}
+
+.close{
+    float:right;
+    border:0;
+    background:none;
+    color:var(--red);
+    font-size:23px;
+}
+
+.info{
+    color:#baffd0;
+    font-size:10px;
+    line-height:1.6;
+}
+
+.field{
+    width:100%;
+    margin-top:8px;
+    padding:10px;
+    background:#010504;
+    border:1px solid var(--green);
+    border-radius:6px;
+    color:white;
+    outline:none;
+}
+
+.action{
+    width:100%;
+    margin-top:8px;
+    padding:10px;
+    background:#03100b;
+    color:var(--green);
+    border:1px solid var(--green);
+    border-radius:6px;
+    font-size:10px;
+}
+
+.action:disabled{
+    opacity:.45;
+}
+
+#qrcode{
+    width:max-content;
+    margin:12px auto;
+    padding:8px;
+    background:#fff;
+}
+
+#toast{
+    position:absolute;
+    top:70px;
+    left:50%;
+    transform:translateX(-50%);
+    z-index:6000;
+    display:none;
+    max-width:92vw;
+    padding:9px 13px;
+    background:#020605;
+    border:1px solid var(--green);
+    border-radius:7px;
+    color:var(--green);
+    font-size:9px;
+    text-align:center;
+}
+
+/* TRACE */
+
+#traceWarning{
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    z-index:6500;
+    display:none;
+    width:min(400px,88vw);
+    padding:18px;
+    background:rgba(0,0,0,.95);
+    border:2px solid var(--red);
+    border-radius:12px;
+    text-align:center;
+    color:#fff;
+    box-shadow:0 0 35px rgba(255,36,72,.55);
+}
+
+#traceWarning.show{
+    display:block;
+    animation:warning .45s infinite alternate;
+}
+
+@keyframes warning{
+    from{opacity:.75}
+    to{opacity:1}
+}
+
+.warning-title{
+    color:var(--red);
+    font-size:17px;
+    font-weight:bold;
+}
+
+.warning-text{
+    margin-top:9px;
+    color:#baffd0;
+    font-size:10px;
+    line-height:1.7;
+}
+
+/* CAMERA */
+
+#snapVideo{
+    width:100%;
+    max-height:55vh;
+    object-fit:cover;
+    background:#000;
+    border:1px solid var(--green);
+    border-radius:8px;
+}
+
+.camera-tools{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:5px;
+    margin-top:7px;
+}
+
+.camera-tools button,
+.filter-row button{
+    padding:7px 4px;
+    background:#03100b;
+    border:1px solid var(--green);
+    color:var(--green);
+    border-radius:5px;
+    font-size:8px;
+}
+
+.filter-row{
+    display:flex;
+    overflow-x:auto;
+    gap:4px;
+    margin-top:7px;
+}
+
+.filter-row button{
+    white-space:nowrap;
+}
+
+#cameraCanvas{
+    display:none;
+}
+
+#previewImg,
+#previewVideo{
+    width:100%;
+    max-height:55vh;
+    object-fit:contain;
+    background:#000;
+    border-radius:8px;
+}
+
+#cameraLocationInfo{
+    margin-top:8px;
+}
+
+/* UPLOAD */
+
+.upload-box{
+    margin-top:12px;
+    padding:14px;
+    background:#010504;
+    border:1px solid var(--green);
+    border-radius:8px;
+}
+
+.upload-title{
+    color:var(--cyan);
+    font-weight:bold;
+}
+
+.upload-progress{
+    width:100%;
+    height:12px;
+    margin-top:9px;
+    overflow:hidden;
+    border:1px solid var(--green);
+    border-radius:20px;
+    background:#000;
+}
+
+#uploadProgressBar{
+    width:0%;
+    height:100%;
+    background:var(--green);
+    box-shadow:0 0 12px var(--green);
+    transition:width .15s linear;
+}
+
+.upload-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:6px;
+    margin-top:9px;
+}
+
+.upload-stat{
+    padding:7px;
+    background:#03100b;
+    border:1px solid rgba(57,255,136,.25);
+    border-radius:5px;
+}
+
+.upload-stat b{
+    display:block;
+    color:var(--cyan);
+    font-size:8px;
+}
+
+.upload-stat span{
+    color:white;
+    font-size:10px;
+}
+
+/* SNAP CLUSTER */
+
+.snap-cluster{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    width:42px;
+    height:42px;
+    border-radius:50%;
+    color:white;
+    background:#b90025;
+    border:3px solid #ff3155;
+    box-shadow:
+        0 0 8px #ff2448,
+        0 0 20px rgba(255,36,72,.65);
+    font:bold 12px Consolas;
+}
+
+.snap-cluster.single{
+    background:#ff2448;
+}
+
+.snap-cluster.pulse{
+    animation:snapPulse 1.4s infinite;
+}
+
+@keyframes snapPulse{
+    0%{
+        box-shadow:
+            0 0 0 0 rgba(255,36,72,.7);
+    }
+    70%{
+        box-shadow:
+            0 0 0 18px rgba(255,36,72,0);
+    }
+    100%{
+        box-shadow:
+            0 0 0 0 rgba(255,36,72,0);
+    }
+}
+
+/* SNAP VIEWER */
+
+#snapViewerModal .panel{
+    width:min(520px,97vw);
+}
+
+.snap-viewer{
+    position:relative;
+}
+
+#viewerMedia{
+    width:100%;
+    max-height:55vh;
+    object-fit:contain;
+    background:#000;
+    border:1px solid var(--green);
+    border-radius:8px;
+}
+
+.slider-controls{
+    display:flex;
+    justify-content:space-between;
+    gap:8px;
+    margin-top:8px;
+}
+
+.slider-controls button{
+    flex:1;
+    padding:10px;
+    background:#03100b;
+    color:var(--green);
+    border:1px solid var(--green);
+    border-radius:6px;
+}
+
+.snap-counter{
+    margin-top:7px;
+    text-align:center;
+    color:var(--cyan);
+    font-size:9px;
+}
+
+.snap-details{
+    margin-top:9px;
+    padding:9px;
+    background:#020605;
+    border:1px solid rgba(57,255,136,.25);
+    border-radius:6px;
+    color:#c6ffd9;
+    font-size:9px;
+    line-height:1.7;
+}
+
+/* CALL */
+
+.incoming{
+    position:absolute;
+    inset:0;
+    z-index:7000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.85);
+}
+
+.incoming.show{
+    display:flex;
+}
 
 .callbox{
     width:min(400px,94vw);
     padding:20px;
     text-align:center;
-    background:#030908;
+    background:#020807;
     border:1px solid var(--green);
-    border-radius:15px;
-    box-shadow:0 0 40px rgba(57,255,136,.25);
+    border-radius:14px;
 }
 
 .caller{
-    margin:15px 0;
+    margin:15px;
     color:var(--cyan);
-    font-size:21px;
+    font-size:20px;
 }
 
 .call-actions{
     display:flex;
-    gap:10px;
+    gap:8px;
 }
 
 .call-actions button{
     flex:1;
-    padding:12px;
-    border-radius:8px;
+    padding:11px;
+    border-radius:7px;
 }
 
 .accept{
-    background:#063f20;
-    border:1px solid var(--green);
     color:var(--green);
+    background:#05381d;
+    border:1px solid var(--green);
 }
 
 .reject{
-    background:#3d0710;
-    border:1px solid var(--red);
     color:#ff6680;
+    background:#390610;
+    border:1px solid var(--red);
 }
 
 #activeCallVideo{
     position:absolute;
     inset:0;
-    z-index:2500;
+    z-index:6800;
     display:none;
     background:#000;
 }
@@ -400,32 +595,29 @@ button{cursor:pointer}
 
 #localVideo{
     position:absolute;
-    right:12px;
     top:12px;
+    right:12px;
     width:125px;
     height:175px;
     object-fit:cover;
-    z-index:2;
-    background:#000;
     border:2px solid var(--green);
-    border-radius:9px;
+    border-radius:8px;
 }
 
 .call-controls{
     position:absolute;
+    bottom:22px;
     left:50%;
-    bottom:25px;
     transform:translateX(-50%);
-    z-index:3;
     display:flex;
     gap:10px;
 }
 
 .call-controls button{
-    width:50px;
-    height:50px;
+    width:48px;
+    height:48px;
     border-radius:50%;
-    background:#07100d;
+    background:#06100c;
     color:var(--green);
     border:1px solid var(--green);
 }
@@ -435,130 +627,112 @@ button{cursor:pointer}
     border-color:var(--red);
 }
 
-.snap-marker{
-    padding:3px 6px;
-    background:#07110d;
-    color:var(--green);
-    border:1px solid var(--green);
-    border-radius:7px;
-    font:bold 10px Consolas;
-    white-space:nowrap;
+/* PROFILE */
+
+.profile{
+    display:grid;
+    grid-template-columns:75px 1fr;
+    gap:12px;
 }
 
-.location-pulse{
-    width:28px;
-    height:28px;
+.avatar{
+    width:75px;
+    height:75px;
+    object-fit:cover;
     border-radius:50%;
-    border:2px solid var(--red);
-    box-shadow:0 0 0 0 rgba(255,40,76,.7);
-    animation:locationPulse 1.1s infinite;
+    border:2px solid var(--green);
+    background:#03100b;
 }
 
-@keyframes locationPulse{
-    70%{
-        box-shadow:0 0 0 22px rgba(255,40,76,0);
+.hidden{
+    display:none!important;
+}
+
+@media(max-width:600px){
+
+    .brand{
+        font-size:10px;
     }
-}
 
-#toast{
-    position:absolute;
-    left:50%;
-    top:76px;
-    transform:translateX(-50%);
-    z-index:5000;
-    display:none;
-    max-width:90vw;
-    padding:10px 15px;
-    text-align:center;
-    background:#020605;
-    color:var(--green);
-    border:1px solid var(--green);
-    border-radius:7px;
-    font-size:10px;
-}
+    .brand small{
+        font-size:7px;
+    }
 
-#traceWarning{
-    position:absolute;
-    left:50%;
-    top:50%;
-    transform:translate(-50%,-50%);
-    z-index:5500;
-    display:none;
-    width:min(420px,88vw);
-    padding:18px;
-    text-align:center;
-    background:rgba(0,0,0,.94);
-    border:2px solid var(--red);
-    border-radius:12px;
-    color:#fff;
-    box-shadow:0 0 35px rgba(255,48,79,.45);
-}
+    .hbtn{
+        padding:6px 5px;
+        font-size:7px;
+    }
 
-#traceWarning.show{
-    display:block;
-    animation:warningFlash .5s infinite alternate;
-}
+    .map-hud{
+        top:70px;
+    }
 
-#traceWarningTitle{
-    color:var(--red);
-    font-size:17px;
-    font-weight:900;
-    letter-spacing:1px;
-}
+    .trace-btn{
+        bottom:67px;
+        right:7px;
+    }
 
-#traceWarningText{
-    margin-top:9px;
-    color:#b8ffd0;
-    font-size:11px;
-    line-height:1.6;
-}
-
-@keyframes warningFlash{
-    from{opacity:.78}
-    to{opacity:1}
-}
-
-.hidden{display:none!important}
-
-@media(max-width:650px){
-    .brand{font-size:11px}
-    .brand small{font-size:7px}
-    .top-actions{gap:2px}
-    .hbtn{padding:6px 5px;font-size:8px}
-    .map-hud{top:74px;left:7px}
-    .trace-btn{right:8px;bottom:68px}
-    .bottom{height:57px}
-    .navbtn{font-size:13px}
 }
 </style>
 </head>
 
 <body>
 
-<div id="app">
-
 <div id="map"></div>
 
+<!-- TOP -->
+
 <div class="topbar">
+
     <div class="brand">
         CYBER MAP
         <small>TRACK • TRACE • SNAP</small>
     </div>
 
     <div class="top-actions">
-        <button class="hbtn" id="notifyBtn">🔔 Notification</button>
-        <button class="hbtn" id="adminBtn">⚡ Admin</button>
-        <button class="hbtn" id="logoutBtn">↪ Logout</button>
+
+        <button class="hbtn" id="notifyBtn">
+            🔔 Notification
+        </button>
+
+        <button class="hbtn" id="adminBtn">
+            ⚡ Admin
+        </button>
+
+        <button class="hbtn" id="logoutBtn">
+            ↪ Logout
+        </button>
+
     </div>
+
 </div>
+
+
+<!-- MAP HUD -->
 
 <div class="map-hud">
+
     <b>LIVE MAP</b>
-    <div id="locationText">Location: waiting...</div>
-    <div id="mapStatus">Tap Trace to detect your live location</div>
+
+    <div id="locationText">
+        Location: waiting...
+    </div>
+
+    <div id="mapStatus">
+        Tap + to detect live location
+    </div>
+
 </div>
 
-<button class="trace-btn" id="traceBtn">⌖ TRACE</button>
+
+<!-- TRACE -->
+
+<button class="trace-btn" id="traceBtn">
+    ⌖ TRACE
+</button>
+
+
+<!-- BOTTOM -->
 
 <div class="bottom">
 
@@ -574,7 +748,7 @@ button{cursor:pointer}
 
     <button class="navbtn main" id="plusBtn">
         ＋
-        <span>Snap</span>
+        <span>Snap Upload</span>
     </button>
 
     <button class="navbtn" id="youBtn">
@@ -584,28 +758,42 @@ button{cursor:pointer}
 
 </div>
 
+
 <div id="toast"></div>
 
+
+<!-- TRACE WARNING -->
+
 <div id="traceWarning">
-    <div id="traceWarningTitle">⚠ LOCATION TRACE</div>
-    <div id="traceWarningText">
-        TRACE INITIALIZING...<br>
+
+    <div class="warning-title">
+        ⚠ LOCATION TRACE
+    </div>
+
+    <div class="warning-text" id="traceWarningText">
+        TRACE INITIALIZING...
+        <br>
         LIVE LOCATION DETECTION STARTING
     </div>
+
 </div>
 
 
 <!-- ROOM -->
 
 <div class="modal" id="roomModal">
+
     <div class="panel">
 
-        <button class="close" data-close="roomModal">×</button>
+        <button class="close" data-close="roomModal">
+            ×
+        </button>
 
         <h2>MY ROOM ID</h2>
 
         <div class="info">
-            Permanent room ID for this device/account.
+            Your permanent room ID.
+            Another user can scan this QR to call you.
         </div>
 
         <input class="field" id="roomIdView" readonly>
@@ -617,15 +805,19 @@ button{cursor:pointer}
         </button>
 
     </div>
+
 </div>
 
 
 <!-- JOIN -->
 
 <div class="modal" id="joinModal">
+
     <div class="panel">
 
-        <button class="close" data-close="joinModal">×</button>
+        <button class="close" data-close="joinModal">
+            ×
+        </button>
 
         <h2>JOIN CALL</h2>
 
@@ -636,44 +828,50 @@ button{cursor:pointer}
         >
 
         <button class="action" id="callBtn">
-            CALL ROOM
+            ☎ CALL ROOM
         </button>
 
         <button class="action" id="scanQrBtn">
-            SCAN QR
+            ▣ SCAN QR
         </button>
 
         <div id="scannerBox" style="display:none">
+
             <div id="scanner"></div>
 
             <button class="action" id="stopScanner">
                 STOP SCANNER
             </button>
+
         </div>
 
     </div>
+
 </div>
 
 
 <!-- YOU -->
 
 <div class="modal" id="youModal">
+
     <div class="panel">
 
-        <button class="close" data-close="youModal">×</button>
+        <button class="close" data-close="youModal">
+            ×
+        </button>
 
         <h2>YOU</h2>
 
         <div class="profile">
 
-            <img id="avatar" class="avatar" alt="Profile">
+            <img class="avatar" id="avatar">
 
             <div>
 
                 <input
                     class="field"
                     id="displayName"
-                    placeholder="Display name"
+                    placeholder="Display Name"
                 >
 
                 <div class="info" id="emailText">
@@ -691,16 +889,12 @@ button{cursor:pointer}
         <input
             type="file"
             id="avatarFile"
-            accept="image/*"
             class="hidden"
+            accept="image/*"
         >
 
         <button class="action" id="galleryAvatar">
-            CHOOSE FROM GALLERY
-        </button>
-
-        <button class="action" id="cameraAvatar">
-            USE CAMERA
+            CHOOSE PROFILE PHOTO
         </button>
 
         <button class="action" id="saveProfile">
@@ -708,59 +902,77 @@ button{cursor:pointer}
         </button>
 
     </div>
+
 </div>
 
 
 <!-- ADMIN -->
 
 <div class="modal" id="adminModal">
+
     <div class="panel">
 
-        <button class="close" data-close="adminModal">×</button>
+        <button class="close" data-close="adminModal">
+            ×
+        </button>
 
         <h2>ADMIN</h2>
 
         <div class="info">
-            <b style="color:var(--cyan)">ROUSHAN YADAV</b>
-            <br>
+
+            <b style="color:var(--cyan)">
+                ROUSHAN YADAV
+            </b>
+
+            <br><br>
+
             +91 91535 76962
+
             <br>
+
             yadavroushan8269@gmail.com
+
         </div>
 
     </div>
+
 </div>
 
 
 <!-- NOTIFICATIONS -->
 
 <div class="modal" id="notifyModal">
+
     <div class="panel">
 
-        <button class="close" data-close="notifyModal">×</button>
+        <button class="close" data-close="notifyModal">
+            ×
+        </button>
 
         <h2>NOTIFICATIONS</h2>
 
-        <div class="info" id="notificationList">
+        <div id="notificationList" class="info">
             No notifications yet.
         </div>
 
     </div>
+
 </div>
 
 
 <!-- LOGOUT -->
 
 <div class="modal" id="logoutModal">
+
     <div class="panel">
 
         <h2>LOGOUT?</h2>
 
         <div class="info">
-            Are you sure you want to logout?
+            Are you sure?
         </div>
 
-        <div class="call-actions" style="margin-top:14px">
+        <div class="call-actions" style="margin-top:15px">
 
             <button class="accept" id="confirmLogout">
                 LOGOUT
@@ -773,15 +985,19 @@ button{cursor:pointer}
         </div>
 
     </div>
+
 </div>
 
 
 <!-- CAMERA -->
 
 <div class="modal" id="cameraModal">
+
     <div class="panel">
 
-        <button class="close" data-close="cameraModal">×</button>
+        <button class="close" id="closeCamera">
+            ×
+        </button>
 
         <h2>SNAP CAMERA</h2>
 
@@ -794,7 +1010,7 @@ button{cursor:pointer}
 
         <canvas id="cameraCanvas"></canvas>
 
-        <div class="filter-row" id="filterRow">
+        <div class="filter-row">
 
             <button data-filter="none">Normal</button>
             <button data-filter="sepia">Vintage</button>
@@ -803,7 +1019,7 @@ button{cursor:pointer}
             <button data-filter="cool">Cool</button>
             <button data-filter="glow">Glow</button>
             <button data-filter="night">Night</button>
-            <button data-filter="pop">Color Pop</button>
+            <button data-filter="pop">Pop</button>
             <button data-filter="dream">Dream</button>
             <button data-filter="sunset">Sunset</button>
 
@@ -811,31 +1027,42 @@ button{cursor:pointer}
 
         <div class="camera-tools">
 
-            <button id="flipCamera">↔ Camera</button>
-            <button id="zoomBtn">+ Zoom</button>
-            <button id="captureBtn">● Photo</button>
-            <button id="recordBtn">● Video</button>
+            <button id="flipCamera">
+                ↔ Camera
+            </button>
+
+            <button id="zoomBtn">
+                + Zoom
+            </button>
+
+            <button id="captureBtn">
+                ● Photo
+            </button>
+
+            <button id="recordBtn">
+                ● Video
+            </button>
 
         </div>
 
         <div class="info" id="cameraLocationInfo">
-            Capture location: checking...
+            📍 Location verification pending...
         </div>
 
-        <button class="action" id="closeCamera">
-            CLOSE CAMERA
-        </button>
-
     </div>
+
 </div>
 
 
 <!-- PREVIEW -->
 
 <div class="modal" id="previewModal">
+
     <div class="panel">
 
-        <button class="close" data-close="previewModal">×</button>
+        <button class="close" data-close="previewModal">
+            ×
+        </button>
 
         <h2>POST PREVIEW</h2>
 
@@ -859,6 +1086,130 @@ button{cursor:pointer}
         </button>
 
     </div>
+
+</div>
+
+
+<!-- UPLOAD PROGRESS -->
+
+<div class="modal" id="uploadModal">
+
+    <div class="panel">
+
+        <h2>⚡ SNAP UPLOAD</h2>
+
+        <div class="upload-box">
+
+            <div class="upload-title" id="uploadTitle">
+                PREPARING UPLOAD...
+            </div>
+
+            <div class="upload-progress">
+                <div id="uploadProgressBar"></div>
+            </div>
+
+            <div class="upload-grid">
+
+                <div class="upload-stat">
+                    <b>PROGRESS</b>
+                    <span id="uploadPercent">
+                        0%
+                    </span>
+                </div>
+
+                <div class="upload-stat">
+                    <b>DATA</b>
+                    <span id="uploadSize">
+                        0 MB / 0 MB
+                    </span>
+                </div>
+
+                <div class="upload-stat">
+                    <b>ELAPSED</b>
+                    <span id="uploadElapsed">
+                        00:00
+                    </span>
+                </div>
+
+                <div class="upload-stat">
+                    <b>DURATION</b>
+                    <span id="uploadDuration">
+                        00:00
+                    </span>
+                </div>
+
+                <div class="upload-stat">
+                    <b>SPEED</b>
+                    <span id="uploadSpeed">
+                        0 MB/s
+                    </span>
+                </div>
+
+                <div class="upload-stat">
+                    <b>STATUS</b>
+                    <span id="uploadStatus">
+                        INIT
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- SNAP VIEWER -->
+
+<div class="modal" id="snapViewerModal">
+
+    <div class="panel">
+
+        <button class="close" data-close="snapViewerModal">
+            ×
+        </button>
+
+        <h2>📍 SNAP VIEWER</h2>
+
+        <div class="snap-viewer">
+
+            <img
+                id="viewerImage"
+                style="display:none"
+                alt="Snap"
+            >
+
+            <video
+                id="viewerVideo"
+                style="display:none"
+                controls
+                playsinline>
+            </video>
+
+        </div>
+
+        <div class="snap-counter" id="snapCounter">
+            1 / 1
+        </div>
+
+        <div class="slider-controls">
+
+            <button id="prevSnap">
+                ◀ PREVIOUS
+            </button>
+
+            <button id="nextSnap">
+                NEXT ▶
+            </button>
+
+        </div>
+
+        <div class="snap-details" id="snapDetails"></div>
+
+    </div>
+
 </div>
 
 
@@ -868,16 +1219,16 @@ button{cursor:pointer}
 
     <div class="callbox">
 
-        <div style="color:var(--green)">
+        <div>
             ☎ INCOMING CALL
         </div>
 
         <div class="caller" id="incomingCaller">
-            Unknown room
+            Unknown
         </div>
 
         <div class="info">
-            Someone is calling your permanent room.
+            Someone is calling your room.
         </div>
 
         <div class="call-actions" style="margin-top:18px">
@@ -901,7 +1252,11 @@ button{cursor:pointer}
 
 <div id="activeCallVideo">
 
-    <video id="remoteVideo" autoplay playsinline></video>
+    <video
+        id="remoteVideo"
+        autoplay
+        playsinline>
+    </video>
 
     <video
         id="localVideo"
@@ -912,8 +1267,13 @@ button{cursor:pointer}
 
     <div class="call-controls">
 
-        <button id="muteBtn">🎙</button>
-        <button id="cameraCallBtn">📷</button>
+        <button id="muteBtn">
+            🎙
+        </button>
+
+        <button id="cameraCallBtn">
+            📷
+        </button>
 
         <button class="end" id="endCallBtn">
             ☎
@@ -923,143 +1283,109 @@ button{cursor:pointer}
 
 </div>
 
-</div>
-
 
 <script>
 
-/* =====================================================
-   SUPABASE
-===================================================== */
+/* =========================================================
+SUPABASE
+========================================================= */
 
 const SUPABASE_URL =
-    "https://zzxhymydsvwpjbyaslde.supabase.co";
+"https://zzxhymydsvwpjbyaslde.supabase.co";
 
 const SUPABASE_KEY =
-    "sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
+"sb_publishable_kqNMaZBD7Rg8P-pBwBYl9A_nGYn3JJ4";
 
 const supabaseClient =
-    window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_KEY
-    );
-
-
-/* =====================================================
-   MAP
-===================================================== */
-
-const map =
-    L.map("map", {
-        zoomControl:true,
-        attributionControl:true,
-        minZoom:2,
-        maxZoom:20
-    });
-
-const googleMapLayer =
-    L.tileLayer(
-        "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&hl=en",
-        {
-            maxZoom:20,
-            subdomains:[
-                "mt0",
-                "mt1",
-                "mt2",
-                "mt3"
-            ],
-            attribution:"Map data © Google"
-        }
-    );
-
-googleMapLayer.addTo(map);
-
-map.setView(
-    [24.1620,83.7857],
-    10
+window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
 );
 
 
-/* =====================================================
-   SOCKET
-===================================================== */
+/* =========================================================
+MAP
+========================================================= */
 
-const socket = io();
+const map =
+L.map("map",{
+    zoomControl:true,
+    maxZoom:20,
+    minZoom:2
+});
+
+L.tileLayer(
+    "https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}&hl=en",
+    {
+        maxZoom:20,
+        subdomains:["mt0","mt1","mt2","mt3"],
+        attribution:"Map data © Google"
+    }
+).addTo(map);
+
+map.setView(
+    [20.5937,78.9629],
+    5
+);
 
 
-/* =====================================================
-   STORAGE
-===================================================== */
+/* =========================================================
+STATE
+========================================================= */
 
-const ROOM_KEY = "roushanPermanentRoom";
-const NAME_KEY = "cyberMapName";
-const AVATAR_KEY = "cyberMapAvatar";
-
-
-/* =====================================================
-   STATE
-===================================================== */
+const ROOM_KEY="roushanPermanentRoom";
+const NAME_KEY="cyberMapName";
+const AVATAR_KEY="cyberMapAvatar";
 
 let permanentRoom =
-    localStorage.getItem(ROOM_KEY);
+localStorage.getItem(ROOM_KEY);
 
-let currentUser = null;
+let currentUser=null;
 
-let currentLocation = null;
+let currentLocation=null;
+let captureLocation=null;
 
-let captureLocation = null;
+let captureStream=null;
+let currentFacing="environment";
+let currentZoom=.5;
+let currentFilter="none";
 
-let captureStream = null;
+let pendingPost=null;
+let mediaRecorder=null;
+let recordedChunks=[];
+let recording=false;
 
-let currentFacing = "environment";
+let snapGroups=[];
+let currentSnapList=[];
+let currentSnapIndex=0;
 
-let currentFilter = "none";
+let snapMarkers=[];
+let locationMarkers=[];
 
-let currentZoom = 1;
+let audioContext=null;
+let warningInterval=null;
+let warningStopTimer=null;
 
-let pendingPost = null;
+let uploadStartTime=0;
+let uploadTimer=null;
+let uploadSoundTimer=null;
 
-let mediaRecorder = null;
+let peer=null;
+let localStream=null;
+let activeTargetId=null;
+let incomingCallerId=null;
 
-let recordedChunks = [];
-
-let recording = false;
-
-
-/* CALL STATE */
-
-let incomingCallerId = null;
-let incomingCallerRoom = null;
-let activeTargetId = null;
-
-let peer = null;
-let localStream = null;
-
-let remoteDescriptionSet = false;
-let candidateQueue = [];
-
-let micEnabled = true;
-let cameraEnabled = true;
-
-
-/* MARKERS */
-
-const snapMarkers = [];
-const locationMarkers = [];
+let remoteDescriptionSet=false;
+let candidateQueue=[];
 
 
-/* =====================================================
-   DOM SHORTCUT
-===================================================== */
+/* =========================================================
+HELPERS
+========================================================= */
 
 function $(id){
     return document.getElementById(id);
 }
-
-
-/* =====================================================
-   MODALS
-===================================================== */
 
 function showModal(id){
     $(id).classList.add("show");
@@ -1069,445 +1395,179 @@ function hideModal(id){
     $(id).classList.remove("show");
 }
 
-document
-.querySelectorAll("[data-close]")
-.forEach(button=>{
-    button.onclick=()=>{
-        hideModal(button.dataset.close);
+function escapeHtml(value){
+    return String(value??"").replace(
+        /[&<>"']/g,
+        c=>({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[c])
+    );
+}
+
+document.querySelectorAll("[data-close]")
+.forEach(btn=>{
+    btn.onclick=()=>{
+        hideModal(btn.dataset.close);
     };
 });
 
-document
-.querySelectorAll(".modal")
+document.querySelectorAll(".modal")
 .forEach(modal=>{
-    modal.addEventListener("click",event=>{
-        if(event.target===modal){
+    modal.addEventListener("click",e=>{
+        if(e.target===modal){
             modal.classList.remove("show");
         }
     });
 });
 
 
-/* =====================================================
-   AUDIO ENGINE
-   Fixed:
-   - Reuses one AudioContext
-   - Unlocks on first user interaction
-   - Supports continuous warning sound
-===================================================== */
+/* =========================================================
+TOAST
+========================================================= */
 
-let audioContext = null;
-let audioUnlocked = false;
+function toast(text,time=2600){
 
-function getAudioContext(){
+    const el=$("toast");
 
-    try{
+    el.textContent=text;
+    el.style.display="block";
 
-        if(!audioContext){
+    clearTimeout(toast.timer);
 
-            const AudioContext =
-                window.AudioContext ||
-                window.webkitAudioContext;
-
-            if(!AudioContext){
-                return null;
-            }
-
-            audioContext =
-                new AudioContext();
-        }
-
-        if(audioContext.state === "suspended"){
-            audioContext.resume().catch(()=>{});
-        }
-
-        audioUnlocked = true;
-
-        return audioContext;
-
-    }catch(error){
-
-        return null;
-
-    }
-
+    toast.timer=setTimeout(()=>{
+        el.style.display="none";
+    },time);
 }
 
 
-function unlockAudio(){
+/* =========================================================
+SOUND
+========================================================= */
 
-    const ctx =
-        getAudioContext();
+function audio(){
 
-    if(!ctx){
-        return;
+    const AC=
+        window.AudioContext||
+        window.webkitAudioContext;
+
+    if(!AC)return null;
+
+    if(!audioContext){
+        audioContext=new AC();
     }
 
-    try{
+    if(audioContext.state==="suspended"){
+        audioContext.resume().catch(()=>{});
+    }
 
-        const oscillator =
-            ctx.createOscillator();
-
-        const gain =
-            ctx.createGain();
-
-        oscillator.type = "square";
-
-        oscillator.frequency.value = 180;
-
-        gain.gain.setValueAtTime(
-            0.0001,
-            ctx.currentTime
-        );
-
-        oscillator.connect(gain);
-        gain.connect(ctx.destination);
-
-        oscillator.start();
-
-        oscillator.stop(
-            ctx.currentTime + 0.015
-        );
-
-    }catch(error){}
-
+    return audioContext;
 }
-
 
 function hackerSound(
-    frequency=520,
-    duration=.07
+    frequency=550,
+    duration=.06,
+    volume=.035
 ){
 
-    const ctx =
-        getAudioContext();
+    const ctx=audio();
 
-    if(!ctx){
-        return;
-    }
+    if(!ctx)return;
 
     try{
 
-        const oscillator =
-            ctx.createOscillator();
+        const osc=ctx.createOscillator();
+        const gain=ctx.createGain();
 
-        const gain =
-            ctx.createGain();
+        osc.type="square";
 
-        oscillator.type = "square";
-
-        oscillator.frequency.setValueAtTime(
+        osc.frequency.setValueAtTime(
             frequency,
             ctx.currentTime
         );
 
         gain.gain.setValueAtTime(
-            0.035,
+            volume,
             ctx.currentTime
         );
 
         gain.gain.exponentialRampToValueAtTime(
-            0.001,
-            ctx.currentTime + duration
+            .001,
+            ctx.currentTime+duration
         );
 
-        oscillator.connect(gain);
+        osc.connect(gain);
         gain.connect(ctx.destination);
 
-        oscillator.start();
-
-        oscillator.stop(
-            ctx.currentTime + duration
+        osc.start();
+        osc.stop(
+            ctx.currentTime+duration
         );
 
-    }catch(error){}
-
+    }catch(e){}
 }
-
-
-/* 3-second warning */
-
-let warningSoundTimer = null;
-let warningSoundStopTimer = null;
-
-function stopTraceWarningSound(){
-
-    if(warningSoundTimer){
-
-        clearInterval(
-            warningSoundTimer
-        );
-
-        warningSoundTimer = null;
-
-    }
-
-    if(warningSoundStopTimer){
-
-        clearTimeout(
-            warningSoundStopTimer
-        );
-
-        warningSoundStopTimer = null;
-
-    }
-
-}
-
-
-function playTraceWarning(){
-
-    stopTraceWarningSound();
-
-    const ctx =
-        getAudioContext();
-
-    if(!ctx){
-        return;
-    }
-
-    let high = false;
-
-    const beep = ()=>{
-
-        high = !high;
-
-        hackerSound(
-            high ? 920 : 560,
-            .12
-        );
-
-    };
-
-    beep();
-
-    warningSoundTimer =
-        setInterval(
-            beep,
-            360
-        );
-
-    warningSoundStopTimer =
-        setTimeout(
-            ()=>{
-                stopTraceWarningSound();
-            },
-            3000
-        );
-
-}
-
-
-/* Unlock audio from any actual user tap */
 
 document.addEventListener(
     "pointerdown",
     ()=>{
-        unlockAudio();
+        audio();
     },
-    {
-        once:true,
-        passive:true
-    }
+    {once:true}
 );
 
 
-/* Hacker click sounds */
+/* =========================================================
+3 SECOND TRACE WARNING SOUND
+========================================================= */
 
-document.addEventListener(
-    "click",
-    event=>{
+function stopWarningSound(){
 
-        if(
-            event.target.closest(
-                "button,.navbtn,.hbtn,.trace-btn"
-            )
-        ){
-
-            hackerSound();
-
-        }
-
+    if(warningInterval){
+        clearInterval(warningInterval);
+        warningInterval=null;
     }
-);
 
+    if(warningStopTimer){
+        clearTimeout(warningStopTimer);
+        warningStopTimer=null;
+    }
+}
 
-/* =====================================================
-   TOAST
-===================================================== */
+function startWarningSound(){
 
-function toast(
-    message,
-    duration=2600
-){
+    stopWarningSound();
 
-    const element = $("toast");
+    let high=false;
 
-    element.textContent = message;
+    const beep=()=>{
+        high=!high;
 
-    element.style.display = "block";
-
-    clearTimeout(toast.timer);
-
-    toast.timer =
-        setTimeout(
-            ()=>{
-                element.style.display = "none";
-            },
-            duration
+        hackerSound(
+            high?950:580,
+            .13,
+            .045
         );
-
-}
-
-
-/* =====================================================
-   ROOM
-===================================================== */
-
-function generateRoom(){
-
-    const characters =
-        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
-    let room = "";
-
-    for(let i=0;i<6;i++){
-
-        room +=
-            characters[
-                Math.floor(
-                    Math.random() *
-                    characters.length
-                )
-            ];
-
-    }
-
-    return room;
-}
-
-
-async function ensurePermanentRoom(){
-
-    if(!permanentRoom){
-
-        permanentRoom =
-            generateRoom();
-
-        localStorage.setItem(
-            ROOM_KEY,
-            permanentRoom
-        );
-
-    }
-
-    $("roomIdView").value =
-        permanentRoom;
-
-    if(currentUser){
-
-        try{
-
-            await supabaseClient
-                .from("profiles")
-                .upsert(
-                    {
-                        id:currentUser.id,
-                        call_room_id:permanentRoom,
-                        display_name:
-                            localStorage.getItem(
-                                NAME_KEY
-                            ) || null
-                    },
-                    {
-                        onConflict:"id"
-                    }
-                );
-
-        }catch(error){
-
-            console.warn(
-                "Room profile error:",
-                error
-            );
-
-        }
-
-    }
-
-}
-
-
-function getRoomUrl(){
-
-    return (
-        location.origin +
-        location.pathname +
-        "?room=" +
-        encodeURIComponent(
-            permanentRoom
-        )
-    );
-
-}
-
-
-function generateQRCode(){
-
-    $("qrcode").innerHTML = "";
-
-    new QRCode(
-        $("qrcode"),
-        {
-            text:getRoomUrl(),
-            width:220,
-            height:220,
-            correctLevel:
-                QRCode.CorrectLevel.M
-        }
-    );
-
-}
-
-
-$("roomBtn").onclick =
-    async()=>{
-
-        await ensurePermanentRoom();
-
-        generateQRCode();
-
-        showModal("roomModal");
-
     };
 
+    beep();
 
-$("copyRoom").onclick =
-    async()=>{
+    warningInterval=
+    setInterval(beep,360);
 
-        try{
-
-            await navigator.clipboard.writeText(
-                permanentRoom
-            );
-
-            toast("ROOM ID COPIED");
-
-        }catch(error){
-
-            toast(
-                "Room ID: " +
-                permanentRoom
-            );
-
-        }
-
-    };
+    warningStopTimer=
+    setTimeout(
+        stopWarningSound,
+        3000
+    );
+}
 
 
-/* =====================================================
-   GEOLOCATION
-===================================================== */
+/* =========================================================
+LOCATION
+========================================================= */
 
 function getLocation(){
 
@@ -1515,15 +1575,10 @@ function getLocation(){
         (resolve,reject)=>{
 
             if(!navigator.geolocation){
-
                 reject(
-                    new Error(
-                        "Geolocation unavailable"
-                    )
+                    new Error("NO_GPS")
                 );
-
                 return;
-
             }
 
             navigator.geolocation.getCurrentPosition(
@@ -1537,17 +1592,15 @@ function getLocation(){
                             position.coords.longitude,
 
                         accuracy:
-                            position.coords.accuracy || 0
+                            position.coords.accuracy||0
                     });
 
                 },
-
                 error=>{
 
                     reject(error);
 
                 },
-
                 {
                     enableHighAccuracy:true,
                     timeout:20000,
@@ -1561,483 +1614,341 @@ function getLocation(){
 }
 
 
-/* =====================================================
-   DISTANCE
-===================================================== */
+/* =========================================================
+DISTANCE
+========================================================= */
 
-function distanceMeters(
-    first,
-    second
-){
+function distanceMeters(a,b){
 
-    const R = 6371000;
+    const R=6371000;
 
-    const dLat =
-        (
-            second.lat -
-            first.lat
-        ) *
-        Math.PI / 180;
+    const lat1=a.lat*Math.PI/180;
+    const lat2=b.lat*Math.PI/180;
 
-    const dLng =
-        (
-            second.lng -
-            first.lng
-        ) *
-        Math.PI / 180;
+    const dLat=
+        (b.lat-a.lat)*Math.PI/180;
 
-    const a =
-        Math.sin(dLat/2) *
-        Math.sin(dLat/2) +
+    const dLng=
+        (b.lng-a.lng)*Math.PI/180;
 
-        Math.cos(
-            first.lat *
-            Math.PI/180
-        ) *
+    const x=
+        Math.sin(dLat/2)**2+
+        Math.cos(lat1)*
+        Math.cos(lat2)*
+        Math.sin(dLng/2)**2;
 
-        Math.cos(
-            second.lat *
-            Math.PI/180
-        ) *
-
-        Math.sin(dLng/2) *
-        Math.sin(dLng/2);
-
-    return (
-        2 *
-        R *
-        Math.atan2(
-            Math.sqrt(a),
-            Math.sqrt(1-a)
-        )
+    return 2*R*Math.atan2(
+        Math.sqrt(x),
+        Math.sqrt(1-x)
     );
-
 }
 
 
-/* =====================================================
-   REVERSE GEOCODE
-===================================================== */
+/* =========================================================
+REVERSE GEOCODE
+========================================================= */
 
-async function reverseGeocode(
-    lat,
-    lng
-){
+async function reverseGeocode(lat,lng){
 
     try{
 
-        const response =
-            await fetch(
-                "https://nominatim.openstreetmap.org/reverse" +
-                "?format=jsonv2" +
-                "&lat=" +
-                encodeURIComponent(lat) +
-                "&lon=" +
-                encodeURIComponent(lng) +
-                "&zoom=18" +
-                "&addressdetails=1",
-                {
-                    headers:{
-                        "Accept":
-                            "application/json"
-                    }
-                }
-            );
+        const response=
+        await fetch(
+            "https://nominatim.openstreetmap.org/reverse"+
+            "?format=jsonv2"+
+            "&lat="+encodeURIComponent(lat)+
+            "&lon="+encodeURIComponent(lng)+
+            "&zoom=18"
+        );
 
-        if(!response.ok){
-            throw new Error(
-                "Reverse geocode failed"
-            );
-        }
-
-        const data =
+        const data=
             await response.json();
 
-        return (
-            data.display_name ||
-            `${lat.toFixed(5)}, ${lng.toFixed(5)}`
-        );
+        return data.display_name||
+            `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
-    }catch(error){
+    }catch(e){
 
-        return (
-            `${lat.toFixed(5)}, ` +
-            `${lng.toFixed(5)}`
-        );
+        return `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
     }
-
 }
 
 
-/* =====================================================
-   SHOW LOCATION
-===================================================== */
+/* =========================================================
+LIVE LOCATION DISPLAY
+========================================================= */
 
-function showLocation(
-    location,
-    name
-){
+function showLiveLocation(location,name){
 
-    currentLocation =
-        location;
+    currentLocation=location;
 
-    map.setView(
-        [
-            location.lat,
-            location.lng
-        ],
-        Math.max(
-            map.getZoom(),
-            15
-        )
+    map.flyTo(
+        [location.lat,location.lng],
+        18,
+        {
+            animate:true,
+            duration:1.2
+        }
     );
 
     locationMarkers.forEach(
-        marker=>{
+        m=>{
             try{
-                map.removeLayer(marker);
-            }catch(error){}
+                map.removeLayer(m);
+            }catch(e){}
         }
     );
 
-    locationMarkers.length = 0;
+    locationMarkers=[];
 
-    const pulseIcon =
+    const icon=
         L.divIcon({
             className:"",
             html:
-                '<div class="location-pulse"></div>',
-            iconSize:[28,28],
-            iconAnchor:[14,14]
+            `<div style="
+                width:25px;
+                height:25px;
+                border-radius:50%;
+                border:3px solid #ff2448;
+                box-shadow:0 0 0 0 rgba(255,36,72,.8);
+                animation:locationPulse 1s infinite;
+            "></div>`,
+            iconSize:[25,25],
+            iconAnchor:[12,12]
         });
 
-    const marker =
+    const marker=
         L.marker(
-            [
-                location.lat,
-                location.lng
-            ],
-            {
-                icon:pulseIcon
-            }
-        )
-        .addTo(map);
+            [location.lat,location.lng],
+            {icon}
+        ).addTo(map);
 
     marker.bindPopup(
-        `
-        <b>LIVE LOCATION</b>
-        <br>
-        ${escapeHtml(
-            name ||
-            "Detected location"
-        )}
-        `
-    );
-
-    marker.openPopup();
+        `<b>LIVE LOCATION</b><br>
+         Accuracy ±${Math.round(location.accuracy)}m`
+    ).openPopup();
 
     locationMarkers.push(marker);
 
-    $("locationText").textContent =
-        "Location: " +
-        (
-            name ||
-            `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}`
-        );
+    $("locationText").textContent=
+        "Location: "+name;
 
-    $("profileLocation").textContent =
-        "Location: " +
-        (
-            name ||
-            `${location.lat.toFixed(5)}, ${location.lng.toFixed(5)}`
-        );
+    $("profileLocation").textContent=
+        "Location: "+name;
 
+    $("mapStatus").textContent=
+        "LIVE • ±"+Math.round(location.accuracy)+"m";
 }
 
 
-/* =====================================================
-   TRACE
-   Fixed:
-   1. User tap
-   2. 3 sec warning
-   3. Warning text
-   4. Location detection
-===================================================== */
+/* =========================================================
+TRACE
+========================================================= */
 
-$("traceBtn").onclick =
-    async()=>{
+$("traceBtn").onclick=async()=>{
 
-        unlockAudio();
+    audio();
 
-        $("traceBtn")
-            .classList.add("active");
+    $("traceBtn").classList.add("active");
 
-        $("mapStatus").textContent =
-            "⚠ TRACE INITIALIZING...";
+    $("traceWarning").classList.add("show");
 
-        $("traceWarning")
-            .classList.add("show");
+    $("traceWarningText").innerHTML=
+        "WARNING SEQUENCE ACTIVE...<br>"+
+        "LIVE LOCATION DETECTION IN 3 SECONDS";
 
-        $("traceWarningText")
-            .innerHTML =
-                "TRACE INITIALIZING...<br>" +
-                "LIVE LOCATION DETECTION STARTING";
+    $("mapStatus").textContent=
+        "⚠ TRACE INITIALIZING";
 
-        playTraceWarning();
+    startWarningSound();
 
-        try{
+    try{
 
-            /*
-             * Give the warning sequence its
-             * requested 3-second duration.
-             */
+        await new Promise(
+            resolve=>setTimeout(resolve,3000)
+        );
 
-            await new Promise(
-                resolve =>
-                    setTimeout(
-                        resolve,
-                        3000
-                    )
-            );
+        $("traceWarning").classList.remove("show");
 
-            $("traceWarning")
-                .classList.remove("show");
+        $("mapStatus").textContent=
+            "Detecting live location...";
 
-            $("mapStatus").textContent =
-                "Detecting live location...";
+        const location=
+            await getLocation();
 
-            const location =
-                await getLocation();
-
-            const name =
-                await reverseGeocode(
-                    location.lat,
-                    location.lng
-                );
-
-            showLocation(
-                location,
-                name
-            );
-
-            $("mapStatus").textContent =
-                "LIVE • Accuracy " +
-                Math.round(
-                    location.accuracy
-                ) +
-                "m";
-
-            toast(
-                "LOCATION DETECTED • " +
-                name
-            );
-
-        }catch(error){
-
-            $("traceWarning")
-                .classList.remove("show");
-
-            $("mapStatus").textContent =
-                "Location permission/error";
-
-            toast(
-                "Location permission allow karo."
-            );
-
-        }finally{
-
-            stopTraceWarningSound();
-
-            $("traceBtn")
-                .classList.remove("active");
-
-        }
-
-    };
-
-
-/* =====================================================
-   MAP CLICK
-===================================================== */
-
-map.on(
-    "click",
-    async event=>{
-
-        hackerSound(720,.1);
-
-        const name =
+        const name=
             await reverseGeocode(
-                event.latlng.lat,
-                event.latlng.lng
+                location.lat,
+                location.lng
             );
 
-        toast(
-            "MAP LOCATION • " +
+        showLiveLocation(
+            location,
             name
         );
 
+        toast(
+            "LOCATION DETECTED",
+            3000
+        );
+
+    }catch(e){
+
+        $("traceWarning").classList.remove("show");
+
+        $("mapStatus").textContent=
+            "Location detection failed";
+
+        toast(
+            "Location permission allow karo.",
+            3500
+        );
+
+    }finally{
+
+        stopWarningSound();
+
+        $("traceBtn")
+            .classList.remove("active");
     }
-);
+
+};
 
 
-/* =====================================================
-   SNAP GROUPING
-===================================================== */
+/* =========================================================
+SNAP CLUSTERING
+========================================================= */
 
-function clearSnapMarkers(){
+function clusterSnaps(snaps){
 
-    snapMarkers.forEach(
-        marker=>{
-            try{
-                map.removeLayer(marker);
-            }catch(error){}
-        }
-    );
-
-    snapMarkers.length = 0;
-
-}
-
-
-function groupSnaps(snaps){
-
-    const groups = [];
+    const groups=[];
 
     for(const snap of snaps){
 
-        const lat =
-            Number(snap.lat);
-
-        const lng =
-            Number(snap.lng);
+        const lat=Number(snap.lat);
+        const lng=Number(snap.lng);
 
         if(
-            !Number.isFinite(lat) ||
+            !Number.isFinite(lat)||
             !Number.isFinite(lng)
         ){
             continue;
         }
 
-        let group =
-            groups.find(
-                item =>
-                    distanceMeters(
-                        {
-                            lat,
-                            lng
-                        },
-                        {
-                            lat:item.lat,
-                            lng:item.lng
-                        }
-                    ) <= 50
-            );
+        let group=null;
+
+        for(const g of groups){
+
+            if(
+                distanceMeters(
+                    {
+                        lat,
+                        lng
+                    },
+                    {
+                        lat:g.lat,
+                        lng:g.lng
+                    }
+                )<=50
+            ){
+
+                group=g;
+                break;
+            }
+        }
 
         if(!group){
 
-            group = {
+            group={
                 lat,
                 lng,
-                count:1,
-                items:[snap]
+                snaps:[snap]
             };
 
             groups.push(group);
 
         }else{
 
-            group.count++;
+            group.snaps.push(snap);
 
-            group.items.push(snap);
+            const n=group.snaps.length;
 
-            group.lat =
-                (
-                    group.lat *
-                    (group.count-1) +
-                    lat
-                ) /
-                group.count;
+            group.lat=
+                group.snaps.reduce(
+                    (sum,s)=>
+                        sum+Number(s.lat),
+                    0
+                )/n;
 
-            group.lng =
-                (
-                    group.lng *
-                    (group.count-1) +
-                    lng
-                ) /
-                group.count;
+            group.lng=
+                group.snaps.reduce(
+                    (sum,s)=>
+                        sum+Number(s.lng),
+                    0
+                )/n;
 
         }
 
     }
 
     return groups;
-
 }
 
 
-function renderSnaps(snaps){
+/* =========================================================
+CREATE RED SNAP MARKER
+========================================================= */
 
-    clearSnapMarkers();
+function renderSnapMarkers(snaps){
 
-    const groups =
-        groupSnaps(snaps);
+    snapMarkers.forEach(
+        marker=>{
+            try{
+                map.removeLayer(marker);
+            }catch(e){}
+        }
+    );
 
-    groups.forEach(
+    snapMarkers=[];
+
+    snapGroups=
+        clusterSnaps(snaps);
+
+    snapGroups.forEach(
         group=>{
 
-            const icon =
+            const count=
+                group.snaps.length;
+
+            const icon=
                 L.divIcon({
                     className:"",
                     html:
-                        `
-                        <div class="snap-marker">
-                            📷 Snap: ${group.count}
-                        </div>
-                        `,
-                    iconSize:[80,25],
-                    iconAnchor:[40,12]
+                    `<div class="snap-cluster
+                        ${count===1?"single":""}
+                        pulse">
+                        ${count}
+                    </div>`,
+                    iconSize:[42,42],
+                    iconAnchor:[21,21]
                 });
 
-            const marker =
+            const marker=
                 L.marker(
-                    [
-                        group.lat,
-                        group.lng
-                    ],
-                    {
-                        icon
-                    }
-                )
-                .addTo(map);
+                    [group.lat,group.lng],
+                    {icon}
+                ).addTo(map);
 
             marker.on(
                 "click",
                 ()=>{
 
-                    hackerSound(
-                        850,
-                        .09
+                    hackerSound(900,.09);
+
+                    openSnapViewer(
+                        group.snaps
                     );
-
-                    const first =
-                        group.items[0];
-
-                    marker
-                        .bindPopup(
-                            `
-                            <b style="color:#0099ff">
-                                SNAPS: ${group.count}
-                            </b>
-                            <br>
-                            ${escapeHtml(
-                                first?.caption ||
-                                "Location snaps"
-                            )}
-                            `
-                        )
-                        .openPopup();
 
                 }
             );
@@ -2050,224 +1961,321 @@ function renderSnaps(snaps){
 }
 
 
-/* =====================================================
-   LOAD SNAPS
-===================================================== */
+/* =========================================================
+LOAD ALL EXISTING SNAPS
+========================================================= */
 
 async function loadSnaps(){
 
     try{
 
-        const result =
+        const result=
             await supabaseClient
-                .from("snaps")
-                .select("*")
-                .limit(1000);
+            .from("snaps")
+            .select("*")
+            .order(
+                "created_at",
+                {ascending:false}
+            )
+            .limit(1000);
 
         if(result.error){
             throw result.error;
         }
 
-        renderSnaps(
-            result.data || []
+        /*
+         * THIS IS THE IMPORTANT FIX:
+         * Every old uploaded snap is rendered
+         * again after page load.
+         */
+
+        renderSnapMarkers(
+            result.data||[]
         );
 
     }catch(error){
 
-        console.warn(
-            "Snap loading error:",
+        console.error(
+            "LOAD SNAPS:",
             error
+        );
+
+        toast(
+            "Existing snaps load nahi hue."
+        );
+    }
+}
+
+
+/* =========================================================
+SNAP VIEWER
+========================================================= */
+
+function openSnapViewer(snaps){
+
+    currentSnapList=
+        snaps||[];
+
+    currentSnapIndex=0;
+
+    renderCurrentSnap();
+
+    showModal(
+        "snapViewerModal"
+    );
+}
+
+function renderCurrentSnap(){
+
+    const snap=
+        currentSnapList[
+            currentSnapIndex
+        ];
+
+    if(!snap)return;
+
+    const image=$("viewerImage");
+    const video=$("viewerVideo");
+
+    image.style.display="none";
+    video.style.display="none";
+
+    video.pause();
+    video.removeAttribute("src");
+
+    const url=
+        snap.media_url||
+        snap.url||
+        snap.image_url||
+        "";
+
+    const type=
+        String(
+            snap.media_type||
+            snap.type||
+            ""
+        ).toLowerCase();
+
+    if(
+        type.includes("video")||
+        url.startsWith("blob:")&&
+        type==="video"
+    ){
+
+        video.src=url;
+        video.style.display="block";
+
+    }else{
+
+        image.src=url;
+        image.style.display="block";
+
+    }
+
+    $("snapCounter").textContent=
+        `${currentSnapIndex+1} / ${currentSnapList.length}`;
+
+    const date=
+        snap.created_at
+        ?new Date(
+            snap.created_at
+        ).toLocaleString()
+        :"Unknown";
+
+    const lat=
+        Number(snap.lat);
+
+    const lng=
+        Number(snap.lng);
+
+    $("snapDetails").innerHTML=
+        `
+        <b>SNAP ${currentSnapIndex+1}</b>
+        <br>
+        TYPE:
+        ${escapeHtml(
+            snap.media_type||"photo"
+        )}
+        <br>
+        LOCATION:
+        ${
+            Number.isFinite(lat)
+            ?lat.toFixed(6)
+            :"Unknown"
+        },
+        ${
+            Number.isFinite(lng)
+            ?lng.toFixed(6)
+            :"Unknown"
+        }
+        <br>
+        UPLOADED:
+        ${escapeHtml(date)}
+        <br>
+        ${
+            snap.caption
+            ?"CAPTION: "+escapeHtml(snap.caption)
+            :""
+        }
+        `;
+
+    /*
+     * Keep map focused on selected snap.
+     */
+
+    if(
+        Number.isFinite(lat)&&
+        Number.isFinite(lng)
+    ){
+
+        map.flyTo(
+            [lat,lng],
+            Math.max(map.getZoom(),17),
+            {
+                duration:.7
+            }
         );
 
     }
 
 }
 
+$("prevSnap").onclick=()=>{
 
-/* =====================================================
-   SNAP CAMERA
-   IMPORTANT FIX:
-   Location MUST succeed before camera opens.
-===================================================== */
+    if(!currentSnapList.length)return;
 
-async function openCameraFromLocation(){
+    currentSnapIndex=
+        (
+            currentSnapIndex-
+            1+
+            currentSnapList.length
+        )%
+        currentSnapList.length;
 
-    /*
-     * Reset previous state first.
-     */
+    hackerSound(450,.07);
 
-    captureLocation = null;
+    renderCurrentSnap();
+};
 
-    $("cameraLocationInfo")
-        .textContent =
-        "📍 Detecting live capture location...";
+$("nextSnap").onclick=()=>{
 
-    $("plusBtn")
-        .disabled = true;
+    if(!currentSnapList.length)return;
 
-    $("plusBtn")
-        .style.opacity = ".55";
+    currentSnapIndex=
+        (
+            currentSnapIndex+
+            1
+        )%
+        currentSnapList.length;
+
+    hackerSound(750,.07);
+
+    renderCurrentSnap();
+};
+
+
+/* =========================================================
+PLUS:
+1. Detect GPS
+2. Zoom map
+3. Camera opens ONLY after GPS
+========================================================= */
+
+let snapOpening=false;
+
+$("plusBtn").onclick=async()=>{
+
+    if(snapOpening)return;
+
+    snapOpening=true;
+
+    audio();
+
+    hackerSound(650,.08);
+
+    $("plusBtn").disabled=true;
+
+    $("mapStatus").textContent=
+        "📍 Detecting live location...";
+
+    $("locationText").textContent=
+        "Location: detecting...";
 
     try{
 
-        toast(
-            "📍 Detecting live capture location..."
-        );
-
-        $("mapStatus").textContent =
-            "Detecting capture location...";
-
         /*
-         * FIRST:
-         * Get live GPS.
-         *
-         * If this fails, execution goes
-         * directly to catch and camera
-         * NEVER opens.
+         * CAMERA IS NOT TOUCHED HERE.
+         * GPS first.
          */
 
-        const detectedLocation =
+        const location=
             await getLocation();
 
-        if(
-            !detectedLocation ||
-            !Number.isFinite(
-                detectedLocation.lat
-            ) ||
-            !Number.isFinite(
-                detectedLocation.lng
-            )
-        ){
+        captureLocation=
+            location;
 
-            throw new Error(
-                "Invalid location"
-            );
-
-        }
-
-        captureLocation =
-            detectedLocation;
-
-        const locationName =
+        const name=
             await reverseGeocode(
-                captureLocation.lat,
-                captureLocation.lng
+                location.lat,
+                location.lng
             );
-
-        $("cameraLocationInfo")
-            .textContent =
-            "📍 Location locked: " +
-            locationName +
-            " • ±" +
-            Math.round(
-                captureLocation.accuracy
-            ) +
-            "m";
-
-        $("mapStatus").textContent =
-            "Capture location locked";
 
         /*
-         * Only NOW request camera.
+         * Zoom to actual live location.
          */
 
-        if(!navigator.mediaDevices?.getUserMedia){
+        currentLocation=
+            location;
 
-            throw new Error(
-                "Camera API unavailable"
-            );
-
-        }
-
-        if(captureStream){
-
-            captureStream
-                .getTracks()
-                .forEach(
-                    track=>{
-                        track.stop();
-                    }
-                );
-
-            captureStream = null;
-
-        }
-
-        captureStream =
-            await navigator
-                .mediaDevices
-                .getUserMedia({
-                    video:{
-                        facingMode:{
-                            ideal:currentFacing
-                        }
-                    },
-                    audio:true
-                });
-
-        if(!captureStream){
-
-            throw new Error(
-                "Camera stream unavailable"
-            );
-
-        }
-
-        $("snapVideo")
-            .srcObject =
-            captureStream;
-
-        currentZoom = 1;
-
-        $("snapVideo")
-            .style.filter =
-            filters[currentFilter] ||
-            "none";
-
-        showModal(
-            "cameraModal"
+        map.flyTo(
+            [location.lat,location.lng],
+            18,
+            {
+                duration:1.2
+            }
         );
+
+        $("locationText").textContent=
+            "Location: "+name;
+
+        $("mapStatus").textContent=
+            "LIVE LOCATION LOCKED";
+
+        $("cameraLocationInfo").textContent=
+            "📍 "+name+
+            " • Accuracy ±"+
+            Math.round(location.accuracy)+
+            "m";
 
         toast(
-            "📍 LOCATION VERIFIED • CAMERA READY"
+            "📍 LIVE LOCATION LOCKED",
+            1800
         );
+
+        /*
+         * Small pause so map visibly reaches
+         * live location before camera appears.
+         */
+
+        await new Promise(
+            resolve=>setTimeout(
+                resolve,
+                900
+            )
+        );
+
+        /*
+         * ONLY NOW open camera.
+         */
+
+        await openCamera();
 
     }catch(error){
 
-        console.error(
-            "Snap location/camera error:",
-            error
-        );
+        captureLocation=null;
 
-        /*
-         * HARD SAFETY GATE:
-         * No location = no camera.
-         */
-
-        captureLocation = null;
-
-        if(captureStream){
-
-            captureStream
-                .getTracks()
-                .forEach(
-                    track=>{
-                        track.stop();
-                    }
-                );
-
-            captureStream = null;
-
-        }
-
-        hideModal("cameraModal");
-
-        $("cameraLocationInfo")
-            .textContent =
-            "❌ Location not detected. Camera blocked.";
-
-        $("mapStatus").textContent =
-            "Location required before Snap";
+        $("mapStatus").textContent=
+            "Location required";
 
         toast(
             "❌ LIVE LOCATION REQUIRED — CAMERA NOT OPENED",
@@ -2276,685 +2284,1049 @@ async function openCameraFromLocation(){
 
     }finally{
 
-        $("plusBtn")
-            .disabled = false;
-
-        $("plusBtn")
-            .style.opacity = "1";
+        $("plusBtn").disabled=false;
+        snapOpening=false;
 
     }
 
+};
+
+
+/* =========================================================
+CAMERA
+========================================================= */
+
+async function openCamera(){
+
+    if(!captureLocation){
+
+        toast(
+            "Location first."
+        );
+
+        return;
+    }
+
+    if(
+        !navigator.mediaDevices||
+        !navigator.mediaDevices.getUserMedia
+    ){
+
+        throw new Error(
+            "Camera API unavailable"
+        );
+    }
+
+    if(captureStream){
+
+        captureStream
+        .getTracks()
+        .forEach(
+            track=>track.stop()
+        );
+
+    }
+
+    captureStream=
+        await navigator.mediaDevices.getUserMedia({
+            video:{
+                facingMode:{
+                    ideal:currentFacing
+                }
+            },
+            audio:true
+        });
+
+    $("snapVideo").srcObject=
+        captureStream;
+
+    currentZoom=.5;
+
+    $("cameraLocationInfo").textContent=
+        "📍 LOCATION VERIFIED • CAMERA READY";
+
+    showModal("cameraModal");
+
+    hackerSound(820,.08);
 }
 
 
-$("plusBtn").onclick =
-    ()=>{
+$("closeCamera").onclick=()=>{
 
-        unlockAudio();
+    if(captureStream){
 
-        hackerSound(650,.08);
+        captureStream
+        .getTracks()
+        .forEach(
+            track=>track.stop()
+        );
 
-        openCameraFromLocation();
+    }
 
-    };
+    captureStream=null;
+
+    hideModal("cameraModal");
+};
 
 
-/* =====================================================
-   CAMERA SWITCH
-===================================================== */
+/* =========================================================
+CAMERA FLIP
+========================================================= */
 
-$("flipCamera").onclick =
-    async()=>{
+$("flipCamera").onclick=async()=>{
 
-        if(!captureLocation){
+    if(!captureLocation)return;
 
-            toast(
-                "Location verification required."
-            );
+    currentFacing=
+        currentFacing==="environment"
+        ?"user"
+        :"environment";
 
-            return;
-
-        }
-
-        currentFacing =
-            currentFacing ===
-            "environment"
-                ? "user"
-                : "environment";
+    try{
 
         if(captureStream){
 
             captureStream
-                .getTracks()
-                .forEach(
-                    track=>{
-                        track.stop();
-                    }
-                );
-
-        }
-
-        try{
-
-            captureStream =
-                await navigator
-                    .mediaDevices
-                    .getUserMedia({
-                        video:{
-                            facingMode:{
-                                ideal:
-                                    currentFacing
-                            }
-                        },
-                        audio:true
-                    });
-
-            $("snapVideo")
-                .srcObject =
-                captureStream;
-
-        }catch(error){
-
-            toast(
-                "Camera switch failed."
+            .getTracks()
+            .forEach(
+                track=>track.stop()
             );
 
         }
+
+        captureStream=
+            await navigator.mediaDevices.getUserMedia({
+                video:{
+                    facingMode:{
+                        ideal:currentFacing
+                    }
+                },
+                audio:true
+            });
+
+        $("snapVideo").srcObject=
+            captureStream;
+
+        hackerSound(620,.07);
+
+    }catch(e){
+
+        toast("Camera switch failed.");
+
+    }
+};
+
+
+/* =========================================================
+ZOOM .5X - 20X
+========================================================= */
+
+$("zoomBtn").onclick=async()=>{
+
+    if(!captureStream)return;
+
+    currentZoom+=.5;
+
+    if(currentZoom>20){
+        currentZoom=.5;
+    }
+
+    const track=
+        captureStream
+        .getVideoTracks()[0];
+
+    if(track?.getCapabilities){
+
+        const caps=
+            track.getCapabilities();
+
+        if(caps.zoom){
+
+            const value=
+                Math.max(
+                    caps.zoom.min,
+                    Math.min(
+                        caps.zoom.max,
+                        currentZoom
+                    )
+                );
+
+            try{
+
+                await track.applyConstraints({
+                    advanced:[
+                        {zoom:value}
+                    ]
+                });
+
+            }catch(e){}
+
+        }
+
+    }
+
+    toast(
+        "ZOOM "+currentZoom.toFixed(1)+"x"
+    );
+
+};
+
+
+/* =========================================================
+FILTERS
+========================================================= */
+
+const filters={
+
+    none:"none",
+    sepia:"sepia(1)",
+    gray:"grayscale(1)",
+    warm:"sepia(.35) saturate(1.4)",
+    cool:"hue-rotate(165deg)",
+    glow:"brightness(1.2) saturate(1.3)",
+    night:"brightness(.5) contrast(1.3)",
+    pop:"saturate(1.8) contrast(1.1)",
+    dream:"brightness(1.1) saturate(.8)",
+    sunset:"sepia(.3) saturate(1.6) hue-rotate(-12deg)"
+
+};
+
+document.querySelectorAll(
+    ".filter-row button"
+).forEach(btn=>{
+
+    btn.onclick=()=>{
+
+        currentFilter=
+            btn.dataset.filter;
+
+        $("snapVideo").style.filter=
+            filters[currentFilter];
+
+        hackerSound(500,.05);
 
     };
 
+});
 
-/* =====================================================
-   ZOOM
-===================================================== */
 
-$("zoomBtn").onclick =
-    async()=>{
+/* =========================================================
+PHOTO
+========================================================= */
 
-        if(!captureLocation){
+$("captureBtn").onclick=()=>{
 
-            toast(
-                "Location verification required."
+    if(
+        !captureStream||
+        !captureLocation
+    ){
+
+        toast(
+            "Location + camera required."
+        );
+
+        return;
+    }
+
+    const video=$("snapVideo");
+    const canvas=$("cameraCanvas");
+
+    canvas.width=
+        video.videoWidth||720;
+
+    canvas.height=
+        video.videoHeight||1280;
+
+    const ctx=
+        canvas.getContext("2d");
+
+    ctx.filter=
+        filters[currentFilter];
+
+    ctx.drawImage(
+        video,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    const data=
+        canvas.toDataURL(
+            "image/jpeg",
+            .86
+        );
+
+    pendingPost={
+        type:"photo",
+        data:data,
+        captureLocation:{
+            ...captureLocation
+        }
+    };
+
+    $("previewImg").src=data;
+    $("previewImg").style.display="block";
+    $("previewVideo").style.display="none";
+
+    $("postLocationInfo").textContent=
+        "📍 Capture location locked. Fresh location will be checked within 50m before posting.";
+
+    hideModal("cameraModal");
+    showModal("previewModal");
+
+    hackerSound(880,.08);
+
+};
+
+
+/* =========================================================
+VIDEO RECORD
+========================================================= */
+
+$("recordBtn").onclick=()=>{
+
+    if(!captureStream||!captureLocation){
+        toast("Location + camera required.");
+        return;
+    }
+
+    if(recording){
+
+        mediaRecorder.stop();
+
+        recording=false;
+
+        $("recordBtn").textContent=
+            "● Video";
+
+        return;
+    }
+
+    recordedChunks=[];
+
+    try{
+
+        mediaRecorder=
+            new MediaRecorder(
+                captureStream,
+                {
+                    mimeType:"video/webm"
+                }
             );
 
-            return;
+    }catch(e){
 
-        }
+        mediaRecorder=
+            new MediaRecorder(
+                captureStream
+            );
 
-        currentZoom += .5;
+    }
 
-        if(currentZoom > 20){
-            currentZoom = .5;
-        }
+    mediaRecorder.ondataavailable=
+        e=>{
+            if(e.data.size){
+                recordedChunks.push(e.data);
+            }
+        };
 
-        const track =
-            captureStream
-            ?.getVideoTracks?.()[0];
+    mediaRecorder.onstop=()=>{
 
-        if(
-            track &&
-            track.getCapabilities
-        ){
+        const blob=
+            new Blob(
+                recordedChunks,
+                {
+                    type:"video/webm"
+                }
+            );
 
-            const capabilities =
-                track.getCapabilities();
+        const url=
+            URL.createObjectURL(blob);
 
-            if(capabilities.zoom){
+        pendingPost={
+            type:"video",
+            blob,
+            url,
+            captureLocation:{
+                ...captureLocation
+            },
+            duration:
+                $("snapVideo").duration||
+                0
+        };
 
-                const zoom =
-                    Math.max(
-                        capabilities.zoom.min,
-                        Math.min(
-                            capabilities.zoom.max,
-                            currentZoom
-                        )
-                    );
+        $("previewVideo").src=url;
+        $("previewVideo").style.display="block";
+        $("previewImg").style.display="none";
 
-                try{
+        $("postLocationInfo").textContent=
+            "📍 Video ready. Fresh location check will run before upload.";
 
-                    await track.applyConstraints({
-                        advanced:[
-                            {zoom}
-                        ]
-                    });
+        hideModal("cameraModal");
+        showModal("previewModal");
 
-                }catch(error){}
+        hackerSound(780,.1);
+
+    };
+
+    mediaRecorder.start();
+
+    recording=true;
+
+    $("recordBtn").textContent=
+        "■ STOP";
+
+    hackerSound(900,.08);
+
+    toast(
+        "VIDEO RECORDING...",
+        2000
+    );
+
+};
+
+
+/* =========================================================
+UPLOAD SOUND
+========================================================= */
+
+function startUploadSound(){
+
+    stopUploadSound();
+
+    let high=false;
+
+    const beep=()=>{
+
+        high=!high;
+
+        hackerSound(
+            high?720:430,
+            .045,
+            .025
+        );
+
+    };
+
+    beep();
+
+    uploadSoundTimer=
+        setInterval(
+            beep,
+            520
+        );
+}
+
+function stopUploadSound(){
+
+    if(uploadSoundTimer){
+
+        clearInterval(
+            uploadSoundTimer
+        );
+
+        uploadSoundTimer=null;
+    }
+}
+
+
+/* =========================================================
+UPLOAD UI
+========================================================= */
+
+function formatTime(seconds){
+
+    seconds=Math.max(
+        0,
+        Math.floor(seconds)
+    );
+
+    const m=
+        Math.floor(seconds/60);
+
+    const s=
+        seconds%60;
+
+    return(
+        String(m).padStart(2,"0")+
+        ":"+
+        String(s).padStart(2,"0")
+    );
+}
+
+function formatMB(bytes){
+
+    return(
+        (bytes/1024/1024)
+        .toFixed(2)
+    )+
+    " MB";
+}
+
+function updateUploadUI(
+    percent,
+    loaded,
+    total,
+    duration,
+    speed,
+    status
+){
+
+    percent=Math.max(
+        0,
+        Math.min(100,percent)
+    );
+
+    $("uploadProgressBar")
+        .style.width=
+        percent+"%";
+
+    $("uploadPercent")
+        .textContent=
+        percent.toFixed(0)+"%";
+
+    $("uploadSize")
+        .textContent=
+        formatMB(loaded)+
+        " / "+
+        formatMB(total);
+
+    $("uploadElapsed")
+        .textContent=
+        formatTime(
+            (Date.now()-uploadStartTime)/1000
+        );
+
+    $("uploadDuration")
+        .textContent=
+        formatTime(duration||0);
+
+    $("uploadSpeed")
+        .textContent=
+        speed.toFixed(2)+
+        " MB/s";
+
+    $("uploadStatus")
+        .textContent=
+        status;
+
+}
+
+
+/* =========================================================
+UPLOAD
+========================================================= */
+
+async function uploadSnap(){
+
+    if(!pendingPost){
+        throw new Error("No snap");
+    }
+
+    /*
+     * Fresh GPS check.
+     */
+
+    const freshLocation=
+        await getLocation();
+
+    const distance=
+        distanceMeters(
+            pendingPost.captureLocation,
+            freshLocation
+        );
+
+    if(distance>50){
+
+        throw new Error(
+            "You moved "+Math.round(distance)+"m"
+        );
+    }
+
+    let blob=null;
+
+    let duration=
+        pendingPost.duration||0;
+
+    if(pendingPost.type==="photo"){
+
+        blob=
+            await fetch(
+                pendingPost.data
+            ).then(
+                response=>response.blob()
+            );
+
+        duration=0;
+
+    }else{
+
+        blob=
+            pendingPost.blob;
+
+    }
+
+    if(!blob){
+        throw new Error("Empty media");
+    }
+
+    /*
+     * Upload progress modal.
+     */
+
+    showModal("uploadModal");
+
+    uploadStartTime=Date.now();
+
+    $("uploadTitle").textContent=
+        "UPLOADING SNAP...";
+
+    $("uploadStatus").textContent=
+        "STARTING";
+
+    updateUploadUI(
+        0,
+        0,
+        blob.size,
+        duration,
+        0,
+        "STARTING"
+    );
+
+    startUploadSound();
+
+    if(uploadTimer){
+        clearInterval(uploadTimer);
+    }
+
+    uploadTimer=
+        setInterval(
+            ()=>{
+
+                const elapsed=
+                    (Date.now()-uploadStartTime)/1000;
+
+                $("uploadElapsed")
+                    .textContent=
+                    formatTime(elapsed);
+
+            },
+            200
+        );
+
+    /*
+     * NOTE:
+     * Supabase JS upload doesn't expose a
+     * browser upload progress callback.
+     *
+     * So for the actual Supabase transfer
+     * we show an active hacker upload state
+     * and final verified progress.
+     */
+
+    const extension=
+        pendingPost.type==="photo"
+        ?"jpg"
+        :"webm";
+
+    const path=
+        "snaps/"+
+        Date.now()+
+        "_"+
+        Math.random()
+            .toString(36)
+            .slice(2)+
+        "."+
+        extension;
+
+    $("uploadStatus")
+        .textContent=
+        "UPLOADING";
+
+    /*
+     * Storage bucket:
+     * "snaps"
+     */
+
+    const result=
+        await supabaseClient
+        .storage
+        .from("snaps")
+        .upload(
+            path,
+            blob,
+            {
+                contentType:
+                    blob.type||
+                    (
+                        pendingPost.type==="photo"
+                        ?"image/jpeg"
+                        :"video/webm"
+                    ),
+                upsert:false
+            }
+        );
+
+    if(result.error){
+        throw result.error;
+    }
+
+    const publicResult=
+        supabaseClient
+        .storage
+        .from("snaps")
+        .getPublicUrl(path);
+
+    const mediaUrl=
+        publicResult.data.publicUrl;
+
+    /*
+     * Database insert.
+     */
+
+    updateUploadUI(
+        92,
+        blob.size*.92,
+        blob.size,
+        duration,
+        (
+            blob.size/
+            1024/
+            1024
+        )/
+        Math.max(
+            .1,
+            (Date.now()-uploadStartTime)/1000
+        ),
+        "DATABASE"
+    );
+
+    const insertResult=
+        await supabaseClient
+        .from("snaps")
+        .insert({
+
+            user_id:
+                currentUser?.id||
+                null,
+
+            lat:
+                pendingPost.captureLocation.lat,
+
+            lng:
+                pendingPost.captureLocation.lng,
+
+            media_url:
+                mediaUrl,
+
+            media_type:
+                pendingPost.type,
+
+            caption:"",
+
+            created_at:
+                new Date().toISOString()
+
+        })
+        .select()
+        .single();
+
+    if(insertResult.error){
+        throw insertResult.error;
+    }
+
+    updateUploadUI(
+        100,
+        blob.size,
+        blob.size,
+        duration,
+        (
+            blob.size/
+            1024/
+            1024
+        )/
+        Math.max(
+            .1,
+            (Date.now()-uploadStartTime)/1000
+        ),
+        "COMPLETE"
+    );
+
+    hackerSound(1000,.12,.045);
+
+    await new Promise(
+        resolve=>setTimeout(
+            resolve,
+            700
+        )
+    );
+
+    return insertResult.data;
+}
+
+
+/* =========================================================
+POST BUTTON
+========================================================= */
+
+$("postBtn").onclick=async()=>{
+
+    if(!pendingPost){
+        toast("No snap ready.");
+        return;
+    }
+
+    $("postBtn").disabled=true;
+
+    $("postBtn").textContent=
+        "VERIFYING LOCATION...";
+
+    try{
+
+        const uploaded=
+            await uploadSnap();
+
+        /*
+         * Close upload + preview.
+         */
+
+        hideModal("uploadModal");
+        hideModal("previewModal");
+
+        /*
+         * Add new snap to map immediately.
+         */
+
+        if(uploaded){
+
+            /*
+             * Reload all snaps so clustering
+             * remains correct.
+             */
+
+            await loadSnaps();
+
+            /*
+             * Focus newly uploaded snap.
+             */
+
+            if(
+                Number.isFinite(
+                    Number(uploaded.lat)
+                )&&
+                Number.isFinite(
+                    Number(uploaded.lng)
+                )
+            ){
+
+                map.flyTo(
+                    [
+                        Number(uploaded.lat),
+                        Number(uploaded.lng)
+                    ],
+                    18,
+                    {
+                        duration:1
+                    }
+                );
 
             }
 
         }
 
         toast(
-            "ZOOM " +
-            currentZoom.toFixed(1) +
-            "x"
+            "✅ SNAP UPLOADED • LOCATION VERIFIED",
+            3500
         );
 
-    };
-
-
-/* =====================================================
-   FILTERS
-===================================================== */
-
-const filters = {
-
-    none:"none",
-
-    sepia:
-        "sepia(1) saturate(.7)",
-
-    gray:
-        "grayscale(1)",
-
-    warm:
-        "sepia(.35) saturate(1.35)",
-
-    cool:
-        "hue-rotate(165deg) saturate(.8)",
-
-    glow:
-        "brightness(1.2) saturate(1.25)",
-
-    night:
-        "brightness(.55) contrast(1.25) hue-rotate(150deg)",
-
-    pop:
-        "saturate(1.8) contrast(1.1)",
-
-    dream:
-        "brightness(1.08) saturate(.8)",
-
-    sunset:
-        "sepia(.3) saturate(1.6) hue-rotate(-12deg)"
-
-};
-
-
-document
-.querySelectorAll("#filterRow button")
-.forEach(
-    button=>{
-
-        button.onclick =
-            ()=>{
-
-                currentFilter =
-                    button.dataset.filter;
-
-                $("snapVideo")
-                    .style.filter =
-                    filters[
-                        currentFilter
-                    ] ||
-                    "none";
-
-            };
-
-    }
-);
-
-
-/* =====================================================
-   PHOTO
-===================================================== */
-
-$("captureBtn").onclick =
-    ()=>{
-
-        if(
-            !captureStream ||
-            !captureLocation
-        ){
-
-            toast(
-                "Live location and camera required."
-            );
-
-            return;
-
-        }
-
-        const video =
-            $("snapVideo");
-
-        const canvas =
-            $("cameraCanvas");
-
-        canvas.width =
-            video.videoWidth ||
-            720;
-
-        canvas.height =
-            video.videoHeight ||
-            1280;
-
-        const context =
-            canvas.getContext("2d");
-
-        context.filter =
-            filters[
-                currentFilter
-            ] ||
-            "none";
-
-        context.drawImage(
-            video,
-            0,
-            0,
-            canvas.width,
-            canvas.height
-        );
-
-        const data =
-            canvas.toDataURL(
-                "image/jpeg",
-                .86
-            );
-
-        pendingPost = {
-            type:"photo",
-            data,
-            captureLocation
-        };
-
-        $("previewImg").src = data;
-
-        $("previewImg")
-            .style.display =
-            "block";
-
-        $("previewVideo")
-            .style.display =
-            "none";
-
-        $("postLocationInfo")
-            .textContent =
-            "📍 Capture location locked. " +
-            "50m validation will run again before posting.";
-
-        hideModal("cameraModal");
-
-        showModal("previewModal");
-
-    };
-
-
-/* =====================================================
-   VIDEO
-===================================================== */
-
-$("recordBtn").onclick =
-    ()=>{
-
-        if(
-            !captureStream ||
-            !captureLocation
-        ){
-
-            toast(
-                "Live location and camera required."
-            );
-
-            return;
-
-        }
-
-        if(recording){
-
-            mediaRecorder.stop();
-
-            recording=false;
-
-            $("recordBtn")
-                .textContent =
-                "● Video";
-
-            return;
-
-        }
-
-        recordedChunks=[];
-
-        try{
-
-            mediaRecorder =
-                new MediaRecorder(
-                    captureStream,
-                    {
-                        mimeType:
-                            "video/webm"
-                    }
-                );
-
-        }catch(error){
-
-            mediaRecorder =
-                new MediaRecorder(
-                    captureStream
-                );
-
-        }
-
-        mediaRecorder.ondataavailable =
-            event=>{
-
-                if(event.data.size){
-
-                    recordedChunks.push(
-                        event.data
-                    );
-
-                }
-
-            };
-
-        mediaRecorder.onstop =
-            ()=>{
-
-                const blob =
-                    new Blob(
-                        recordedChunks,
-                        {
-                            type:"video/webm"
-                        }
-                    );
-
-                const url =
-                    URL.createObjectURL(blob);
-
-                pendingPost = {
-                    type:"video",
-                    blob,
-                    url,
-                    captureLocation
-                };
-
-                $("previewVideo").src = url;
-
-                $("previewVideo")
-                    .style.display =
-                    "block";
-
-                $("previewImg")
-                    .style.display =
-                    "none";
-
-                $("postLocationInfo")
-                    .textContent =
-                    "📍 Capture location locked. " +
-                    "50m validation will run again before posting.";
-
-                hideModal("cameraModal");
-
-                showModal("previewModal");
-
-            };
-
-        mediaRecorder.start();
-
-        recording=true;
-
-        $("recordBtn")
-            .textContent =
-            "■ Stop";
-
-        toast("Recording...");
-
-    };
-
-
-/* =====================================================
-   CLOSE CAMERA
-===================================================== */
-
-$("closeCamera").onclick =
-    ()=>{
+        /*
+         * Reset media.
+         */
 
         if(captureStream){
 
             captureStream
-                .getTracks()
-                .forEach(
-                    track=>{
-                        track.stop();
-                    }
-                );
+            .getTracks()
+            .forEach(
+                track=>track.stop()
+            );
 
         }
 
         captureStream=null;
-
         captureLocation=null;
+        pendingPost=null;
 
-        hideModal("cameraModal");
+    }catch(error){
 
-    };
+        console.error(
+            "UPLOAD ERROR:",
+            error
+        );
 
+        hideModal("uploadModal");
 
-/* =====================================================
-   POST SNAP
-===================================================== */
+        toast(
+            "❌ UPLOAD FAILED: "+
+            (
+                error.message||
+                "Try again"
+            ),
+            4000
+        );
 
-$("postBtn").onclick =
-    async()=>{
+    }finally{
 
-        if(
-            !pendingPost ||
-            !captureLocation
-        ){
+        stopUploadSound();
 
-            toast(
-                "No verified snap ready."
-            );
-
-            return;
-
+        if(uploadTimer){
+            clearInterval(uploadTimer);
+            uploadTimer=null;
         }
 
-        try{
+        $("postBtn").disabled=false;
 
-            $("postBtn")
-                .disabled = true;
+        $("postBtn").textContent=
+            "POST SNAP";
 
-            $("postBtn")
-                .textContent =
-                "VERIFYING LOCATION...";
+    }
 
-            /*
-             * Fresh GPS check.
-             */
+};
 
-            const freshLocation =
-                await getLocation();
 
-            const distance =
-                distanceMeters(
-                    captureLocation,
-                    freshLocation
-                );
+/* =========================================================
+ROOM
+========================================================= */
 
-            /*
-             * STRICT 50M.
-             */
+function generateRoom(){
 
-            if(distance > 50){
+    const chars=
+        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-                toast(
-                    "POST BLOCKED • " +
-                    Math.round(distance) +
-                    "m away from capture location",
-                    4000
-                );
+    let value="";
 
-                return;
+    for(let i=0;i<6;i++){
 
-            }
-
-            let mediaUrl = null;
-
-            if(
-                pendingPost.type ===
-                "photo"
-            ){
-
-                mediaUrl =
-                    pendingPost.data;
-
-            }else{
-
-                mediaUrl =
-                    pendingPost.url;
-
-            }
-
-            const payload = {
-
-                user_id:
-                    currentUser?.id ||
-                    null,
-
-                lat:
-                    captureLocation.lat,
-
-                lng:
-                    captureLocation.lng,
-
-                media_url:
-                    mediaUrl,
-
-                media_type:
-                    pendingPost.type,
-
-                caption:""
-
-            };
-
-            const result =
-                await supabaseClient
-                    .from("snaps")
-                    .insert(payload);
-
-            if(result.error){
-                throw result.error;
-            }
-
-            /*
-             * Temporary red detection pulse.
-             */
-
-            const marker =
-                L.circleMarker(
-                    [
-                        captureLocation.lat,
-                        captureLocation.lng
-                    ],
-                    {
-                        radius:14,
-                        color:"#ff284c",
-                        weight:3,
-                        fill:false
-                    }
+        value+=
+            chars[
+                Math.floor(
+                    Math.random()*
+                    chars.length
                 )
-                .addTo(map);
+            ];
 
-            locationMarkers.push(marker);
+    }
 
-            setTimeout(
-                ()=>{
-                    try{
-                        map.removeLayer(marker);
-                    }catch(error){}
-                },
-                5000
-            );
+    return value;
+}
 
-            toast(
-                "SNAP POSTED • LOCATION VERIFIED"
-            );
+async function ensurePermanentRoom(){
 
-            hideModal("previewModal");
+    if(!permanentRoom){
 
-            pendingPost=null;
+        permanentRoom=
+            generateRoom();
 
-            if(captureStream){
+        localStorage.setItem(
+            ROOM_KEY,
+            permanentRoom
+        );
 
-                captureStream
-                    .getTracks()
-                    .forEach(
-                        track=>{
-                            track.stop();
-                        }
-                    );
+    }
 
-                captureStream=null;
+    $("roomIdView").value=
+        permanentRoom;
 
-            }
+}
 
-            await loadSnaps();
+function roomUrl(){
 
-        }catch(error){
+    return(
+        location.origin+
+        location.pathname+
+        "?room="+
+        encodeURIComponent(
+            permanentRoom
+        )
+    );
+}
 
-            console.error(
-                "Post error:",
-                error
-            );
+function generateQR(){
 
-            toast(
-                "Post failed. Check your snaps table."
-            );
+    $("qrcode").innerHTML="";
 
-        }finally{
-
-            $("postBtn")
-                .disabled = false;
-
-            $("postBtn")
-                .textContent =
-                "POST SNAP";
-
+    new QRCode(
+        $("qrcode"),
+        {
+            text:roomUrl(),
+            width:220,
+            height:220
         }
+    );
+}
 
-    };
-
-
-/* =====================================================
-   JOIN CALL
-===================================================== */
-
-$("joinBtn").onclick =
-    ()=>{
-
-        showModal("joinModal");
-
-        const params =
-            new URLSearchParams(
-                location.search
-            );
-
-        const room =
-            params.get("room");
-
-        if(room){
-
-            $("joinRoomInput")
-                .value =
-                room.toUpperCase();
-
-        }
-
-    };
-
-
-/* =====================================================
-   SOCKET ROOM
-===================================================== */
-
-async function ensureSocketRoom(){
+$("roomBtn").onclick=async()=>{
 
     await ensurePermanentRoom();
 
-    if(socket.connected){
+    generateQR();
+
+    showModal("roomModal");
+};
+
+$("copyRoom").onclick=async()=>{
+
+    try{
+
+        await navigator.clipboard.writeText(
+            permanentRoom
+        );
+
+        toast(
+            "ROOM ID COPIED"
+        );
+
+    }catch(e){
+
+        toast(
+            permanentRoom
+        );
+
+    }
+
+};
+
+
+/* =========================================================
+JOIN CALL
+========================================================= */
+
+$("joinBtn").onclick=()=>{
+
+    const room=
+        new URLSearchParams(
+            location.search
+        ).get("room");
+
+    if(room){
+        $("joinRoomInput").value=
+            room.toUpperCase();
+    }
+
+    showModal("joinModal");
+};
+
+
+/* =========================================================
+SOCKET CALL
+========================================================= */
+
+const socket=io();
+
+socket.on("connect",()=>{
+
+    if(permanentRoom){
 
         socket.emit(
             "join-room",
@@ -2963,103 +3335,52 @@ async function ensureSocketRoom(){
 
     }
 
-}
+});
+
+$("callBtn").onclick=()=>{
+
+    const room=
+        $("joinRoomInput")
+        .value
+        .trim()
+        .toUpperCase();
+
+    if(!room){
+        toast("Room ID enter karo.");
+        return;
+    }
+
+    if(room===permanentRoom){
+        toast("Apne room ko call nahi kar sakte.");
+        return;
+    }
+
+    socket.emit(
+        "call-user",
+        {
+            targetRoom:room,
+            callerRoom:permanentRoom
+        }
+    );
+
+    toast(
+        "CALLING "+room
+    );
+
+    hideModal("joinModal");
+};
 
 socket.on(
-    "connect",
+    "call-unavailable",
     ()=>{
-        ensureSocketRoom();
+        toast("Room unavailable.");
     }
 );
-
-
-/* =====================================================
-   CALL ROOM
-===================================================== */
-
-$("callBtn").onclick =
-    ()=>{
-
-        const room =
-            $("joinRoomInput")
-                .value
-                .trim()
-                .toUpperCase();
-
-        if(!room){
-
-            toast(
-                "Room ID enter karo."
-            );
-
-            return;
-
-        }
-
-        if(room === permanentRoom){
-
-            toast(
-                "Apne room ko call nahi kar sakte."
-            );
-
-            return;
-
-        }
-
-        ensureSocketRoom()
-            .then(
-                ()=>{
-
-                    socket.emit(
-                        "call-user",
-                        {
-                            targetRoom:room,
-                            callerRoom:
-                                permanentRoom
-                        }
-                    );
-
-                    toast(
-                        "Calling ROOM " +
-                        room
-                    );
-
-                    hideModal("joinModal");
-
-                }
-            );
-
-    };
-
-
-/* =====================================================
-   CALL EVENTS
-===================================================== */
 
 socket.on(
     "room-full",
     ()=>{
-        toast("Room full hai.");
-    }
-);
-
-socket.on(
-    "call-ringing",
-    data=>{
-        toast(
-            "Ringing " +
-            data.roomId
-        );
-    }
-);
-
-socket.on(
-    "call-unavailable",
-    data=>{
-        toast(
-            "Room unavailable: " +
-            data.roomId
-        );
+        toast("Room full.");
     }
 );
 
@@ -3067,17 +3388,16 @@ socket.on(
     "incoming-call",
     data=>{
 
-        incomingCallerId =
+        incomingCallerId=
             data.callerId;
 
-        incomingCallerRoom =
-            data.callerRoom ||
-            "Unknown";
-
         $("incomingCaller")
-            .textContent =
-            "ROOM " +
-            incomingCallerRoom;
+            .textContent=
+            "ROOM "+
+            (
+                data.callerRoom||
+                "UNKNOWN"
+            );
 
         $("incomingCall")
             .classList.add("show");
@@ -3085,69 +3405,52 @@ socket.on(
     }
 );
 
+$("rejectCall").onclick=()=>{
 
-/* =====================================================
-   REJECT
-===================================================== */
-
-$("rejectCall").onclick =
-    ()=>{
-
-        if(incomingCallerId){
-
-            socket.emit(
-                "reject-call",
-                {
-                    callerId:
-                        incomingCallerId
-                }
-            );
-
-        }
-
-        incomingCallerId=null;
-
-        $("incomingCall")
-            .classList.remove("show");
-
-    };
-
-
-/* =====================================================
-   ACCEPT
-===================================================== */
-
-$("acceptCall").onclick =
-    async()=>{
-
-        if(!incomingCallerId){
-            return;
-        }
-
-        activeTargetId =
-            incomingCallerId;
+    if(incomingCallerId){
 
         socket.emit(
-            "accept-call",
+            "reject-call",
             {
                 callerId:
                     incomingCallerId
             }
         );
 
-        $("incomingCall")
-            .classList.remove("show");
+    }
 
-        await startCall(false);
+    incomingCallerId=null;
 
-    };
+    $("incomingCall")
+        .classList.remove("show");
+};
 
+$("acceptCall").onclick=async()=>{
+
+    if(!incomingCallerId)return;
+
+    activeTargetId=
+        incomingCallerId;
+
+    socket.emit(
+        "accept-call",
+        {
+            callerId:
+                incomingCallerId
+        }
+    );
+
+    $("incomingCall")
+        .classList.remove("show");
+
+    await startCall(false);
+};
 
 socket.on(
     "call-accepted",
     async data=>{
 
-        activeTargetId =
+        activeTargetId=
             data.accepterId;
 
         await startCall(true);
@@ -3162,83 +3465,64 @@ socket.on(
     }
 );
 
-socket.on(
-    "call-cancelled",
-    ()=>{
-        toast("Call cancelled.");
-    }
-);
 
+/* =========================================================
+WEBRTC
+========================================================= */
 
-/* =====================================================
-   WEBRTC
-===================================================== */
-
-async function startCall(caller){
+async function startCall(isCaller){
 
     try{
 
         $("activeCallVideo")
-            .style.display =
-            "block";
+            .style.display="block";
 
-        localStream =
-            await navigator
-                .mediaDevices
-                .getUserMedia({
-                    video:true,
-                    audio:true
-                });
+        localStream=
+            await navigator.mediaDevices
+            .getUserMedia({
+                video:true,
+                audio:true
+            });
 
         $("localVideo")
-            .srcObject =
+            .srcObject=
             localStream;
 
-        peer =
+        peer=
             new RTCPeerConnection({
                 iceServers:[
                     {
                         urls:
-                            "stun:stun.l.google.com:19302"
+                        "stun:stun.l.google.com:19302"
                     }
                 ]
             });
 
-        remoteDescriptionSet=false;
-        candidateQueue=[];
-
         localStream
-            .getTracks()
-            .forEach(
-                track=>{
-                    peer.addTrack(
-                        track,
-                        localStream
-                    );
-                }
-            );
+        .getTracks()
+        .forEach(
+            track=>{
+                peer.addTrack(
+                    track,
+                    localStream
+                );
+            }
+        );
 
-        peer.ontrack =
+        peer.ontrack=
             event=>{
 
-                if(
-                    event.streams &&
-                    event.streams[0]
-                ){
-
-                    $("remoteVideo")
-                        .srcObject =
-                        event.streams[0];
-
-                }
+                $("remoteVideo")
+                    .srcObject=
+                    event.streams[0];
 
             };
 
-        peer.onicecandidate =
+        peer.onicecandidate=
             event=>{
 
                 if(
-                    event.candidate &&
+                    event.candidate&&
                     activeTargetId
                 ){
 
@@ -3247,11 +3531,9 @@ async function startCall(caller){
                         {
                             targetId:
                                 activeTargetId,
-
                             signal:{
                                 type:
                                     "candidate",
-
                                 candidate:
                                     event.candidate
                             }
@@ -3262,30 +3544,9 @@ async function startCall(caller){
 
             };
 
-        peer.onconnectionstatechange =
-            ()=>{
+        if(isCaller){
 
-                if(
-                    [
-                        "failed",
-                        "closed",
-                        "disconnected"
-                    ].includes(
-                        peer.connectionState
-                    )
-                ){
-
-                    toast(
-                        "Call connection ended."
-                    );
-
-                }
-
-            };
-
-        if(caller){
-
-            const offer =
+            const offer=
                 await peer.createOffer();
 
             await peer.setLocalDescription(
@@ -3300,51 +3561,41 @@ async function startCall(caller){
 
                     signal:{
                         type:"offer",
-                        sdp:offer.sdp
+                        sdp:
+                            offer.sdp
                     }
                 }
             );
 
         }
 
-    }catch(error){
-
-        console.error(error);
+    }catch(e){
 
         toast(
             "Camera/microphone permission required."
         );
 
         endCall(false);
-
     }
 
 }
 
-
-/* =====================================================
-   WEBRTC SIGNAL
-===================================================== */
-
 socket.on(
     "webrtc-signal",
-    async({
-        senderId,
-        signal
-    })=>{
+    async({senderId,signal})=>{
 
         try{
 
             if(!peer){
 
-                activeTargetId =
+                activeTargetId=
                     senderId;
 
                 await startCall(false);
 
             }
 
-            if(signal.type === "offer"){
+            if(signal.type==="offer"){
 
                 await peer.setRemoteDescription({
                     type:"offer",
@@ -3353,7 +3604,7 @@ socket.on(
 
                 remoteDescriptionSet=true;
 
-                const answer =
+                const answer=
                     await peer.createAnswer();
 
                 await peer.setLocalDescription(
@@ -3363,12 +3614,11 @@ socket.on(
                 socket.emit(
                     "webrtc-signal",
                     {
-                        targetId:
-                            senderId,
-
+                        targetId:senderId,
                         signal:{
                             type:"answer",
-                            sdp:answer.sdp
+                            sdp:
+                                answer.sdp
                         }
                     }
                 );
@@ -3377,7 +3627,9 @@ socket.on(
 
             }
 
-            else if(signal.type === "answer"){
+            else if(
+                signal.type==="answer"
+            ){
 
                 await peer.setRemoteDescription({
                     type:"answer",
@@ -3390,7 +3642,9 @@ socket.on(
 
             }
 
-            else if(signal.type === "candidate"){
+            else if(
+                signal.type==="candidate"
+            ){
 
                 if(remoteDescriptionSet){
 
@@ -3408,28 +3662,20 @@ socket.on(
 
             }
 
-        }catch(error){
+        }catch(e){
 
-            console.error(
-                "WebRTC signal:",
-                error
-            );
+            console.error(e);
 
         }
 
     }
 );
 
-
-/* =====================================================
-   ICE
-===================================================== */
-
 async function flushCandidates(){
 
     while(candidateQueue.length){
 
-        const candidate =
+        const candidate=
             candidateQueue.shift();
 
         try{
@@ -3438,83 +3684,16 @@ async function flushCandidates(){
                 candidate
             );
 
-        }catch(error){}
+        }catch(e){}
 
     }
 
 }
 
-
-/* =====================================================
-   CALL CONTROLS
-===================================================== */
-
-$("muteBtn").onclick =
-    ()=>{
-
-        micEnabled =
-            !micEnabled;
-
-        if(localStream){
-
-            localStream
-                .getAudioTracks()
-                .forEach(
-                    track=>{
-                        track.enabled =
-                            micEnabled;
-                    }
-                );
-
-        }
-
-        $("muteBtn")
-            .textContent =
-            micEnabled
-                ? "🎙"
-                : "🔇";
-
-    };
-
-
-$("cameraCallBtn").onclick =
-    ()=>{
-
-        cameraEnabled =
-            !cameraEnabled;
-
-        if(localStream){
-
-            localStream
-                .getVideoTracks()
-                .forEach(
-                    track=>{
-                        track.enabled =
-                            cameraEnabled;
-                    }
-                );
-
-        }
-
-        $("cameraCallBtn")
-            .textContent =
-            cameraEnabled
-                ? "📷"
-                : "🚫";
-
-    };
-
-
-$("endCallBtn").onclick =
-    ()=>{
-        endCall(true);
-    };
-
-
-function endCall(notifyPeer){
+function endCall(notify=true){
 
     if(
-        notifyPeer &&
+        notify&&
         activeTargetId
     ){
 
@@ -3529,47 +3708,75 @@ function endCall(notifyPeer){
     }
 
     try{
-
-        if(peer){
-            peer.close();
-        }
-
-    }catch(error){}
+        peer?.close();
+    }catch(e){}
 
     peer=null;
 
     if(localStream){
 
         localStream
-            .getTracks()
-            .forEach(
-                track=>{
-                    track.stop();
-                }
-            );
+        .getTracks()
+        .forEach(
+            track=>track.stop()
+        );
 
     }
 
     localStream=null;
 
-    $("localVideo")
-        .srcObject=null;
-
-    $("remoteVideo")
-        .srcObject=null;
+    $("remoteVideo").srcObject=null;
+    $("localVideo").srcObject=null;
 
     $("activeCallVideo")
-        .style.display =
-        "none";
+        .style.display="none";
 
     activeTargetId=null;
-
     candidateQueue=[];
-
     remoteDescriptionSet=false;
-
 }
 
+$("endCallBtn").onclick=()=>{
+    endCall(true);
+};
+
+$("muteBtn").onclick=()=>{
+
+    if(!localStream)return;
+
+    const track=
+        localStream
+        .getAudioTracks()[0];
+
+    if(!track)return;
+
+    track.enabled=
+        !track.enabled;
+
+    $("muteBtn").textContent=
+        track.enabled
+        ?"🎙"
+        :"🔇";
+};
+
+$("cameraCallBtn").onclick=()=>{
+
+    if(!localStream)return;
+
+    const track=
+        localStream
+        .getVideoTracks()[0];
+
+    if(!track)return;
+
+    track.enabled=
+        !track.enabled;
+
+    $("cameraCallBtn").textContent=
+        track.enabled
+        ?"📷"
+        :"🚫";
+};
 
 socket.on(
     "call-ended",
@@ -3579,90 +3786,74 @@ socket.on(
 );
 
 
-/* =====================================================
-   QR SCANNER
-===================================================== */
+/* =========================================================
+QR SCANNER
+========================================================= */
 
-let qrScanner = null;
+let qrScanner=null;
 
+$("scanQrBtn").onclick=async()=>{
 
-$("scanQrBtn").onclick =
-    async()=>{
+    $("scannerBox")
+        .style.display="block";
 
-        $("scannerBox")
-            .style.display =
-            "block";
+    if(qrScanner)return;
 
-        if(qrScanner){
-            return;
-        }
+    qrScanner=
+        new Html5Qrcode(
+            "scanner"
+        );
 
-        qrScanner =
-            new Html5Qrcode(
-                "scanner"
-            );
+    try{
 
-        try{
+        await qrScanner.start(
+            {
+                facingMode:
+                    "environment"
+            },
+            {
+                fps:10,
+                qrbox:220
+            },
+            text=>{
 
-            await qrScanner.start(
-                {
-                    facingMode:
-                        "environment"
-                },
-                {
-                    fps:10,
-                    qrbox:{
-                        width:220,
-                        height:220
-                    }
-                },
-                text=>{
+                let room=text.trim();
 
-                    let room =
-                        text.trim();
+                try{
 
-                    try{
+                    const url=
+                        new URL(room);
 
-                        const url =
-                            new URL(room);
-
-                        room =
-                            new URLSearchParams(
-                                url.search
-                            ).get("room") ||
-                            room;
-
-                    }catch(error){}
-
-                    room =
-                        room
-                            .toUpperCase()
-                            .trim();
-
-                    $("joinRoomInput")
-                        .value =
+                    room=
+                        new URLSearchParams(
+                            url.search
+                        ).get("room")||
                         room;
 
-                    stopScanner();
+                }catch(e){}
 
-                    toast(
-                        "QR ROOM DETECTED"
-                    );
+                $("joinRoomInput")
+                    .value=
+                    room.toUpperCase();
 
-                },
-                ()=>{}
-            );
+                stopScanner();
 
-        }catch(error){
+                toast(
+                    "QR ROOM DETECTED"
+                );
 
-            toast(
-                "QR scanner permission failed."
-            );
+            },
+            ()=>{}
+        );
 
-        }
+    }catch(e){
 
-    };
+        toast(
+            "QR scanner permission failed."
+        );
 
+    }
+};
 
 async function stopScanner(){
 
@@ -3670,539 +3861,329 @@ async function stopScanner(){
 
         try{
             await qrScanner.stop();
-        }catch(error){}
+        }catch(e){}
 
         try{
             await qrScanner.clear();
-        }catch(error){}
+        }catch(e){}
 
         qrScanner=null;
-
     }
 
     $("scannerBox")
-        .style.display =
-        "none";
-
+        .style.display="none";
 }
 
-
-$("stopScanner").onclick =
+$("stopScanner").onclick=
     stopScanner;
 
 
-/* =====================================================
-   PROFILE
-===================================================== */
-
-function escapeHtml(value){
-
-    return String(
-        value ?? ""
-    ).replace(
-        /[&<>"']/g,
-        character=>({
-            "&":"&amp;",
-            "<":"&lt;",
-            ">":"&gt;",
-            '"':"&quot;",
-            "'":"&#039;"
-        }[character])
-    );
-
-}
-
+/* =========================================================
+PROFILE
+========================================================= */
 
 function defaultAvatar(){
 
-    return (
-        "data:image/svg+xml;charset=utf-8," +
+    return(
+        "data:image/svg+xml;charset=utf-8,"+
         encodeURIComponent(
-            `
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="200"
-                height="200">
-
-                <rect
-                    width="100%"
-                    height="100%"
-                    fill="#06100d"/>
-
-                <text
-                    x="50%"
-                    y="54%"
-                    text-anchor="middle"
-                    fill="#39ff88"
-                    font-size="55">
-
-                    YOU
-
-                </text>
-
-            </svg>
-            `
+            `<svg xmlns="http://www.w3.org/2000/svg"
+             width="200" height="200">
+             <rect width="100%" height="100%"
+             fill="#03100b"/>
+             <text x="50%" y="55%"
+             text-anchor="middle"
+             fill="#39ff88"
+             font-size="45">YOU</text>
+             </svg>`
         )
     );
-
 }
-
 
 async function loadProfile(){
 
-    $("displayName").value =
+    $("displayName").value=
         localStorage.getItem(
             NAME_KEY
-        ) || "";
+        )||"";
 
-    $("avatar").src =
+    $("avatar").src=
         localStorage.getItem(
             AVATAR_KEY
-        ) ||
+        )||
         defaultAvatar();
 
-    if(currentUser){
+    $("emailText").textContent=
+        "Email: "+
+        (
+            currentUser?.email||
+            "not signed in"
+        );
+}
 
-        $("emailText")
-            .textContent =
-            "Email: " +
-            (
-                currentUser.email ||
-                ""
-            );
+$("youBtn").onclick=async()=>{
+
+    await loadProfile();
+
+    showModal("youModal");
+};
+
+$("galleryAvatar").onclick=()=>{
+    $("avatarFile").click();
+};
+
+$("avatarFile").onchange=()=>{
+
+    const file=
+        $("avatarFile")
+        .files?.[0];
+
+    if(!file)return;
+
+    const reader=
+        new FileReader();
+
+    reader.onload=()=>{
+        $("avatar").src=
+            reader.result;
+
+        $("avatar").dataset.new=
+            reader.result;
+    };
+
+    reader.readAsDataURL(file);
+};
+
+$("saveProfile").onclick=async()=>{
+
+    const name=
+        $("displayName")
+        .value
+        .trim()||
+        "User";
+
+    localStorage.setItem(
+        NAME_KEY,
+        name
+    );
+
+    if($("avatar").dataset.new){
+
+        localStorage.setItem(
+            AVATAR_KEY,
+            $("avatar").dataset.new
+        );
 
     }
 
-}
+    if(currentUser){
 
-
-$("youBtn").onclick =
-    async()=>{
-
-        await loadProfile();
-
-        showModal("youModal");
-
-    };
-
-
-/* =====================================================
-   AVATAR GALLERY
-===================================================== */
-
-$("galleryAvatar").onclick =
-    ()=>{
-        $("avatarFile").click();
-    };
-
-
-$("avatarFile").onchange =
-    ()=>{
-
-        const file =
-            $("avatarFile")
-                .files?.[0];
-
-        if(!file){
-            return;
-        }
-
-        const reader =
-            new FileReader();
-
-        reader.onload =
-            ()=>{
-
-                $("avatar").src =
-                    reader.result;
-
-                $("avatar")
-                    .dataset.new =
-                    reader.result;
-
-            };
-
-        reader.readAsDataURL(file);
-
-    };
-
-
-/* =====================================================
-   AVATAR CAMERA
-===================================================== */
-
-$("cameraAvatar").onclick =
-    async()=>{
-
-        try{
-
-            const stream =
-                await navigator
-                    .mediaDevices
-                    .getUserMedia({
-                        video:{
-                            facingMode:"user"
-                        }
-                    });
-
-            const video =
-                document.createElement("video");
-
-            video.autoplay=true;
-            video.playsInline=true;
-            video.srcObject=stream;
-
-            const canvas =
-                document.createElement("canvas");
-
-            canvas.width=600;
-            canvas.height=600;
-
-            document.body.appendChild(video);
-
-            video.style.position="fixed";
-            video.style.inset="20%";
-            video.style.zIndex="9999";
-            video.style.width="60%";
-
-            const capture =
-                confirm(
-                    "Camera preview ready. Press OK to capture."
-                );
-
-            if(capture){
-
-                canvas
-                    .getContext("2d")
-                    .drawImage(
-                        video,
-                        0,
-                        0,
-                        600,
-                        600
-                    );
-
-                const image =
-                    canvas.toDataURL(
-                        "image/jpeg",
-                        .86
-                    );
-
-                $("avatar").src=image;
-
-                $("avatar")
-                    .dataset.new=image;
-
+        await supabaseClient
+        .from("profiles")
+        .upsert(
+            {
+                id:currentUser.id,
+                display_name:name,
+                call_room_id:
+                    permanentRoom
+            },
+            {
+                onConflict:"id"
             }
-
-            stream
-                .getTracks()
-                .forEach(
-                    track=>{
-                        track.stop();
-                    }
-                );
-
-            video.remove();
-
-        }catch(error){
-
-            toast(
-                "Camera permission required."
-            );
-
-        }
-
-    };
-
-
-/* =====================================================
-   SAVE PROFILE
-===================================================== */
-
-$("saveProfile").onclick =
-    async()=>{
-
-        const name =
-            $("displayName")
-                .value
-                .trim() ||
-            "User";
-
-        localStorage.setItem(
-            NAME_KEY,
-            name
         );
 
-        if(
-            $("avatar")
-                .dataset.new
-        ){
+    }
 
-            localStorage.setItem(
-                AVATAR_KEY,
-                $("avatar")
-                    .dataset.new
-            );
+    toast(
+        "PROFILE SAVED"
+    );
+};
 
-        }
 
-        if(currentUser){
+/* =========================================================
+NOTIFICATION
+========================================================= */
 
+$("notifyBtn").onclick=async()=>{
+
+    showModal("notifyModal");
+
+    if(!currentUser){
+
+        $("notificationList")
+            .textContent=
+            "Sign in to load notifications.";
+
+        return;
+    }
+
+    try{
+
+        const result=
             await supabaseClient
-                .from("profiles")
-                .upsert(
-                    {
-                        id:currentUser.id,
-                        display_name:name,
-                        call_room_id:
-                            permanentRoom
-                    },
-                    {
-                        onConflict:"id"
-                    }
-                );
+            .from("notifications")
+            .select("*")
+            .eq(
+                "user_id",
+                currentUser.id
+            )
+            .order(
+                "created_at",
+                {
+                    ascending:false
+                }
+            )
+            .limit(30);
 
-        }
+        if(result.error)throw result.error;
 
-        toast("PROFILE SAVED");
+        if(!result.data?.length){
 
-    };
-
-
-/* =====================================================
-   NOTIFICATIONS
-===================================================== */
-
-$("notifyBtn").onclick =
-    async()=>{
-
-        showModal("notifyModal");
-
-        const list =
-            $("notificationList");
-
-        if(!currentUser){
-
-            list.textContent =
-                "Sign in to load account notifications.";
+            $("notificationList")
+                .textContent=
+                "No notifications yet.";
 
             return;
-
         }
 
-        try{
+        $("notificationList").innerHTML=
+            result.data.map(
+                n=>
+                `<div style="
+                    padding:8px 0;
+                    border-bottom:
+                    1px solid
+                    rgba(57,255,136,.15)
+                ">
+                    <b style="color:var(--cyan)">
+                        ${escapeHtml(
+                            n.title||
+                            "Notification"
+                        )}
+                    </b>
+                    <br>
+                    ${escapeHtml(
+                        n.message||""
+                    )}
+                </div>`
+            ).join("");
 
-            const result =
-                await supabaseClient
-                    .from("notifications")
-                    .select("*")
-                    .eq(
-                        "user_id",
-                        currentUser.id
-                    )
-                    .order(
-                        "created_at",
-                        {
-                            ascending:false
-                        }
-                    )
-                    .limit(30);
+    }catch(e){
 
-            if(result.error){
-                throw result.error;
-            }
+        $("notificationList")
+            .textContent=
+            "Notifications unavailable.";
 
-            if(
-                !result.data ||
-                !result.data.length
-            ){
-
-                list.textContent =
-                    "No notifications yet.";
-
-                return;
-
-            }
-
-            list.innerHTML =
-                result.data
-                    .map(
-                        notification=>
-                            `
-                            <div
-                                style="
-                                padding:9px 0;
-                                border-bottom:
-                                1px solid
-                                rgba(57,255,136,.15)
-                                ">
-
-                                <b
-                                    style="
-                                    color:var(--cyan)
-                                    ">
-
-                                    ${
-                                        escapeHtml(
-                                            notification.title ||
-                                            "Notification"
-                                        )
-                                    }
-
-                                </b>
-
-                                <br>
-
-                                ${
-                                    escapeHtml(
-                                        notification.message ||
-                                        ""
-                                    )
-                                }
-
-                            </div>
-                            `
-                    )
-                    .join("");
-
-        }catch(error){
-
-            list.textContent =
-                "Notifications table unavailable.";
-
-        }
-
-    };
+    }
+};
 
 
-/* =====================================================
-   ADMIN
-===================================================== */
+/* =========================================================
+ADMIN
+========================================================= */
 
-$("adminBtn").onclick =
-    ()=>{
-        showModal("adminModal");
-    };
-
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-$("logoutBtn").onclick =
-    ()=>{
-        showModal("logoutModal");
-    };
+$("adminBtn").onclick=()=>{
+    showModal("adminModal");
+};
 
 
-$("confirmLogout").onclick =
-    async()=>{
+/* =========================================================
+LOGOUT
+========================================================= */
 
-        try{
+$("logoutBtn").onclick=()=>{
+    showModal("logoutModal");
+};
 
-            await supabaseClient
-                .auth
-                .signOut();
+$("confirmLogout").onclick=async()=>{
 
-        }catch(error){}
+    try{
+        await supabaseClient.auth.signOut();
+    }catch(e){}
 
-        currentUser=null;
+    currentUser=null;
 
-        hideModal("logoutModal");
+    hideModal("logoutModal");
 
-        toast("LOGGED OUT");
+    toast(
+        "LOGGED OUT"
+    );
+};
 
-    };
 
-
-/* =====================================================
-   AUTH
-===================================================== */
+/* =========================================================
+AUTH
+========================================================= */
 
 supabaseClient
 .auth
 .getSession()
-.then(
-    async({data})=>{
+.then(async({data})=>{
 
-        currentUser =
-            data.session?.user ||
-            null;
+    currentUser=
+        data.session?.user||
+        null;
 
-        await ensurePermanentRoom();
+    await ensurePermanentRoom();
+    await loadProfile();
+    await loadSnaps();
 
-        await loadProfile();
+})
+.catch(async()=>{
 
-        await loadSnaps();
+    await ensurePermanentRoom();
+    await loadSnaps();
 
-    }
-)
-.catch(
-    async()=>{
-
-        await ensurePermanentRoom();
-
-        await loadSnaps();
-
-    }
-);
-
+});
 
 supabaseClient
 .auth
 .onAuthStateChange(
-    async(
-        event,
-        session
-    )=>{
+    async(event,session)=>{
 
-        currentUser =
-            session?.user ||
+        currentUser=
+            session?.user||
             null;
 
         await ensurePermanentRoom();
-
         await loadProfile();
 
     }
 );
 
 
-/* =====================================================
-   ROOM FROM QR / URL
-===================================================== */
+/* =========================================================
+URL ROOM
+========================================================= */
 
 window.addEventListener(
     "load",
     ()=>{
 
-        const params =
+        const room=
             new URLSearchParams(
                 location.search
-            );
-
-        const room =
-            params.get("room");
+            ).get("room");
 
         if(room){
 
+            $("joinRoomInput")
+                .value=
+                room.toUpperCase();
+
             setTimeout(
                 ()=>{
-
-                    $("joinRoomInput")
-                        .value =
-                        room.toUpperCase();
-
-                    showModal(
-                        "joinModal"
-                    );
-
+                    showModal("joinModal");
                 },
-                600
+                500
             );
 
         }
+
+        /*
+         * Existing snaps MUST be rendered
+         * on initial load.
+         */
 
         loadSnaps();
 
@@ -4210,9 +4191,9 @@ window.addEventListener(
 );
 
 
-/* =====================================================
-   INITIAL
-===================================================== */
+/* =========================================================
+INITIAL ROOM
+========================================================= */
 
 ensurePermanentRoom();
 
