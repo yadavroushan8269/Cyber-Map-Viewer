@@ -978,6 +978,38 @@ input[type=text]::placeholder{color:#4e9472}
   .bottom{bottom:max(7px,env(safe-area-inset-bottom));}
 }
 
+
+/* TRACE DETECTION: true phone-screen center overlay */
+.trace-center-modal{
+  position:fixed!important;
+  inset:0!important;
+  z-index:999!important;
+  display:none;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:0!important;
+  background:rgba(0,0,0,.72)!important;
+  backdrop-filter:blur(3px)!important;
+}
+.trace-center-modal.show{display:flex!important;}
+.trace-center-modal .panel{
+  width:min(88vw,420px)!important;
+  height:auto!important;
+  max-height:none!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+.trace-center-modal .panel::before{display:none!important;}
+.trace-center-modal .flash-box{
+  width:100%;
+  margin:0;
+  padding:34px 22px;
+  text-align:center;
+}
+
 </style>
 </head>
 <body>
@@ -1217,6 +1249,59 @@ const supabaseClient =
 
 const $ = id =>
   document.getElementById(id);
+
+/* =========================================================
+   FAIL-SAFE BOTTOM NAVIGATION
+   These handlers are attached before optional GPS/camera work,
+   so one initialization error cannot disable the whole bottom bar.
+========================================================= */
+function bindBottomNavigation(){
+  const locationBtn = $("locationSearchBtn");
+  const plusBtn = $("plusBtn");
+  const youBtn = $("youBtn");
+
+  if(locationBtn){
+    locationBtn.onclick = async () => {
+      try{ playHackerClick(); }catch(e){}
+      try{
+        await detectLiveLocation({centerMap:true});
+        toast("LIVE LOCATION CENTERED");
+      }catch(e){
+        console.error("Location search error",e);
+        toast("GPS unavailable");
+      }
+    };
+  }
+
+  if(plusBtn){
+    plusBtn.onclick = async () => {
+      try{ playWW2Siren(5000); }catch(e){}
+      try{
+        showModal("cameraModal");
+        const preview=$("uploadPreview");
+        if(preview) preview.classList.remove("show");
+        const status=$("uploadStatus");
+        if(status) status.textContent="Detecting live location...";
+        await prepareCamera();
+        if(status) status.textContent="Camera ready. Live location locked.";
+        toast("LIVE LOCATION DETECTED");
+      }catch(e){
+        console.error("Plus/camera error",e);
+        toast("Camera/GPS unavailable");
+      }
+    };
+  }
+
+  if(youBtn){
+    youBtn.onclick = async () => {
+      showModal("youModal");
+      try{
+        if(typeof loadProfile === "function") await loadProfile();
+      }catch(e){ console.error("Profile error",e); }
+    };
+  }
+}
+bindBottomNavigation();
 
 
 /* =========================================================
@@ -2832,81 +2917,6 @@ $("videoModeBtn").onclick =
     setMediaMode(
       "video"
     );
-
-  };
-
-
-/* =========================================================
-   PLUS BUTTON
-========================================================= */
-
-$("plusBtn").onclick =
-  async () => {
-
-    playWW2Siren(5000);
-
-    /*
-      Camera opens immediately.
-      Then GPS is detected and map moves
-      to user's real live location.
-    */
-
-    showModal(
-      "cameraModal"
-    );
-
-    $("uploadPreview")
-      .classList.remove(
-        "show"
-      );
-
-    try{
-
-      $("uploadStatus")
-        .textContent =
-        "Detecting live location...";
-
-      await prepareCamera();
-
-      $("uploadStatus")
-        .textContent =
-        "Camera ready. Live location locked.";
-
-      toast(
-        "Live location detected"
-      );
-
-    }catch(error){
-
-      console.error(
-        "Camera preparation error",
-        error
-      );
-
-      hideModal(
-        "cameraModal"
-      );
-
-      if(
-        error?.code === 1 ||
-        error?.message
-          ?.toLowerCase()
-          .includes("permission")
-      ){
-
-        toast(
-          "Allow camera and location permission"
-        );
-
-      }else{
-
-        toast(
-          "Camera/GPS unavailable"
-        );
-
-      }
-
-    }
 
   };
 
@@ -5018,15 +5028,7 @@ $("notificationBtn").onclick =
     );
 
 
-$("locationSearchBtn").onclick=async()=>{
-  playHackerClick();
-  try{await detectLiveLocation({centerMap:true});toast("Live location centered");}catch(e){toast("GPS unavailable");}
-};
-$("youBtn").onclick=()=>{
-  const user=supabaseClient.auth.getUser?null:null;
-  showModal("youModal");
-  try{const session=supabaseClient.auth.getSession();}catch(e){}
-};
+
 
 /* =========================================================
    CLOSE BUTTONS
